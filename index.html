@@ -1563,7 +1563,7 @@ const World = {
       const x = v.x - camX, y = v.y - camY;
       if (x > CFG.VIEW_W || x + v.w < 0) continue;
       ctx.save(); ctx.globalAlpha = v.alpha;
-      ctx.fillStyle = '#0a0f12'; ctx.fillRect(x - 1, y - 1, v.w + 2, v.h + 1.5);
+      ctx.fillStyle = '#0a0f12'; ctx.fillRect(x - 1, y - 1, v.w + 2, v.h + 16);
       const fx = (v.faceC * TS) - camX + (v.openLeft ? 0.5 : TS - 0.5);
       ctx.beginPath(); ctx.moveTo(fx, y); ctx.lineTo(fx, y + v.h); ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1; ctx.stroke();
       // rachadura quase invisível
@@ -2489,8 +2489,12 @@ const P = {
     // rastro magenta que cresce com a velocidade
     if (!this.dead) for (let i = 0; i < this.trail.length - 1; i++) {
       const p = this.trail[i], k = (i + 1) / this.trail.length, sp = p.s;
-      if (sp < 0.15) continue;
-      R.draw(R.glow('m', 24), p.x - camX, p.y - camY, (0.5 + 0.6 * k) * s * (this.crouch ? 0.8 : 1), sp * k * 0.5 * alpha, true);
+      if (sp < 0.2) continue;
+      const a2 = (sp - 0.2) * k * alpha, tx = p.x - camX, ty = p.y - camY, hh = this.h * 0.86;
+      R.draw(R.glow('m', 24), tx, ty, (0.5 + 0.6 * k) * s, a2 * 0.6, true);
+      rrect(ctx, tx - 8 * s, ty - hh / 2, 16 * s, hh, 8 * s);
+      ctx.fillStyle = `rgba(217,70,239,${(a2 * 0.16).toFixed(3)})`; ctx.fill();
+      ctx.strokeStyle = `rgba(232,121,249,${(a2 * 0.45).toFixed(3)})`; ctx.lineWidth = 1; ctx.stroke();
     }
     if (this.spinning && !this.dead) {
       for (let i = 0; i < 10; i++) {
@@ -3021,7 +3025,7 @@ const UI = {
     else if (c === 'Enter' || c === 'Space' || c === 'KeyZ') { e.preventDefault(); (i >= 0 ? items[i] : items[0]).click(); }
   },
   showClear(exit) {
-    const g = Game, T = World.totals;
+    const g = Game;
     $('ctitle').textContent = exit === 'secret' ? 'SECRET EXIT' : 'STAGE CLEAR';
     $('cOrbs').textContent = g.orbsTotal; $('cLetters').textContent = g.letters.filter(Boolean).length + '/5'; $('cTime').textContent = fmtTime(g.timeRun);
     $('cFlu').textContent = g.fluency + '%';
@@ -3040,7 +3044,6 @@ const UI = {
     $('cBest').textContent = 'BEST FLUENCY · ' + (Save.data.bestFluency['1-1'] || g.fluency) + '%  ·  FOUND ' + g.fluencyFound + ' OF ' + g.fluencyTotal;
     this.drawMinimap(exit);
     Game.state = 'clear'; this.show('clear');
-    void T;
   },
   drawMinimap(exit) {
     const svg = $('minimap'), wm = World.level.worldMap, ex = Save.data.exits['1-1'] || {};
