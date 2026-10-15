@@ -22,11 +22,11 @@ const Ents = {
     for (const e of this.list) {
       if (e.layer !== layer || e.dead && !e.keepDraw) continue;
       const x = lerp(e.px, e.x, a) - camX, y = lerp(e.py, e.y, a) - camY;
-      if (x > 1040 || x + e.w < -80 || y > 640 || y < -200 && e.type !== 'reserve') continue;
+      if (x > 1040 || x + e.w < -80 || y > 640 || y < -200 && e.type !== 'reserve' && e.type !== 'pipe') continue;
       const hidden = World.veilAlphaAt(e.x + e.w / 2, e.y + e.h / 2);
       if (hidden >= 1) continue;
       if (hidden > 0) { ctx.save(); ctx.globalAlpha = 1 - hidden; }
-      this.types[e.type].draw(ctx, e, x, y);
+      this.types[e.type].draw(ctx, e, x, y, camX, camY);
       if (hidden > 0) ctx.restore();
     }
   },
@@ -37,7 +37,7 @@ const Ents = {
     for (const s of en) {
       if (s.type !== 'casco' || (s.state !== 'slide' && s.state !== 'held')) continue;
       for (const o of en) {
-        if (o === s || o.state === 'dying' || o.state === 'flat' || s.state === 'dying' || !overlap(s, o)) continue;
+        if (o === s || o.state === 'dying' || o.state === 'flat' || s.state === 'dying' || o.type === 'giant' || !overlap(s, o)) continue;
         if (o.state === 'held') continue;
         Enemy.kill(o, 'pop', sign(s.vx) || P.facing);
         if (s.state === 'held' || o.state === 'slide') { P.dropHeld(); Enemy.kill(s, 'pop', -P.facing); }
@@ -47,7 +47,7 @@ const Ents = {
   },
   bumpFrom(c, r) {
     const box = { x: c * TS, y: r * TS - 6, w: TS, h: 8 };
-    for (const e of this.enemies()) if (overlap(e, box)) { Enemy.kill(e, 'pop', sign(e.x + e.w / 2 - (c * TS + 16)) || 1); }
+    for (const e of this.enemies()) if (e.type !== 'giant' && overlap(e, box)) { Enemy.kill(e, 'pop', sign(e.x + e.w / 2 - (c * TS + 16)) || 1); }
     for (const e of this.list) if ((e.type === 'orb') && !e.dead && !e.homing && overlap(e, box)) Game.addOrbs(1, e), e.dead = true;
   },
 };
@@ -57,7 +57,8 @@ const Spawns = {
   update(dt) {
     const L = Cam.x, Rr = Cam.x + CFG.VIEW_W;
     for (const s of World.spawns) {
-      const sx = s.c * TS + TS / 2, vis = sx > L - 40 && sx < Rr + 40;
+      // visível na horizontal e (nas fases altas) perto da câmera na vertical
+      const sx = s.c * TS + TS / 2, sy = (s.r + 1) * TS, vis = sx > L - 40 && sx < Rr + 40 && sy > Cam.y - 200 && sy < Cam.y + CFG.VIEW_H + 200;
       if (s.state === 'waiting') { if (vis && !s.wasVis) this.make(s); }
       else if (s.state === 'summon') {
         s.timer -= dt;
@@ -71,9 +72,9 @@ const Spawns = {
     }
     // despawn de inimigos muito longe da câmera
     for (const e of Ents.list) {
-      if (!e.enemy || e.dead || e.state === 'held') continue;
-      const cx = e.x + e.w / 2;
-      if (cx < L - 640 || cx > Rr + 640) { e.dead = true; e.despawned = true; }
+      if (!e.enemy || e.dead || e.state === 'held' || e.persist) continue;
+      const cx = e.x + e.w / 2, cy = e.y + e.h / 2;
+      if (cx < L - 640 || cx > Rr + 640 || cy < Cam.y - 900 || cy > Cam.y + CFG.VIEW_H + 900) { e.dead = true; e.despawned = true; }
       if (e.y > World.pxH + 64) { e.dead = true; e.fell = true; }
     }
   },
@@ -87,13 +88,13 @@ const Spawns = {
     const s = e.spawn; if (!s || s.ent !== e) return;
     s.ent = null;
     if (e.despawned) { s.state = 'waiting'; s.wasVis = true; return; }
-    const pol = s.opts.respawn;
+    const pol = e.noRespawn ? null : s.opts.respawn;
     if (pol === 'summon') { s.state = 'summon'; s.timer = 2.4; }
     else if (pol === 'offscreen') s.state = 'hidden';
     else s.state = 'consumed';
   },
   reset() {
-    Ents.list = Ents.list.filter(e => !e.enemy);
+    Ents.list = Ents.list.filter(e => !e.enemy || e.persist);
     for (const s of World.spawns) { s.state = 'waiting'; s.ent = null; s.wasVis = false; s.timer = 0; }
   },
 };
@@ -118,9 +119,10 @@ const Enemy = {
     if (e.res.ceil && e.vy < 0) e.vy = 0;
   },
   kill(e, how, dir = 1) {
-    if (e.state === 'dying' || e.state === 'flat') return;
+    if (e.state === 'dying' || e.state === 'flat' || e.type === 'giant') return;
     if (e.state === 'held') P.dropHeld(true);
-    Game.registerCreature(e.type === 'crawler' ? 'CRAWLER' : 'SHELL');
+    Game.registerCreature(e.creature || CREATURE_OF[e.type]);
+    const def = Ents.types[e.type]; if (def.onKill) def.onKill(e, how);
     const cx = e.x + e.w / 2, cy = e.y + e.h / 2;
     if (how === 'flat') {
       e.state = 'flat'; e.flatT = 0.45; e.y += e.h - 8; e.h = 8; e.vx = 0;
@@ -326,7 +328,7 @@ Ents.reg('capsule', {
   update(e, dt) {
     const tx = e.x + 15, ty = e.y + 12;
     const dx = P.cx - tx, dy = P.cy - ty, d = Math.hypot(dx, dy) || 1;
-    const full = Game.bar.length >= CFG.WORD_BAR_MAX;
+    const full = Game.bar.length >= Game.barMax();
     const emerging = e.t < 0.32;
     if (emerging) e.y = lerp(e.startY, e.baseY - 12, 1 - Math.pow(1 - e.t / 0.32, 3));
     if (!full && !P.dead && ((e.homing && e.t > 0.16) || (!emerging && d < CFG.MAGNET) || e.homeT > 0)) {
@@ -403,7 +405,7 @@ Ents.reg('lantern', {
     let len = 0, rr = e.r - 1;
     while (rr >= 0 && len < 4 && !World.isFloor(e.c, rr)) { len++; rr--; }
     e.chain = len >= 4 ? 64 : len * TS + 3; e.fade = len >= 4;
-    e.ph = Math.random() * 6;
+    e.ph = Math.random() * 6; e.light = 100;
   },
   update(e, dt) {
     if (!P.onGround && !P.dead && overlap(e, P.box())) this.smash(e);
@@ -518,6 +520,7 @@ Ents.reg('pedestal', {
   },
   draw(ctx, e, x, y) {
     const t = e.t;
+    if (e.opts.look === 'altar') return drawAltar(ctx, x, y, t);
     R.draw(R.glow('c', 40), x + 16, y - 8, 1, 0.4 + 0.15 * Math.sin(t * 2), true);
     rrect(ctx, x + 6, y + 6, 20, 26, [4, 4, 0, 0]); ctx.fillStyle = 'rgba(10,15,18,0.9)'; ctx.fill(); ctx.strokeStyle = wa(0.14); ctx.lineWidth = 1; ctx.stroke();
     rrect(ctx, x + 1, y + 2, 30, 6, 3); ctx.fillStyle = 'rgba(10,15,18,0.95)'; ctx.fill(); ctx.strokeStyle = ca(0.55); ctx.stroke();

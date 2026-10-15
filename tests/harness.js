@@ -27,8 +27,8 @@ async function openGame(browser, { hash = '', realtime = false, context = {}, le
         press(k) { Input.edge(k); },
         step(n = 1) { for (let i = 0; i < n; i++) G.step(1 / 60); },
         tp(c, r, inv = 0) { const P = NEXY.P; P.dead = false; P.pitDeath = false; P.invuln = inv; NEXY.teleport(c, r); H.step(2); },
-        noEnemies() { NEXY.Ents.list = NEXY.Ents.list.filter(e => !e.enemy); NEXY.World.spawns.forEach(s => { s.state = 'consumed'; }); },
-        wakeSpawns() { NEXY.Ents.list = NEXY.Ents.list.filter(e => !e.enemy); NEXY.World.spawns.forEach(s => { s.state = 'waiting'; s.wasVis = false; s.timer = 0; }); },
+        noEnemies() { NEXY.Ents.list = NEXY.Ents.list.filter(e => !e.enemy || e.persist); NEXY.World.spawns.forEach(s => { s.state = 'consumed'; }); },
+        wakeSpawns() { NEXY.Ents.list = NEXY.Ents.list.filter(e => !e.enemy || e.persist); NEXY.World.spawns.forEach(s => { s.state = 'waiting'; s.wasVis = false; s.timer = 0; }); },
         block(c, r) { const b = NEXY.World.blockAt(c, r); return b && b.state; },
         wait(ms) { return new Promise(r => setTimeout(r, ms)); },
       };

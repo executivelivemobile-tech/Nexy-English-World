@@ -534,10 +534,21 @@ const WORDS = {
   DOOR:  { cls: 'noun', pt: 'porta', say: 'door', lore: 'Nem toda porta quer ser aberta. Algumas só querem ser nomeadas.' },
   BIG:   { cls: 'adjective', pt: 'grande', say: 'big', lore: 'Diga em voz alta e o mundo terá de abrir espaço para você.' },
   SMALL: { cls: 'adjective', pt: 'pequeno', say: 'small', lore: 'Os caminhos mais secretos são feitos para quem cabe neles.' },
+  // 1-2 · WHO ARE YOU?
+  NEXY:   { cls: 'noun', pt: 'Nexy (o seu nome)', say: 'Nexy', lore: 'Um nome é a primeira resposta. As portas só abrem para quem sabe o próprio.' },
+  YOU:    { cls: 'pronoun', pt: 'você', say: 'you', lore: 'Aponta para quem está na sua frente. Às vezes é o Echo; às vezes é o seu reflexo.' },
+  THEY:   { cls: 'pronoun', pt: 'eles / elas', say: 'they', lore: 'Quando são muitos, ninguém é IT. São THEY, e pedem ARE.' },
+  WE:     { cls: 'pronoun', pt: 'nós', say: 'we', lore: 'Você e o Echo. Ninguém atravessa a catedral sozinho.' },
+  YES:    { cls: 'interjection', pt: 'sim', say: 'yes', lore: 'Cuidado com o sim: a porta acredita em tudo o que você diz.' },
+  NO:     { cls: 'interjection', pt: 'não', say: 'no', lore: 'A resposta mais curta. Quase sempre precisa de um NOT logo depois.' },
+  NOT:    { cls: 'adverb', pt: 'não (depois do verbo)', say: 'not', lore: 'Vem depois do AM, do IS e do ARE, e vira a frase do avesso.' },
+  FRIEND: { cls: 'noun', pt: 'amigo / amiga', say: 'friend', lore: 'Escondida no alto do campanário. Quem a encontra nunca mais sobe sozinho.' },
 };
 const CREATURES = {
   CRAWLER: { pt: 'rastejante', say: 'Crawler', lore: 'Rasteja porque nunca aprendeu a falar.' },
   SHELL:   { pt: 'casco', say: 'Shell', lore: 'Uma casa de vidro escuro. Vazia, ela vira arma.' },
+  FLYER:   { pt: 'alado', say: 'Flyer', lore: 'Um Rastejante que um dia ouviu a palavra UP. Sem as asas, volta a rastejar.' },
+  THIEF:   { pt: 'ladrão de palavras', say: 'Word thief', lore: 'Não sabe falar, então rouba. Sempre a última palavra que você aprendeu.' },
 };
 const MASTER_WORDS = {
   HELLO: { pt: 'olá', say: 'Hello', lore: 'Cinco letras espalhadas pelo escuro. Juntas, são a primeira coisa que o mundo responde.' },
@@ -546,6 +557,8 @@ const MASTER_WORDS = {
 const PHRASES_PT = {
   'HELLO!': 'Olá!', 'HOW ARE YOU?': 'Como você está?', 'WHAT IS THIS?': 'O que é isso?',
   'ARE YOU BIG OR SMALL?': 'Você é grande ou pequeno?',
+  'WHO ARE YOU?': 'Quem é você?', 'WHAT IS BIG?': 'O que é grande?', 'ARE YOU A CRAWLER?': 'Você é um rastejante?',
+  'BIG OR SMALL?': 'Grande ou pequeno?', 'IS IT A DOOR?': 'Isso é uma porta?', 'WHO IS BIG?': 'Quem é grande?',
 };
 
 /* ============================== LEGENDA GLOBAL ============================== */
@@ -780,6 +793,194 @@ const normalizeSentence = s => String(s).toLowerCase()
   .replace(/\bi'm\b/g, 'i am').replace(/\bit's\b/g, 'it is').replace(/\bwhat's\b/g, 'what is')
   .replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ').trim();
 const $ = id => document.getElementById(id);
+
+/* ============================== FASE 1-2 · WHO ARE YOU? (A Nave dos Ecos) ==============================
+   O Nexy entra na catedral: nave, cripta e campanário, terminando no telhado. Palavra-mestra: WORLD.
+   Mecânica nova: o PRONOME decide quem a frase atinge (I → o Nexy, IT → a runa, THEY → o grupo, YOU → o Echo).
+
+   ───────────── LEGENDA EXTRA DESTA FASE (além da legenda global da 1-1) ─────────────
+     w O % L D   letras W O R L D            T V ^   altares (1, 2 e 3)          1 2 3   portas
+     4           portão dos sinos            5 6 7 8 sinos I, ARE, AM, FINE
+     Q q ( )     lustres (plataformas em pêndulo)       | ! : ; "   tubos do órgão (sobem na batida)
+     B U H       Alados (ponte, patrulha, sobe-e-desce) S           Ladrão de Palavras
+     &           Rastejante gigante          +  vida (1UP)     $  a Lua (3UP)     ~  grande sino
+     blocos: t IT · b BIG · n NEXY · y YOU · e/h YES · k NO · j NOT · a THEY · r ARE · i IS · s SMALL
+             u WE · f FRIEND (invisível) · l vida · c cristal · z cristal invisível
+   As runas (pedras que crescem e encolhem) não aparecem no mapa: ficam em targets, por coluna/linha de base. */
+LEVELS['1-2'] = {
+  id: '1-2', world: 1, name: 'WHO ARE YOU?', masterWord: 'WORLD', music: 'nave', bg: 'nave',
+  // mais vocabulário, barra maior: cabem 10 palavras
+  barMax: 10, intro: 'YOUR WORD BAR GREW · 10 WORDS',
+  // 312 colunas × 40 linhas. Chão da nave na linha 30; a cripta fica por baixo (linhas 32-35); o telhado na linha 9.
+  map: [
+      '..............................................................##........................................................................##................................##............................................................................................................................................', // 00
+      '..............................................................##........................................................................##................................##..........................................................................................~...D.............................................', // 01
+      '..............................................................##........................................................................##................................##............................................................................................................................................', // 02
+      '..............................................................##........................................................................##................................##............................................................................................................................o.o.o.o.........', // 03
+      '..............................................................##........................................................................##................................##............................................................................................................................................', // 04
+      '..............................................................##........................................................................##................................##..............................................................................................H.............................................', // 05
+      '..............................................................##........................................................................##................................##............................................................................................................................................', // 06
+      '..............................................................##........................................................................##................................##.....................................................................................................................................Z......', // 07
+      '..............................................................##........................................................................##................................##..................................................................................^...ooo.........ooo................N..............#######.', // 08
+      '..............................................................##........................................................................##.............................~..##..........................####################################################==========================####........#######.........#######.', // 09
+      '..............................................................##........................................................................##................................##..........................####################################################..........................####........#######.........#######.', // 10
+      '..............................................................##........................................................................##................................##..........................####################################################.....f....................####........#######.........#######.', // 11
+      '..............................................................##............................................oo.+........................##................................##..........................####################################################.......*.....)......===...####........#######.........#######.', // 12
+      '..............................................................##............................................=====.......................##................................##..........................####################################################........H.................####........#######.........#######.', // 13
+      '..............................................................##..............................................o.........................##................................##..........................####################################################..........................####........#######.........#######.', // 14
+      '..............................................................##........................................................................##................................##..........................####################################################....===..............R....####........#######.........#######.', // 15
+      '..............................................................##........................................................................##................................##..........................####################################################..........................####........#######.........#######.', // 16
+      '..............................................................##..............................................o.........................##................................##..........................####################################################................z.........####........#######.........#######.', // 17
+      '............................*.................................##........................................................................##................................##...................L......####################################################.........===...........I..####........#######.........#######.', // 18
+      '..............................................................##.................................O......................................##..........................8.....##..........................####################################################..........................####........#######.........#######.', // 19
+      '..............................w...............................##.............................................o..........................##................................##.................s........####################################################................C..+......####........#######.........#######.', // 20
+      '.........*.................ooo................................##.....*..................................................................##........*.......................##..........................####################################################.............========.....####........#######.........#######.', // 21
+      '..........................======...............o....*.........##..................................................*.....................##..................7.............##.....*....................####################################################..........................####........#######.........#######.', // 22
+      '...............................................o..............##...........................................o..............*.............##................................##..........................####################################################..........................####........#######.........#######.', // 23
+      '........o........................*............................##................................U.......................................##.......................(........##..........................####################################################..........................####........#######.........#######.', // 24
+      '.......o.o....................................................##................oo.........oo...........................................##..........5...6.................44........................................########################............##..................*.......####........#######.........#######.', // 25
+      '......o...o.?t?...b.................H.......?n...y?..c........##........................oo..........................e.?.k...j......??...##.....l..........................44.c.a..r..i.........B....u...............########################.......h....##..........................####........#######.........#######.', // 26
+      '..............................................................11........................##..............##.B.B.B........................22.................###............44........................................########################............33..........................####........#######.........#######.', // 27
+      '..........................................oo..................11.ooo.........Q......q...##....Q.....q...##....................ooo.......22.......oo...oo...###............44......................oo...oo...........########...#############......o..oo.33..........................####........#######.........#######.', // 28
+      '...P.................T..................C..............g.g.K..11........................##..............##.............C.........C......22..F..............###............44.............................S..........########.%.#############....F.......33..:...;..."...............####........#######.........#######.', // 29
+      '#########################################################################...............##..............##......########################################################################..........############......########...#############...#########################################........#######.........#######.', // 30
+      '#########################################################################...............##..............##......########################################################################.|...!....#############.....########...#############...#########################################........#######.........#######.', // 31
+      '#########################################################################...............##..............##......########################################################################..........##############....................................W...################################........#######.........#######.', // 32
+      '#########################################################################...............##..............##......########################################################################..........###############....*......................===.....Wo.o################################........#######.........#######.', // 33
+      '#########################################################################...............##..............##......########################################################################..........################................ooo...............W.$.################################........#######.........#######.', // 34
+      '#########################################################################...............##..............##......########################################################################..........#################....V...&.&.&............C.......W...################################........#######.........#######.', // 35
+      '#########################################################################...............##..............##......########################################################################..........######################################################################################........#######.........#######.', // 36
+      '#########################################################################...............##..............##......########################################################################..........######################################################################################........#######.........#######.', // 37
+      '#########################################################################...............##..............##......########################################################################..........######################################################################################........#######.........#######.', // 38
+      '#########################################################################...............##..............##......########################################################################..........######################################################################################........#######.........#######.' // 39
+  ],
+  // no alto do campanário a catedral se abre para o céu (a partir desta coluna, com a câmera acima de y)
+  sky: { c: 246, y: 420 },
+  zones: [
+    { c0: 206, c1: 247, r0: 31, r1: 39, dark: 0.92, muffle: true },   // cripta: escura e abafada
+    { c0: 250, c1: 311, boost: true },                                 // campanário: percussão em crescendo
+  ],
+  blocks: {
+    't': { block: 'question', content: { word: 'IT' } },
+    'b': { block: 'question', content: { word: 'BIG' } },
+    'n': { block: 'question', content: { word: 'NEXY' } },
+    'y': { block: 'question', content: { word: 'YOU' } },
+    'e': { block: 'question', content: { word: 'YES' } },
+    'h': { block: 'question', content: { word: 'YES', ifMissing: true } },   // reserva: só se você não tiver um YES
+    'k': { block: 'question', content: { word: 'NO' } },
+    'j': { block: 'question', content: { word: 'NOT' } },
+    'a': { block: 'question', content: { word: 'THEY' } },
+    'r': { block: 'question', content: { word: 'ARE' } },
+    'i': { block: 'question', content: { word: 'IS' } },
+    's': { block: 'question', content: { word: 'SMALL' } },
+    'u': { block: 'question', content: { word: 'WE' } },
+    'f': { block: 'invisible', content: { word: 'FRIEND' }, secret: 'invisible-friend' },
+    'l': { block: 'question', content: { life: 1 } },
+    'c': { block: 'question', content: { crystal: true } },
+    'z': { block: 'invisible', content: { crystal: true }, secret: 'invisible-crystal' },
+  },
+  entities: {
+    'w': { entity: 'letter', index: 0 }, 'O': { entity: 'letter', index: 1 }, '%': { entity: 'letter', index: 2 },
+    'L': { entity: 'letter', index: 3 }, 'D': { entity: 'letter', index: 4 },
+    'T': { entity: 'pedestal', door: 'altar1', look: 'altar' },
+    'V': { entity: 'pedestal', door: 'altar2', look: 'altar' },
+    '^': { entity: 'pedestal', door: 'altar3', look: 'altar' },
+    'Q': { entity: 'chandelier', len: 9, amp: 0.36, period: 3.6, phase: 0 },
+    'q': { entity: 'chandelier', len: 9, amp: 0.36, period: 3.6, phase: 0.5 },
+    '(': { entity: 'chandelier', len: 7, amp: 0.42, period: 3.2, phase: 0 },
+    ')': { entity: 'chandelier', len: 8, amp: 0.4, period: 3.8, phase: 0.25 },
+    '|': { entity: 'pipe', rise: 6, beats: 4, phase: 0 },
+    '!': { entity: 'pipe', rise: 6, beats: 4, phase: 0.5 },
+    ':': { entity: 'pipe', rise: 6, beats: 4, phase: 0 },
+    ';': { entity: 'pipe', rise: 6, beats: 4, phase: 0.33 },
+    '"': { entity: 'pipe', rise: 6, beats: 4, phase: 0.66 },
+    'B': { entity: 'flyer', path: 'v', amp: 0.35, period: 2, respawn: 'summon' },
+    'U': { entity: 'flyer', path: 'h', amp: 3, period: 3.2, respawn: 'summon' },
+    'H': { entity: 'flyer', path: 'v', amp: 1.2, period: 2.4, respawn: 'summon' },
+    'S': { entity: 'thief', hole: 205, respawn: 'summon' },
+    '&': { entity: 'giant' },
+    '5': { entity: 'bell', word: 'I', gate: 'gate', tone: 0 },
+    '6': { entity: 'bell', word: 'ARE', gate: 'gate', tone: 4 },
+    '7': { entity: 'bell', word: 'AM', gate: 'gate', tone: 1 },
+    '8': { entity: 'bell', word: 'FINE', gate: 'gate', tone: 2 },
+    '+': { entity: 'life' }, '$': { entity: 'moon' }, '~': { entity: 'bigbell' },
+  },
+  // alvos das frases. rune: c/r = coluna e linha de base; anchor = de onde cresce; small/big = tamanho em tiles
+  targets: {
+    rune1: { kind: 'rune', c: 24, r: 29, anchor: 'left', small: { w: 1, h: 1 }, big: { w: 2, h: 5 }, state: 'small' },
+    rune2: { kind: 'rune', c: 231, r: 35, anchor: 'center', small: { w: 1, h: 1 }, big: { w: 3, h: 4 }, state: 'big' },
+    rune3: { kind: 'rune', c: 280, r: 9, anchor: 'left', small: { w: 1, h: 1 }, big: { w: 8, h: 1 }, state: 'small' },
+    giants: { kind: 'giants' },
+  },
+  doors: {
+    door1: {
+      char: '1', inscription: 'WHO ARE YOU?', mold: ['I', 'AM', '_', '.'],
+      accept: [{ words: ['NEXY'], result: { type: 'open' } }],
+      enact: [{ words: ['YOU'], result: { type: 'mirror' } }],
+    },
+    door2: {
+      char: '2', inscription: 'ARE YOU A CRAWLER?', mold: ['_', ',', 'I', 'AM', '_', '.'],
+      accept: [{ words: ['NO', 'NOT'], result: { type: 'open' } }],
+      // a porta acredita no "sim": o Nexy vira Rastejante por alguns segundos
+      enact: [{ words: ['YES', '*'], result: { type: 'crawler', duration: 3.5 }, say: 'Yes, I am a crawler!' }],
+    },
+    gate: {
+      char: '4', kind: 'bells', inscription: 'HOW ARE YOU?', mold: ['_', '_', '_', '.'],
+      accept: [{ words: ['I', 'AM', 'FINE'], result: { type: 'open' } }],
+      reward: [167, 14],   // de primeira: uma vida cai do grande sino
+    },
+    door3: {
+      char: '3', inscription: 'IS IT A DOOR?', mold: ['_', ',', 'IT', 'IS', '.'],
+      accept: [{ words: ['YES'], result: { type: 'open' } }],
+    },
+    altar1: {
+      kind: 'pedestal', title: 'ALTAR OF THE RUNES', inscription: 'WHAT IS BIG?', mold: ['_', 'IS', '_', '.'], consume: false, reusable: true,
+      accept: [
+        { words: ['IT', 'BIG'], result: { type: 'target', target: 'rune1', act: 'big' } },
+        { words: ['IT', 'SMALL'], result: { type: 'target', target: 'rune1', act: 'small' } },
+      ],
+      enact: [
+        { words: ['YOU', '*'], result: { type: 'confused', target: 'echo' } },
+        { words: ['IT', '*'], result: { type: 'confused', target: 'rune1' } },
+      ],
+    },
+    altar2: {
+      kind: 'pedestal', title: 'ALTAR OF THE RUNES', inscription: 'BIG OR SMALL?', mold: ['_', '_', '_', '.'], consume: false, reusable: true,
+      accept: [
+        { words: ['THEY', 'ARE', 'SMALL'], result: { type: 'target', target: 'giants', act: 'small' } },
+        { words: ['IT', 'IS', 'SMALL'], result: { type: 'target', target: 'rune2', act: 'small' } },
+        { words: ['THEY', 'ARE', 'BIG'], result: { type: 'target', target: 'giants', act: 'big' } },
+        { words: ['IT', 'IS', 'BIG'], result: { type: 'target', target: 'rune2', act: 'big' } },
+        { words: ['YOU', 'ARE', 'BIG'], result: { type: 'echo', act: 'big' } },
+        { words: ['YOU', 'ARE', 'SMALL'], result: { type: 'echo', act: 'small' } },
+        { words: ['WE', 'ARE', 'BIG'], result: { type: 'we', act: 'big' } },
+        { words: ['WE', 'ARE', 'SMALL'], result: { type: 'we', act: 'small' } },
+      ],
+      // concordância errada: o alvo treme, confuso, e nada acontece
+      enact: [
+        { words: ['IT', '*', '*'], result: { type: 'confused', target: 'rune2' } },
+        { words: ['THEY', '*', '*'], result: { type: 'confused', target: 'giants' } },
+        { words: ['YOU', '*', '*'], result: { type: 'confused', target: 'echo' } },
+        { words: ['WE', '*', '*'], result: { type: 'confused', target: 'echo' } },
+      ],
+    },
+    altar3: {
+      kind: 'pedestal', title: 'ALTAR OF THE RUNES', inscription: 'WHO IS BIG?', mold: ['_', '_', 'BIG', '.'], consume: false, reusable: true,
+      // YOU ARE BIG: o Echo cresce, espera ao lado do altar e leva o Nexy pelo céu até o fim secreto
+      ride: { board: [257, 8], path: [[258, 3], [299, 3], [306, 7]] },
+      accept: [
+        { words: ['IT', 'IS'], result: { type: 'target', target: 'rune3', act: 'big' } },
+        { words: ['YOU', 'ARE'], result: { type: 'echo', act: 'big' } },
+        { words: ['WE', 'ARE'], result: { type: 'we', act: 'big' } },
+      ],
+      enact: [
+        { words: ['IT', '*'], result: { type: 'confused', target: 'rune3' } },
+        { words: ['YOU', '*'], result: { type: 'confused', target: 'echo' } },
+        { words: ['THEY', '*'], result: { type: 'confused', target: 'echo' } },
+      ],
+    },
+  },
+};
 
 /* ============================== ÁUDIO: EFEITOS (Web Audio) ============================== */
 const AudioSys = {
@@ -1375,12 +1576,14 @@ function wordCapsuleSprite(word) {
 }
 
 /* ============================== MUNDO: tiles, blocos, portas, colisão ============================== */
-const T = { AIR: 0, SOLID: 1, PLATFORM: 2, FAKE: 3, CRACKED: 4, BLOCK: 5, DOOR: 6 };
+const T = { AIR: 0, SOLID: 1, PLATFORM: 2, FAKE: 3, CRACKED: 4, BLOCK: 5, DOOR: 6, RUNE: 7 };
 const TS = CFG.TILE;
+// inimigos que nascem dos spawns (e o nome no Grimório)
+const CREATURE_OF = { crawler: 'CRAWLER', casco: 'SHELL', flyer: 'FLYER', thief: 'THIEF', giant: 'CRAWLER' };
 
 const World = {
   level: null, w: 0, h: 0, pxW: 0, pxH: 0, tiles: null, blocks: new Map(), doorTiles: new Map(), doors: {},
-  spawns: [], statics: [], veils: [], start: null, chunks: new Map(), totals: null, cracks: new Map(),
+  spawns: [], statics: [], veils: [], start: null, chunks: new Map(), totals: null, cracks: new Map(), targets: {}, runeAt: new Map(),
 
   load(level) {
     this.level = level;
@@ -1388,7 +1591,7 @@ const World = {
     this.h = map.length; this.w = map[0].length; this.pxW = this.w * TS; this.pxH = this.h * TS;
     this.tiles = new Uint8Array(this.w * this.h);
     this.blocks = new Map(); this.doorTiles = new Map(); this.doors = {}; this.spawns = []; this.statics = [];
-    this.veils = []; this.chunks.clear(); this.start = { x: 80, y: 19 * TS }; this.cracks = new Map();
+    this.veils = []; this.chunks.clear(); this.start = { x: 80, y: 19 * TS }; this.cracks = new Map(); this.targets = {}; this.runeAt = new Map();
     const cells = Object.assign({}, LEGEND, level.blocks || {}, level.entities || {});
     const doorChars = {};
     for (const id in level.doors) if (level.doors[id].char) doorChars[level.doors[id].char] = id;
@@ -1417,21 +1620,28 @@ const World = {
           if (b.content && b.content.letter != null) letters++;
         } else if (def.entity) {
           if (def.entity === 'start') this.start = { x: c * TS + TS / 2, y: (r + 1) * TS };
-          else if (def.entity === 'crawler' || def.entity === 'casco') {
+          else if (CREATURE_OF[def.entity] && def.entity !== 'giant') {
             this.spawns.push({ type: def.entity, c, r, opts: def, state: 'waiting', ent: null, seen: false, timer: 0 });
-            creatures.add(def.entity === 'crawler' ? 'CRAWLER' : 'SHELL');
+            creatures.add(CREATURE_OF[def.entity]);
           } else {
             this.statics.push({ type: def.entity, c, r, opts: def });
             if (def.entity === 'letter') letters++;
             if (def.entity === 'goal') exits++;
+            if (CREATURE_OF[def.entity]) creatures.add(CREATURE_OF[def.entity]);
           }
         }
       }
     }
     for (const id in rects) {
       const b = rects[id], def = level.doors[id];
-      this.doors[id] = { id, def, kind: 'door', x: b.c0 * TS, y: b.r0 * TS, w: (b.c1 - b.c0 + 1) * TS, h: (b.r1 - b.r0 + 1) * TS,
-        open: false, opening: 0, errors: 0, read: false, hint: false, morph: 0 };
+      this.doors[id] = { id, def, kind: def.kind === 'bells' ? 'bells' : 'door', x: b.c0 * TS, y: b.r0 * TS, w: (b.c1 - b.c0 + 1) * TS, h: (b.r1 - b.r0 + 1) * TS,
+        open: false, opening: 0, errors: 0, read: false, hint: false, morph: 0, mirror: 0, chimes: [] };
+    }
+    // alvos das frases (runas que crescem e encolhem, grupos de criaturas, o Echo)
+    for (const id in level.targets || {}) {
+      const t = Object.assign({ id, state: 'small', shake: 0, glow: 0 }, level.targets[id]);
+      this.targets[id] = t;
+      if (t.kind === 'rune') { t.cur = { w: 0, h: 0 }; t.goal = Object.assign({}, t[t.state]); t.stepT = 0; this.applyRune(t, t.goal, true); }
     }
     // paredes falsas: cada grupo de 'W' esconde a sala até a próxima pedra
     const seen = new Set();
@@ -1440,13 +1650,11 @@ const World = {
       if (this.tiles[i] !== T.FAKE || seen.has(i)) continue;
       let r1 = r; while (r1 + 1 < this.h && this.tiles[(r1 + 1) * this.w + c] === T.FAKE) r1++;
       for (let rr = r; rr <= r1; rr++) seen.add(rr * this.w + c);
-      const openLeft = !this.solidStatic(c - 1, r), dir = openLeft ? 1 : -1;
-      let c2 = c + dir;
-      while (c2 > 0 && c2 < this.w - 1) {
-        let blocked = false;
-        for (let rr = r; rr <= r1; rr++) if (this.tiles[rr * this.w + c2] === T.SOLID) blocked = true;
-        if (blocked) break; c2 += dir;
-      }
+      // a sala fica do lado fechado; se os dois lados estão abertos, é o lado que termina primeiro em pedra
+      const run = d => { let k = c + d; while (k > 0 && k < this.w - 1) { let blocked = false; for (let rr = r; rr <= r1; rr++) if (this.tiles[rr * this.w + k] === T.SOLID) blocked = true; if (blocked) break; k += d; } return k; };
+      const openL = !this.solidStatic(c - 1, r), openR = !this.solidStatic(c + 1, r);
+      const dir = openL && openR ? (run(1) - c <= c - run(-1) ? 1 : -1) : openL ? 1 : -1, openLeft = dir > 0;
+      const c2 = run(dir);
       const cA = Math.min(c, c2 - dir), cB = Math.max(c, c2 - dir);
       this.veils.push({ x: cA * TS, y: r * TS, w: (cB - cA + 1) * TS, h: (r1 - r + 1) * TS, faceC: c, openLeft, alpha: 1, found: false, id: 'fake-wall-' + this.veils.length });
       secrets++;
@@ -1455,6 +1663,12 @@ const World = {
   },
 
   idx(c, r) { return r * this.w + c; },
+  // zonas da fase (cripta escura e abafada, campanário em crescendo)
+  zoneAt(x, y) {
+    const c = Math.floor(x / TS), r = Math.floor(y / TS);
+    for (const z of this.level.zones || []) if (c >= z.c0 && c <= z.c1 && r >= (z.r0 || 0) && r <= (z.r1 == null ? 1e9 : z.r1)) return z;
+    return null;
+  },
   type(c, r) {
     if (c < 0 || c >= this.w) return T.SOLID;
     if (r < 0) return this.tiles[c] === T.SOLID ? T.SOLID : T.AIR; // paredes que tocam o topo continuam para cima
@@ -1488,12 +1702,13 @@ const World = {
         return this.blockSolid(b);
       }
       case T.DOOR: { const d = this.doorAt(c, r); return !d || !d.open; }
+      case T.RUNE: return true;
       default: return false;
     }
   },
   isFloor(c, r) {
     const t = this.type(c, r);
-    if (t === T.SOLID || t === T.CRACKED || t === T.PLATFORM) return true;
+    if (t === T.SOLID || t === T.CRACKED || t === T.PLATFORM || t === T.RUNE) return true;
     if (t === T.BLOCK) return this.blockSolid(this.blockAt(c, r));
     if (t === T.DOOR) { const d = this.doorAt(c, r); return !d || !d.open; }
     return false;
@@ -1603,7 +1818,10 @@ const World = {
   release(b, homing) {
     const ct = b.content; if (!ct) return;
     const cx = b.c * TS + TS / 2, cy = b.r * TS + TS / 2;
-    if (ct.word) { Ents.spawn('capsule', { word: ct.word, x: cx, y: cy, baseY: b.r * TS - (ct.rise || 1.1) * TS + TS * 0.5, homing }); SFX.wordAppear(); }
+    // bloco "de reserva": só dá a palavra se o jogador ainda não a tem (senão, orbes)
+    if (ct.word && ct.ifMissing && Game.bar.includes(ct.word)) { for (let i = 0; i < 3; i++) Ents.spawn('orb', { x: cx, y: b.r * TS, vx: (i - 1) * 80, vy: -300, homing: true, delay: 0.2 + i * 0.05 }); return; }
+    if (ct.word) { Ents.spawn('capsule', { word: ct.word, x: cx, y: cy, baseY: b.r * TS - (ct.rise || 1.1) * TS + TS * 0.5, homing, src: { c: b.c, r: b.r } }); SFX.wordAppear(); }
+    if (ct.life) { Ents.spawn('life', { x: cx, y: cy, baseY: b.r * TS - TS * 0.6, emerge: true }); SFX.wordAppear(); }
     if (ct.crystal) Ents.spawn('crystal', { x: cx, y: cy, baseY: b.r * TS - TS * 0.55, emerge: 1 });
     if (ct.orbs) for (let i = 0; i < ct.orbs; i++) Ents.spawn('orb', { x: cx, y: b.r * TS, vx: (Math.random() - 0.5) * 160, vy: -260 - Math.random() * 120, homing: true, delay: 0.2 + i * 0.05 });
     if (ct.letter != null) Ents.spawn('letter', { index: ct.letter, x: cx, y: cy, magnet: true });
@@ -1632,6 +1850,82 @@ const World = {
         if (d.opening >= 1) d.open = true;
       }
       if (d.morph > 0) d.morph = Math.max(0, d.morph - dt);
+      if (d.mirror > 0) d.mirror = Math.max(0, d.mirror - dt);
+    }
+    this.updateTargets(dt);
+  },
+
+  /* ---------- alvos das frases ---------- */
+  // retângulo de uma forma da runa, ancorado na linha de base (r) e na coluna c (anchor: left | center | right)
+  runeRect(t, sh) {
+    const c0 = t.anchor === 'center' ? t.c - Math.floor((sh.w - 1) / 2) : t.anchor === 'right' ? t.c - sh.w + 1 : t.c;
+    return { c0, c1: c0 + sh.w - 1, r0: t.r - sh.h + 1, r1: t.r };
+  },
+  applyRune(t, sh, instant) {
+    const old = this.runeRect(t, t.cur), nw = this.runeRect(t, sh);
+    if (t.cur.w) for (let r = old.r0; r <= old.r1; r++) for (let c = old.c0; c <= old.c1; c++) { const i = r * this.w + c; if (this.runeAt.get(i) === t.id) { this.tiles[i] = T.AIR; this.runeAt.delete(i); } }
+    for (let r = nw.r0; r <= nw.r1; r++) for (let c = nw.c0; c <= nw.c1; c++) { const i = r * this.w + c; this.tiles[i] = T.RUNE; this.runeAt.set(i, t.id); }
+    t.cur = { w: sh.w, h: sh.h };
+    if (instant) return;
+    // quem estiver dentro da pedra que cresceu é empurrado para cima
+    const box = { x: nw.c0 * TS, y: nw.r0 * TS, w: sh.w * TS, h: sh.h * TS };
+    for (const b of [P, ...Ents.list.filter(e => e.enemy && !e.dead)]) {
+      if (b.dead || !overlap(b, box)) continue;
+      const up = nw.r0 * TS - b.h;
+      if (this.fits(b.x, up, b.w, b.h, b)) { b.y = up; if (b === P) { P.vy = Math.min(P.vy, 0); P.py = P.y; } }
+      else b.x = b.x + b.w / 2 < box.x + box.w / 2 ? box.x - b.w : box.x + box.w;
+    }
+  },
+  // muda um alvo: runas crescem/encolhem tile a tile; grupos e o Echo são tratados por quem os desenha
+  setTarget(id, act) {
+    const t = this.targets[id]; if (!t) return false;
+    if (t.kind === 'rune') {
+      if (!t[act] || t.state === act) { t.shake = 0.8; SFX.thud(); return false; }
+      t.state = act; t.goal = Object.assign({}, t[act]); t.stepT = 0; t.glow = 1; SFX.rune(act === 'big');
+      return true;
+    }
+    if (t.kind === 'giants') return Ents.types.giant.setAll(act);
+    return false;
+  },
+  confuse(id) {
+    const t = this.targets[id];
+    if (t && t.kind === 'giants') { for (const e of Ents.list) if (e.type === 'giant' && !e.dead) e.shake = 1; }
+    else if (t) t.shake = 1;
+    SFX.thud();
+  },
+  updateTargets(dt) {
+    for (const id in this.targets) {
+      const t = this.targets[id];
+      if (t.shake > 0) t.shake = Math.max(0, t.shake - dt * 1.2);
+      if (t.glow > 0) t.glow = Math.max(0, t.glow - dt * 0.6);
+      if (t.kind !== 'rune' || (t.cur.w === t.goal.w && t.cur.h === t.goal.h)) continue;
+      t.stepT -= dt; if (t.stepT > 0) continue;
+      t.stepT = 0.07;
+      // um passo por vez: primeiro a altura, depois a largura (ou o contrário ao encolher)
+      const sh = Object.assign({}, t.cur), grow = t.goal.w * t.goal.h >= t.cur.w * t.cur.h;
+      if (grow) { if (sh.h !== t.goal.h) sh.h += sign(t.goal.h - sh.h); else sh.w += sign(t.goal.w - sh.w); }
+      else { if (sh.w !== t.goal.w) sh.w += sign(t.goal.w - sh.w); else sh.h += sign(t.goal.h - sh.h); }
+      this.applyRune(t, sh);
+      const rc = this.runeRect(t, sh);
+      FX.burst((rc.c0 + sh.w / 2) * TS, rc.r0 * TS + 4, 6, 'c', 140, { life: 0.5, g: 0 });
+      if (sh.w === t.goal.w && sh.h === t.goal.h) Game.shake(2);
+    }
+  },
+  drawTargets(ctx, camX, camY, time) {
+    for (const id in this.targets) {
+      const t = this.targets[id]; if (t.kind !== 'rune' || !t.cur.w) continue;
+      const rc = this.runeRect(t, t.cur), sx = t.shake > 0 ? Math.sin(time * 60) * 2.5 * t.shake : 0;
+      const x = rc.c0 * TS - camX + sx, y = rc.r0 * TS - camY, w = t.cur.w * TS, h = t.cur.h * TS;
+      if (x > CFG.VIEW_W + 40 || x + w < -40 || y > CFG.VIEW_H + 40 || y + h < -40) continue;
+      const p = 0.5 + 0.5 * Math.sin(time * 2 + t.c);
+      R.draw(R.glow('c', 48), x + w / 2, y + Math.min(h, 40) / 2, Math.max(1, w / 64), 0.18 + 0.12 * p + t.glow * 0.6, true);
+      rrect(ctx, x + 1, y + 1, w - 2, h - 2, 8); ctx.fillStyle = 'rgba(10,15,18,0.94)'; ctx.fill();
+      ctx.fillStyle = ca(0.04 + 0.04 * p + t.glow * 0.15); ctx.fill();
+      ctx.strokeStyle = ca(0.55 + t.glow * 0.4); ctx.lineWidth = 1.2; ctx.stroke();
+      rrect(ctx, x + 5, y + 5, w - 10, h - 10, 5); ctx.strokeStyle = ca(0.12); ctx.lineWidth = 1; ctx.stroke();
+      // runa: a palavra IT gravada no topo
+      R.draw(R.text('IT', '900 12px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(34,211,238,1)', 6), x + w / 2, y + Math.min(16, h / 2) + 1, 1, 0.75 + 0.25 * p);
+      if (t.shake > 0) R.draw(R.text('?', '900 18px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(34,211,238,1)', 6), x + w / 2, y - 16, 1, t.shake);
     }
   },
 
@@ -1806,9 +2100,9 @@ const World = {
 
 /* ============================== FUNDO: parallax em 3 camadas ============================== */
 const BG = {
-  built: false, far: null, near: null, dust: [],
+  built: false, far: null, near: null, naveFar: null, naveNear: null, dust: [],
   build() {
-    this.far = this.makeFar(); this.near = this.makeNear(); this.built = true;
+    this.far = this.makeFar(); this.near = this.makeNear(); this.naveFar = null; this.built = true;
     if (!this.dust.length) { const rnd = mulberry32(99); for (let i = 0; i < 60; i++) this.dust.push({ x: rnd() * 960, y: rnd() * 540, s: 0.6 + rnd() * 1.2, v: 6 + rnd() * 14, p: rnd() * 6 }); }
   },
   lancet(x, cx, top, w, h, light) {
@@ -1894,8 +2188,85 @@ const BG = {
     x.fillStyle = g; x.fillRect(0, H - 260, W, 260);
     return s;
   },
+  /* ---------- tema "nave": a catedral por dentro (1-2). Fase alta: o fundo acompanha a câmera na vertical ---------- */
+  makeNaveFar() {
+    const W = 1920, H = 900, s = R.make(W, H), x = s.x, bay = 240, rnd = mulberry32(21);
+    x.fillStyle = '#040507'; x.fillRect(0, 0, W, H);
+    for (let i = 0; i < W / bay; i++) {
+      const cx = i * bay + bay / 2;
+      // abóbada: nervuras ogivais de um pilar ao outro
+      x.beginPath(); x.moveTo(i * bay, 150); x.quadraticCurveTo(i * bay, 30, cx, 10); x.quadraticCurveTo((i + 1) * bay, 30, (i + 1) * bay, 150);
+      x.strokeStyle = cb(0.1); x.lineWidth = 1; x.stroke();
+      x.beginPath(); x.moveTo(i * bay, 150); x.lineTo((i + 1) * bay, 10); x.moveTo((i + 1) * bay, 150); x.lineTo(i * bay, 10); x.strokeStyle = cb(0.04); x.stroke();
+      // vitral alto com rosácea em cima
+      this.rose(x, cx, 130, 30, 0.1 + rnd() * 0.05);
+      this.lancet(x, cx - 34, 190, 40, 400, 0.07 + rnd() * 0.04);
+      this.lancet(x, cx + 34, 190, 40, 400, 0.07 + rnd() * 0.04);
+      this.lancet(x, cx, 230, 22, 340, 0.05);
+      // arcada baixa
+      x.beginPath(); x.moveTo(i * bay + 12, 900); x.lineTo(i * bay + 12, 700); x.quadraticCurveTo(i * bay + 12, 640, cx, 625); x.quadraticCurveTo((i + 1) * bay - 12, 640, (i + 1) * bay - 12, 700); x.lineTo((i + 1) * bay - 12, 900);
+      x.strokeStyle = cb(0.08); x.stroke();
+      // pilar
+      rrect(x, i * bay - 8, 150, 16, H - 150, 3); x.fillStyle = '#06080a'; x.fill(); x.strokeStyle = cb(0.07); x.stroke();
+    }
+    const g = x.createLinearGradient(0, 600, 0, H); g.addColorStop(0, 'rgba(4,5,7,0)'); g.addColorStop(1, 'rgba(4,5,7,0.9)');
+    x.fillStyle = g; x.fillRect(0, 600, W, 300);
+    return s;
+  },
+  makeNaveNear() {
+    const W = 1536, H = 1200, s = R.make(W, H), x = s.x, gap = 384;
+    for (let i = 0; i <= W / gap; i++) for (const off of [0, -W]) {
+      const X0 = i * gap + off; if (X0 < -60) continue;
+      // coluna maciça com capitel e arcos que saem dela
+      rrect(x, X0, 0, 34, H, 4); x.fillStyle = 'rgba(4,5,7,0.94)'; x.fill(); x.strokeStyle = cb(0.14); x.lineWidth = 1; x.stroke();
+      for (const cy of [380, 860]) { rrect(x, X0 - 8, cy, 50, 14, 4); x.fillStyle = 'rgba(4,5,7,0.96)'; x.fill(); x.stroke(); }
+      x.beginPath(); x.moveTo(X0 + 17, 0); x.lineTo(X0 + 17, H); x.strokeStyle = cb(0.05); x.stroke();
+      for (const cy of [380, 860]) {
+        x.beginPath(); x.moveTo(X0 + 34, cy); x.quadraticCurveTo(X0 + 34, cy - 170, X0 + gap / 2 + 17, cy - 200); x.quadraticCurveTo(X0 + gap, cy - 170, X0 + gap, cy);
+        x.strokeStyle = cb(0.13); x.stroke();
+      }
+      // estandarte pendurado
+      const bx = X0 + gap / 2 - 6;
+      x.beginPath(); x.moveTo(bx, 470); x.lineTo(bx + 34, 470); x.lineTo(bx + 34, 610); x.lineTo(bx + 17, 590); x.lineTo(bx, 610); x.closePath();
+      x.fillStyle = 'rgba(4,5,7,0.9)'; x.fill(); x.strokeStyle = cb(0.12); x.stroke();
+      x.beginPath(); x.arc(bx + 17, 515, 7, 0, Math.PI * 2); x.strokeStyle = cb(0.16); x.stroke();
+    }
+    return s;
+  },
+  skyK(camX, camY) {
+    const sk = World.level.sky; if (!sk) return 0;
+    return clamp((sk.y - camY) / 300, 0, 1) * clamp((camX + 480 - sk.c * TS) / 400, 0, 1);
+  },
+  drawNave(ctx, camX, camY, time) {
+    if (!this.naveFar) { this.naveFar = this.makeNaveFar(); this.naveNear = this.makeNaveNear(); }
+    const sky = this.skyK(camX, camY);
+    // no topo do campanário a catedral se abre para o céu e a cidade da 1-1 aparece lá embaixo
+    if (sky > 0) {
+      const fW = 1920, fx = -((camX * 0.1) % fW), fy = 300 - camY * 0.15;
+      ctx.save(); ctx.globalAlpha = sky;
+      R.draw(R.glow('w', 60), 820, 90, 1.2, 0.5, true);
+      ctx.beginPath(); ctx.arc(820, 90, 22, 0, Math.PI * 2); ctx.fillStyle = 'rgba(240,250,255,0.9)'; ctx.fill();
+      ctx.beginPath(); ctx.arc(830, 84, 20, 0, Math.PI * 2); ctx.fillStyle = '#05060a'; ctx.fill();
+      ctx.drawImage(this.far.c, fx, fy, fW, 600); ctx.drawImage(this.far.c, fx + fW, fy, fW, 600);
+      ctx.restore();
+    }
+    if (sky < 1) {
+      ctx.save(); ctx.globalAlpha = 1 - sky;
+      const fW = 1920, fx = -((camX * 0.18) % fW), fy = -20 - camY * 0.22;
+      ctx.drawImage(this.naveFar.c, fx, fy, fW, 900); ctx.drawImage(this.naveFar.c, fx + fW, fy, fW, 900);
+      const nW = 1536, nx = -((camX * 0.45) % nW), ny = -camY * 0.45;
+      ctx.drawImage(this.naveNear.c, nx, ny, nW, 1200); ctx.drawImage(this.naveNear.c, nx + nW, ny, nW, 1200);
+      ctx.restore();
+    }
+    const gs = R.glow('c', 6);
+    for (const d of this.dust) {
+      const x = ((d.x - camX * 0.3) % 960 + 960) % 960, y = ((d.y - time * d.v * 0.6 - camY * 0.3) % 540 + 540) % 540;
+      R.draw(gs, x, y, d.s, 0.16, true);
+    }
+  },
   draw(ctx, camX, camY, time) {
     if (!this.built) this.build();
+    if (World.level.bg === 'nave') return this.drawNave(ctx, camX, camY, time);
     // camada 1: grade e partículas ciano bem apagadas
     ctx.save();
     ctx.strokeStyle = cb(0.05); ctx.lineWidth = 1;
@@ -1916,6 +2287,29 @@ const BG = {
     // camada 3: pilares e arcos próximos
     const nW = 1536, nx = -((camX * 0.5) % nW), ny = -60 + (196 - camY) * 0.3;
     ctx.drawImage(this.near.c, nx, ny, nW, 600); ctx.drawImage(this.near.c, nx + nW, ny, nW, 600);
+  },
+};
+
+/* ============================== ESCURIDÃO (cripta) ==============================
+   Uma camada preta com buracos de luz no Nexy, no Echo (que brilha mais forte) e em quem tem luz própria. */
+const Dark = {
+  k: 0,
+  draw(ctx, camX, camY) {
+    if (this.k < 0.02) return;
+    const s = R.sprite('darkLayer', 960, 540, () => { }), x = s.x;
+    x.setTransform(R.k, 0, 0, R.k, 0, 0); x.globalCompositeOperation = 'source-over';
+    x.clearRect(0, 0, 960, 540); x.fillStyle = 'rgba(0,0,0,' + (0.93 * this.k).toFixed(3) + ')'; x.fillRect(0, 0, 960, 540);
+    x.globalCompositeOperation = 'destination-out';
+    const hole = (hx, hy, r, a = 1) => {
+      const g = x.createRadialGradient(hx, hy, 0, hx, hy, r);
+      g.addColorStop(0, 'rgba(0,0,0,' + a + ')'); g.addColorStop(0.55, 'rgba(0,0,0,' + (a * 0.7) + ')'); g.addColorStop(1, 'rgba(0,0,0,0)');
+      x.fillStyle = g; x.fillRect(hx - r, hy - r, r * 2, r * 2);
+    };
+    if (!P.dead) hole(P.cx - camX, P.cy - camY, 120, 0.85);
+    hole(Echo.x - camX, Echo.y - camY, 230 + 30 * Math.sin(Game.time * 2), 1);
+    for (const e of Ents.list) if (e.light && !e.dead) hole(e.x + e.w / 2 - camX, e.y + e.h / 2 - camY, e.light, 0.8);
+    x.globalCompositeOperation = 'source-over';
+    ctx.drawImage(s.c, 0, 0, 960, 540);
   },
 };
 
@@ -1980,11 +2374,11 @@ const Ents = {
     for (const e of this.list) {
       if (e.layer !== layer || e.dead && !e.keepDraw) continue;
       const x = lerp(e.px, e.x, a) - camX, y = lerp(e.py, e.y, a) - camY;
-      if (x > 1040 || x + e.w < -80 || y > 640 || y < -200 && e.type !== 'reserve') continue;
+      if (x > 1040 || x + e.w < -80 || y > 640 || y < -200 && e.type !== 'reserve' && e.type !== 'pipe') continue;
       const hidden = World.veilAlphaAt(e.x + e.w / 2, e.y + e.h / 2);
       if (hidden >= 1) continue;
       if (hidden > 0) { ctx.save(); ctx.globalAlpha = 1 - hidden; }
-      this.types[e.type].draw(ctx, e, x, y);
+      this.types[e.type].draw(ctx, e, x, y, camX, camY);
       if (hidden > 0) ctx.restore();
     }
   },
@@ -1995,7 +2389,7 @@ const Ents = {
     for (const s of en) {
       if (s.type !== 'casco' || (s.state !== 'slide' && s.state !== 'held')) continue;
       for (const o of en) {
-        if (o === s || o.state === 'dying' || o.state === 'flat' || s.state === 'dying' || !overlap(s, o)) continue;
+        if (o === s || o.state === 'dying' || o.state === 'flat' || s.state === 'dying' || o.type === 'giant' || !overlap(s, o)) continue;
         if (o.state === 'held') continue;
         Enemy.kill(o, 'pop', sign(s.vx) || P.facing);
         if (s.state === 'held' || o.state === 'slide') { P.dropHeld(); Enemy.kill(s, 'pop', -P.facing); }
@@ -2005,7 +2399,7 @@ const Ents = {
   },
   bumpFrom(c, r) {
     const box = { x: c * TS, y: r * TS - 6, w: TS, h: 8 };
-    for (const e of this.enemies()) if (overlap(e, box)) { Enemy.kill(e, 'pop', sign(e.x + e.w / 2 - (c * TS + 16)) || 1); }
+    for (const e of this.enemies()) if (e.type !== 'giant' && overlap(e, box)) { Enemy.kill(e, 'pop', sign(e.x + e.w / 2 - (c * TS + 16)) || 1); }
     for (const e of this.list) if ((e.type === 'orb') && !e.dead && !e.homing && overlap(e, box)) Game.addOrbs(1, e), e.dead = true;
   },
 };
@@ -2015,7 +2409,8 @@ const Spawns = {
   update(dt) {
     const L = Cam.x, Rr = Cam.x + CFG.VIEW_W;
     for (const s of World.spawns) {
-      const sx = s.c * TS + TS / 2, vis = sx > L - 40 && sx < Rr + 40;
+      // visível na horizontal e (nas fases altas) perto da câmera na vertical
+      const sx = s.c * TS + TS / 2, sy = (s.r + 1) * TS, vis = sx > L - 40 && sx < Rr + 40 && sy > Cam.y - 200 && sy < Cam.y + CFG.VIEW_H + 200;
       if (s.state === 'waiting') { if (vis && !s.wasVis) this.make(s); }
       else if (s.state === 'summon') {
         s.timer -= dt;
@@ -2029,9 +2424,9 @@ const Spawns = {
     }
     // despawn de inimigos muito longe da câmera
     for (const e of Ents.list) {
-      if (!e.enemy || e.dead || e.state === 'held') continue;
-      const cx = e.x + e.w / 2;
-      if (cx < L - 640 || cx > Rr + 640) { e.dead = true; e.despawned = true; }
+      if (!e.enemy || e.dead || e.state === 'held' || e.persist) continue;
+      const cx = e.x + e.w / 2, cy = e.y + e.h / 2;
+      if (cx < L - 640 || cx > Rr + 640 || cy < Cam.y - 900 || cy > Cam.y + CFG.VIEW_H + 900) { e.dead = true; e.despawned = true; }
       if (e.y > World.pxH + 64) { e.dead = true; e.fell = true; }
     }
   },
@@ -2045,13 +2440,13 @@ const Spawns = {
     const s = e.spawn; if (!s || s.ent !== e) return;
     s.ent = null;
     if (e.despawned) { s.state = 'waiting'; s.wasVis = true; return; }
-    const pol = s.opts.respawn;
+    const pol = e.noRespawn ? null : s.opts.respawn;
     if (pol === 'summon') { s.state = 'summon'; s.timer = 2.4; }
     else if (pol === 'offscreen') s.state = 'hidden';
     else s.state = 'consumed';
   },
   reset() {
-    Ents.list = Ents.list.filter(e => !e.enemy);
+    Ents.list = Ents.list.filter(e => !e.enemy || e.persist);
     for (const s of World.spawns) { s.state = 'waiting'; s.ent = null; s.wasVis = false; s.timer = 0; }
   },
 };
@@ -2076,9 +2471,10 @@ const Enemy = {
     if (e.res.ceil && e.vy < 0) e.vy = 0;
   },
   kill(e, how, dir = 1) {
-    if (e.state === 'dying' || e.state === 'flat') return;
+    if (e.state === 'dying' || e.state === 'flat' || e.type === 'giant') return;
     if (e.state === 'held') P.dropHeld(true);
-    Game.registerCreature(e.type === 'crawler' ? 'CRAWLER' : 'SHELL');
+    Game.registerCreature(e.creature || CREATURE_OF[e.type]);
+    const def = Ents.types[e.type]; if (def.onKill) def.onKill(e, how);
     const cx = e.x + e.w / 2, cy = e.y + e.h / 2;
     if (how === 'flat') {
       e.state = 'flat'; e.flatT = 0.45; e.y += e.h - 8; e.h = 8; e.vx = 0;
@@ -2284,7 +2680,7 @@ Ents.reg('capsule', {
   update(e, dt) {
     const tx = e.x + 15, ty = e.y + 12;
     const dx = P.cx - tx, dy = P.cy - ty, d = Math.hypot(dx, dy) || 1;
-    const full = Game.bar.length >= CFG.WORD_BAR_MAX;
+    const full = Game.bar.length >= Game.barMax();
     const emerging = e.t < 0.32;
     if (emerging) e.y = lerp(e.startY, e.baseY - 12, 1 - Math.pow(1 - e.t / 0.32, 3));
     if (!full && !P.dead && ((e.homing && e.t > 0.16) || (!emerging && d < CFG.MAGNET) || e.homeT > 0)) {
@@ -2361,7 +2757,7 @@ Ents.reg('lantern', {
     let len = 0, rr = e.r - 1;
     while (rr >= 0 && len < 4 && !World.isFloor(e.c, rr)) { len++; rr--; }
     e.chain = len >= 4 ? 64 : len * TS + 3; e.fade = len >= 4;
-    e.ph = Math.random() * 6;
+    e.ph = Math.random() * 6; e.light = 100;
   },
   update(e, dt) {
     if (!P.onGround && !P.dead && overlap(e, P.box())) this.smash(e);
@@ -2476,6 +2872,7 @@ Ents.reg('pedestal', {
   },
   draw(ctx, e, x, y) {
     const t = e.t;
+    if (e.opts.look === 'altar') return drawAltar(ctx, x, y, t);
     R.draw(R.glow('c', 40), x + 16, y - 8, 1, 0.4 + 0.15 * Math.sin(t * 2), true);
     rrect(ctx, x + 6, y + 6, 20, 26, [4, 4, 0, 0]); ctx.fillStyle = 'rgba(10,15,18,0.9)'; ctx.fill(); ctx.strokeStyle = wa(0.14); ctx.lineWidth = 1; ctx.stroke();
     rrect(ctx, x + 1, y + 2, 30, 6, 3); ctx.fillStyle = 'rgba(10,15,18,0.95)'; ctx.fill(); ctx.strokeStyle = ca(0.55); ctx.stroke();
@@ -2487,13 +2884,426 @@ Ents.reg('pedestal', {
   },
 });
 
+/* ============================== ENTIDADES DA 1-2 · A NAVE DOS ECOS ==============================
+   Plataformas móveis (lustres, tubos do órgão, Echo gigante), Alado, Ladrão de Palavras, Rastejantes
+   gigantes, sinos, vida (1UP), Lua (3UP), altares e o grande sino.
+   Plataforma móvel = entidade com plat: true (sólida só por cima). x/y/w é a superfície; dx/dy = quanto andou
+   neste passo (o jogador montado vai junto). body: true = o corpo abaixo da superfície empurra para os lados. */
+
+/* ---------- LUSTRE: plataforma em pêndulo ----------
+   O caractere marca onde fica a superfície no ponto mais baixo do balanço (o topo daquela linha).
+   opts: len (tiles de corrente), amp (radianos), period (s), phase (0–1), width (tiles) */
+Ents.reg('chandelier', {
+  layer: 'back',
+  init(e) {
+    const o = e.opts;
+    e.w = (o.width || 3) * TS; e.h = 12; e.plat = true; e.dx = 0; e.dy = 0;
+    e.L = (o.len || 8) * TS; e.ax = e.c * TS + TS / 2; e.ay = e.r * TS - e.L;
+    e.amp = o.amp != null ? o.amp : 0.4; e.period = o.period || 3.6; e.phase = o.phase || 0; e.light = 110;
+    this.place(e); e.px = e.x; e.py = e.y;
+  },
+  place(e) {
+    const th = e.amp * Math.sin((Game.simTime / e.period + e.phase) * Math.PI * 2);
+    e.x = e.ax + Math.sin(th) * e.L - e.w / 2; e.y = e.ay + Math.cos(th) * e.L;
+  },
+  update(e) { const ox = e.x, oy = e.y; this.place(e); e.dx = e.x - ox; e.dy = e.y - oy; },
+  draw(ctx, e, x, y, camX, camY) {
+    const cx = x + e.w / 2, ax = e.ax - camX, ay = e.ay - camY, t = Game.time;
+    // corrente até o ponto de apoio (e além, sumindo na abóbada)
+    const g = ctx.createLinearGradient(0, ay - 160, 0, y);
+    g.addColorStop(0, wa(0)); g.addColorStop(0.35, wa(0.16)); g.addColorStop(1, wa(0.24));
+    ctx.strokeStyle = g; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(ax + (ax - cx) * 0.5, ay - 160); ctx.lineTo(ax, ay); ctx.lineTo(cx, y - 26); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, y - 26); ctx.lineTo(x + 6, y); ctx.moveTo(cx, y - 26); ctx.lineTo(x + e.w - 6, y); ctx.strokeStyle = wa(0.2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(ax, ay, 3, 0, Math.PI * 2); ctx.strokeStyle = ca(0.4); ctx.stroke();
+    // aro com velas
+    R.draw(R.glow('c', 48), cx, y + 16, e.w / 70, 0.42, true);
+    ctx.beginPath(); ctx.ellipse(cx, y + 20, e.w * 0.36, 6, 0, 0, Math.PI * 2); ctx.strokeStyle = ca(0.35); ctx.lineWidth = 1; ctx.stroke();
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * Math.PI * 2 + t * 0.6, fx = cx + Math.cos(a) * e.w * 0.36, fy = y + 20 + Math.sin(a) * 6;
+      const fl = 0.6 + 0.3 * Math.sin(t * 9 + i * 2.1);
+      R.draw(R.glow('c', 8), fx, fy - 5, 1, fl, true);
+      ctx.fillStyle = '#0a0f12'; ctx.fillRect(fx - 1.5, fy - 3, 3, 6);
+    }
+    // a barra onde se pisa
+    capsulePath(ctx, cx, y + 5, e.w, 10); ctx.fillStyle = '#0a0f12'; ctx.fill(); ctx.strokeStyle = wa(0.22); ctx.lineWidth = 1; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x + 6, y + 0.5); ctx.lineTo(x + e.w - 6, y + 0.5); ctx.strokeStyle = ca(0.85); ctx.stroke();
+  },
+});
+
+/* ---------- TUBO DO ÓRGÃO: sobe e desce no compasso da música ----------
+   O caractere marca o topo do tubo no ponto mais baixo. opts: rise (tiles), beats (período em batidas), phase (0–1), width */
+Ents.reg('pipe', {
+  layer: 'back',
+  init(e) {
+    const o = e.opts;
+    e.w = (o.width || 2) * TS; e.h = 12; e.plat = true; e.body = true; e.dx = 0; e.dy = 0;
+    e.x = e.c * TS; e.low = e.r * TS; e.rise = (o.rise || 4) * TS; e.beats = o.beats || 4; e.phase = o.phase || 0; e.k = 0;
+    this.place(e); e.px = e.x; e.py = e.y;
+  },
+  place(e) {
+    const v = Music.VARIANTS[World.level.music] || Music.VARIANTS.world1, b = Game.simTime * v.bpm / 60;
+    e.k = 0.5 - 0.5 * Math.cos((b / e.beats + e.phase) * Math.PI * 2);
+    e.y = e.low - e.rise * e.k;
+  },
+  update(e) { const oy = e.y; this.place(e); e.dx = 0; e.dy = e.y - oy; },
+  draw(ctx, e, x, y, camX, camY) {
+    const bot = Math.min(World.pxH - camY, CFG.VIEW_H + 20), w = e.w, beat = e.k > 0.92 ? (e.k - 0.92) / 0.08 : 0;
+    // corpo
+    rrect(ctx, x + 5, y + 6, w - 10, bot - y - 6, [0, 0, 0, 0]);
+    const g = ctx.createLinearGradient(x, 0, x + w, 0);
+    g.addColorStop(0, '#07090b'); g.addColorStop(0.45, '#0e1418'); g.addColorStop(1, '#050608');
+    ctx.fillStyle = g; ctx.fill(); ctx.strokeStyle = wa(0.12); ctx.lineWidth = 1; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x + w * 0.38, y + 10); ctx.lineTo(x + w * 0.38, bot); ctx.strokeStyle = ca(0.18); ctx.stroke();
+    // boca do tubo
+    ctx.beginPath(); ctx.moveTo(x + 9, y + 34); ctx.lineTo(x + w / 2, y + 46); ctx.lineTo(x + w - 9, y + 34); ctx.strokeStyle = ca(0.35 + beat * 0.5); ctx.stroke();
+    // borda de cima: acende na batida
+    R.draw(R.glow('c', 32), x + w / 2, y + 4, w / 50, 0.3 + 0.6 * beat + 0.2 * e.k, true);
+    rrect(ctx, x + 1, y, w - 2, 9, 4); ctx.fillStyle = '#0a0f12'; ctx.fill(); ctx.strokeStyle = ca(0.7 + 0.3 * beat); ctx.stroke();
+  },
+});
+
+/* ---------- ALADO (FLYER): Rastejante com asas ----------
+   opts.path: 'v' (sobe e desce no lugar) ou 'h' (vai e volta). amp em tiles, period em s, phase 0–1.
+   Pisão sem giro arranca as asas: ele cai e vira Rastejante comum. */
+Ents.reg('flyer', {
+  layer: 'enemy',
+  init(e) { e.w = 26; e.h = 24; e.dir = -1; e.enemy = true; e.kind = 'enemy'; e.state = 'fly'; e.res = {}; e.onGround = false; e.creature = 'FLYER'; },
+  update(e, dt) {
+    if (e.state === 'dying') return Enemy.dyingUpdate(e, dt);
+    const o = e.opts || {};
+    if (e.x0 == null) { e.x0 = e.x; e.y0 = e.y; e.ph = (o.phase || 0) * Math.PI * 2; }
+    const w = Math.PI * 2 / (o.period || 2.4), k = Math.sin(e.t * w + e.ph);
+    if (o.path === 'h') {
+      e.x = e.x0 + k * (o.amp != null ? o.amp : 3) * TS; e.y = e.y0 + Math.sin(e.t * w * 2) * 5;
+      e.dir = Math.cos(e.t * w + e.ph) >= 0 ? 1 : -1;
+    } else { e.y = e.y0 + k * (o.amp != null ? o.amp : 1) * TS; e.dir = P.cx < e.x + e.w / 2 ? -1 : 1; }
+  },
+  clip(e) {
+    Game.registerCreature('FLYER');
+    const cx = e.x + e.w / 2;
+    for (const s of [-1, 1]) for (let i = 0; i < 6; i++) FX.add(cx + s * 10, e.y + 6, { vx: s * (40 + i * 25), vy: -60 - i * 20, life: 0.8, size: 1.4, c: 'c', g: 300 });
+    e.type = 'crawler'; e.creature = null; e.state = 'walk'; e.vx = 0; e.vy = 60; e.dir = P.facing; e.asleep = false; e.res = {}; e.onGround = false;
+    e.opts = { respawn: (e.opts || {}).respawn };
+  },
+  draw(ctx, e, x, y) {
+    if (e.state === 'dying') { Ents.types.crawler.draw(ctx, e, x, y); return; }
+    const w = e.w, flap = Math.sin(e.t * 18);
+    Enemy.rim(x + w / 2, y + e.h * 0.5, w + 8);
+    // asas angulares
+    for (const s of [-1, 1]) {
+      const bx = x + w / 2 + s * 6, by = y + 6;
+      ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx + s * 18, by - 8 - flap * 8); ctx.lineTo(bx + s * 14, by + 2 - flap * 3); ctx.lineTo(bx + s * 22, by + 4 - flap * 5); ctx.lineTo(bx + s * 4, by + 8); ctx.closePath();
+      ctx.fillStyle = '#0a0508'; ctx.fill(); ctx.strokeStyle = wa(0.32); ctx.lineWidth = 1; ctx.stroke();
+    }
+    Ents.types.crawler.draw(ctx, Object.assign({}, e, { asleep: true }), x, y);
+  },
+});
+
+/* ---------- LADRÃO DE PALAVRAS (THIEF) ----------
+   Rouba a ÚLTIMA palavra da barra e foge para o buraco (opts.hole = coluna). Um pisão devolve a palavra.
+   Se ele escapar, a palavra volta para o bloco de onde saiu (você nunca perde vocabulário). */
+Ents.reg('thief', {
+  layer: 'enemy',
+  init(e) { e.w = 24; e.h = 30; e.dir = -1; e.enemy = true; e.kind = 'enemy'; e.state = 'idle'; e.res = {}; e.onGround = false; e.word = null; e.creature = 'THIEF'; e.hopT = 0; },
+  update(e, dt) {
+    if (e.state === 'flat') { e.flatT -= dt; if (e.flatT <= 0) { e.dead = true; FX.burst(e.x + e.w / 2, e.y + 2, 14, 'c', 140, { g: -60, life: 0.7 }); } return; }
+    if (e.state === 'dying') return Enemy.dyingUpdate(e, dt);
+    const o = e.opts || {}, hole = (o.hole != null ? o.hole : e.c) * TS + TS / 2, cx = e.x + e.w / 2;
+    if (e.home == null) e.home = { x: cx, y: e.y };
+    if (e.state === 'idle') {
+      e.vx = approach(e.vx, 0, 600 * dt); Enemy.physics(e, dt);
+      if (!P.dead && Game.bar.length && Math.abs(P.cx - cx) < 5 * TS && Math.abs(P.cy - (e.y + e.h / 2)) < 3 * TS) e.state = 'charge';
+    } else if (e.state === 'charge') {
+      e.dir = P.cx < cx ? -1 : 1; e.vx = e.dir * 125; Enemy.physics(e, dt);
+      if (P.dead || !Game.bar.length || Math.abs(P.cx - cx) > 9 * TS) e.state = 'idle';
+    } else if (e.state === 'flee') {
+      e.dir = hole > cx ? 1 : -1; e.vx = e.dir * 150;
+      e.hopT -= dt; if (e.onGround && e.hopT <= 0) { e.vy = -340; e.hopT = 0.55; }
+      Enemy.physics(e, dt);
+      const nx = e.x + e.w / 2;
+      if (e.dir > 0 ? nx >= hole - 4 : nx <= hole + 4) { e.state = 'dive'; e.diveT = 0; e.vx = 0; e.vy = 0; SFX.summon(); }
+    } else if (e.state === 'dive') {
+      e.diveT += dt;
+      if (e.diveT > 0.5) {
+        e.dead = true; e.escaped = true;
+        if (e.word) Game.returnWord(e.word, e.src, e.home);
+        e.word = null;
+      }
+    }
+  },
+  steal(e) {
+    const w = Game.bar.pop(); if (!w) return;
+    e.word = w; e.src = Game.wordSrc[w]; e.state = 'flee'; e.hopT = 0.15;
+    UI.renderBar(); SFX.steal(); Game.shake(1.5); UI.msg('WORD THIEF · ' + w);
+    FX.burst(P.cx, P.cy - 10, 14, 'm', 180, { life: 0.5, g: 0 });
+  },
+  onKill(e) {
+    e.noRespawn = true;   // pisado, não volta mais; se escapar, volta para casa
+    if (!e.word) return;
+    Ents.spawn('capsule', { word: e.word, x: e.x + e.w / 2, y: e.y - 4, baseY: e.y - 30, homing: true, src: e.src });
+    SFX.wordAppear(); UI.msg('WORD BACK · ' + e.word); e.word = null;
+  },
+  draw(ctx, e, x, y) {
+    const w = e.w, h = e.h, t = e.t;
+    if (e.state === 'flat') { Ents.types.crawler.draw(ctx, Object.assign({}, e, { h: 8 }), x, y); return; }
+    const sink = e.state === 'dive' ? Math.min(1, e.diveT / 0.5) : 0;
+    ctx.save();
+    if (sink) { ctx.beginPath(); ctx.rect(x - 20, y - 60, w + 40, h + 60); ctx.clip(); ctx.translate(0, sink * (h + 4)); }
+    if (e.state === 'dying') { ctx.translate(x + w / 2, y + h / 2); ctx.rotate(e.spinA); ctx.translate(-x - w / 2, -y - h / 2); }
+    Enemy.rim(x + w / 2, y + h * 0.55, w + 4);
+    const step = e.onGround && Math.abs(e.vx) > 1 ? Math.sin(t * 20) * 2.5 : 0;
+    ctx.strokeStyle = wa(0.22); ctx.lineWidth = 1.2; ctx.beginPath();
+    ctx.moveTo(x + 7, y + h - 6); ctx.lineTo(x + 5 + step, y + h); ctx.moveTo(x + w - 7, y + h - 6); ctx.lineTo(x + w - 5 - step, y + h); ctx.stroke();
+    // capuz pontudo
+    const f = e.dir;
+    ctx.beginPath(); ctx.moveTo(x + 2, y + h - 4); ctx.lineTo(x + 3, y + h * 0.4); ctx.lineTo(x + w / 2 - f * 6, y - 2); ctx.lineTo(x + w - 3, y + h * 0.4); ctx.lineTo(x + w - 2, y + h - 4); ctx.closePath();
+    ctx.fillStyle = '#0a0508'; ctx.fill(); ctx.strokeStyle = wa(0.32); ctx.lineWidth = 1; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x + 5, y + h * 0.42); ctx.lineTo(x + w - 5, y + h * 0.42); ctx.strokeStyle = wa(0.1); ctx.stroke();
+    // olhos
+    ctx.fillStyle = ca(0.95); ctx.fillRect(x + w / 2 + f * 2 - 4, y + h * 0.5, 3, 2); ctx.fillRect(x + w / 2 + f * 2 + 2, y + h * 0.5, 3, 2);
+    ctx.restore();
+    // a palavra roubada balança sobre a cabeça
+    if (e.word) {
+      const s = wordCapsuleSprite(e.word);
+      R.draw(R.glow('m', 30), x + w / 2, y - 18, 1, 0.5, true);
+      R.draw(s, x + w / 2 + s.ox, y - 18 + Math.sin(t * 10) * 2, 0.8, 1 - sink);
+    }
+  },
+});
+
+/* ---------- RASTEJANTES GIGANTES (alvo de THEY) ----------
+   Dormem e fecham o túnel. Não dá para pisar nem passar. "THEY ARE SMALL" encolhe todos: viram Rastejantes comuns.
+   O caractere marca o tile da esquerda (o gigante ocupa 2 tiles de largura). */
+Ents.reg('giant', {
+  layer: 'enemy',
+  W: 60, H: 88,
+  init(e) {
+    e.w = this.W; e.h = this.H; e.x = e.c * TS + TS - e.w / 2; e.y = (e.r + 1) * TS - e.h;
+    e.enemy = true; e.persist = true; e.kind = 'giant'; e.state = 'sleep'; e.k = 1; e.shake = 0; e.creature = 'CRAWLER'; e.res = {}; e.dir = -1;
+  },
+  update(e, dt) {
+    if (e.shake > 0) e.shake = Math.max(0, e.shake - dt);
+    if (e.state === 'shrink') {
+      e.k = Math.max(0, e.k - dt / 0.6);
+      if (e.k <= 0) this.toCrawler(e);
+    } else if (e.state === 'grow') { e.k = Math.min(1, e.k + dt / 0.6); if (e.k >= 1) e.state = 'sleep'; }
+  },
+  toCrawler(e) {
+    const cx = e.x + e.w / 2, bot = e.y + e.h;
+    Object.assign(e, { type: 'crawler', w: 26, h: 24, state: 'walk', persist: false, wasGiant: true, asleep: false, opts: {}, creature: null, res: {}, onGround: false, vx: 0, vy: 0 });
+    e.x = cx - 13; e.y = bot - 24; e.dir = P.cx < cx ? -1 : 1;
+    FX.burst(cx, bot - 12, 18, 'c', 160, { life: 0.6, g: 0 });
+  },
+  // THEY ARE SMALL / THEY ARE BIG
+  setAll(act) {
+    let n = 0;
+    if (act === 'small') for (const e of Ents.list) if (e.type === 'giant' && !e.dead && e.state === 'sleep') { e.state = 'shrink'; n++; }
+    if (act === 'big') for (const e of Ents.list) {
+      if (e.type !== 'crawler' || !e.wasGiant || e.dead || e.state !== 'walk') continue;
+      const cx = e.x + e.w / 2, bot = e.y + e.h, nx = cx - this.W / 2, ny = bot - this.H;
+      if (!World.fits(nx, ny, this.W, this.H, e)) continue;
+      Object.assign(e, { type: 'giant', w: this.W, h: this.H, x: nx, y: ny, state: 'grow', k: 0, persist: true, creature: 'CRAWLER', vx: 0 });
+      n++;
+    }
+    if (n) (act === 'small' ? SFX.shrink : SFX.grow)(); else { for (const e of Ents.list) if (e.type === 'giant') e.shake = 1; SFX.thud(); }
+    return n > 0;
+  },
+  draw(ctx, e, x, y) {
+    const sc = e.state === 'sleep' ? 1 : lerp(26 / this.W, 1, e.k), w = e.w * sc, h = e.h * sc, t = e.t;
+    const sx = e.shake > 0 ? Math.sin(t * 70) * 3 * e.shake : 0;
+    const bx = x + e.w / 2 - w / 2 + sx, by = y + e.h - h;
+    Enemy.rim(bx + w / 2, by + h * 0.55, w * 1.1);
+    ctx.save(); ctx.translate(bx, by); ctx.scale(w / 26, h / 24);
+    const lw = 26 / w;
+    ctx.beginPath();
+    ctx.moveTo(2, 20); ctx.lineTo(0, 13.2); ctx.lineTo(6, 4.8); ctx.lineTo(13, 1); ctx.lineTo(20, 4.8); ctx.lineTo(26, 13.2); ctx.lineTo(24, 20); ctx.closePath();
+    ctx.fillStyle = '#0a0508'; ctx.fill(); ctx.strokeStyle = wa(0.32); ctx.lineWidth = lw * 1.2; ctx.stroke();
+    ctx.strokeStyle = wa(0.2); ctx.beginPath(); ctx.moveTo(5, 19); ctx.lineTo(3, 24); ctx.moveTo(13, 19); ctx.lineTo(13, 24); ctx.moveTo(21, 19); ctx.lineTo(23, 24); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(6, 13); ctx.lineTo(13, 8.6); ctx.lineTo(20, 13); ctx.strokeStyle = wa(0.08); ctx.stroke();
+    // olhos fechados
+    ctx.beginPath(); ctx.moveTo(9, 13.5); ctx.lineTo(12, 14.2); ctx.moveTo(14, 14.2); ctx.lineTo(17, 13.5); ctx.strokeStyle = ca(0.7); ctx.lineWidth = lw * 1.4; ctx.stroke();
+    ctx.restore();
+    if (e.state === 'sleep') {
+      const z = (t * 0.6 + e.c * 0.37) % 1;
+      R.draw(R.text('z', '700 ' + (10 + z * 8 | 0) + 'px Orbitron, Inter, sans-serif', wa(0.7), ca(0.8), 4), bx + w * 0.8 + z * 10, by - 4 - z * 22, 1, 1 - z);
+    }
+    if (e.shake > 0) R.draw(R.text('?', '900 18px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(34,211,238,1)', 6), bx + w / 2, by - 14, 1, e.shake);
+  },
+});
+
+/* ---------- SINOS e o PORTÃO DOS SINOS ----------
+   Cada sino tem uma palavra (opts.word) e pertence a um portão (opts.gate). Encostar no sino toca a palavra;
+   a sequência vai preenchendo o molde do portão. Frase certa abre; errada: o eco repete a frase e os sinos zeram. */
+Ents.reg('bell', {
+  layer: 'back',
+  init(e) { e.w = 30; e.h = 34; e.x = e.c * TS + 1; e.y = e.r * TS; e.swing = 0; e.touch = false; e.ring = 0; e.light = 70; e.ph = e.c * 0.7; },
+  update(e, dt) {
+    e.swing *= Math.exp(-dt * 1.4); e.ring = Math.max(0, e.ring - dt * 0.8);
+    const d = World.doors[e.opts.gate], on = !P.dead && overlap(e, P.box());
+    // o mesmo sino duas vezes seguidas não conta (evita "I AM AM" por acidente)
+    if (on && !e.touch && d && !d.open && !d.busy && d.chimes[d.chimes.length - 1] !== e.opts.word) {
+      e.swing = (P.vx >= 0 ? 1 : -1) * 0.5; e.ring = 1;
+      SFX.bell(e.opts.tone || 0); Voice.say(WORDS[e.opts.word] ? WORDS[e.opts.word].say : e.opts.word, 'echo');
+      FX.burst(e.x + 15, e.y + 26, 14, 'c', 160, { life: 0.6, g: 0 });
+      Bells.add(d, e.opts.word);
+    }
+    e.touch = on;
+  },
+  draw(ctx, e, x, y) {
+    const t = e.t, a = e.swing * Math.sin(t * 7) + Math.sin(t * 1.3 + e.ph) * 0.03, cx = x + 15;
+    const g = ctx.createLinearGradient(0, y - 120, 0, y);
+    g.addColorStop(0, wa(0)); g.addColorStop(1, wa(0.22));
+    ctx.strokeStyle = g; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(cx, y - 120); ctx.lineTo(cx, y + 2); ctx.stroke();
+    if (e.ring > 0) R.draw(R.glow('c', 50), cx, y + 20, 1 + e.ring * 0.6, e.ring * 0.8, true);
+    R.draw(R.glow('c', 30), cx, y + 22, 1, 0.25, true);
+    ctx.save(); ctx.translate(cx, y + 2); ctx.rotate(a);
+    ctx.beginPath(); ctx.moveTo(-5, 0); ctx.quadraticCurveTo(-7, 4, -8, 14); ctx.quadraticCurveTo(-10, 24, -15, 28); ctx.lineTo(15, 28); ctx.quadraticCurveTo(10, 24, 8, 14); ctx.quadraticCurveTo(7, 4, 5, 0); ctx.closePath();
+    ctx.fillStyle = '#0a0f12'; ctx.fill(); ctx.strokeStyle = ca(0.6 + e.ring * 0.4); ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 30, 3, 0, Math.PI * 2); ctx.fillStyle = ca(0.8); ctx.fill();
+    ctx.restore();
+    R.draw(R.text(e.opts.word, '700 10px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(34,211,238,0.9)', 5), cx, y + 46, 1, 0.85 + 0.15 * e.ring);
+  },
+});
+const Bells = {
+  add(d, word) {
+    const n = d.def.mold.filter(tk => tk === '_').length;
+    d.chimes.push(word); d.solved = d.chimes.concat(new Array(n - d.chimes.length).fill(null));
+    if (d.chimes.length < n) return;
+    d.busy = true;
+    const words = d.chimes.slice(), j = Sentence.judge(d.def, words);
+    Game.later(0.6, () => {
+      Voice.say(Sentence.speakable(Sentence.fill(d.def, words)), 'door');
+      if (j.kind === 'accept') {
+        SFX.right(); d.opening = 0.001; SFX.doorOpen(); Game.shake(3);
+        for (const w of words) Game.grimoireWord(w, d.def.inscription);
+        // acertou de primeira: uma vida cai do grande sino
+        if (d.errors === 0 && d.def.reward) { const [c, r] = d.def.reward; Game.later(0.9, () => { Ents.spawn('life', { x: c * TS + TS / 2, y: r * TS + TS / 2, fall: true }); UI.msg('FIRST TRY!'); }); }
+        d.busy = false;
+      } else {
+        SFX.wrong(); d.errors++; Game.shake(2);
+        Game.later(1.4, () => { d.chimes = []; d.solved = null; d.busy = false; });
+      }
+    });
+  },
+};
+
+/* ---------- VIDA (1UP) e LUA (3UP) ---------- */
+function lifeSprite() {
+  return R.sprite('life', 64, 64, x => {
+    const g = x.createRadialGradient(32, 32, 0, 32, 32, 30);
+    g.addColorStop(0, 'rgba(240,171,252,0.7)'); g.addColorStop(0.4, 'rgba(217,70,239,0.25)'); g.addColorStop(1, 'rgba(217,70,239,0)');
+    x.fillStyle = g; x.fillRect(0, 0, 64, 64);
+    x.beginPath(); x.arc(32, 32, 13, 0, Math.PI * 2); x.fillStyle = '#0a0508'; x.fill(); x.strokeStyle = '#e879f9'; x.lineWidth = 1.6; x.stroke();
+    x.beginPath(); x.arc(32, 32, 9, 0, Math.PI * 2); x.strokeStyle = 'rgba(240,171,252,0.4)'; x.lineWidth = 1; x.stroke();
+  });
+}
+Ents.reg('life', {
+  init(e) {
+    e.w = 26; e.h = 26; e.light = 90;
+    if (e.c != null) { e.x = e.c * TS + 3; e.y = e.r * TS + 3; } else { e.x -= 13; e.y -= 13; }
+    e.startY = e.y;
+  },
+  update(e, dt) {
+    if (e.emerge && e.t < 0.5) e.y = lerp(e.startY, e.baseY - 13, 1 - Math.pow(1 - e.t / 0.5, 2));
+    else if (e.fall) {
+      e.vy = Math.min(e.vy + 900 * dt, 320);
+      const r = World.move(e, 0, e.vy * dt);
+      if (r.floor) { e.fall = false; e.vy = 0; e.baseY = e.y + 13 - 10; SFX.thud(); }
+      if (e.y > World.pxH) e.dead = true;
+    } else { if (e.baseY == null) e.baseY = e.y + 13; e.y = e.baseY - 13 + Math.sin(e.t * 2.4) * 3; }
+    if (e.t > 0.3 && overlap(e, P.box())) { e.dead = true; Game.addLife(1, e); }
+  },
+  draw(ctx, e, x, y) {
+    const cx = x + 13, cy = y + 13;
+    R.draw(lifeSprite(), cx, cy, 1 + 0.06 * Math.sin(e.t * 5), 1, true);
+    R.draw(R.text('1UP', '900 8px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(217,70,239,1)', 4), cx, cy + 0.5);
+  },
+});
+Ents.reg('moon', {
+  init(e) { e.w = 30; e.h = 30; e.x = e.c * TS + 1; e.y = e.r * TS + 1; e.light = 140; },
+  update(e) { if (overlap(e, P.box())) { e.dead = true; Game.addLife(3, e); SFX.moon(); } },
+  draw(ctx, e, x, y) {
+    const cx = x + 15, cy = y + 15 + Math.sin(e.t * 1.8) * 3;
+    R.draw(R.glow('t', 64), cx, cy, 1, 0.9, true);
+    ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, 13, 0, Math.PI * 2); ctx.arc(cx + 7, cy - 4, 11, 0, Math.PI * 2, true); ctx.fillStyle = '#f5faff'; ctx.fill('evenodd'); ctx.restore();
+    R.draw(R.text('3UP', '900 8px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(217,70,239,1)', 4), cx, cy + 24, 1, 0.8);
+  },
+});
+
+/* ---------- GRANDE SINO (decoração) ---------- */
+Ents.reg('bigbell', {
+  layer: 'back',
+  init(e) { e.w = 96; e.h = 90; e.x = e.c * TS + TS / 2 - 48; e.y = e.r * TS; },
+  draw(ctx, e, x, y) {
+    const a = Math.sin(e.t * 0.9) * 0.04, cx = x + 48;
+    ctx.strokeStyle = wa(0.18); ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(cx, y - 200); ctx.lineTo(cx, y); ctx.stroke();
+    R.draw(R.glow('c', 64), cx, y + 54, 1.3, 0.3, true);
+    ctx.save(); ctx.translate(cx, y); ctx.rotate(a);
+    ctx.beginPath(); ctx.moveTo(-14, 0); ctx.quadraticCurveTo(-20, 10, -24, 40); ctx.quadraticCurveTo(-28, 70, -46, 82); ctx.lineTo(46, 82); ctx.quadraticCurveTo(28, 70, 24, 40); ctx.quadraticCurveTo(20, 10, 14, 0); ctx.closePath();
+    ctx.fillStyle = '#0a0f12'; ctx.fill(); ctx.strokeStyle = ca(0.55); ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-36, 70); ctx.lineTo(36, 70); ctx.moveTo(-26, 30); ctx.lineTo(26, 30); ctx.strokeStyle = ca(0.18); ctx.stroke();
+    ctx.restore();
+  },
+});
+
+/* ---------- ECHO GIGANTE: "YOU ARE BIG" vira uma plataforma que leva o Nexy ----------
+   ride.board = onde ele espera (tile), ride.path = pontos do caminho (tiles; r = linha da superfície). */
+Ents.reg('echoride', {
+  layer: 'mid',
+  init(e) { e.w = 96; e.h = 14; e.plat = true; e.dx = 0; e.dy = 0; e.state = 'grow'; e.k = 0; e.i = 0; e.waitT = 0; e.rideT = 0; e.offT = 0; e.light = 220; },
+  update(e, dt) {
+    const ox = e.x, oy = e.y;
+    if (e.state === 'grow') { e.k = Math.min(1, e.k + dt / 0.6); if (e.k >= 1) e.state = 'wait'; }
+    else if (e.state === 'wait') {
+      e.waitT += dt;
+      if (P.riding === e) { e.rideT += dt; if (e.rideT > 0.35) { e.state = 'go'; SFX.powerup(); } } else e.rideT = 0;
+      if (e.waitT > 14) e.state = 'shrink';
+    } else if (e.state === 'go') {
+      const [c, r] = e.path[e.i], tx = c * TS + TS / 2 - e.w / 2, ty = r * TS;
+      const dx = tx - e.x, dy = ty - e.y, d = Math.hypot(dx, dy), sp = 150 * dt;
+      if (d <= sp) { e.x = tx; e.y = ty; e.i++; if (e.i >= e.path.length) e.state = 'arrived'; }
+      else { e.x += dx / d * sp; e.y += dy / d * sp; }
+      if (Math.random() < 0.6) FX.add(e.x + Math.random() * e.w, e.y + 18, { vx: -dx / (d || 1) * 60, vy: 20, life: 0.6, size: 1.4, c: 'm', g: 0 });
+    } else if (e.state === 'arrived') {
+      if (P.riding !== e) { e.offT += dt; if (e.offT > 0.8) e.state = 'shrink'; } else e.offT = 0;
+    } else if (e.state === 'shrink') {
+      e.k = Math.max(0, e.k - dt / 0.5);
+      if (e.k <= 0) { e.dead = true; Echo.hidden = false; Echo.x = e.x + e.w / 2; Echo.y = e.y; Echo.px = Echo.x; Echo.py = Echo.y; }
+    }
+    e.dx = e.x - ox; e.dy = e.y - oy;
+  },
+  draw(ctx, e, x, y) {
+    const k = e.k, cx = x + e.w / 2, t = e.t, r = 10 + 30 * k;
+    R.draw(R.glow('m', 64), cx, y + 14, 0.6 + 1.1 * k, 0.75, true);
+    ctx.beginPath(); ctx.arc(cx, y + 6 + r * 0.55, r, Math.PI * 1.05, Math.PI * 1.95, true); ctx.closePath();
+    const g = ctx.createRadialGradient(cx - r * 0.3, y + 4, 0, cx, y + 10, r * 1.2);
+    g.addColorStop(0, wa(0.25)); g.addColorStop(1, wa(0.03));
+    ctx.fillStyle = g; ctx.fill(); ctx.strokeStyle = wa(0.35); ctx.lineWidth = 1; ctx.stroke();
+    if (k > 0.5) { capsulePath(ctx, cx, y + 3, e.w * k, 7); ctx.fillStyle = 'rgba(217,70,239,0.28)'; ctx.fill(); ctx.strokeStyle = '#e879f9'; ctx.stroke(); }
+    ctx.beginPath(); ctx.arc(cx, y + 14 + r * 0.2, 4 + 5 * k + Math.sin(t * 6) * 0.8, 0, Math.PI * 2); ctx.fillStyle = '#e879f9'; ctx.fill();
+  },
+});
+
+/* ---------- ALTAR DAS RUNAS (o pedestal com alvo) ---------- */
+function drawAltar(ctx, x, y, t) {
+  R.draw(R.glow('c', 44), x + 16, y - 6, 1.1, 0.4 + 0.15 * Math.sin(t * 2), true);
+  ctx.beginPath(); ctx.moveTo(x - 2, y + 32); ctx.lineTo(x + 4, y + 10); ctx.lineTo(x + 28, y + 10); ctx.lineTo(x + 34, y + 32); ctx.closePath();
+  ctx.fillStyle = 'rgba(10,15,18,0.95)'; ctx.fill(); ctx.strokeStyle = wa(0.16); ctx.lineWidth = 1; ctx.stroke();
+  rrect(ctx, x - 4, y + 4, 40, 7, 3); ctx.fillStyle = 'rgba(10,15,18,0.98)'; ctx.fill(); ctx.strokeStyle = ca(0.6); ctx.stroke();
+  // três runas orbitando: I · IT · THEY (quem a frase atinge)
+  ['I', 'IT', 'THEY'].forEach((g, i) => {
+    const a = t * 0.9 + i * Math.PI * 2 / 3, rx = x + 16 + Math.cos(a) * 20, ry = y - 14 + Math.sin(a) * 6;
+    R.draw(R.text(g, '700 8px Orbitron, Inter, sans-serif', wa(0.85), ca(0.9), 4), rx, ry, 1, 0.55 + 0.45 * (Math.sin(a) * 0.5 + 0.5));
+  });
+}
+
 /* ============================== JOGADOR ============================== */
 const P = {
   kind: 'player', x: 0, y: 0, w: CFG.PLAYER_W, h: CFG.PLAYER_H, vx: 0, vy: 0, px: 0, py: 0,
   facing: 1, onGround: false, lastGround: -1, jumpedSinceGround: true, crouch: false, spinning: false, spinT: 0,
   scale: 1, visScale: 1, scaleFrom: 1, scaleT: 1, aura: false, invuln: 0, dead: false, deathT: 0, pitDeath: false,
   combo: 0, held: null, giant: false, spinBreak: false, trail: [], walkPhase: 0, squash: 0, interact: null,
-  lastSafe: null, kickT: 0,
+  lastSafe: null, kickT: 0, riding: null, form: null,
   get cx() { return this.x + this.w / 2; },
   get cy() { return this.y + this.h / 2; },
   box() { return this.dead ? { x: -9999, y: -9999, w: 0, h: 0 } : this; },
@@ -2504,12 +3314,18 @@ const P = {
     this.vx = 0; this.vy = 0; this.facing = 1; this.onGround = false; this.crouch = false; this.spinning = false;
     this.aura = false; this.invuln = 0; this.dead = false; this.deathT = 0; this.combo = 0; this.held = null;
     this.giant = false; this.trail = []; this.interact = null; this.lastSafe = { x: footX, y: footY }; this.jumpedSinceGround = true; this.bounceWindow = 0; this.lockRise = false; this.comboGlow = 0;
+    this.riding = null; this.form = null;
   },
 
   update(dt) {
     if (this.dead) return this.updateDeath(dt);
     const I = Input, now = Game.simTime;
-    const carry = I.get('run'), run = carry || I.dashing(), down = I.get('down');
+    // forma de Rastejante ("YES, I AM [A CRAWLER]"): anda baixinho, devagar e sem pular por alguns segundos
+    if (this.form) {
+      this.form.t -= dt;
+      if (this.form.t <= 0 && this.onGround) { this.setCrouch(false); if (!this.crouch) { this.form = null; SFX.grow(); FX.burst(this.cx, this.cy, 24, 'm', 200, { life: 0.6, g: 0 }); } }
+    }
+    const carry = I.get('run') && !this.form, run = (carry || I.dashing()) && !this.form, down = I.get('down') || !!this.form;
     const dir = (I.get('right') ? 1 : 0) - (I.get('left') ? 1 : 0);
 
     // agachar (reduz a altura)
@@ -2517,9 +3333,9 @@ const P = {
     else if (!down && this.crouch) this.setCrouch(false);
 
     // aceleração e inércia
-    const maxV = run ? CFG.RUN : CFG.WALK, av = Math.abs(this.vx);
+    const maxV = this.form ? 80 : run ? CFG.RUN : CFG.WALK, av = Math.abs(this.vx);
     if (this.onGround) {
-      if (this.crouch) this.vx = approach(this.vx, 0, CFG.CROUCH_FRICTION * dt);
+      if (this.crouch && !this.form) this.vx = approach(this.vx, 0, CFG.CROUCH_FRICTION * dt);
       else if (dir) {
         if (this.vx * dir < 0) { this.vx += dir * CFG.SKID * dt; if (av > 120 && Math.random() < 0.5) FX.add(this.cx, this.y + this.h, { vx: -dir * 40, vy: -30, life: 0.3, size: 1.2, c: 'c', g: 0 }); }
         else if (av < maxV) this.vx = dir * Math.min(av + (av > CFG.WALK ? CFG.RUN_ACC : CFG.ACC) * dt, maxV);
@@ -2536,7 +3352,7 @@ const P = {
     // pulo com coyote time e buffer
     const canJump = this.onGround || (now - this.lastGround <= CFG.COYOTE && !this.jumpedSinceGround);
     const wj = now - I.pressedAt.jump <= CFG.BUFFER, ws = now - I.pressedAt.spin <= CFG.BUFFER;
-    if (canJump && (wj || ws)) {
+    if (canJump && (wj || ws) && !this.form) {
       const spin = ws && (!wj || I.pressedAt.spin > I.pressedAt.jump);
       this.doJump(spin); I.pressedAt.jump = -1; I.pressedAt.spin = -1;
     }
@@ -2549,9 +3365,12 @@ const P = {
 
     // movimento e colisão
     this.giant = this.scale > 1.5; this.spinBreak = this.spinning && this.vy > 0;
-    const wasGround = this.onGround;
+    const wasGround = this.onGround, prevFeet = this.y + this.h;
     const res = World.move(this, this.vx * dt, this.vy * dt);
     if (res.wall) this.vx = 0;
+    this.riding = null;
+    if (!res.floor && this.vy >= 0) this.landOnPlatforms(prevFeet, res);
+    this.pushOutOfBodies();
     if (res.ceil && this.vy < 0) { this.vy = 30; this.headHit(res.ceilTiles); }
     if (res.spinBroke) { this.vy = -140; Game.hitstop(2); Game.shake(2); }
     if (res.floor) {
@@ -2587,6 +3406,31 @@ const P = {
     for (const v of World.veils) if (!v.found && overlap(v, this)) { v.found = true; Game.foundSecret(v.id); SFX.letter(); }
   },
   easeBack(t) { const c = 1.7; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); },
+  // plataformas móveis: sólidas só por cima. Quem pousa vai junto com elas (Game.step aplica dx/dy depois).
+  landOnPlatforms(prevFeet, res) {
+    const feet = this.y + this.h;
+    for (const e of Ents.list) {
+      if (!e.plat || e.dead) continue;
+      if (this.x + this.w <= e.x + 2 || this.x >= e.x + e.w - 2) continue;
+      if (prevFeet <= e.y + 2 + Math.max(0, -e.dy) && feet >= e.y) { this.y = e.y - this.h; res.floor = true; this.riding = e; return; }
+    }
+  },
+  // o corpo dos tubos do órgão é sólido dos lados
+  pushOutOfBodies() {
+    for (const e of Ents.list) {
+      if (!e.body || e.dead) continue;
+      const bx = e.x + 4, bw = e.w - 8;
+      if (this.x + this.w <= bx || this.x >= bx + bw || this.y + this.h <= e.y + 10) continue;
+      const left = this.cx < bx + bw / 2;
+      this.x = left ? bx - this.w : bx + bw;
+      if (left ? this.vx > 0 : this.vx < 0) this.vx = 0;
+    }
+  },
+  crawlerForm(sec) {
+    if (this.form) { this.form.t = sec; return; }
+    this.dropHeld(); this.form = { kind: 'crawler', t: sec }; if (this.onGround) this.setCrouch(true);
+    SFX.shrink(); FX.burst(this.cx, this.cy, 30, 'm', 220, { life: 0.7, g: 0 });
+  },
 
   setCrouch(on) {
     const s = this.scale, H = CFG.PLAYER_H * s, CH = CFG.CROUCH_H * s;
@@ -2640,6 +3484,23 @@ const P = {
       if (e.state === 'held' || this.dead || !overlap(this, e)) continue;
       const falling = this.y - this.py > 0.01 || this.vy > 0;
       const above = this.py + this.h <= e.y + e.h * 0.5 + 3;
+      // gigantes: fecham a passagem (empurram, não machucam)
+      if (e.type === 'giant') {
+        if (falling && above) { this.y = e.y - this.h; this.bounce(false); SFX.thud(); }
+        else {
+          const left = this.cx < e.x + e.w / 2; this.x = left ? e.x - this.w : e.x + e.w; this.vx = left ? -90 : 90;
+          if (e.shake <= 0) { e.shake = 0.35; SFX.thud(); }
+        }
+        continue;
+      }
+      // ladrão: encostar não machuca, mas ele leva a última palavra da barra
+      if (e.type === 'thief' && !(falling && above)) {
+        if (e.state === 'idle' || e.state === 'charge') {
+          if (Game.bar.length) Ents.types.thief.steal(e);
+          else { this.vx = (this.cx < e.x + e.w / 2 ? -1 : 1) * 200; e.state = 'idle'; e.vx = -this.vx * 0.6; SFX.thud(); }
+        }
+        continue;
+      }
       if (this.giant) { Enemy.kill(e, 'pop', sign(e.x + e.w / 2 - this.cx) || 1); SFX.crush(); Game.shake(3); continue; }
       if (e.type === 'casco' && e.state === 'shell') {
         if (e.immune > 0) continue;
@@ -2660,7 +3521,8 @@ const P = {
     const spin = this.spinning, topY = e.y, cx = e.x + e.w / 2;
     this.combo++;
     if (spin) Enemy.kill(e, 'pop', this.facing);
-    else if (e.type === 'crawler') Enemy.kill(e, 'flat');
+    else if (e.type === 'flyer') Ents.types.flyer.clip(e);
+    else if (e.type === 'crawler' || e.type === 'thief') Enemy.kill(e, 'flat');
     else if (e.state === 'walk') { Ents.types.casco.toShell(e); e.immune = 0.15; Game.registerCreature('SHELL'); }
     else if (e.state === 'slide') { e.state = 'shell'; e.vx = 0; e.immune = 0.15; }
     this.y = topY - this.h;
@@ -2738,7 +3600,7 @@ const P = {
       if (!d.read && Math.abs(this.cx - dcx) < TS * 7 && Math.abs((this.y + this.h) - (d.y + d.h)) < TS * 4 && (d.kind === 'pedestal' || !d.open)) {
         d.read = true; Voice.say(Sentence.speakInscription(d.def.inscription), 'door');
       }
-      if (d.open && d.kind === 'door') continue;
+      if (d.open && d.kind !== 'pedestal' || d.kind === 'bells') continue;
       const feetOk = Math.abs((this.y + this.h) - (d.y + d.h)) < 10;
       const near = d.kind === 'door' ? (this.x + this.w > d.x - 44 && this.x < d.x + 2) : Math.abs(this.cx - dcx) < 40;
       if (near && feetOk && this.onGround) this.interact = d;
@@ -2791,9 +3653,19 @@ const P = {
     let sx = 1 + this.squash * 0.6, sy = 1 - this.squash * 0.6;
     if (this.spinning) sx *= Math.cos(this.spinT * 26);
     ctx.scale(sx * s, sy * s);
+    if (this.form) { this.drawCrawlerForm(ctx, t); ctx.restore(); return; }
     if (this.crouch) ctx.scale(1.06, CFG.CROUCH_H / CFG.PLAYER_H);
     this.drawBody(ctx, t);
     ctx.restore();
+  },
+  drawCrawlerForm(ctx, t) {
+    const f = this.facing, step = Math.abs(this.vx) > 5 ? Math.sin(t * 14) * 2 : 0;
+    ctx.translate(-13, -24);
+    ctx.strokeStyle = 'rgba(217,70,239,0.7)'; ctx.lineWidth = 1.2; ctx.beginPath();
+    ctx.moveTo(6, 18); ctx.lineTo(3 + step, 24); ctx.moveTo(13, 19); ctx.lineTo(13 - step, 24); ctx.moveTo(20, 18); ctx.lineTo(23 + step, 24); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(2, 20); ctx.lineTo(0, 13.2); ctx.lineTo(6, 4.8); ctx.lineTo(13, 1); ctx.lineTo(20, 4.8); ctx.lineTo(26, 13.2); ctx.lineTo(24, 20); ctx.closePath();
+    ctx.fillStyle = '#050505'; ctx.fill(); ctx.strokeStyle = '#d946ef'; ctx.lineWidth = 1.6; ctx.stroke();
+    capsulePath(ctx, 13 + f * 4, 12, 9, 3.6); ctx.fillStyle = '#f0abfc'; ctx.fill();
   },
   drawBody(ctx, t) {
     const f = this.facing, lw = 1.9 / (this.visScale * this.scale);
@@ -2823,9 +3695,29 @@ const P = {
 
 /* ============================== ECHO (familiar, a voz do jogo) ============================== */
 const Echo = {
-  x: 0, y: 0, px: 0, py: 0, pulse: 0,
-  reset() { this.x = P.cx - 26; this.y = P.y - 10; this.px = this.x; this.py = this.y; },
+  x: 0, y: 0, px: 0, py: 0, pulse: 0, hidden: false, puff: 0, tiny: 0, shake: 0,
+  reset() {
+    this.x = P.cx - 26; this.y = P.y - 10; this.px = this.x; this.py = this.y; this.hidden = false; this.puff = 0; this.tiny = 0; this.shake = 0;
+    for (const e of Ents.list) if (e.type === 'echoride') e.dead = true;
+  },
+  // alvo de YOU: cresce (e vira plataforma quando a fase tem um caminho para ele) ou encolhe
+  act(what, ride) {
+    if (what === 'big' && ride) {
+      if (Ents.list.some(e => e.type === 'echoride' && !e.dead)) return false;
+      const [c, r] = ride.board;
+      Ents.spawn('echoride', { x: c * TS + TS / 2 - 48, y: r * TS, path: ride.path });
+      this.hidden = true; SFX.grow(); FX.burst(this.x, this.y, 40, 'm', 260, { life: 0.9, g: 0 });
+      return true;
+    }
+    if (what === 'big') { this.puff = 2.2; this.tiny = 0; SFX.grow(); return true; }
+    if (what === 'small') { this.tiny = 2.2; this.puff = 0; SFX.shrink(); return true; }
+    if (what === 'confused') { this.shake = 1; SFX.thud(); return true; }
+    return false;
+  },
   update(dt) {
+    if (this.puff > 0) this.puff = Math.max(0, this.puff - dt);
+    if (this.tiny > 0) this.tiny = Math.max(0, this.tiny - dt);
+    if (this.shake > 0) this.shake = Math.max(0, this.shake - dt);
     const t = Game.time, s = P.scale;
     const tx = P.cx - P.facing * (24 + 8 * s), ty = P.y - 6 - 6 * s + Math.sin(t * 2.2) * 4;
     const k = 1 - Math.exp(-dt * (P.dead ? 1.5 : 4.5));
@@ -2833,7 +3725,16 @@ const Echo = {
     if (Voice.speaking && Voice.who === 'echo') this.pulse = 1; else this.pulse = Math.max(0, this.pulse - dt * 3);
   },
   draw(ctx, camX, camY, a) {
-    const x = lerp(this.px, this.x, a) - camX, y = lerp(this.py, this.y, a) - camY, t = Game.time;
+    if (this.hidden) return;
+    let x = lerp(this.px, this.x, a) - camX; const y = lerp(this.py, this.y, a) - camY, t = Game.time;
+    const size = this.puff > 0 ? 1 + 1.6 * Math.min(1, this.puff * 2, (2.2 - this.puff) * 4) : this.tiny > 0 ? 1 - 0.55 * Math.min(1, this.tiny * 2, (2.2 - this.tiny) * 4) : 1;
+    if (this.shake > 0) x += Math.sin(t * 40) * 3 * this.shake;
+    if (size !== 1) { ctx.save(); ctx.translate(x, y); ctx.scale(size, size); ctx.translate(-x, -y); }
+    this.drawOrb(ctx, x, y, t);
+    if (size !== 1) ctx.restore();
+    if (this.shake > 0) R.draw(R.text('?', '900 14px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(217,70,239,1)', 6), x, y - 18, 1, this.shake);
+  },
+  drawOrb(ctx, x, y, t) {
     const talk = this.pulse > 0 ? 1 + 0.45 * Math.abs(Math.sin(t * 17)) * this.pulse : 1;
     R.draw(R.glow('m', 26), x, y, 0.7 * talk, 0.55 + 0.35 * this.pulse, true);
     ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2);
@@ -2885,7 +3786,7 @@ const Doors = {
           const w = d.solved ? d.solved[wi] : null; wi++;
           if (w) { m.font = '700 12px Orbitron, Inter, sans-serif'; const tw = m.measureText(w).width + w.length * 1.4 + 18; parts.push({ slot: true, word: w, w: tw }); total += tw; }
           else { parts.push({ slot: true, w: 44 }); total += 44; }
-        } else if (/^[.!?]$/.test(tok)) { m.font = '600 13px Orbitron, Inter, sans-serif'; const tw = m.measureText(tok).width; parts.push({ txt: tok, w: tw, punct: true }); total += tw; }
+        } else if (/^[.,!?]$/.test(tok)) { m.font = '600 13px Orbitron, Inter, sans-serif'; const tw = m.measureText(tok).width; parts.push({ txt: tok, w: tw, punct: true }); total += tw; }
         else { m.font = '600 13px Orbitron, Inter, sans-serif'; const tw = m.measureText(tok).width + tok.length * 1.4; parts.push({ txt: tok, w: tw }); total += tw; }
       }
       const gap = 8; total += gap * (parts.length - 1);
@@ -2919,7 +3820,7 @@ const Doors = {
     for (const id in World.doors) {
       const d = World.doors[id], x = d.x - camX, y = d.y - camY;
       if (x > CFG.VIEW_W + 200 || x + d.w < -200) continue;
-      if (d.kind === 'door') this.drawArch(ctx, d, x, y, t);
+      if (d.kind === 'door' || d.kind === 'bells') this.drawArch(ctx, d, x, y, t);
       const cx = x + d.w / 2, top = d.kind === 'door' ? y - 40 : y - 92;
       const dim = d.kind === 'door' && d.open ? 0.4 : 1;
       R.draw(R.text(d.def.inscription, '700 15px Orbitron, Inter, sans-serif', '#22d3ee', 'rgba(0,217,249,0.7)', 10), cx, top - 62, 1, dim);
@@ -2946,8 +3847,20 @@ const Doors = {
       ctx.moveTo(x + 9, y + d.h * 0.45); ctx.lineTo(x + d.w - 9, y + d.h * 0.45); ctx.strokeStyle = ca(0.12); ctx.stroke();
       ctx.beginPath(); ctx.arc(x + d.w / 2, y - 2, 6, 0, Math.PI * 2); ctx.strokeStyle = ca(0.35); ctx.stroke();
       R.draw(R.glow('c', 24), x + d.w / 2, y - 2, 1, 0.35, true);
+      if (d.kind === 'bells') for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(x + d.w / 2, y + d.h * (0.3 + i * 0.2), 4, 0, Math.PI * 2); ctx.strokeStyle = ca(0.3); ctx.stroke(); }
     }
     ctx.restore();
+    // "I AM YOU.": o reflexo do Nexy aparece no vidro da porta e acena
+    if (d.mirror > 0) {
+      const k = Math.min(1, d.mirror * 2, (1.8 - d.mirror) * 4);
+      R.draw(R.glow('m', 40), x + d.w / 2, y + d.h - 28, 1, 0.5 * k, true);
+      ctx.save(); ctx.globalAlpha = 0.65 * k; ctx.translate(x + d.w / 2, y + d.h - 2); ctx.scale(0.95, 0.95);
+      const of = P.facing, ok = P.kickT, og = P.onGround, ow = P.walkPhase, os = P.visScale, osc = P.scale;
+      P.facing = -1; P.kickT = Math.sin(Game.time * 14) > 0 ? 0.1 : 0; P.onGround = true; P.walkPhase = 0.6; P.visScale = 1; P.scale = 1;
+      P.drawBody(ctx, t);
+      P.facing = of; P.kickT = ok; P.onGround = og; P.walkPhase = ow; P.visScale = os; P.scale = osc;
+      ctx.restore();
+    }
   },
   drawIcon(ctx, d, x, y, t) {
     R.draw(R.glow('c', 30), x, y, 1, 0.6, true);
@@ -2977,7 +3890,7 @@ const Sentence = {
   speakable(tokens) {
     let out = '';
     tokens.forEach((t, i) => {
-      if (/^[.!?]$/.test(t)) { out += t; return; }
+      if (/^[.,!?]$/.test(t)) { out += t; return; }
       let w = WORDS[t] ? WORDS[t].say : t.toLowerCase();
       if (t === 'I') w = 'I';
       if (i === 0) w = w.charAt(0).toUpperCase() + w.slice(1);
@@ -2988,12 +3901,13 @@ const Sentence = {
   speakInscription(s) { const l = s.toLowerCase().replace(/\bi\b/g, 'I'); return l.charAt(0).toUpperCase() + l.slice(1); },
   fill(def, words) { let i = 0; return def.mold.map(t => t === '_' ? (words[i++] || '___') : t); },
   normalized(def, words) { return normalizeSentence(this.fill(def, words).join(' ')); },
-  // resolve uma tentativa: 'accept' | 'enact' | 'wrong'
+  // resolve uma tentativa: 'accept' | 'enact' | 'wrong'. Nas encenações, '*' vale qualquer palavra.
+  match(pat, words) { return pat.length === words.length && pat.every((p, i) => p === '*' || p === words[i]); },
   judge(def, words) {
     const key = words.join(' ');
     const a = def.accept.find(x => x.words.join(' ') === key);
     if (a) return { kind: 'accept', rule: a };
-    const e = (def.enact || []).find(x => x.words.join(' ') === key);
+    const e = (def.enact || []).find(x => this.match(x.words, words));
     if (e) return { kind: 'enact', rule: e };
     return { kind: 'wrong' };
   },
@@ -3001,12 +3915,18 @@ const Sentence = {
     for (const alt of alts) {
       const n = normalizeSentence(alt);
       for (const a of def.accept) if (n === this.normalized(def, a.words) || n.endsWith(this.normalized(def, a.words))) return { kind: 'accept', rule: a, heard: alt };
-      for (const e of def.enact || []) if (n === this.normalized(def, e.words)) return { kind: 'enact', rule: e, heard: alt };
+      for (const e of def.enact || []) if (!e.words.includes('*') && n === this.normalized(def, e.words)) return { kind: 'enact', rule: e, heard: alt };
     }
     return { kind: 'wrong', heard: alts[0] || '' };
   },
   // encenação de uma frase "errada" (ex.: IT IS A DOOR → o ícone vira porta por 1 s)
-  enact(d, rule) { const r = rule.result; if (r.type === 'morph') { d.morph = r.duration || 1; SFX.summon(); FX.burst(d.x - 30, d.y + 18, 16, 'c', 120, { g: 0, life: 0.6 }); } },
+  enact(d, rule) {
+    const r = rule.result;
+    if (r.type === 'morph') { d.morph = r.duration || 1; SFX.summon(); FX.burst(d.x - 30, d.y + 18, 16, 'c', 120, { g: 0, life: 0.6 }); }
+    else if (r.type === 'mirror') { d.mirror = 1.8; SFX.summon(); }
+    else if (r.type === 'crawler') P.crawlerForm(r.duration || 3.5);
+    else if (r.type === 'confused') { if (r.target === 'echo') Echo.act('confused'); else World.confuse(r.target); }
+  },
   // aplica o resultado de uma frase aceita
   apply(d, rule, words) {
     const r = rule.result, def = d.def;
@@ -3015,6 +3935,10 @@ const Sentence = {
     else if (r.type === 'transform') {
       if (P.setScale(r.scale)) { (r.scale > 1 ? SFX.grow : SFX.shrink)(); Game.shake(r.scale > 1 ? 5 : 2); FX.burst(P.cx, P.cy, 50, 'm', 300, { life: 1, g: 0 }); }
     } else if (r.type === 'exit') Game.finish(r.exit, 0);
+    // o pronome decide o alvo: IT → a runa, THEY → o grupo, YOU → o Echo, WE → os dois
+    else if (r.type === 'target') World.setTarget(r.target, r.act);
+    else if (r.type === 'echo') Echo.act(r.act, r.act === 'big' ? def.ride : null);
+    else if (r.type === 'we') { Echo.act(r.act); if (r.act === 'big') { P.squash = -0.5; FX.burst(P.cx, P.cy, 30, 'm', 220, { life: 0.7, g: 0 }); } }
     // Grimório: palavras usadas + palavras fixas do molde
     const used = words.concat(def.mold.filter(t => WORDS[t]));
     for (const w of used) Game.grimoireWord(w, def.inscription);
@@ -3030,7 +3954,7 @@ const Panel = {
   open(d) {
     this.door = d; this.slots = new Array(this.nSlots).fill(null); this.busy = false;
     const av = this.available(); this.sel = av.length ? av[0] : -1;
-    $('pkind').textContent = d.kind === 'pedestal' ? 'PEDESTAL OF THE VOICE' : 'DOOR';
+    $('pkind').textContent = d.def.title || (d.kind === 'pedestal' ? 'PEDESTAL OF THE VOICE' : 'DOOR');
     $('pinsc').textContent = d.def.inscription;
     $('pheard').textContent = '';
     $('pmic').style.display = Save.data.assist.voice && Listen.available() ? '' : 'none';
@@ -3078,7 +4002,7 @@ const Panel = {
   resolve(j, words) {
     const d = this.door, def = d.def, tokens = Sentence.fill(def, words);
     this.busy = true;
-    Voice.say(Sentence.speakable(tokens), 'door');
+    Voice.say(j.rule && j.rule.say || Sentence.speakable(tokens), 'door');
     const mold = $('pmold');
     if (j.kind === 'accept') {
       SFX.right(); mold.classList.add('win');
@@ -3249,7 +4173,7 @@ const UI = {
       if (i === hideIdx) c.style.visibility = 'hidden';
       box.appendChild(c);
     });
-    for (let i = Game.bar.length; i < CFG.WORD_BAR_MAX; i++) { const e = document.createElement('div'); e.className = 'empty'; box.appendChild(e); }
+    for (let i = Game.bar.length; i < Game.barMax(); i++) { const e = document.createElement('div'); e.className = 'empty'; box.appendChild(e); }
   },
   stageRect(el) {
     const st = $('stage').getBoundingClientRect(), r = el.getBoundingClientRect(), s = st.width / CFG.VIEW_W;
@@ -3373,7 +4297,7 @@ const Game = {
   lives: CFG.START_LIVES, orbs: 0, orbsTotal: 0, letters: [false, false, false, false, false], bar: [],
   wordsSeen: new Set(), learnedOrder: [], creatures: new Set(), secrets: new Set(), timeRun: 0,
   checkpoint: null, reserve: null, autoWalk: false, clearT: 0, exit: null, orbSfxT: 0,
-  fluency: 0, fluencyFound: 0, fluencyTotal: 0,
+  fluency: 0, fluencyFound: 0, fluencyTotal: 0, timers: [], wordSrc: {}, zone: null,
 
   boot() {
     Save.load(); Flags.readURL(); AudioSys.muted = Save.data.muted;
@@ -3390,7 +4314,12 @@ const Game = {
     this.orbsTotal = 0; this.letters = word.split('').map(() => false); this.bar = [];
     this.wordsSeen = new Set(); this.learnedOrder = []; this.creatures = new Set(); this.secrets = new Set(); this.timeRun = 0;
     this.checkpoint = null; this.reserve = null; this.autoWalk = false; this.exit = null;
+    this.timers = []; this.wordSrc = {}; this.zone = null; Dark.k = 0;
   },
+  // tamanho da barra de palavras: cresce nas fases com mais vocabulário (LEVELS[id].barMax)
+  barMax() { return (World.level && World.level.barMax) || CFG.WORD_BAR_MAX; },
+  // relógio da simulação (para quebra-cabeças determinísticos, como os sinos)
+  later(sec, fn) { this.timers.push({ t: this.simTime + sec, fn }); },
   loadLevel(id) {
     this.newRun(LEVELS[id].masterWord);
     World.load(LEVELS[id]); Ents.clear(); FX.list = [];
@@ -3421,6 +4350,7 @@ const Game = {
     UI.hideAll(); WorldMap.leave(); this.loadLevel(id); this.where = 'level'; this.state = 'play'; this.acc = 0; this.clearInput();
     Music.setVariant(LEVELS[id].music || 'world1'); Music.normal();
     if (!viaTransition) setTimeout(() => UI.toast(), 250);
+    if (LEVELS[id].intro) setTimeout(() => { if (this.where === 'level' && World.level.id === id) UI.msg(LEVELS[id].intro, 3200); }, viaTransition ? 900 : 2800);
     return true;
   },
   restartLevel(fresh) { if (fresh) { this.lives = CFG.START_LIVES; this.orbs = 0; } this.enterLevel(World.level.id, true); },
@@ -3507,7 +4437,14 @@ const Game = {
     if (this.state === 'panel') return;
     Spawns.update(dt);
     Ents.update(dt);
+    // quem está em cima de uma plataforma móvel anda com ela
+    if (P.riding) { const e = P.riding; if (e.dead) P.riding = null; else { World.move(P, e.dx, 0); World.move(P, 0, e.dy); } }
     World.updateBlocks(dt);
+    if (this.timers.length) { const due = this.timers.filter(x => x.t <= this.simTime); this.timers = this.timers.filter(x => x.t > this.simTime); for (const x of due) x.fn(); }
+    // zonas: cripta escura e abafada, campanário em crescendo
+    const z = World.zoneAt(P.cx, P.cy);
+    if (z !== this.zone) { this.zone = z; Music.zone(z || {}); }
+    Dark.k = approach(Dark.k, z && z.dark || 0, dt * 1.5);
     FX.update(dt);
     Echo.update(dt);
     Cam.update(dt);
@@ -3523,6 +4460,7 @@ const Game = {
     World.drawTerrain(ctx, camX, camY);
     Doors.draw(ctx, camX, camY, t);
     World.drawDynamic(ctx, camX, camY, t);
+    World.drawTargets(ctx, camX, camY, t);
     Ents.draw(ctx, camX, camY, a, 'back');
     Ents.draw(ctx, camX, camY, a, 'mid');
     Ents.draw(ctx, camX, camY, a, 'enemy');
@@ -3530,6 +4468,7 @@ const Game = {
     P.draw(ctx, camX, camY, a);
     Echo.draw(ctx, camX, camY, a);
     FX.draw(ctx, camX, camY);
+    Dark.draw(ctx, camX, camY);
     Ents.draw(ctx, camX, camY, a, 'front');
     Doors.drawPrompt(ctx, camX, camY);
     R.draw(R.sprite('vignette', 960, 540, (x, w, h) => {
@@ -3548,8 +4487,9 @@ const Game = {
     while (this.orbs >= CFG.ORBS_PER_LIFE) { this.orbs -= CFG.ORBS_PER_LIFE; this.lives++; SFX.oneUp(); UI.msg('1 UP'); }
   },
   collectWord(word, e) {
-    if (this.bar.length >= CFG.WORD_BAR_MAX) return false;
+    if (this.bar.length >= this.barMax()) return false;
     this.bar.push(word);
+    if (e.src) this.wordSrc[word] = e.src;
     if (!this.wordsSeen.has(word)) { this.wordsSeen.add(word); this.learnedOrder.push(word); }
     this.grimoireWord(word, null);
     SFX.wordCollect(); Voice.say(WORDS[word] ? WORDS[word].say : word, 'echo');
@@ -3574,6 +4514,21 @@ const Game = {
     FX.burst(e.x + 14, e.y + 14, 24, 'm', 220, { life: 0.7, g: 0 });
     const sp = $('letters').children[i]; if (sp) { sp.classList.remove('pop'); void sp.offsetWidth; sp.classList.add('pop'); }
     if (this.letters.every(Boolean)) UI.msg(mw.split('').join(' · '));
+  },
+  addLife(n, e) {
+    this.lives += n; SFX.oneUp(); UI.msg(n + ' UP');
+    FX.burst(e.x + e.w / 2, e.y + e.h / 2, 20 + n * 10, 'm', 240, { life: 0.8, g: 0 });
+  },
+  // a palavra que o ladrão levou volta para o bloco de onde saiu (ou fica flutuando onde ele morava)
+  returnWord(word, src, home) {
+    const b = src && World.blockAt(src.c, src.r);
+    if (b && b.kind === 'question' && Math.abs(src.c * TS - home.x) < 60 * TS) {
+      b.state = 'ready'; b.bump = 1; FX.burst(src.c * TS + TS / 2, src.r * TS + TS / 2, 20, 'm', 200, { life: 0.7, g: 0 });
+      UI.msg(word + ' · BACK IN ITS BLOCK', 2200);
+    } else {
+      Ents.spawn('capsule', { word, x: home.x, y: home.y, baseY: home.y - 8, src });
+      UI.msg(word + ' · DROPPED BY THE THIEF', 2200);
+    }
   },
   collectCrystal() {
     if (!P.aura) { P.aura = true; SFX.powerup(); FX.burst(P.cx, P.cy, 40, 'c', 260, { life: 0.9, g: 0 }); }
@@ -3940,7 +4895,7 @@ window.NEXY = {
   Game, P, World, Ents, Cam, Flags, Save, CFG,
   setFlag(path, value = true, persist = false) { Flags.set(path, value, persist); return Flags.get(path); },
   teleport(c, r) { P.x = c * TS + TS / 2 - P.w / 2; P.y = (r + 1) * TS - P.h; P.px = P.x; P.py = P.y; P.vx = P.vy = 0; Cam.snap(); },
-  give(...words) { for (const w of words) if (WORDS[w] && Game.bar.length < CFG.WORD_BAR_MAX) Game.bar.push(w); UI.renderBar(); },
+  give(...words) { for (const w of words) if (WORDS[w] && Game.bar.length < Game.barMax()) Game.bar.push(w); UI.renderBar(); },
 };
 
 Game.boot();

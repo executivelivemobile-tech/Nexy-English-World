@@ -1,11 +1,13 @@
 
 /* ============================== MUNDO: tiles, blocos, portas, colisão ============================== */
-const T = { AIR: 0, SOLID: 1, PLATFORM: 2, FAKE: 3, CRACKED: 4, BLOCK: 5, DOOR: 6 };
+const T = { AIR: 0, SOLID: 1, PLATFORM: 2, FAKE: 3, CRACKED: 4, BLOCK: 5, DOOR: 6, RUNE: 7 };
 const TS = CFG.TILE;
+// inimigos que nascem dos spawns (e o nome no Grimório)
+const CREATURE_OF = { crawler: 'CRAWLER', casco: 'SHELL', flyer: 'FLYER', thief: 'THIEF', giant: 'CRAWLER' };
 
 const World = {
   level: null, w: 0, h: 0, pxW: 0, pxH: 0, tiles: null, blocks: new Map(), doorTiles: new Map(), doors: {},
-  spawns: [], statics: [], veils: [], start: null, chunks: new Map(), totals: null, cracks: new Map(),
+  spawns: [], statics: [], veils: [], start: null, chunks: new Map(), totals: null, cracks: new Map(), targets: {}, runeAt: new Map(),
 
   load(level) {
     this.level = level;
@@ -13,7 +15,7 @@ const World = {
     this.h = map.length; this.w = map[0].length; this.pxW = this.w * TS; this.pxH = this.h * TS;
     this.tiles = new Uint8Array(this.w * this.h);
     this.blocks = new Map(); this.doorTiles = new Map(); this.doors = {}; this.spawns = []; this.statics = [];
-    this.veils = []; this.chunks.clear(); this.start = { x: 80, y: 19 * TS }; this.cracks = new Map();
+    this.veils = []; this.chunks.clear(); this.start = { x: 80, y: 19 * TS }; this.cracks = new Map(); this.targets = {}; this.runeAt = new Map();
     const cells = Object.assign({}, LEGEND, level.blocks || {}, level.entities || {});
     const doorChars = {};
     for (const id in level.doors) if (level.doors[id].char) doorChars[level.doors[id].char] = id;
@@ -42,21 +44,28 @@ const World = {
           if (b.content && b.content.letter != null) letters++;
         } else if (def.entity) {
           if (def.entity === 'start') this.start = { x: c * TS + TS / 2, y: (r + 1) * TS };
-          else if (def.entity === 'crawler' || def.entity === 'casco') {
+          else if (CREATURE_OF[def.entity] && def.entity !== 'giant') {
             this.spawns.push({ type: def.entity, c, r, opts: def, state: 'waiting', ent: null, seen: false, timer: 0 });
-            creatures.add(def.entity === 'crawler' ? 'CRAWLER' : 'SHELL');
+            creatures.add(CREATURE_OF[def.entity]);
           } else {
             this.statics.push({ type: def.entity, c, r, opts: def });
             if (def.entity === 'letter') letters++;
             if (def.entity === 'goal') exits++;
+            if (CREATURE_OF[def.entity]) creatures.add(CREATURE_OF[def.entity]);
           }
         }
       }
     }
     for (const id in rects) {
       const b = rects[id], def = level.doors[id];
-      this.doors[id] = { id, def, kind: 'door', x: b.c0 * TS, y: b.r0 * TS, w: (b.c1 - b.c0 + 1) * TS, h: (b.r1 - b.r0 + 1) * TS,
-        open: false, opening: 0, errors: 0, read: false, hint: false, morph: 0 };
+      this.doors[id] = { id, def, kind: def.kind === 'bells' ? 'bells' : 'door', x: b.c0 * TS, y: b.r0 * TS, w: (b.c1 - b.c0 + 1) * TS, h: (b.r1 - b.r0 + 1) * TS,
+        open: false, opening: 0, errors: 0, read: false, hint: false, morph: 0, mirror: 0, chimes: [] };
+    }
+    // alvos das frases (runas que crescem e encolhem, grupos de criaturas, o Echo)
+    for (const id in level.targets || {}) {
+      const t = Object.assign({ id, state: 'small', shake: 0, glow: 0 }, level.targets[id]);
+      this.targets[id] = t;
+      if (t.kind === 'rune') { t.cur = { w: 0, h: 0 }; t.goal = Object.assign({}, t[t.state]); t.stepT = 0; this.applyRune(t, t.goal, true); }
     }
     // paredes falsas: cada grupo de 'W' esconde a sala até a próxima pedra
     const seen = new Set();
@@ -65,13 +74,11 @@ const World = {
       if (this.tiles[i] !== T.FAKE || seen.has(i)) continue;
       let r1 = r; while (r1 + 1 < this.h && this.tiles[(r1 + 1) * this.w + c] === T.FAKE) r1++;
       for (let rr = r; rr <= r1; rr++) seen.add(rr * this.w + c);
-      const openLeft = !this.solidStatic(c - 1, r), dir = openLeft ? 1 : -1;
-      let c2 = c + dir;
-      while (c2 > 0 && c2 < this.w - 1) {
-        let blocked = false;
-        for (let rr = r; rr <= r1; rr++) if (this.tiles[rr * this.w + c2] === T.SOLID) blocked = true;
-        if (blocked) break; c2 += dir;
-      }
+      // a sala fica do lado fechado; se os dois lados estão abertos, é o lado que termina primeiro em pedra
+      const run = d => { let k = c + d; while (k > 0 && k < this.w - 1) { let blocked = false; for (let rr = r; rr <= r1; rr++) if (this.tiles[rr * this.w + k] === T.SOLID) blocked = true; if (blocked) break; k += d; } return k; };
+      const openL = !this.solidStatic(c - 1, r), openR = !this.solidStatic(c + 1, r);
+      const dir = openL && openR ? (run(1) - c <= c - run(-1) ? 1 : -1) : openL ? 1 : -1, openLeft = dir > 0;
+      const c2 = run(dir);
       const cA = Math.min(c, c2 - dir), cB = Math.max(c, c2 - dir);
       this.veils.push({ x: cA * TS, y: r * TS, w: (cB - cA + 1) * TS, h: (r1 - r + 1) * TS, faceC: c, openLeft, alpha: 1, found: false, id: 'fake-wall-' + this.veils.length });
       secrets++;
@@ -80,6 +87,12 @@ const World = {
   },
 
   idx(c, r) { return r * this.w + c; },
+  // zonas da fase (cripta escura e abafada, campanário em crescendo)
+  zoneAt(x, y) {
+    const c = Math.floor(x / TS), r = Math.floor(y / TS);
+    for (const z of this.level.zones || []) if (c >= z.c0 && c <= z.c1 && r >= (z.r0 || 0) && r <= (z.r1 == null ? 1e9 : z.r1)) return z;
+    return null;
+  },
   type(c, r) {
     if (c < 0 || c >= this.w) return T.SOLID;
     if (r < 0) return this.tiles[c] === T.SOLID ? T.SOLID : T.AIR; // paredes que tocam o topo continuam para cima
@@ -113,12 +126,13 @@ const World = {
         return this.blockSolid(b);
       }
       case T.DOOR: { const d = this.doorAt(c, r); return !d || !d.open; }
+      case T.RUNE: return true;
       default: return false;
     }
   },
   isFloor(c, r) {
     const t = this.type(c, r);
-    if (t === T.SOLID || t === T.CRACKED || t === T.PLATFORM) return true;
+    if (t === T.SOLID || t === T.CRACKED || t === T.PLATFORM || t === T.RUNE) return true;
     if (t === T.BLOCK) return this.blockSolid(this.blockAt(c, r));
     if (t === T.DOOR) { const d = this.doorAt(c, r); return !d || !d.open; }
     return false;
@@ -228,7 +242,10 @@ const World = {
   release(b, homing) {
     const ct = b.content; if (!ct) return;
     const cx = b.c * TS + TS / 2, cy = b.r * TS + TS / 2;
-    if (ct.word) { Ents.spawn('capsule', { word: ct.word, x: cx, y: cy, baseY: b.r * TS - (ct.rise || 1.1) * TS + TS * 0.5, homing }); SFX.wordAppear(); }
+    // bloco "de reserva": só dá a palavra se o jogador ainda não a tem (senão, orbes)
+    if (ct.word && ct.ifMissing && Game.bar.includes(ct.word)) { for (let i = 0; i < 3; i++) Ents.spawn('orb', { x: cx, y: b.r * TS, vx: (i - 1) * 80, vy: -300, homing: true, delay: 0.2 + i * 0.05 }); return; }
+    if (ct.word) { Ents.spawn('capsule', { word: ct.word, x: cx, y: cy, baseY: b.r * TS - (ct.rise || 1.1) * TS + TS * 0.5, homing, src: { c: b.c, r: b.r } }); SFX.wordAppear(); }
+    if (ct.life) { Ents.spawn('life', { x: cx, y: cy, baseY: b.r * TS - TS * 0.6, emerge: true }); SFX.wordAppear(); }
     if (ct.crystal) Ents.spawn('crystal', { x: cx, y: cy, baseY: b.r * TS - TS * 0.55, emerge: 1 });
     if (ct.orbs) for (let i = 0; i < ct.orbs; i++) Ents.spawn('orb', { x: cx, y: b.r * TS, vx: (Math.random() - 0.5) * 160, vy: -260 - Math.random() * 120, homing: true, delay: 0.2 + i * 0.05 });
     if (ct.letter != null) Ents.spawn('letter', { index: ct.letter, x: cx, y: cy, magnet: true });
@@ -257,6 +274,82 @@ const World = {
         if (d.opening >= 1) d.open = true;
       }
       if (d.morph > 0) d.morph = Math.max(0, d.morph - dt);
+      if (d.mirror > 0) d.mirror = Math.max(0, d.mirror - dt);
+    }
+    this.updateTargets(dt);
+  },
+
+  /* ---------- alvos das frases ---------- */
+  // retângulo de uma forma da runa, ancorado na linha de base (r) e na coluna c (anchor: left | center | right)
+  runeRect(t, sh) {
+    const c0 = t.anchor === 'center' ? t.c - Math.floor((sh.w - 1) / 2) : t.anchor === 'right' ? t.c - sh.w + 1 : t.c;
+    return { c0, c1: c0 + sh.w - 1, r0: t.r - sh.h + 1, r1: t.r };
+  },
+  applyRune(t, sh, instant) {
+    const old = this.runeRect(t, t.cur), nw = this.runeRect(t, sh);
+    if (t.cur.w) for (let r = old.r0; r <= old.r1; r++) for (let c = old.c0; c <= old.c1; c++) { const i = r * this.w + c; if (this.runeAt.get(i) === t.id) { this.tiles[i] = T.AIR; this.runeAt.delete(i); } }
+    for (let r = nw.r0; r <= nw.r1; r++) for (let c = nw.c0; c <= nw.c1; c++) { const i = r * this.w + c; this.tiles[i] = T.RUNE; this.runeAt.set(i, t.id); }
+    t.cur = { w: sh.w, h: sh.h };
+    if (instant) return;
+    // quem estiver dentro da pedra que cresceu é empurrado para cima
+    const box = { x: nw.c0 * TS, y: nw.r0 * TS, w: sh.w * TS, h: sh.h * TS };
+    for (const b of [P, ...Ents.list.filter(e => e.enemy && !e.dead)]) {
+      if (b.dead || !overlap(b, box)) continue;
+      const up = nw.r0 * TS - b.h;
+      if (this.fits(b.x, up, b.w, b.h, b)) { b.y = up; if (b === P) { P.vy = Math.min(P.vy, 0); P.py = P.y; } }
+      else b.x = b.x + b.w / 2 < box.x + box.w / 2 ? box.x - b.w : box.x + box.w;
+    }
+  },
+  // muda um alvo: runas crescem/encolhem tile a tile; grupos e o Echo são tratados por quem os desenha
+  setTarget(id, act) {
+    const t = this.targets[id]; if (!t) return false;
+    if (t.kind === 'rune') {
+      if (!t[act] || t.state === act) { t.shake = 0.8; SFX.thud(); return false; }
+      t.state = act; t.goal = Object.assign({}, t[act]); t.stepT = 0; t.glow = 1; SFX.rune(act === 'big');
+      return true;
+    }
+    if (t.kind === 'giants') return Ents.types.giant.setAll(act);
+    return false;
+  },
+  confuse(id) {
+    const t = this.targets[id];
+    if (t && t.kind === 'giants') { for (const e of Ents.list) if (e.type === 'giant' && !e.dead) e.shake = 1; }
+    else if (t) t.shake = 1;
+    SFX.thud();
+  },
+  updateTargets(dt) {
+    for (const id in this.targets) {
+      const t = this.targets[id];
+      if (t.shake > 0) t.shake = Math.max(0, t.shake - dt * 1.2);
+      if (t.glow > 0) t.glow = Math.max(0, t.glow - dt * 0.6);
+      if (t.kind !== 'rune' || (t.cur.w === t.goal.w && t.cur.h === t.goal.h)) continue;
+      t.stepT -= dt; if (t.stepT > 0) continue;
+      t.stepT = 0.07;
+      // um passo por vez: primeiro a altura, depois a largura (ou o contrário ao encolher)
+      const sh = Object.assign({}, t.cur), grow = t.goal.w * t.goal.h >= t.cur.w * t.cur.h;
+      if (grow) { if (sh.h !== t.goal.h) sh.h += sign(t.goal.h - sh.h); else sh.w += sign(t.goal.w - sh.w); }
+      else { if (sh.w !== t.goal.w) sh.w += sign(t.goal.w - sh.w); else sh.h += sign(t.goal.h - sh.h); }
+      this.applyRune(t, sh);
+      const rc = this.runeRect(t, sh);
+      FX.burst((rc.c0 + sh.w / 2) * TS, rc.r0 * TS + 4, 6, 'c', 140, { life: 0.5, g: 0 });
+      if (sh.w === t.goal.w && sh.h === t.goal.h) Game.shake(2);
+    }
+  },
+  drawTargets(ctx, camX, camY, time) {
+    for (const id in this.targets) {
+      const t = this.targets[id]; if (t.kind !== 'rune' || !t.cur.w) continue;
+      const rc = this.runeRect(t, t.cur), sx = t.shake > 0 ? Math.sin(time * 60) * 2.5 * t.shake : 0;
+      const x = rc.c0 * TS - camX + sx, y = rc.r0 * TS - camY, w = t.cur.w * TS, h = t.cur.h * TS;
+      if (x > CFG.VIEW_W + 40 || x + w < -40 || y > CFG.VIEW_H + 40 || y + h < -40) continue;
+      const p = 0.5 + 0.5 * Math.sin(time * 2 + t.c);
+      R.draw(R.glow('c', 48), x + w / 2, y + Math.min(h, 40) / 2, Math.max(1, w / 64), 0.18 + 0.12 * p + t.glow * 0.6, true);
+      rrect(ctx, x + 1, y + 1, w - 2, h - 2, 8); ctx.fillStyle = 'rgba(10,15,18,0.94)'; ctx.fill();
+      ctx.fillStyle = ca(0.04 + 0.04 * p + t.glow * 0.15); ctx.fill();
+      ctx.strokeStyle = ca(0.55 + t.glow * 0.4); ctx.lineWidth = 1.2; ctx.stroke();
+      rrect(ctx, x + 5, y + 5, w - 10, h - 10, 5); ctx.strokeStyle = ca(0.12); ctx.lineWidth = 1; ctx.stroke();
+      // runa: a palavra IT gravada no topo
+      R.draw(R.text('IT', '900 12px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(34,211,238,1)', 6), x + w / 2, y + Math.min(16, h / 2) + 1, 1, 0.75 + 0.25 * p);
+      if (t.shake > 0) R.draw(R.text('?', '900 18px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(34,211,238,1)', 6), x + w / 2, y - 16, 1, t.shake);
     }
   },
 
@@ -431,9 +524,9 @@ const World = {
 
 /* ============================== FUNDO: parallax em 3 camadas ============================== */
 const BG = {
-  built: false, far: null, near: null, dust: [],
+  built: false, far: null, near: null, naveFar: null, naveNear: null, dust: [],
   build() {
-    this.far = this.makeFar(); this.near = this.makeNear(); this.built = true;
+    this.far = this.makeFar(); this.near = this.makeNear(); this.naveFar = null; this.built = true;
     if (!this.dust.length) { const rnd = mulberry32(99); for (let i = 0; i < 60; i++) this.dust.push({ x: rnd() * 960, y: rnd() * 540, s: 0.6 + rnd() * 1.2, v: 6 + rnd() * 14, p: rnd() * 6 }); }
   },
   lancet(x, cx, top, w, h, light) {
@@ -519,8 +612,85 @@ const BG = {
     x.fillStyle = g; x.fillRect(0, H - 260, W, 260);
     return s;
   },
+  /* ---------- tema "nave": a catedral por dentro (1-2). Fase alta: o fundo acompanha a câmera na vertical ---------- */
+  makeNaveFar() {
+    const W = 1920, H = 900, s = R.make(W, H), x = s.x, bay = 240, rnd = mulberry32(21);
+    x.fillStyle = '#040507'; x.fillRect(0, 0, W, H);
+    for (let i = 0; i < W / bay; i++) {
+      const cx = i * bay + bay / 2;
+      // abóbada: nervuras ogivais de um pilar ao outro
+      x.beginPath(); x.moveTo(i * bay, 150); x.quadraticCurveTo(i * bay, 30, cx, 10); x.quadraticCurveTo((i + 1) * bay, 30, (i + 1) * bay, 150);
+      x.strokeStyle = cb(0.1); x.lineWidth = 1; x.stroke();
+      x.beginPath(); x.moveTo(i * bay, 150); x.lineTo((i + 1) * bay, 10); x.moveTo((i + 1) * bay, 150); x.lineTo(i * bay, 10); x.strokeStyle = cb(0.04); x.stroke();
+      // vitral alto com rosácea em cima
+      this.rose(x, cx, 130, 30, 0.1 + rnd() * 0.05);
+      this.lancet(x, cx - 34, 190, 40, 400, 0.07 + rnd() * 0.04);
+      this.lancet(x, cx + 34, 190, 40, 400, 0.07 + rnd() * 0.04);
+      this.lancet(x, cx, 230, 22, 340, 0.05);
+      // arcada baixa
+      x.beginPath(); x.moveTo(i * bay + 12, 900); x.lineTo(i * bay + 12, 700); x.quadraticCurveTo(i * bay + 12, 640, cx, 625); x.quadraticCurveTo((i + 1) * bay - 12, 640, (i + 1) * bay - 12, 700); x.lineTo((i + 1) * bay - 12, 900);
+      x.strokeStyle = cb(0.08); x.stroke();
+      // pilar
+      rrect(x, i * bay - 8, 150, 16, H - 150, 3); x.fillStyle = '#06080a'; x.fill(); x.strokeStyle = cb(0.07); x.stroke();
+    }
+    const g = x.createLinearGradient(0, 600, 0, H); g.addColorStop(0, 'rgba(4,5,7,0)'); g.addColorStop(1, 'rgba(4,5,7,0.9)');
+    x.fillStyle = g; x.fillRect(0, 600, W, 300);
+    return s;
+  },
+  makeNaveNear() {
+    const W = 1536, H = 1200, s = R.make(W, H), x = s.x, gap = 384;
+    for (let i = 0; i <= W / gap; i++) for (const off of [0, -W]) {
+      const X0 = i * gap + off; if (X0 < -60) continue;
+      // coluna maciça com capitel e arcos que saem dela
+      rrect(x, X0, 0, 34, H, 4); x.fillStyle = 'rgba(4,5,7,0.94)'; x.fill(); x.strokeStyle = cb(0.14); x.lineWidth = 1; x.stroke();
+      for (const cy of [380, 860]) { rrect(x, X0 - 8, cy, 50, 14, 4); x.fillStyle = 'rgba(4,5,7,0.96)'; x.fill(); x.stroke(); }
+      x.beginPath(); x.moveTo(X0 + 17, 0); x.lineTo(X0 + 17, H); x.strokeStyle = cb(0.05); x.stroke();
+      for (const cy of [380, 860]) {
+        x.beginPath(); x.moveTo(X0 + 34, cy); x.quadraticCurveTo(X0 + 34, cy - 170, X0 + gap / 2 + 17, cy - 200); x.quadraticCurveTo(X0 + gap, cy - 170, X0 + gap, cy);
+        x.strokeStyle = cb(0.13); x.stroke();
+      }
+      // estandarte pendurado
+      const bx = X0 + gap / 2 - 6;
+      x.beginPath(); x.moveTo(bx, 470); x.lineTo(bx + 34, 470); x.lineTo(bx + 34, 610); x.lineTo(bx + 17, 590); x.lineTo(bx, 610); x.closePath();
+      x.fillStyle = 'rgba(4,5,7,0.9)'; x.fill(); x.strokeStyle = cb(0.12); x.stroke();
+      x.beginPath(); x.arc(bx + 17, 515, 7, 0, Math.PI * 2); x.strokeStyle = cb(0.16); x.stroke();
+    }
+    return s;
+  },
+  skyK(camX, camY) {
+    const sk = World.level.sky; if (!sk) return 0;
+    return clamp((sk.y - camY) / 300, 0, 1) * clamp((camX + 480 - sk.c * TS) / 400, 0, 1);
+  },
+  drawNave(ctx, camX, camY, time) {
+    if (!this.naveFar) { this.naveFar = this.makeNaveFar(); this.naveNear = this.makeNaveNear(); }
+    const sky = this.skyK(camX, camY);
+    // no topo do campanário a catedral se abre para o céu e a cidade da 1-1 aparece lá embaixo
+    if (sky > 0) {
+      const fW = 1920, fx = -((camX * 0.1) % fW), fy = 300 - camY * 0.15;
+      ctx.save(); ctx.globalAlpha = sky;
+      R.draw(R.glow('w', 60), 820, 90, 1.2, 0.5, true);
+      ctx.beginPath(); ctx.arc(820, 90, 22, 0, Math.PI * 2); ctx.fillStyle = 'rgba(240,250,255,0.9)'; ctx.fill();
+      ctx.beginPath(); ctx.arc(830, 84, 20, 0, Math.PI * 2); ctx.fillStyle = '#05060a'; ctx.fill();
+      ctx.drawImage(this.far.c, fx, fy, fW, 600); ctx.drawImage(this.far.c, fx + fW, fy, fW, 600);
+      ctx.restore();
+    }
+    if (sky < 1) {
+      ctx.save(); ctx.globalAlpha = 1 - sky;
+      const fW = 1920, fx = -((camX * 0.18) % fW), fy = -20 - camY * 0.22;
+      ctx.drawImage(this.naveFar.c, fx, fy, fW, 900); ctx.drawImage(this.naveFar.c, fx + fW, fy, fW, 900);
+      const nW = 1536, nx = -((camX * 0.45) % nW), ny = -camY * 0.45;
+      ctx.drawImage(this.naveNear.c, nx, ny, nW, 1200); ctx.drawImage(this.naveNear.c, nx + nW, ny, nW, 1200);
+      ctx.restore();
+    }
+    const gs = R.glow('c', 6);
+    for (const d of this.dust) {
+      const x = ((d.x - camX * 0.3) % 960 + 960) % 960, y = ((d.y - time * d.v * 0.6 - camY * 0.3) % 540 + 540) % 540;
+      R.draw(gs, x, y, d.s, 0.16, true);
+    }
+  },
   draw(ctx, camX, camY, time) {
     if (!this.built) this.build();
+    if (World.level.bg === 'nave') return this.drawNave(ctx, camX, camY, time);
     // camada 1: grade e partículas ciano bem apagadas
     ctx.save();
     ctx.strokeStyle = cb(0.05); ctx.lineWidth = 1;
@@ -541,6 +711,29 @@ const BG = {
     // camada 3: pilares e arcos próximos
     const nW = 1536, nx = -((camX * 0.5) % nW), ny = -60 + (196 - camY) * 0.3;
     ctx.drawImage(this.near.c, nx, ny, nW, 600); ctx.drawImage(this.near.c, nx + nW, ny, nW, 600);
+  },
+};
+
+/* ============================== ESCURIDÃO (cripta) ==============================
+   Uma camada preta com buracos de luz no Nexy, no Echo (que brilha mais forte) e em quem tem luz própria. */
+const Dark = {
+  k: 0,
+  draw(ctx, camX, camY) {
+    if (this.k < 0.02) return;
+    const s = R.sprite('darkLayer', 960, 540, () => { }), x = s.x;
+    x.setTransform(R.k, 0, 0, R.k, 0, 0); x.globalCompositeOperation = 'source-over';
+    x.clearRect(0, 0, 960, 540); x.fillStyle = 'rgba(0,0,0,' + (0.93 * this.k).toFixed(3) + ')'; x.fillRect(0, 0, 960, 540);
+    x.globalCompositeOperation = 'destination-out';
+    const hole = (hx, hy, r, a = 1) => {
+      const g = x.createRadialGradient(hx, hy, 0, hx, hy, r);
+      g.addColorStop(0, 'rgba(0,0,0,' + a + ')'); g.addColorStop(0.55, 'rgba(0,0,0,' + (a * 0.7) + ')'); g.addColorStop(1, 'rgba(0,0,0,0)');
+      x.fillStyle = g; x.fillRect(hx - r, hy - r, r * 2, r * 2);
+    };
+    if (!P.dead) hole(P.cx - camX, P.cy - camY, 120, 0.85);
+    hole(Echo.x - camX, Echo.y - camY, 230 + 30 * Math.sin(Game.time * 2), 1);
+    for (const e of Ents.list) if (e.light && !e.dead) hole(e.x + e.w / 2 - camX, e.y + e.h / 2 - camY, e.light, 0.8);
+    x.globalCompositeOperation = 'source-over';
+    ctx.drawImage(s.c, 0, 0, 960, 540);
   },
 };
 

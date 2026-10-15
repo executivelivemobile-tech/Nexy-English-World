@@ -5,7 +5,7 @@ const Sentence = {
   speakable(tokens) {
     let out = '';
     tokens.forEach((t, i) => {
-      if (/^[.!?]$/.test(t)) { out += t; return; }
+      if (/^[.,!?]$/.test(t)) { out += t; return; }
       let w = WORDS[t] ? WORDS[t].say : t.toLowerCase();
       if (t === 'I') w = 'I';
       if (i === 0) w = w.charAt(0).toUpperCase() + w.slice(1);
@@ -16,12 +16,13 @@ const Sentence = {
   speakInscription(s) { const l = s.toLowerCase().replace(/\bi\b/g, 'I'); return l.charAt(0).toUpperCase() + l.slice(1); },
   fill(def, words) { let i = 0; return def.mold.map(t => t === '_' ? (words[i++] || '___') : t); },
   normalized(def, words) { return normalizeSentence(this.fill(def, words).join(' ')); },
-  // resolve uma tentativa: 'accept' | 'enact' | 'wrong'
+  // resolve uma tentativa: 'accept' | 'enact' | 'wrong'. Nas encenações, '*' vale qualquer palavra.
+  match(pat, words) { return pat.length === words.length && pat.every((p, i) => p === '*' || p === words[i]); },
   judge(def, words) {
     const key = words.join(' ');
     const a = def.accept.find(x => x.words.join(' ') === key);
     if (a) return { kind: 'accept', rule: a };
-    const e = (def.enact || []).find(x => x.words.join(' ') === key);
+    const e = (def.enact || []).find(x => this.match(x.words, words));
     if (e) return { kind: 'enact', rule: e };
     return { kind: 'wrong' };
   },
@@ -29,12 +30,18 @@ const Sentence = {
     for (const alt of alts) {
       const n = normalizeSentence(alt);
       for (const a of def.accept) if (n === this.normalized(def, a.words) || n.endsWith(this.normalized(def, a.words))) return { kind: 'accept', rule: a, heard: alt };
-      for (const e of def.enact || []) if (n === this.normalized(def, e.words)) return { kind: 'enact', rule: e, heard: alt };
+      for (const e of def.enact || []) if (!e.words.includes('*') && n === this.normalized(def, e.words)) return { kind: 'enact', rule: e, heard: alt };
     }
     return { kind: 'wrong', heard: alts[0] || '' };
   },
   // encenação de uma frase "errada" (ex.: IT IS A DOOR → o ícone vira porta por 1 s)
-  enact(d, rule) { const r = rule.result; if (r.type === 'morph') { d.morph = r.duration || 1; SFX.summon(); FX.burst(d.x - 30, d.y + 18, 16, 'c', 120, { g: 0, life: 0.6 }); } },
+  enact(d, rule) {
+    const r = rule.result;
+    if (r.type === 'morph') { d.morph = r.duration || 1; SFX.summon(); FX.burst(d.x - 30, d.y + 18, 16, 'c', 120, { g: 0, life: 0.6 }); }
+    else if (r.type === 'mirror') { d.mirror = 1.8; SFX.summon(); }
+    else if (r.type === 'crawler') P.crawlerForm(r.duration || 3.5);
+    else if (r.type === 'confused') { if (r.target === 'echo') Echo.act('confused'); else World.confuse(r.target); }
+  },
   // aplica o resultado de uma frase aceita
   apply(d, rule, words) {
     const r = rule.result, def = d.def;
@@ -43,6 +50,10 @@ const Sentence = {
     else if (r.type === 'transform') {
       if (P.setScale(r.scale)) { (r.scale > 1 ? SFX.grow : SFX.shrink)(); Game.shake(r.scale > 1 ? 5 : 2); FX.burst(P.cx, P.cy, 50, 'm', 300, { life: 1, g: 0 }); }
     } else if (r.type === 'exit') Game.finish(r.exit, 0);
+    // o pronome decide o alvo: IT → a runa, THEY → o grupo, YOU → o Echo, WE → os dois
+    else if (r.type === 'target') World.setTarget(r.target, r.act);
+    else if (r.type === 'echo') Echo.act(r.act, r.act === 'big' ? def.ride : null);
+    else if (r.type === 'we') { Echo.act(r.act); if (r.act === 'big') { P.squash = -0.5; FX.burst(P.cx, P.cy, 30, 'm', 220, { life: 0.7, g: 0 }); } }
     // Grimório: palavras usadas + palavras fixas do molde
     const used = words.concat(def.mold.filter(t => WORDS[t]));
     for (const w of used) Game.grimoireWord(w, def.inscription);
@@ -58,7 +69,7 @@ const Panel = {
   open(d) {
     this.door = d; this.slots = new Array(this.nSlots).fill(null); this.busy = false;
     const av = this.available(); this.sel = av.length ? av[0] : -1;
-    $('pkind').textContent = d.kind === 'pedestal' ? 'PEDESTAL OF THE VOICE' : 'DOOR';
+    $('pkind').textContent = d.def.title || (d.kind === 'pedestal' ? 'PEDESTAL OF THE VOICE' : 'DOOR');
     $('pinsc').textContent = d.def.inscription;
     $('pheard').textContent = '';
     $('pmic').style.display = Save.data.assist.voice && Listen.available() ? '' : 'none';
@@ -106,7 +117,7 @@ const Panel = {
   resolve(j, words) {
     const d = this.door, def = d.def, tokens = Sentence.fill(def, words);
     this.busy = true;
-    Voice.say(Sentence.speakable(tokens), 'door');
+    Voice.say(j.rule && j.rule.say || Sentence.speakable(tokens), 'door');
     const mold = $('pmold');
     if (j.kind === 'accept') {
       SFX.right(); mold.classList.add('win');
@@ -277,7 +288,7 @@ const UI = {
       if (i === hideIdx) c.style.visibility = 'hidden';
       box.appendChild(c);
     });
-    for (let i = Game.bar.length; i < CFG.WORD_BAR_MAX; i++) { const e = document.createElement('div'); e.className = 'empty'; box.appendChild(e); }
+    for (let i = Game.bar.length; i < Game.barMax(); i++) { const e = document.createElement('div'); e.className = 'empty'; box.appendChild(e); }
   },
   stageRect(el) {
     const st = $('stage').getBoundingClientRect(), r = el.getBoundingClientRect(), s = st.width / CFG.VIEW_W;
@@ -401,7 +412,7 @@ const Game = {
   lives: CFG.START_LIVES, orbs: 0, orbsTotal: 0, letters: [false, false, false, false, false], bar: [],
   wordsSeen: new Set(), learnedOrder: [], creatures: new Set(), secrets: new Set(), timeRun: 0,
   checkpoint: null, reserve: null, autoWalk: false, clearT: 0, exit: null, orbSfxT: 0,
-  fluency: 0, fluencyFound: 0, fluencyTotal: 0,
+  fluency: 0, fluencyFound: 0, fluencyTotal: 0, timers: [], wordSrc: {}, zone: null,
 
   boot() {
     Save.load(); Flags.readURL(); AudioSys.muted = Save.data.muted;
@@ -418,7 +429,12 @@ const Game = {
     this.orbsTotal = 0; this.letters = word.split('').map(() => false); this.bar = [];
     this.wordsSeen = new Set(); this.learnedOrder = []; this.creatures = new Set(); this.secrets = new Set(); this.timeRun = 0;
     this.checkpoint = null; this.reserve = null; this.autoWalk = false; this.exit = null;
+    this.timers = []; this.wordSrc = {}; this.zone = null; Dark.k = 0;
   },
+  // tamanho da barra de palavras: cresce nas fases com mais vocabulário (LEVELS[id].barMax)
+  barMax() { return (World.level && World.level.barMax) || CFG.WORD_BAR_MAX; },
+  // relógio da simulação (para quebra-cabeças determinísticos, como os sinos)
+  later(sec, fn) { this.timers.push({ t: this.simTime + sec, fn }); },
   loadLevel(id) {
     this.newRun(LEVELS[id].masterWord);
     World.load(LEVELS[id]); Ents.clear(); FX.list = [];
@@ -449,6 +465,7 @@ const Game = {
     UI.hideAll(); WorldMap.leave(); this.loadLevel(id); this.where = 'level'; this.state = 'play'; this.acc = 0; this.clearInput();
     Music.setVariant(LEVELS[id].music || 'world1'); Music.normal();
     if (!viaTransition) setTimeout(() => UI.toast(), 250);
+    if (LEVELS[id].intro) setTimeout(() => { if (this.where === 'level' && World.level.id === id) UI.msg(LEVELS[id].intro, 3200); }, viaTransition ? 900 : 2800);
     return true;
   },
   restartLevel(fresh) { if (fresh) { this.lives = CFG.START_LIVES; this.orbs = 0; } this.enterLevel(World.level.id, true); },
@@ -535,7 +552,14 @@ const Game = {
     if (this.state === 'panel') return;
     Spawns.update(dt);
     Ents.update(dt);
+    // quem está em cima de uma plataforma móvel anda com ela
+    if (P.riding) { const e = P.riding; if (e.dead) P.riding = null; else { World.move(P, e.dx, 0); World.move(P, 0, e.dy); } }
     World.updateBlocks(dt);
+    if (this.timers.length) { const due = this.timers.filter(x => x.t <= this.simTime); this.timers = this.timers.filter(x => x.t > this.simTime); for (const x of due) x.fn(); }
+    // zonas: cripta escura e abafada, campanário em crescendo
+    const z = World.zoneAt(P.cx, P.cy);
+    if (z !== this.zone) { this.zone = z; Music.zone(z || {}); }
+    Dark.k = approach(Dark.k, z && z.dark || 0, dt * 1.5);
     FX.update(dt);
     Echo.update(dt);
     Cam.update(dt);
@@ -551,6 +575,7 @@ const Game = {
     World.drawTerrain(ctx, camX, camY);
     Doors.draw(ctx, camX, camY, t);
     World.drawDynamic(ctx, camX, camY, t);
+    World.drawTargets(ctx, camX, camY, t);
     Ents.draw(ctx, camX, camY, a, 'back');
     Ents.draw(ctx, camX, camY, a, 'mid');
     Ents.draw(ctx, camX, camY, a, 'enemy');
@@ -558,6 +583,7 @@ const Game = {
     P.draw(ctx, camX, camY, a);
     Echo.draw(ctx, camX, camY, a);
     FX.draw(ctx, camX, camY);
+    Dark.draw(ctx, camX, camY);
     Ents.draw(ctx, camX, camY, a, 'front');
     Doors.drawPrompt(ctx, camX, camY);
     R.draw(R.sprite('vignette', 960, 540, (x, w, h) => {
@@ -576,8 +602,9 @@ const Game = {
     while (this.orbs >= CFG.ORBS_PER_LIFE) { this.orbs -= CFG.ORBS_PER_LIFE; this.lives++; SFX.oneUp(); UI.msg('1 UP'); }
   },
   collectWord(word, e) {
-    if (this.bar.length >= CFG.WORD_BAR_MAX) return false;
+    if (this.bar.length >= this.barMax()) return false;
     this.bar.push(word);
+    if (e.src) this.wordSrc[word] = e.src;
     if (!this.wordsSeen.has(word)) { this.wordsSeen.add(word); this.learnedOrder.push(word); }
     this.grimoireWord(word, null);
     SFX.wordCollect(); Voice.say(WORDS[word] ? WORDS[word].say : word, 'echo');
@@ -602,6 +629,21 @@ const Game = {
     FX.burst(e.x + 14, e.y + 14, 24, 'm', 220, { life: 0.7, g: 0 });
     const sp = $('letters').children[i]; if (sp) { sp.classList.remove('pop'); void sp.offsetWidth; sp.classList.add('pop'); }
     if (this.letters.every(Boolean)) UI.msg(mw.split('').join(' · '));
+  },
+  addLife(n, e) {
+    this.lives += n; SFX.oneUp(); UI.msg(n + ' UP');
+    FX.burst(e.x + e.w / 2, e.y + e.h / 2, 20 + n * 10, 'm', 240, { life: 0.8, g: 0 });
+  },
+  // a palavra que o ladrão levou volta para o bloco de onde saiu (ou fica flutuando onde ele morava)
+  returnWord(word, src, home) {
+    const b = src && World.blockAt(src.c, src.r);
+    if (b && b.kind === 'question' && Math.abs(src.c * TS - home.x) < 60 * TS) {
+      b.state = 'ready'; b.bump = 1; FX.burst(src.c * TS + TS / 2, src.r * TS + TS / 2, 20, 'm', 200, { life: 0.7, g: 0 });
+      UI.msg(word + ' · BACK IN ITS BLOCK', 2200);
+    } else {
+      Ents.spawn('capsule', { word, x: home.x, y: home.y, baseY: home.y - 8, src });
+      UI.msg(word + ' · DROPPED BY THE THIEF', 2200);
+    }
   },
   collectCrystal() {
     if (!P.aura) { P.aura = true; SFX.powerup(); FX.burst(P.cx, P.cy, 40, 'c', 260, { life: 0.9, g: 0 }); }

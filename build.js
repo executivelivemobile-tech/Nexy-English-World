@@ -13,10 +13,12 @@ const OUT = path.join(ROOT, 'index.html');
 const PARTS = [
   '00_head.html',       // HTML, CSS, HUD e telas
   '10_data.js',         // legenda do mapa, CONFIG, LOOK, palavras, fases, save e flags
+  '12_level_1-2.js',    // fase 1-2 · WHO ARE YOU?
   '20_audio.js',        // efeitos, música em camadas, voz e reconhecimento de fala
   '30_input_render.js', // teclado, toque, escala e cache de brilhos
   '40_world.js',        // tiles, blocos, colisão, fundo em parallax e partículas
   '50_entities.js',     // inimigos, itens, portais, pedestal
+  '55_entities2.js',    // peças da 1-2: lustres, tubos, Alado, Ladrão, gigantes, sinos, vidas, Echo gigante
   '60_player.js',       // jogador, Echo, câmera e desenho das portas
   '70_game.js',         // frases, painel, interface e laço principal
   '75_worldmap.js',     // transições (íris) e mapa-múndi

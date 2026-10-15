@@ -5,7 +5,7 @@ const P = {
   facing: 1, onGround: false, lastGround: -1, jumpedSinceGround: true, crouch: false, spinning: false, spinT: 0,
   scale: 1, visScale: 1, scaleFrom: 1, scaleT: 1, aura: false, invuln: 0, dead: false, deathT: 0, pitDeath: false,
   combo: 0, held: null, giant: false, spinBreak: false, trail: [], walkPhase: 0, squash: 0, interact: null,
-  lastSafe: null, kickT: 0,
+  lastSafe: null, kickT: 0, riding: null, form: null,
   get cx() { return this.x + this.w / 2; },
   get cy() { return this.y + this.h / 2; },
   box() { return this.dead ? { x: -9999, y: -9999, w: 0, h: 0 } : this; },
@@ -16,12 +16,18 @@ const P = {
     this.vx = 0; this.vy = 0; this.facing = 1; this.onGround = false; this.crouch = false; this.spinning = false;
     this.aura = false; this.invuln = 0; this.dead = false; this.deathT = 0; this.combo = 0; this.held = null;
     this.giant = false; this.trail = []; this.interact = null; this.lastSafe = { x: footX, y: footY }; this.jumpedSinceGround = true; this.bounceWindow = 0; this.lockRise = false; this.comboGlow = 0;
+    this.riding = null; this.form = null;
   },
 
   update(dt) {
     if (this.dead) return this.updateDeath(dt);
     const I = Input, now = Game.simTime;
-    const carry = I.get('run'), run = carry || I.dashing(), down = I.get('down');
+    // forma de Rastejante ("YES, I AM [A CRAWLER]"): anda baixinho, devagar e sem pular por alguns segundos
+    if (this.form) {
+      this.form.t -= dt;
+      if (this.form.t <= 0 && this.onGround) { this.setCrouch(false); if (!this.crouch) { this.form = null; SFX.grow(); FX.burst(this.cx, this.cy, 24, 'm', 200, { life: 0.6, g: 0 }); } }
+    }
+    const carry = I.get('run') && !this.form, run = (carry || I.dashing()) && !this.form, down = I.get('down') || !!this.form;
     const dir = (I.get('right') ? 1 : 0) - (I.get('left') ? 1 : 0);
 
     // agachar (reduz a altura)
@@ -29,9 +35,9 @@ const P = {
     else if (!down && this.crouch) this.setCrouch(false);
 
     // aceleração e inércia
-    const maxV = run ? CFG.RUN : CFG.WALK, av = Math.abs(this.vx);
+    const maxV = this.form ? 80 : run ? CFG.RUN : CFG.WALK, av = Math.abs(this.vx);
     if (this.onGround) {
-      if (this.crouch) this.vx = approach(this.vx, 0, CFG.CROUCH_FRICTION * dt);
+      if (this.crouch && !this.form) this.vx = approach(this.vx, 0, CFG.CROUCH_FRICTION * dt);
       else if (dir) {
         if (this.vx * dir < 0) { this.vx += dir * CFG.SKID * dt; if (av > 120 && Math.random() < 0.5) FX.add(this.cx, this.y + this.h, { vx: -dir * 40, vy: -30, life: 0.3, size: 1.2, c: 'c', g: 0 }); }
         else if (av < maxV) this.vx = dir * Math.min(av + (av > CFG.WALK ? CFG.RUN_ACC : CFG.ACC) * dt, maxV);
@@ -48,7 +54,7 @@ const P = {
     // pulo com coyote time e buffer
     const canJump = this.onGround || (now - this.lastGround <= CFG.COYOTE && !this.jumpedSinceGround);
     const wj = now - I.pressedAt.jump <= CFG.BUFFER, ws = now - I.pressedAt.spin <= CFG.BUFFER;
-    if (canJump && (wj || ws)) {
+    if (canJump && (wj || ws) && !this.form) {
       const spin = ws && (!wj || I.pressedAt.spin > I.pressedAt.jump);
       this.doJump(spin); I.pressedAt.jump = -1; I.pressedAt.spin = -1;
     }
@@ -61,9 +67,12 @@ const P = {
 
     // movimento e colisão
     this.giant = this.scale > 1.5; this.spinBreak = this.spinning && this.vy > 0;
-    const wasGround = this.onGround;
+    const wasGround = this.onGround, prevFeet = this.y + this.h;
     const res = World.move(this, this.vx * dt, this.vy * dt);
     if (res.wall) this.vx = 0;
+    this.riding = null;
+    if (!res.floor && this.vy >= 0) this.landOnPlatforms(prevFeet, res);
+    this.pushOutOfBodies();
     if (res.ceil && this.vy < 0) { this.vy = 30; this.headHit(res.ceilTiles); }
     if (res.spinBroke) { this.vy = -140; Game.hitstop(2); Game.shake(2); }
     if (res.floor) {
@@ -99,6 +108,31 @@ const P = {
     for (const v of World.veils) if (!v.found && overlap(v, this)) { v.found = true; Game.foundSecret(v.id); SFX.letter(); }
   },
   easeBack(t) { const c = 1.7; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); },
+  // plataformas móveis: sólidas só por cima. Quem pousa vai junto com elas (Game.step aplica dx/dy depois).
+  landOnPlatforms(prevFeet, res) {
+    const feet = this.y + this.h;
+    for (const e of Ents.list) {
+      if (!e.plat || e.dead) continue;
+      if (this.x + this.w <= e.x + 2 || this.x >= e.x + e.w - 2) continue;
+      if (prevFeet <= e.y + 2 + Math.max(0, -e.dy) && feet >= e.y) { this.y = e.y - this.h; res.floor = true; this.riding = e; return; }
+    }
+  },
+  // o corpo dos tubos do órgão é sólido dos lados
+  pushOutOfBodies() {
+    for (const e of Ents.list) {
+      if (!e.body || e.dead) continue;
+      const bx = e.x + 4, bw = e.w - 8;
+      if (this.x + this.w <= bx || this.x >= bx + bw || this.y + this.h <= e.y + 10) continue;
+      const left = this.cx < bx + bw / 2;
+      this.x = left ? bx - this.w : bx + bw;
+      if (left ? this.vx > 0 : this.vx < 0) this.vx = 0;
+    }
+  },
+  crawlerForm(sec) {
+    if (this.form) { this.form.t = sec; return; }
+    this.dropHeld(); this.form = { kind: 'crawler', t: sec }; if (this.onGround) this.setCrouch(true);
+    SFX.shrink(); FX.burst(this.cx, this.cy, 30, 'm', 220, { life: 0.7, g: 0 });
+  },
 
   setCrouch(on) {
     const s = this.scale, H = CFG.PLAYER_H * s, CH = CFG.CROUCH_H * s;
@@ -152,6 +186,23 @@ const P = {
       if (e.state === 'held' || this.dead || !overlap(this, e)) continue;
       const falling = this.y - this.py > 0.01 || this.vy > 0;
       const above = this.py + this.h <= e.y + e.h * 0.5 + 3;
+      // gigantes: fecham a passagem (empurram, não machucam)
+      if (e.type === 'giant') {
+        if (falling && above) { this.y = e.y - this.h; this.bounce(false); SFX.thud(); }
+        else {
+          const left = this.cx < e.x + e.w / 2; this.x = left ? e.x - this.w : e.x + e.w; this.vx = left ? -90 : 90;
+          if (e.shake <= 0) { e.shake = 0.35; SFX.thud(); }
+        }
+        continue;
+      }
+      // ladrão: encostar não machuca, mas ele leva a última palavra da barra
+      if (e.type === 'thief' && !(falling && above)) {
+        if (e.state === 'idle' || e.state === 'charge') {
+          if (Game.bar.length) Ents.types.thief.steal(e);
+          else { this.vx = (this.cx < e.x + e.w / 2 ? -1 : 1) * 200; e.state = 'idle'; e.vx = -this.vx * 0.6; SFX.thud(); }
+        }
+        continue;
+      }
       if (this.giant) { Enemy.kill(e, 'pop', sign(e.x + e.w / 2 - this.cx) || 1); SFX.crush(); Game.shake(3); continue; }
       if (e.type === 'casco' && e.state === 'shell') {
         if (e.immune > 0) continue;
@@ -172,7 +223,8 @@ const P = {
     const spin = this.spinning, topY = e.y, cx = e.x + e.w / 2;
     this.combo++;
     if (spin) Enemy.kill(e, 'pop', this.facing);
-    else if (e.type === 'crawler') Enemy.kill(e, 'flat');
+    else if (e.type === 'flyer') Ents.types.flyer.clip(e);
+    else if (e.type === 'crawler' || e.type === 'thief') Enemy.kill(e, 'flat');
     else if (e.state === 'walk') { Ents.types.casco.toShell(e); e.immune = 0.15; Game.registerCreature('SHELL'); }
     else if (e.state === 'slide') { e.state = 'shell'; e.vx = 0; e.immune = 0.15; }
     this.y = topY - this.h;
@@ -250,7 +302,7 @@ const P = {
       if (!d.read && Math.abs(this.cx - dcx) < TS * 7 && Math.abs((this.y + this.h) - (d.y + d.h)) < TS * 4 && (d.kind === 'pedestal' || !d.open)) {
         d.read = true; Voice.say(Sentence.speakInscription(d.def.inscription), 'door');
       }
-      if (d.open && d.kind === 'door') continue;
+      if (d.open && d.kind !== 'pedestal' || d.kind === 'bells') continue;
       const feetOk = Math.abs((this.y + this.h) - (d.y + d.h)) < 10;
       const near = d.kind === 'door' ? (this.x + this.w > d.x - 44 && this.x < d.x + 2) : Math.abs(this.cx - dcx) < 40;
       if (near && feetOk && this.onGround) this.interact = d;
@@ -303,9 +355,19 @@ const P = {
     let sx = 1 + this.squash * 0.6, sy = 1 - this.squash * 0.6;
     if (this.spinning) sx *= Math.cos(this.spinT * 26);
     ctx.scale(sx * s, sy * s);
+    if (this.form) { this.drawCrawlerForm(ctx, t); ctx.restore(); return; }
     if (this.crouch) ctx.scale(1.06, CFG.CROUCH_H / CFG.PLAYER_H);
     this.drawBody(ctx, t);
     ctx.restore();
+  },
+  drawCrawlerForm(ctx, t) {
+    const f = this.facing, step = Math.abs(this.vx) > 5 ? Math.sin(t * 14) * 2 : 0;
+    ctx.translate(-13, -24);
+    ctx.strokeStyle = 'rgba(217,70,239,0.7)'; ctx.lineWidth = 1.2; ctx.beginPath();
+    ctx.moveTo(6, 18); ctx.lineTo(3 + step, 24); ctx.moveTo(13, 19); ctx.lineTo(13 - step, 24); ctx.moveTo(20, 18); ctx.lineTo(23 + step, 24); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(2, 20); ctx.lineTo(0, 13.2); ctx.lineTo(6, 4.8); ctx.lineTo(13, 1); ctx.lineTo(20, 4.8); ctx.lineTo(26, 13.2); ctx.lineTo(24, 20); ctx.closePath();
+    ctx.fillStyle = '#050505'; ctx.fill(); ctx.strokeStyle = '#d946ef'; ctx.lineWidth = 1.6; ctx.stroke();
+    capsulePath(ctx, 13 + f * 4, 12, 9, 3.6); ctx.fillStyle = '#f0abfc'; ctx.fill();
   },
   drawBody(ctx, t) {
     const f = this.facing, lw = 1.9 / (this.visScale * this.scale);
@@ -335,9 +397,29 @@ const P = {
 
 /* ============================== ECHO (familiar, a voz do jogo) ============================== */
 const Echo = {
-  x: 0, y: 0, px: 0, py: 0, pulse: 0,
-  reset() { this.x = P.cx - 26; this.y = P.y - 10; this.px = this.x; this.py = this.y; },
+  x: 0, y: 0, px: 0, py: 0, pulse: 0, hidden: false, puff: 0, tiny: 0, shake: 0,
+  reset() {
+    this.x = P.cx - 26; this.y = P.y - 10; this.px = this.x; this.py = this.y; this.hidden = false; this.puff = 0; this.tiny = 0; this.shake = 0;
+    for (const e of Ents.list) if (e.type === 'echoride') e.dead = true;
+  },
+  // alvo de YOU: cresce (e vira plataforma quando a fase tem um caminho para ele) ou encolhe
+  act(what, ride) {
+    if (what === 'big' && ride) {
+      if (Ents.list.some(e => e.type === 'echoride' && !e.dead)) return false;
+      const [c, r] = ride.board;
+      Ents.spawn('echoride', { x: c * TS + TS / 2 - 48, y: r * TS, path: ride.path });
+      this.hidden = true; SFX.grow(); FX.burst(this.x, this.y, 40, 'm', 260, { life: 0.9, g: 0 });
+      return true;
+    }
+    if (what === 'big') { this.puff = 2.2; this.tiny = 0; SFX.grow(); return true; }
+    if (what === 'small') { this.tiny = 2.2; this.puff = 0; SFX.shrink(); return true; }
+    if (what === 'confused') { this.shake = 1; SFX.thud(); return true; }
+    return false;
+  },
   update(dt) {
+    if (this.puff > 0) this.puff = Math.max(0, this.puff - dt);
+    if (this.tiny > 0) this.tiny = Math.max(0, this.tiny - dt);
+    if (this.shake > 0) this.shake = Math.max(0, this.shake - dt);
     const t = Game.time, s = P.scale;
     const tx = P.cx - P.facing * (24 + 8 * s), ty = P.y - 6 - 6 * s + Math.sin(t * 2.2) * 4;
     const k = 1 - Math.exp(-dt * (P.dead ? 1.5 : 4.5));
@@ -345,7 +427,16 @@ const Echo = {
     if (Voice.speaking && Voice.who === 'echo') this.pulse = 1; else this.pulse = Math.max(0, this.pulse - dt * 3);
   },
   draw(ctx, camX, camY, a) {
-    const x = lerp(this.px, this.x, a) - camX, y = lerp(this.py, this.y, a) - camY, t = Game.time;
+    if (this.hidden) return;
+    let x = lerp(this.px, this.x, a) - camX; const y = lerp(this.py, this.y, a) - camY, t = Game.time;
+    const size = this.puff > 0 ? 1 + 1.6 * Math.min(1, this.puff * 2, (2.2 - this.puff) * 4) : this.tiny > 0 ? 1 - 0.55 * Math.min(1, this.tiny * 2, (2.2 - this.tiny) * 4) : 1;
+    if (this.shake > 0) x += Math.sin(t * 40) * 3 * this.shake;
+    if (size !== 1) { ctx.save(); ctx.translate(x, y); ctx.scale(size, size); ctx.translate(-x, -y); }
+    this.drawOrb(ctx, x, y, t);
+    if (size !== 1) ctx.restore();
+    if (this.shake > 0) R.draw(R.text('?', '900 14px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(217,70,239,1)', 6), x, y - 18, 1, this.shake);
+  },
+  drawOrb(ctx, x, y, t) {
     const talk = this.pulse > 0 ? 1 + 0.45 * Math.abs(Math.sin(t * 17)) * this.pulse : 1;
     R.draw(R.glow('m', 26), x, y, 0.7 * talk, 0.55 + 0.35 * this.pulse, true);
     ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2);
@@ -397,7 +488,7 @@ const Doors = {
           const w = d.solved ? d.solved[wi] : null; wi++;
           if (w) { m.font = '700 12px Orbitron, Inter, sans-serif'; const tw = m.measureText(w).width + w.length * 1.4 + 18; parts.push({ slot: true, word: w, w: tw }); total += tw; }
           else { parts.push({ slot: true, w: 44 }); total += 44; }
-        } else if (/^[.!?]$/.test(tok)) { m.font = '600 13px Orbitron, Inter, sans-serif'; const tw = m.measureText(tok).width; parts.push({ txt: tok, w: tw, punct: true }); total += tw; }
+        } else if (/^[.,!?]$/.test(tok)) { m.font = '600 13px Orbitron, Inter, sans-serif'; const tw = m.measureText(tok).width; parts.push({ txt: tok, w: tw, punct: true }); total += tw; }
         else { m.font = '600 13px Orbitron, Inter, sans-serif'; const tw = m.measureText(tok).width + tok.length * 1.4; parts.push({ txt: tok, w: tw }); total += tw; }
       }
       const gap = 8; total += gap * (parts.length - 1);
@@ -431,7 +522,7 @@ const Doors = {
     for (const id in World.doors) {
       const d = World.doors[id], x = d.x - camX, y = d.y - camY;
       if (x > CFG.VIEW_W + 200 || x + d.w < -200) continue;
-      if (d.kind === 'door') this.drawArch(ctx, d, x, y, t);
+      if (d.kind === 'door' || d.kind === 'bells') this.drawArch(ctx, d, x, y, t);
       const cx = x + d.w / 2, top = d.kind === 'door' ? y - 40 : y - 92;
       const dim = d.kind === 'door' && d.open ? 0.4 : 1;
       R.draw(R.text(d.def.inscription, '700 15px Orbitron, Inter, sans-serif', '#22d3ee', 'rgba(0,217,249,0.7)', 10), cx, top - 62, 1, dim);
@@ -458,8 +549,20 @@ const Doors = {
       ctx.moveTo(x + 9, y + d.h * 0.45); ctx.lineTo(x + d.w - 9, y + d.h * 0.45); ctx.strokeStyle = ca(0.12); ctx.stroke();
       ctx.beginPath(); ctx.arc(x + d.w / 2, y - 2, 6, 0, Math.PI * 2); ctx.strokeStyle = ca(0.35); ctx.stroke();
       R.draw(R.glow('c', 24), x + d.w / 2, y - 2, 1, 0.35, true);
+      if (d.kind === 'bells') for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(x + d.w / 2, y + d.h * (0.3 + i * 0.2), 4, 0, Math.PI * 2); ctx.strokeStyle = ca(0.3); ctx.stroke(); }
     }
     ctx.restore();
+    // "I AM YOU.": o reflexo do Nexy aparece no vidro da porta e acena
+    if (d.mirror > 0) {
+      const k = Math.min(1, d.mirror * 2, (1.8 - d.mirror) * 4);
+      R.draw(R.glow('m', 40), x + d.w / 2, y + d.h - 28, 1, 0.5 * k, true);
+      ctx.save(); ctx.globalAlpha = 0.65 * k; ctx.translate(x + d.w / 2, y + d.h - 2); ctx.scale(0.95, 0.95);
+      const of = P.facing, ok = P.kickT, og = P.onGround, ow = P.walkPhase, os = P.visScale, osc = P.scale;
+      P.facing = -1; P.kickT = Math.sin(Game.time * 14) > 0 ? 0.1 : 0; P.onGround = true; P.walkPhase = 0.6; P.visScale = 1; P.scale = 1;
+      P.drawBody(ctx, t);
+      P.facing = of; P.kickT = ok; P.onGround = og; P.walkPhase = ow; P.visScale = os; P.scale = osc;
+      ctx.restore();
+    }
   },
   drawIcon(ctx, d, x, y, t) {
     R.draw(R.glow('c', 30), x, y, 1, 0.6, true);

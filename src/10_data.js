@@ -94,10 +94,21 @@ const WORDS = {
   DOOR:  { cls: 'noun', pt: 'porta', say: 'door', lore: 'Nem toda porta quer ser aberta. Algumas só querem ser nomeadas.' },
   BIG:   { cls: 'adjective', pt: 'grande', say: 'big', lore: 'Diga em voz alta e o mundo terá de abrir espaço para você.' },
   SMALL: { cls: 'adjective', pt: 'pequeno', say: 'small', lore: 'Os caminhos mais secretos são feitos para quem cabe neles.' },
+  // 1-2 · WHO ARE YOU?
+  NEXY:   { cls: 'noun', pt: 'Nexy (o seu nome)', say: 'Nexy', lore: 'Um nome é a primeira resposta. As portas só abrem para quem sabe o próprio.' },
+  YOU:    { cls: 'pronoun', pt: 'você', say: 'you', lore: 'Aponta para quem está na sua frente. Às vezes é o Echo; às vezes é o seu reflexo.' },
+  THEY:   { cls: 'pronoun', pt: 'eles / elas', say: 'they', lore: 'Quando são muitos, ninguém é IT. São THEY, e pedem ARE.' },
+  WE:     { cls: 'pronoun', pt: 'nós', say: 'we', lore: 'Você e o Echo. Ninguém atravessa a catedral sozinho.' },
+  YES:    { cls: 'interjection', pt: 'sim', say: 'yes', lore: 'Cuidado com o sim: a porta acredita em tudo o que você diz.' },
+  NO:     { cls: 'interjection', pt: 'não', say: 'no', lore: 'A resposta mais curta. Quase sempre precisa de um NOT logo depois.' },
+  NOT:    { cls: 'adverb', pt: 'não (depois do verbo)', say: 'not', lore: 'Vem depois do AM, do IS e do ARE, e vira a frase do avesso.' },
+  FRIEND: { cls: 'noun', pt: 'amigo / amiga', say: 'friend', lore: 'Escondida no alto do campanário. Quem a encontra nunca mais sobe sozinho.' },
 };
 const CREATURES = {
   CRAWLER: { pt: 'rastejante', say: 'Crawler', lore: 'Rasteja porque nunca aprendeu a falar.' },
   SHELL:   { pt: 'casco', say: 'Shell', lore: 'Uma casa de vidro escuro. Vazia, ela vira arma.' },
+  FLYER:   { pt: 'alado', say: 'Flyer', lore: 'Um Rastejante que um dia ouviu a palavra UP. Sem as asas, volta a rastejar.' },
+  THIEF:   { pt: 'ladrão de palavras', say: 'Word thief', lore: 'Não sabe falar, então rouba. Sempre a última palavra que você aprendeu.' },
 };
 const MASTER_WORDS = {
   HELLO: { pt: 'olá', say: 'Hello', lore: 'Cinco letras espalhadas pelo escuro. Juntas, são a primeira coisa que o mundo responde.' },
@@ -106,6 +117,8 @@ const MASTER_WORDS = {
 const PHRASES_PT = {
   'HELLO!': 'Olá!', 'HOW ARE YOU?': 'Como você está?', 'WHAT IS THIS?': 'O que é isso?',
   'ARE YOU BIG OR SMALL?': 'Você é grande ou pequeno?',
+  'WHO ARE YOU?': 'Quem é você?', 'WHAT IS BIG?': 'O que é grande?', 'ARE YOU A CRAWLER?': 'Você é um rastejante?',
+  'BIG OR SMALL?': 'Grande ou pequeno?', 'IS IT A DOOR?': 'Isso é uma porta?', 'WHO IS BIG?': 'Quem é grande?',
 };
 
 /* ============================== LEGENDA GLOBAL ============================== */
