@@ -103,12 +103,26 @@ const WORDS = {
   NO:     { cls: 'interjection', pt: 'não', say: 'no', lore: 'A resposta mais curta. Quase sempre precisa de um NOT logo depois.' },
   NOT:    { cls: 'adverb', pt: 'não (depois do verbo)', say: 'not', lore: 'Vem depois do AM, do IS e do ARE, e vira a frase do avesso.' },
   FRIEND: { cls: 'noun', pt: 'amigo / amiga', say: 'friend', lore: 'Escondida no alto do campanário. Quem a encontra nunca mais sobe sozinho.' },
+  // aprendidas no Baú da Memória (1-2), lendo a história do Nexy
+  DARK:   { cls: 'adjective', pt: 'escuro', say: 'dark', lore: 'A cidade era assim quando o Nexy chegou. Ainda é, para quem não tem palavras.' },
+  LIGHT:  { cls: 'noun', pt: 'luz', say: 'light', lore: 'Cada palavra aprendida acende uma. Junte muitas e a noite vira dia.' },
+  AFRAID: { cls: 'adjective', pt: 'com medo', say: 'afraid', lore: 'Dizer que está com medo também é coragem. O Nexy disse, e depois deixou de estar.' },
+  STRONG: { cls: 'adjective', pt: 'forte', say: 'strong', lore: 'Não é o tamanho. É tudo o que você já aprendeu, de pé dentro de você.' },
 };
 const CREATURES = {
   CRAWLER: { pt: 'rastejante', say: 'Crawler', lore: 'Rasteja porque nunca aprendeu a falar.' },
   SHELL:   { pt: 'casco', say: 'Shell', lore: 'Uma casa de vidro escuro. Vazia, ela vira arma.' },
   FLYER:   { pt: 'alado', say: 'Flyer', lore: 'Um Rastejante que um dia ouviu a palavra UP. Sem as asas, volta a rastejar.' },
   THIEF:   { pt: 'ladrão de palavras', say: 'Word thief', lore: 'Não sabe falar, então rouba. Sempre a última palavra que você aprendeu.' },
+};
+// O ECHO, o companheiro do Nexy: se apresenta na primeira partida e fala nas horas certas (frases A1 com legenda)
+const ECHO = {
+  pt: 'eco · o seu companheiro', say: 'Echo',
+  lore: 'Nasceu da primeira palavra que o Nexy ouviu. Fala as palavras em inglês com você, ilumina o escuro e, quando você diz YOU ARE BIG, cresce para te carregar.',
+  lines: {
+    intro: [{ en: 'Hello! I am Echo.', pt: 'Olá! Eu sou o Echo.' }, { en: 'I am your friend.', pt: 'Sou seu amigo. Eu falo as palavras em inglês para você.' }],
+    dark: [{ en: 'It is dark.', pt: 'Está escuro.' }, { en: 'I am your light.', pt: 'Eu sou a sua luz. Fique perto de mim.' }],
+  },
 };
 const MASTER_WORDS = {
   HELLO: { pt: 'olá', say: 'Hello', lore: 'Cinco letras espalhadas pelo escuro. Juntas, são a primeira coisa que o mundo responde.' },
@@ -246,6 +260,18 @@ const WORLDS = {
   },
 };
 
+/* ============================== O CORAÇÃO DAS PALAVRAS (a ferramenta do Nexy) ==============================
+   Nasce na 1-2 (Baú da Memória). Cada degrau vencido na escalada de perguntas acima do A1 sobe o Coração de nível:
+   ele muda de cor e o poder cresce. O melhor nível fica salvo e aparece no mapa. Cada fase nova deve acrescentar
+   algo a ele (um poder, um detalhe visual), sempre com desafio crescente. Cores dentro da paleta neon-noir. */
+const HEART = [
+  { name: 'CYAN HEART', pt: 'Coração Ciano', reward: 'O Nexy fica gigante e quebra o muro.' },
+  { name: 'MAGENTA HEART', pt: 'Coração Magenta', reward: '+ escudo de cristal depois de voltar ao tamanho normal.' },
+  { name: 'WHITE HEART', pt: 'Coração Incandescente', reward: '+ 1 vida.' },
+  { name: 'PRISM HEART', pt: 'Coração Prisma', reward: '+ 30 orbes.' },
+  { name: 'CROWN OF WORDS', pt: 'Coroa das Palavras', reward: '+ mais 1 vida. Poder máximo.' },
+];
+
 /* ============================== SAVE / FLAGS ==============================
    Tudo dentro de try/catch: sem localStorage o jogo funciona normalmente. */
 const Save = {
@@ -254,7 +280,7 @@ const Save = {
   defaults() {
     return {
       grimoire: { words: {}, creatures: {}, master: {} },
-      exits: {}, bestFluency: {}, letters: {}, cleared: {},
+      exits: {}, bestFluency: {}, letters: {}, cleared: {}, heart: { best: -1, by: {} }, met: {},
       map: { at: '1-1', revealed: {} },
       flags: { palaces: { toBe: false } },
       assist: { slow: false, safeFall: false, freeHints: false, subtitles: false, voice: false },
@@ -273,6 +299,8 @@ const Save = {
           Object.assign(d.grimoire.master, s.grimoire && s.grimoire.master);
           Object.assign(d.exits, s.exits); Object.assign(d.bestFluency, s.bestFluency);
           Object.assign(d.letters, s.letters); Object.assign(d.cleared, s.cleared);
+          Object.assign(d.met, s.met);
+          if (s.heart) { d.heart.best = s.heart.best != null ? s.heart.best : -1; Object.assign(d.heart.by, s.heart.by); }
           if (s.map) { if (s.map.at) d.map.at = s.map.at; Object.assign(d.map.revealed, s.map.revealed); }
           // saves da versão só com a 1-1: quem já saiu da 1-1 já tem os caminhos abertos
           for (const id in d.exits) if (d.exits[id].normal || d.exits[id].secret) d.cleared[id] = true;

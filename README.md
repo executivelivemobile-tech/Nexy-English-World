@@ -72,13 +72,45 @@ Palavra-mestra: **WORLD**. Na 1-2 a barra de palavras cresce para **10** espaço
    de cima do lustre). Ordem errada: o eco repete a frase e os sinos zeram. De primeira: uma vida cai do grande sino.
    Tubos do órgão sobem e descem na batida da música (do alto do tubo 2 sai o SMALL). Corredor do **Ladrão de
    Palavras**: ele leva a última palavra da barra; um pisão devolve; se ele fugir, a palavra volta para o bloco.
-4. **A Cripta.** Escura e de teto baixo; o Echo ilumina. Altar "BIG OR SMALL?" com os dois alvos: os gigantes (THEY)
-   e a pedra (IT). Parede falsa no fim do túnel esconde a **Lua** (3 vidas).
+4. **A Cripta.** Escura e de teto baixo; o Echo é a luz ("It is dark. I am your light."). Altar "BIG OR SMALL?" com os
+   dois alvos: os gigantes (THEY) e a pedra (IT). No fim, o **Baú da Memória** e o **Muro do Silêncio** (veja abaixo).
+   Atrás do muro, a câmara da luz; uma parede falsa debaixo da torre esconde a **Lua** (3 vidas).
 5. **O Campanário.** Subida vertical: tubos, sacada com vida, plataformas, lustre e o telhado. Atalho-fantasma
    (IS e ARE na barra viram degraus). Porta "IS IT A DOOR?" → YES, IT IS. No telhado, o altar "WHO IS BIG?":
    **IT IS BIG** faz a ponte para o fim normal; **YOU ARE BIG** faz o Echo levar o Nexy pelo céu até o fim secreto.
 
-Vidas: ponte de Alados (3x), bloco logo depois da porta 2, sinos de primeira, Lua (3) e meio do campanário.
+Vidas: ponte de Alados (3x), bloco logo depois da porta 2, sinos de primeira, Lua (3), meio do campanário e as que o
+Coração dá.
+
+### O Baú da Memória e o Coração das Palavras
+
+Uma leitura curta sobre a jornada do Nexy ("Nexy is small. The city is dark…"), em 5 passos pensados com a ciência do
+aprendizado:
+
+1. **4 palavras novas** antes de ler (DARK, LIGHT, AFRAID, STRONG), com desenho, voz e tradução.
+2. **Leitura** em 3 páginas, com a voz lendo e cada palavra acendendo (karaokê); clique numa palavra para ouvi-la;
+   H mostra a tradução.
+3. **3 perguntas** (primeiro a ideia geral, depois o detalhe). Errar mostra a frase do texto que tem a resposta; tenta
+   de novo, sem punição.
+4. **A Escalada** (opcional, acima do A1): 4 degraus de dificuldade crescente (A2 → B1+: passado, comparação,
+   "because", inferência), uma tentativa cada. Cada acerto sobe o **Coração das Palavras** de nível e muda a cor dele:
+   ciano (quebra o muro) → magenta (+ escudo) → incandescente (+ vida) → prisma (+ 30 orbes) → **Coroa das Palavras**
+   (+ vida). Errar encerra a escalada, mas o poder conquistado fica. O melhor nível é salvo e aparece no mapa.
+5. **"I AM STRONG."**: o aluno monta (ou fala) a frase em 1ª pessoa. Escolher AFRAID apaga a luz e o Echo pergunta
+   "Are you?".
+
+Então vem a cena (na pegada God of War): silêncio, faixas de cinema, as palavras que o aluno aprendeu giram em volta do
+Nexy e entram nele, três tambores de guerra e ele cresce, o grito de batalha ("I AM STRONGER THAN YESTERDAY!" no nível
+máximo), a investida em câmera lenta, o impacto congelado, o Muro do Silêncio explode e a luz entra. Enter pula a cena.
+
+**Quem não consegue** passar pelo baú tem outro caminho: um poço escuro antes do muro, subindo com um quique num
+Alado, e uma passagem baixa por cima do muro.
+
+## O Echo
+
+O orbe que segue o Nexy é o **Echo**, o companheiro. Na primeira partida ele se apresenta ("Hello! I am Echo. I am
+your friend.", com legenda), fala as palavras em inglês, ilumina o escuro e é o alvo de YOU na 1-2. Tem ficha no
+Grimório (aba CREATURES).
 
 Trilha: a mesma progressão da 1-1, a 100 BPM, com o órgão "respondendo" à melodia, coro e sino; abafada na cripta e
 em crescendo no campanário.
@@ -99,11 +131,14 @@ O jogo que vai para o jogador é só o `index.html`, autocontido. Ele é **gerad
 | `src/55_entities2.js` | peças da 1-2: lustres, tubos, Alado, Ladrão, gigantes, sinos, vidas, Lua, Echo gigante, altar |
 | `src/60_player.js` | jogador (plataformas móveis, forma de Rastejante), Echo, câmera e desenho das portas |
 | `src/70_game.js` | frases, painel, interface e laço principal |
+| `src/72_chest.js` | Baú da Memória (leitura, perguntas, escalada) e a cena do Coração |
 | `src/75_worldmap.js` | transições (íris e fechadura) e o mapa-múndi |
 | `src/99_boot.js` | API de teste no console (`NEXY`) e partida |
 | `src/levels/1-1.map` | mapa ASCII da 1-1 (23 linhas × 208 colunas) |
 | `src/levels/1-2.map` | mapa ASCII da 1-2 (40 linhas × 312 colunas) |
 | `build.js` | junta tudo em `index.html` |
+| `tools/gen_map_1-2.py` | gerador do mapa da 1-2 (edite e rode para regenerar `src/levels/1-2.map`) |
+| `CLAUDE.md` | contexto de trabalho (decisões, arquitetura, regras) para continuar o projeto |
 | `tests/` | testes de regressão da 1-1, da 1-2 e do mapa (Playwright + Chromium) |
 
 ```

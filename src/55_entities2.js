@@ -53,6 +53,8 @@ Ents.reg('pipe', {
     const o = e.opts;
     e.w = (o.width || 2) * TS; e.h = 12; e.plat = true; e.body = true; e.dx = 0; e.dy = 0;
     e.x = e.c * TS; e.low = e.r * TS; e.rise = (o.rise || 4) * TS; e.beats = o.beats || 4; e.phase = o.phase || 0; e.k = 0;
+    // o corpo vai até a primeira pedra abaixo do tubo (ou até o fundo da fase)
+    let rb = e.r + 1; while (rb < World.h && World.type(e.c, rb) !== T.SOLID) rb++; e.bot = rb * TS;
     this.place(e); e.px = e.x; e.py = e.y;
   },
   place(e) {
@@ -62,7 +64,7 @@ Ents.reg('pipe', {
   },
   update(e) { const oy = e.y; this.place(e); e.dx = 0; e.dy = e.y - oy; },
   draw(ctx, e, x, y, camX, camY) {
-    const bot = Math.min(World.pxH - camY, CFG.VIEW_H + 20), w = e.w, beat = e.k > 0.92 ? (e.k - 0.92) / 0.08 : 0;
+    const bot = Math.min(e.bot - camY, CFG.VIEW_H + 20), w = e.w, beat = e.k > 0.92 ? (e.k - 0.92) / 0.08 : 0;
     // corpo
     rrect(ctx, x + 5, y + 6, w - 10, bot - y - 6, [0, 0, 0, 0]);
     const g = ctx.createLinearGradient(x, 0, x + w, 0);

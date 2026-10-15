@@ -180,6 +180,8 @@ const WorldMap = {
     const S = Save.data, n = this.node(this.at), id = this.at;
     $('mhWorld').textContent = 'WORLD ' + this.world + ' · ' + this.W.name;
     $('mhLives').textContent = '×' + Game.lives; $('mhOrbs').textContent = String(Game.orbs).padStart(3, '0');
+    const hb = S.heart && S.heart.best != null ? S.heart.best : -1; $('mhHeartBox').style.display = hb >= 0 ? '' : 'none';
+    if (hb >= 0) { $('mhHeart').style.background = HEART_LOOK[hb].css; $('mhHeartBox').title = HEART[hb].name; }
     const bf = Object.values(S.bestFluency); $('mhFlu').textContent = (bf.length ? Math.round(bf.reduce((a, b) => a + b, 0) / bf.length) : 0) + '%';
     $('mhNode').textContent = moving ? '' : (n.label.startsWith('1-') ? 'WORLD ' + n.label + ' · ' : '') + n.name;
     const L = LEVELS[id], box = $('mhLetters'); box.innerHTML = '';

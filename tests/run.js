@@ -322,11 +322,11 @@ const HELP12 = () => {
   };
 };
 
-test('1-2: carrega com WORLD, 2 saídas, 13 palavras e barra de 10', async ({ page }) => {
+test('1-2: carrega com WORLD, 2 saídas, 17 palavras (4 do baú) e barra de 10', async ({ page }) => {
   await page.evaluate(HELP12);
   const r = await page.evaluate(() => ({ T: NEXY.World.totals, max: NEXY.Game.barMax(), lvl: NEXY.World.level.id, word: NEXY.World.level.masterWord, music: Music.variant }));
   expect(r.lvl === '1-2' && r.word === 'WORLD', 'fase e palavra-mestra');
-  expect(r.T.letters === 5 && r.T.exits === 2 && r.T.words === 13 && r.T.secrets === 3, `totais ${JSON.stringify(r.T)}`);
+  expect(r.T.letters === 5 && r.T.exits === 2 && r.T.words === 17 && r.T.secrets === 3, `totais ${JSON.stringify(r.T)}`);
   expect(r.T.creatureList.sort().join() === 'CRAWLER,FLYER,SHELL,THIEF', `criaturas ${r.T.creatureList}`);
   expect(r.max === 10, 'barra de 10 palavras');
   expect(r.music === 'nave', 'música da nave');
@@ -371,7 +371,7 @@ test('1-2 altar 1: IT IS BIG ergue a runa; do chão se sobe nela e dela na sacad
   expect(r.before === 0, `sem a runa a sacada foi alcançada ${r.before} vezes`);
   expect(r.rune === '{"w":2,"h":3}', `runa ${r.rune}`);
   expect(r.onRune === 864 && r.onLedge === 768 && r.W, `do chão para a runa (${r.onRune}) e para a sacada (${r.onLedge}), letra W ${r.W}`);
-  expect(r.kept === 'IT,BIG', 'o altar não gasta as palavras');
+  expect(r.kept.split(',').sort().join() === 'BIG,IT', `o altar não gasta as palavras (${r.kept})`);
 }, L12);
 
 test('1-2 caminhos de verdade: lustre do sino FINE, Alado da letra O e poço de saída da cripta', async ({ page }) => {
@@ -411,16 +411,99 @@ test('1-2 caminhos de verdade: lustre do sino FINE, Alado da letra O e poço de 
       H.noEnemies(); H.wakeSpawns();
     }
     out.O = gotO;
-    // poço de saída da cripta: chão da cripta → plataforma → chão da sala de saída
-    out.crypt1 = H12.tryHop([0], () => NEXY.teleport(237, 35), [], () => P.onGround && Math.round(P.y + P.h) === 33 * 32);
-    out.crypt2 = H12.tryHop([0], () => NEXY.teleport(237, 32), ['right'], () => P.onGround && Math.round(P.y + P.h) === 30 * 32 && P.x > 238 * 32);
+    // caminho alternativo (sem abrir o baú): chão → plataforma do poço → quique no Alado → passagem baixa → câmara da luz
+    H.noEnemies();
+    out.alt1 = H12.tryHop([0], () => NEXY.teleport(233, 35), [], () => P.onGround && Math.round(P.y + P.h) === 33 * 32);
+    const crawl = () => P.onGround && Math.round(P.y + P.h) === 27 * 32 && P.x > 235.5 * 32;
+    out.altNoFlyer = H12.tryHop([0], () => NEXY.teleport(233, 32), ['right'], crawl);
+    H.wakeSpawns(); NEXY.teleport(233, 32); H.step(10);
+    const fl = E.list.find(e => e.type === 'flyer' && Math.abs(e.x - 235 * 32) < 40);
+    let up = false;
+    if (fl) {
+      P.vx = 0; H.set([]); H.step(2);
+      for (let i = 0; i < 260 && !up; i++) {
+        const keys = ['jump'];
+        if (P.combo === 0) { const fx = fl.x + 13; if (P.onGround && Math.abs(P.cx - fx) < 70 && fl.y > P.y - 60) H.press('jump'); if (!P.onGround) keys.push(P.cx < fx - 3 ? 'right' : P.cx > fx + 3 ? 'left' : 'x'); }
+        else keys.push('right');
+        H.set(keys); H.step(1); if (crawl()) up = true; if (P.dead) break;
+      }
+    }
+    out.altFlyer = up;
+    H.set(['right']); H.step(90); H.set([]); out.altChamber = P.x > 240 * 32;
     return out;
   });
   expect(r.stepToChand >= 6, `degrau → lustre: ${r.stepToChand}`);
   expect(r.fine >= 10, `do lustre se toca o FINE: ${r.fine}/32`);
   expect(r.O, 'do lustre se pisa no Alado e se pega a letra O');
-  expect(r.crypt1 === 1 && r.crypt2 === 1, `poço da cripta: ${r.crypt1}, ${r.crypt2}`);
+  expect(r.alt1 === 1 && r.altNoFlyer === 0 && r.altFlyer && r.altChamber, `caminho alternativo da cripta: ${JSON.stringify(r)}`);
 }, L12);
+
+// a cena é dirigida passo a passo: Cine.update no tempo da tela e Game.step quando o jogo está em 'play' (investida)
+const CHEST12 = () => {
+  window.C12 = {
+    open() { const P = NEXY.P, G = NEXY.Game; H.noEnemies(); NEXY.World.setTarget('rune2', 'small'); H.step(40); H.tp(234, 35, 999); H.step(5); G.openPanel(P.interact); return G.state; },
+    async through(climb, finalWord = 'STRONG') {
+      const G = NEXY.Game, S = Chest.S, st = Chest.st, click = (sel) => { const b = document.querySelector('#chest ' + sel); if (b) b.click(); return !!b; };
+      click('[data-a="next"]');                                           // palavras → leitura
+      for (let i = 0; i < S.pages.length; i++) click('[data-a="next"]');   // leitura → perguntas
+      for (const q of S.questions) { click(`[data-a="opt"][data-i="${(q.answer + 1) % q.options.length}"]`); click(`[data-a="opt"][data-i="${q.answer}"]`); await H.wait(1300); }
+      if (climb == null) click('[data-a="skipclimb"]');
+      else {
+        click('[data-a="climb"]'); click('[data-a="next"]');
+        S.climb.rungs.forEach((r, i) => { if (st.step !== 'climb') return; click(`[data-a="rung"][data-i="${i < climb ? r.answer : (r.answer + 1) % r.options.length}"]`); click('#cnext [data-a="up"]'); });
+      }
+      click(`[data-a="say"][data-w="${finalWord}"]`); await H.wait(1700);
+      return { step: st.step, tier: st.tier, cine: Cine.active, state: G.state };
+    },
+    run(maxSec = 20) {
+      const G = NEXY.Game; let n = 0, broke = -1;
+      while (Cine.active && n < maxSec * 60) { Cine.update(1 / 60); if (G.state === 'play') G.step(1 / 60); n++; if (broke < 0 && Cine.impactT >= 0) broke = +(Cine.impactT).toFixed(2); }
+      return { secs: +(n / 60).toFixed(1), broke };
+    },
+  };
+};
+
+test('1-2 Baú da Memória: palavras, leitura, perguntas, escalada até a Coroa e a cena quebra o muro', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(CHEST12);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, G = NEXY.Game, W = NEXY.World, out = {};
+    const lives = G.lives; out.open = C12.open();
+    out.words = ['DARK', 'LIGHT', 'AFRAID', 'STRONG'].every(w => G.wordsSeen.has(w) && NEXY.Save.data.grimoire.words[w]);
+    out.through = await C12.through(4);
+    out.run = C12.run();
+    out.after = { scale: P.scale, aura: P.aura, lives: G.lives - lives, orbs: G.orbs, wall: W.type(238, 33) === 0 && W.type(239, 35) === 0, x: Math.round(P.x / 32), state: G.state, hud: !Cine.active };
+    out.heart = NEXY.Save.data.heart.by['1-2'];
+    // reabrir: só a história, para reler
+    H.tp(234, 35, 999); H.step(5); G.openPanel(P.interact); out.review = Chest.st.step === 'read' && Chest.st.review; Chest.close();
+    return out;
+  });
+  expect(r.open === 'chest' && r.words, `abre o baú e ensina as 4 palavras (${JSON.stringify(r)})`);
+  expect(r.through.tier === 4 && r.through.cine, `escalada completa: Coroa das Palavras (${JSON.stringify(r.through)})`);
+  expect(r.run.broke > 0 && r.run.broke < 10.4, `o Nexy gigante quebra o muro na investida (${JSON.stringify(r.run)})`);
+  expect(r.after.wall && r.after.scale === 1 && r.after.state === 'play' && r.after.x > 239, `depois da cena: muro aberto, tamanho normal, na câmara (${JSON.stringify(r.after)})`);
+  expect(r.after.aura && r.after.lives === 2 && r.after.orbs >= 30 && r.heart === 4, `recompensas do nível 4 (${JSON.stringify(r.after)})`);
+  expect(r.review, 'reabrir o baú mostra a história de novo');
+}, L12);
+
+test('1-2 Baú da Memória: errar na escalada encerra e guarda o poder; sem escalada o muro também quebra; pular a cena', async ({ browser }) => {
+  const out = {};
+  for (const [name, climb] of [['fall', 1], ['none', null], ['skip', 0]]) {
+    const { ctx, page, errors } = await openGame(browser, L12);
+    await page.evaluate(HELP12); await page.evaluate(CHEST12);
+    out[name] = await page.evaluate(async ([name, climb]) => {
+      const P = NEXY.P, G = NEXY.Game, W = NEXY.World, lives = G.lives;
+      C12.open(); const th = await C12.through(climb);
+      if (name === 'skip') { for (let i = 0; i < 100; i++) Cine.update(1 / 60); Cine.key({ code: 'Enter' }); } else C12.run();
+      return { tier: th.tier, scale: P.scale, aura: P.aura, lives: G.lives - lives, wall: W.type(238, 33) === 0, x: Math.round(P.x / 32), cine: Cine.active };
+    }, [name, climb]);
+    if (errors.length) out[name].errors = errors;
+    await ctx.close();
+  }
+  expect(out.fall.tier === 1 && out.fall.aura && out.fall.lives === 0 && out.fall.wall, `caiu no degrau 2: Coração Magenta, só o escudo (${JSON.stringify(out.fall)})`);
+  expect(out.none.tier === 0 && !out.none.aura && out.none.wall && out.none.scale === 1, `sem escalada: Coração Ciano, o muro quebra (${JSON.stringify(out.none)})`);
+  expect(out.skip.wall && !out.skip.cine && out.skip.scale === 1 && out.skip.x > 239, `pular a cena dá o mesmo resultado (${JSON.stringify(out.skip)})`);
+  for (const k in out) expect(!out[k].errors, `${k}: ${out[k].errors}`);
+}, { ownPages: true });
 
 test('1-2 portas 1 e 2: NEXY abre, YOU mostra o reflexo, YES vira Rastejante, NO I AM NOT abre', async ({ page }) => {
   await page.evaluate(HELP12);
@@ -599,7 +682,7 @@ test('1-2 cripta: gigantes fecham o túnel; THEY ARE SMALL e IT IS SMALL abrem; 
     for (let i = 0; i < 90; i++) { H.step(1); if (G.letters[2]) break; } H.set([]); out.R = G.letters[2];
     await H12.panel(215, 35, ['IT', 'IS', 'SMALL']); H.step(60); out.stone = W.targets.rune2.state;
     H.tp(226, 35, 999); P.dead = false; H.set(['right']); H.step(45); H.set(['right', 'jump']); H.press('jump'); H.step(100); H.set([]); out.passed = Math.round(P.x / 32);
-    const lives = G.lives; H.tp(241, 35, 999); H.set(['right']); H.step(90); H.set([]);
+    const lives = G.lives; H.tp(241, 35, 999); H.set(['right']); H.step(150); H.set([]);
     out.moon = G.lives - lives; out.secret = G.secrets.size;
     return out;
   });
@@ -687,7 +770,7 @@ test('1-2 palavras: as 13 cabem na barra e as necessárias chegam ao último alt
     hit(116, 29); hit(120, 29); hit(124, 29); await H12.panel(134, 29, ['NO', 'NOT']);
     hit(175, 29); hit(178, 29); hit(181, 29); G.collectWord('SMALL', { x: P.x, y: P.y }); hit(196, 29);
     await H12.panel(215, 35, ['THEY', 'ARE', 'SMALL']); await H12.panel(215, 35, ['IT', 'IS', 'SMALL']);
-    hit(243, 29); await H12.panel(246, 29, ['YES']); hit(255, 14);
+    hit(242, 32); await H12.panel(246, 29, ['YES']); hit(255, 14);
     return { bar: G.bar.join(), seen: G.wordsSeen.size, max: Math.max(...max), door3: W.doors.door3.opening > 0 };
   });
   expect(r.seen === 13, `viu ${r.seen} de 13 palavras (${r.bar})`);

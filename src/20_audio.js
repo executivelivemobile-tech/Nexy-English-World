@@ -134,6 +134,29 @@ const SFX = {
   steal() { const t = AudioSys.t; tone('square', 988, t, 0.09, 0.05, { to: 330, filter: { freq: 2400 } }); tone('square', 660, t + 0.09, 0.12, 0.05, { to: 220, filter: { freq: 2400 } }); },
   rune(up) { const t = AudioSys.t; [0, 4, 7, 12].forEach((iv, i) => tone('triangle', midi((up ? 64 : 76) + (up ? iv : -iv)), t + i * 0.06, 0.5, 0.05, { verb: true })); },
   moon() { const t = AudioSys.t; [69, 73, 76, 81, 85, 88, 93].forEach((n, i) => tone('sine', midi(n), t + i * 0.09, 1.4, 0.06, { verb: true })); },
+  // ---- cena do Baú da Memória (pegada épica: tambor de guerra, coro, impacto pesado) ----
+  rumble(d = 1.2) { const t = AudioSys.t; noise(t, d, 0.22, { type: 'lowpass', freq: 140, a: 0.3 }); tone('sine', 41, t, d, 0.18, { a: 0.3 }); },
+  warDrum() {
+    const t = AudioSys.t;
+    tone('sine', 72, t, 1.1, 0.75, { to: 34, glide: 0.5 }); tone('triangle', 120, t, 0.35, 0.3, { to: 55 });
+    noise(t, 0.3, 0.35, { type: 'lowpass', freq: 520 }); noise(t, 0.05, 0.2, { freq: 2500 });
+  },
+  heartbeat() { const t = AudioSys.t; tone('sine', 64, t, 0.16, 0.45, { to: 40 }); tone('sine', 58, t + 0.15, 0.2, 0.35, { to: 36 }); },
+  shimmer() { const t = AudioSys.t; for (let i = 0; i < 12; i++) tone('sine', midi(84 + (i % 6) * 2 + Math.floor(i / 6) * 12), t + i * 0.05, 0.6, 0.025, { verb: true }); },
+  choir(d = 3) {
+    const t = AudioSys.t;
+    for (const n of [57, 60, 64, 69]) for (const dt of [-8, 8]) tone('sawtooth', midi(n), t, d, 0.02, { a: d * 0.45, hold: d * 0.3, filter: { freq: 1200 }, detune: dt, verb: true });
+  },
+  riser(d = 1) { const t = AudioSys.t; noise(t, d, 0.12, { type: 'bandpass', freq: 250, to: 5200, q: 1.4, a: d * 0.8 }); tone('sawtooth', 110, t, d, 0.04, { to: 880, glide: d, filter: { freq: 900, to: 4000 }, a: d * 0.7 }); },
+  impact() {
+    const t = AudioSys.t;
+    tone('sine', 58, t, 1.6, 0.95, { to: 24, glide: 0.9 }); tone('triangle', 160, t, 0.5, 0.4, { to: 40 });
+    noise(t, 0.7, 0.55, { type: 'lowpass', freq: 900, to: 120 }); noise(t, 0.25, 0.35, { freq: 3200, verb: true });
+  },
+  shatter() {
+    const t = AudioSys.t; noise(t, 1.4, 0.3, { freq: 2400, to: 900, verb: true });
+    for (let i = 0; i < 26; i++) tone('sine', 1800 + Math.random() * 4800, t + Math.random() * 0.9, 0.25, 0.04, { verb: true });
+  },
 };
 
 /* ============================== MÚSICA PROCEDURAL ==============================
@@ -282,15 +305,17 @@ const Voice = {
     pick();
     try { window.speechSynthesis.addEventListener('voiceschanged', pick); } catch (e) { window.speechSynthesis.onvoiceschanged = pick; }
   },
-  say(text, who = 'echo') {
+  // opts: onBoundary(charIndex) para o karaokê da leitura, onEnd()
+  say(text, who = 'echo', opts = {}) {
     if (!this.enabled || AudioSys.muted || !text || !('speechSynthesis' in window)) return;
     text = String(text);
     const ss = window.speechSynthesis;
     try { ss.cancel(); } catch (e) { /* ignora */ }
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'en-US'; if (this.voice) u.voice = this.voice;
-    if (who === 'door') { u.pitch = 0.75; u.rate = 0.85; } else { u.pitch = 1.2; u.rate = 0.9; }
-    const done = () => { if (this.cur !== u) return; this.speaking = false; AudioSys.duck(false); };
+    if (who === 'door') { u.pitch = 0.75; u.rate = 0.85; } else if (who === 'story') { u.pitch = 1.05; u.rate = 0.8; } else { u.pitch = 1.2; u.rate = 0.9; }
+    const done = () => { if (this.cur !== u) return; this.speaking = false; AudioSys.duck(false); if (opts.onEnd) opts.onEnd(); };
+    if (opts.onBoundary) u.onboundary = e => { if (this.cur === u && (!e.name || e.name === 'word')) opts.onBoundary(e.charIndex); };
     u.onend = done; u.onerror = done;
     this.cur = u; this.speaking = true; this.who = who; this.pulse = 1; AudioSys.duck(true);
     clearTimeout(this.timer); this.timer = setTimeout(done, 900 + text.length * 110);

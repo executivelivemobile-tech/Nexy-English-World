@@ -302,7 +302,7 @@ const P = {
       if (!d.read && Math.abs(this.cx - dcx) < TS * 7 && Math.abs((this.y + this.h) - (d.y + d.h)) < TS * 4 && (d.kind === 'pedestal' || !d.open)) {
         d.read = true; Voice.say(Sentence.speakInscription(d.def.inscription), 'door');
       }
-      if (d.open && d.kind !== 'pedestal' || d.kind === 'bells') continue;
+      if (d.open && d.kind !== 'pedestal' || d.kind === 'bells' || (d.kind === 'chest' && Cine.active)) continue;
       const feetOk = Math.abs((this.y + this.h) - (d.y + d.h)) < 10;
       const near = d.kind === 'door' ? (this.x + this.w > d.x - 44 && this.x < d.x + 2) : Math.abs(this.cx - dcx) < 40;
       if (near && feetOk && this.onGround) this.interact = d;
@@ -317,6 +317,7 @@ const P = {
   draw(ctx, camX, camY, a) {
     const x = lerp(this.px, this.x, a) - camX, y = lerp(this.py, this.y, a) - camY;
     const s = this.visScale * this.scale, t = Game.time;
+    if (Cine.active && Cine.glow > 0) R.draw(R.glow('t', 64), x + this.w / 2, y + this.h / 2, 1.3 * s, Cine.glow * 0.7, true);
     if (this.dead && this.pitDeath) return;
     let alpha = 1;
     if (this.invuln > 0 && Math.floor(this.invuln * 18) % 2 === 0) alpha = 0.3;
@@ -397,11 +398,15 @@ const P = {
 
 /* ============================== ECHO (familiar, a voz do jogo) ============================== */
 const Echo = {
-  x: 0, y: 0, px: 0, py: 0, pulse: 0, hidden: false, puff: 0, tiny: 0, shake: 0,
+  x: 0, y: 0, px: 0, py: 0, pulse: 0, hidden: false, puff: 0, tiny: 0, shake: 0, line: null, lines: [], lineT: 0,
   reset() {
     this.x = P.cx - 26; this.y = P.y - 10; this.px = this.x; this.py = this.y; this.hidden = false; this.puff = 0; this.tiny = 0; this.shake = 0;
     for (const e of Ents.list) if (e.type === 'echoride') e.dead = true;
+    this.line = null; this.lines = [];
   },
+  // o Echo fala (balão com o inglês e a legenda em português)
+  talk(lines) { this.lines = lines.slice(); this.nextLine(); },
+  nextLine() { this.line = this.lines.shift() || null; this.lineT = 0; if (this.line) Voice.say(this.line.en, 'echo'); },
   // alvo de YOU: cresce (e vira plataforma quando a fase tem um caminho para ele) ou encolhe
   act(what, ride) {
     if (what === 'big' && ride) {
@@ -420,6 +425,7 @@ const Echo = {
     if (this.puff > 0) this.puff = Math.max(0, this.puff - dt);
     if (this.tiny > 0) this.tiny = Math.max(0, this.tiny - dt);
     if (this.shake > 0) this.shake = Math.max(0, this.shake - dt);
+    if (this.line) { this.lineT += dt; if (this.lineT > 3) this.nextLine(); }
     const t = Game.time, s = P.scale;
     const tx = P.cx - P.facing * (24 + 8 * s), ty = P.y - 6 - 6 * s + Math.sin(t * 2.2) * 4;
     const k = 1 - Math.exp(-dt * (P.dead ? 1.5 : 4.5));
@@ -435,6 +441,18 @@ const Echo = {
     this.drawOrb(ctx, x, y, t);
     if (size !== 1) ctx.restore();
     if (this.shake > 0) R.draw(R.text('?', '900 14px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(217,70,239,1)', 6), x, y - 18, 1, this.shake);
+    if (this.line) this.drawBubble(ctx, x, y);
+  },
+  drawBubble(ctx, x, y) {
+    const l = this.line, k = Math.min(1, this.lineT * 5, (3 - this.lineT) * 5);
+    if (k <= 0) return;
+    const en = R.text(l.en, '700 12px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(217,70,239,0.9)', 5), pt = R.text(l.pt, '400 11px Inter, sans-serif', wa(0.75), null, 0);
+    const w = Math.max(en.w, pt.w) + 6, h = 44, bx = clamp(x, w / 2 + 10, CFG.VIEW_W - w / 2 - 10), by = y - 48;
+    ctx.save(); ctx.globalAlpha = k;
+    rrect(ctx, bx - w / 2, by - h / 2, w, h, 14); ctx.fillStyle = 'rgba(2,2,2,0.82)'; ctx.fill(); ctx.strokeStyle = 'rgba(217,70,239,0.7)'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x - 5, by + h / 2); ctx.lineTo(x, by + h / 2 + 8); ctx.lineTo(x + 5, by + h / 2); ctx.fillStyle = 'rgba(2,2,2,0.82)'; ctx.fill();
+    ctx.restore();
+    R.draw(en, bx, by - 8, 1, k); R.draw(pt, bx, by + 10, 1, k);
   },
   drawOrb(ctx, x, y, t) {
     const talk = this.pulse > 0 ? 1 + 0.45 * Math.abs(Math.sin(t * 17)) * this.pulse : 1;
@@ -521,7 +539,7 @@ const Doors = {
     const sub = Save.data.assist.subtitles;
     for (const id in World.doors) {
       const d = World.doors[id], x = d.x - camX, y = d.y - camY;
-      if (x > CFG.VIEW_W + 200 || x + d.w < -200) continue;
+      if (x > CFG.VIEW_W + 200 || x + d.w < -200 || d.kind === 'chest') continue;
       if (d.kind === 'door' || d.kind === 'bells') this.drawArch(ctx, d, x, y, t);
       const cx = x + d.w / 2, top = d.kind === 'door' ? y - 40 : y - 92;
       const dim = d.kind === 'door' && d.open ? 0.4 : 1;

@@ -23,7 +23,7 @@ LEVELS['1-2'] = {
   // no alto do campanário a catedral se abre para o céu (a partir desta coluna, com a câmera acima de y)
   sky: { c: 246, y: 420 },
   zones: [
-    { c0: 206, c1: 247, r0: 31, r1: 39, dark: 0.92, muffle: true },   // cripta: escura e abafada
+    { c0: 206, c1: 239, r0: 25, r1: 39, dark: 0.92, muffle: true },   // cripta: escura e abafada (até o Muro do Silêncio)
     { c0: 250, c1: 311, boost: true },                                 // campanário: percussão em crescendo
   ],
   blocks: {
@@ -70,7 +70,10 @@ LEVELS['1-2'] = {
     '7': { entity: 'bell', word: 'AM', gate: 'gate', tone: 1 },
     '8': { entity: 'bell', word: 'FINE', gate: 'gate', tone: 2 },
     '+': { entity: 'life' }, '$': { entity: 'moon' }, '~': { entity: 'bigbell' },
+    '@': { entity: 'chest', door: 'chest' },
   },
+  // palavras que se aprendem lendo (Baú da Memória): contam para a Fluência como as dos blocos
+  extraWords: ['DARK', 'LIGHT', 'AFRAID', 'STRONG'],
   // alvos das frases. rune: c/r = coluna e linha de base; anchor = de onde cresce; small/big = tamanho em tiles
   targets: {
     rune1: { kind: 'rune', c: 24, r: 29, anchor: 'left', small: { w: 1, h: 1 }, big: { w: 2, h: 3 }, state: 'small' },
@@ -79,6 +82,52 @@ LEVELS['1-2'] = {
     giants: { kind: 'giants' },
   },
   doors: {
+    /* BAÚ DA MEMÓRIA. Ciência do aprendizado em 5 passos: (1) palavras-chave antes da leitura, com imagem, som e
+       tradução; (2) leitura com voz e karaokê (som + texto juntos), tradução só sob pedido (H); (3) perguntas de
+       compreensão, primeiro a ideia geral, depois o detalhe; errar mostra a frase-prova do texto, sem punição;
+       (4) ESCALADA opcional acima do A1 (A2 → B1+: passado, comparação, "because", inferência): dificuldade
+       crescente, uma tentativa por degrau; cada acerto muda a cor do Coração e dá mais poder ao item (ver HEART em
+       10_data.js); (5) produção em 1ª pessoa: o jogador diz I AM STRONG.
+       Quem não consegue tem outro caminho: o poço escuro por cima do muro, subindo com um quique no Alado. */
+    chest: {
+      kind: 'chest', inscription: 'MEMORY CHEST', title: 'MEMORY CHEST',
+      wall: [238, 32, 239, 35],   // o Muro do Silêncio (colunas 238-239, linhas 32-35): só o Nexy gigante quebra
+      story: {
+        words: [
+          { w: 'DARK', icon: 'dark' }, { w: 'LIGHT', icon: 'light' }, { w: 'AFRAID', icon: 'afraid' }, { w: 'STRONG', icon: 'strong' },
+        ],
+        pages: [
+          { en: 'Nexy is small. The city is dark. Nobody says hello.', pt: 'Nexy é pequeno. A cidade é escura. Ninguém diz olá.' },
+          { en: 'Nexy finds a word. Then another word. Every word is a light.', pt: 'Nexy encontra uma palavra. Depois outra palavra. Cada palavra é uma luz.' },
+          { en: 'Nexy is not afraid now. Echo is a friend. Words make Nexy strong.', pt: 'Agora o Nexy não tem medo. O Echo é um amigo. As palavras deixam o Nexy forte.' },
+        ],
+        // ev = a frase do texto que prova a resposta (aparece quando o aluno erra)
+        questions: [
+          { q: 'Is the city dark?', pt: 'A cidade é escura?', options: ['Yes, it is.', 'No, it is not.'], answer: 0, ev: [0, 'The city is dark.'] },
+          { q: 'What is every word?', pt: 'O que é cada palavra?', options: ['a door', 'a light', 'a key'], answer: 1, ev: [1, 'Every word is a light.'] },
+          { q: 'Is Nexy afraid now?', pt: 'O Nexy está com medo agora?', options: ['Yes, he is.', 'No, he is not.'], answer: 1, ev: [2, 'Nexy is not afraid now.'] },
+        ],
+        // A ESCALADA (acima do A1): cada acerto sobe um degrau, a pergunta seguinte é mais difícil e o Coração
+        // muda de cor e ganha poder. Uma tentativa por degrau; errar encerra a escalada (o poder conquistado fica).
+        climb: {
+          page: { en: 'Yesterday, Nexy was afraid of the dark. Today, he is stronger than yesterday, because every word he learns becomes a part of him.',
+                  pt: 'Ontem, o Nexy tinha medo do escuro. Hoje, ele está mais forte do que ontem, porque cada palavra que ele aprende vira parte dele.' },
+          rungs: [
+            { level: 'A2', q: 'How was Nexy yesterday?', pt: 'Como o Nexy estava ontem?', options: ['He is afraid.', 'He was afraid.', 'He was big.'], answer: 1,
+              tip: 'WAS é o passado de IS. Yesterday (ontem) pede o passado: he was afraid.' },
+            { level: 'A2', q: 'When is Nexy stronger?', pt: 'Quando o Nexy está mais forte?', options: ['Today.', 'Yesterday.'], answer: 0,
+              tip: 'STRONGER THAN = mais forte do que. Today he is stronger than yesterday.' },
+            { level: 'B1', q: 'Why is Nexy stronger?', pt: 'Por que o Nexy está mais forte?', options: ['Because the city is dark.', 'Because he is afraid.', 'Because he learns words.'], answer: 2,
+              tip: 'BECAUSE = porque. Because every word he learns becomes a part of him.' },
+            { level: 'B1+', q: 'What does the story teach?', pt: 'O que a história ensina?', options: ['The dark is dangerous.', 'Learning makes you grow.', 'Friends are not important.'], answer: 1,
+              tip: 'A ideia principal não está escrita palavra por palavra: aprender faz você crescer. É inferência.' },
+          ],
+        },
+        final: { mold: ['I', 'AM', '_', '.'], options: ['AFRAID', 'STRONG', 'DARK', 'SMALL'], answer: 'STRONG', afraid: 'AFRAID' },
+        // o grito de batalha cresce com o poder (degraus vencidos na escalada: 0 a 4)
+        cries: ['I AM STRONG!', 'I AM STRONG!', 'I AM STRONGER!', 'I AM STRONGER THAN YESTERDAY!', 'I AM STRONGER THAN YESTERDAY!'],
+      },
+    },
     door1: {
       char: '1', inscription: 'WHO ARE YOU?', mold: ['I', 'AM', '_', '.'],
       accept: [{ words: ['NEXY'], result: { type: 'open' } }],

@@ -21,6 +21,7 @@ const PARTS = [
   '55_entities2.js',    // peças da 1-2: lustres, tubos, Alado, Ladrão, gigantes, sinos, vidas, Echo gigante
   '60_player.js',       // jogador, Echo, câmera e desenho das portas
   '70_game.js',         // frases, painel, interface e laço principal
+  '72_chest.js',        // Baú da Memória (leitura, perguntas, escalada) e a cena do Coração
   '75_worldmap.js',     // transições (íris) e mapa-múndi
   '99_boot.js',         // API de teste no console e partida
 ];

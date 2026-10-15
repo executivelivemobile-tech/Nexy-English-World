@@ -296,6 +296,51 @@ body.touch #touch { display: block; }
 #padline { font: 400 9px var(--f-mono); letter-spacing: .2em; color: var(--cy); opacity: 0; transition: opacity .4s; }
 #padline.on { opacity: .85; }
 
+/* ---------- MEMORY CHEST (leitura, perguntas e desafio) ---------- */
+#chest { flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 70px 40px 30px;
+  background: radial-gradient(ellipse at 50% 40%, rgba(40,8,46,.72), rgba(2,2,2,.9) 70%); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  transition: background .6s; }
+#chest.dim { background: rgba(0,0,0,.96); }
+#chest .c-top { position: absolute; top: 22px; left: 0; right: 0; display: flex; align-items: center; justify-content: center; gap: 22px; }
+#chest .c-kind { font: 500 9px var(--f-display); letter-spacing: .42em; color: var(--txt-3); }
+#chest .c-steps { display: flex; gap: 6px; }
+#chest .c-steps i { width: 30px; height: 3px; border-radius: 2px; background: var(--line-2); transition: background .3s, box-shadow .3s; }
+#chest .c-steps i.on { background: var(--mag); box-shadow: 0 0 8px var(--mag); }
+#chest .c-steps i.done { background: rgba(34,211,238,.6); }
+#chest .c-power { display: flex; gap: 9px; align-items: center; }
+#chest .c-power i { width: 11px; height: 11px; transform: rotate(45deg); border: 1px solid var(--line-3); transition: all .4s; }
+#chest .c-power i.on { background: var(--mag-glow); border-color: #fff; box-shadow: 0 0 12px var(--mag), 0 0 24px rgba(217,70,239,.6); }
+#chest .c-title { font: 700 18px var(--f-display); letter-spacing: .26em; color: #fff; text-align: center; filter: var(--glow-triple); }
+#chest .c-title.chal { color: var(--mag-hi); }
+#chest .c-sub { font: 400 13px/1.5 var(--f-body); color: var(--txt-2); text-align: center; max-width: 640px; }
+#chest .c-cards { display: flex; gap: 14px; }
+#chest .ccard { width: 168px; min-width: 0; padding: 14px 10px 12px; display: flex; flex-direction: column; align-items: center; gap: 7px; text-transform: none; letter-spacing: normal; border-radius: 20px; }
+#chest .ccard svg { width: 64px; height: 64px; overflow: visible; }
+#chest .ccard .w { font: 700 18px var(--f-display); letter-spacing: .16em; color: #fff; }
+#chest .ccard .p { font: 400 12px var(--f-body); color: var(--txt-2); }
+#chest .ccard.say { border-color: var(--mag-glow); box-shadow: var(--neon-mag); }
+#chest .c-text { font: 600 27px/1.6 var(--f-body); color: var(--txt); max-width: 800px; text-align: center; min-height: 90px; }
+#chest .c-text.small { font-size: 22px; }
+#chest .c-text span { cursor: pointer; border-radius: 6px; padding: 0 2px; transition: background .12s, color .12s, text-shadow .12s; }
+#chest .c-text span.nw { color: var(--mag-hi); text-shadow: 0 0 10px rgba(217,70,239,.65); }
+#chest .c-text span.k { background: rgba(34,211,238,.2); color: #fff; text-shadow: 0 0 10px rgba(34,211,238,.9); }
+#chest .c-pt { font: 400 14px/1.5 var(--f-body); color: var(--txt-2); min-height: 21px; text-align: center; max-width: 760px; }
+#chest .c-q { font: 700 22px var(--f-display); letter-spacing: .05em; color: var(--cy); text-shadow: var(--glow-text-cy); text-align: center; }
+#chest .c-opts { display: flex; flex-direction: column; gap: 10px; min-width: 440px; }
+#chest .copt { text-transform: none; letter-spacing: .03em; font: 600 17px var(--f-body); padding: 11px 26px; }
+#chest .copt.right { border-color: var(--cy); box-shadow: var(--neon-cy); color: #fff; opacity: 1; }
+#chest .copt.wrong { opacity: .4; animation: shake .5s; }
+#chest .c-ev { font: 400 15px/1.5 var(--f-body); color: var(--txt-2); min-height: 23px; text-align: center; max-width: 760px; }
+#chest .c-ev b { color: #fff; font-weight: 600; background: rgba(217,70,239,.2); border-radius: 5px; padding: 1px 5px; box-shadow: 0 0 0 1px rgba(217,70,239,.5); }
+#chest .c-mold { display: flex; gap: 12px; align-items: center; min-height: 48px; }
+#chest .c-mold .fx { font: 600 24px var(--f-display); letter-spacing: .14em; color: var(--txt); }
+#chest .c-mold .slot { min-width: 120px; height: 40px; border-radius: 20px; border: 1px dashed rgba(34,211,238,.6); display: grid; place-items: center; box-shadow: 0 0 14px rgba(6,182,212,.25); }
+#chest .c-mold.shake { animation: shake .5s; }
+#chest .c-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+#chest .c-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+#chest .c-keys { position: absolute; bottom: 16px; left: 0; right: 0; text-align: center; font: 400 9px var(--f-mono); letter-spacing: .18em; color: var(--txt-3); }
+#cineskip { position: absolute; right: 22px; bottom: 18px; font: 500 9px var(--f-display); letter-spacing: .3em; color: var(--txt-3); opacity: 0; transition: opacity .4s; pointer-events: none; z-index: 6; }
+#cineskip.on { opacity: 1; }
 /* ---------- GRAIN (over everything) ---------- */
 #grain { position: fixed; inset: -50%; pointer-events: none; z-index: 100; opacity: .2; mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
@@ -330,6 +375,7 @@ body.touch #touch { display: block; }
         <div class="hg"><span class="hl">Lives</span><span class="mono" id="mhLives">×5</span></div>
         <div class="hg"><span class="hl">Orbs</span><span class="mono" id="mhOrbs">000</span></div>
         <div class="hg"><span class="hl">Fluency</span><span class="mono" id="mhFlu">0%</span></div>
+        <div class="hg" id="mhHeartBox" style="display:none"><span class="hl">Heart</span><i id="mhHeart" style="width:12px;height:12px;transform:rotate(45deg);display:block;box-shadow:0 0 10px rgba(217,70,239,.6)"></i></div>
         <div class="hg"><button class="mbtn" id="mhMute" aria-label="Sound">SND</button><button class="mbtn" id="mhPause" aria-label="Pause"><i></i></button></div>
       </div>
       <div class="mbot" id="mhBot">
@@ -356,6 +402,13 @@ body.touch #touch { display: block; }
       </div>
       <div class="p-keys">← → CHOOSE · ENTER PLACE · BACKSPACE REMOVE · H HINT · ESC BACK</div>
     </div>
+
+    <div id="chest" class="overlay">
+      <div class="c-top"><span class="c-kind" id="ckind">MEMORY CHEST</span><div class="c-steps" id="csteps"></div><div class="c-power" id="cpower"></div></div>
+      <div id="cbody" style="display:contents"></div>
+      <div class="c-keys" id="ckeys">← → CHOOSE · ENTER OK · H TRANSLATION · ESC CLOSE</div>
+    </div>
+    <div id="cineskip">ENTER · SKIP</div>
 
     <div id="title" class="overlay screen on">
       <h1 class="logo">NEXY ENGLISH<span>WORLD</span></h1>

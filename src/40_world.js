@@ -83,6 +83,7 @@ const World = {
       this.veils.push({ x: cA * TS, y: r * TS, w: (cB - cA + 1) * TS, h: (r1 - r + 1) * TS, faceC: c, openLeft, alpha: 1, found: false, id: 'fake-wall-' + this.veils.length });
       secrets++;
     }
+    for (const w of level.extraWords || []) words.add(w);
     this.totals = { words: words.size, wordList: [...words], letters, exits, secrets, creatures: creatures.size, creatureList: [...creatures] };
   },
 
@@ -234,6 +235,7 @@ const World = {
     this.release(b, by === 'spin' || by === 'giant');
   },
   giantBreak(c, r) {
+    if (Cine.active && Cine.onBreak(c, r)) return;
     if (this.type(c, r) === T.CRACKED) {
       this.tiles[r * this.w + c] = T.AIR; SFX.glass(); Game.shake(4);
       FX.burst(c * TS + TS / 2, r * TS + TS / 2, 30, 'c', 300, { life: 0.9, g: 600 });
@@ -722,18 +724,24 @@ const Dark = {
     if (this.k < 0.02) return;
     const s = R.sprite('darkLayer', 960, 540, () => { }), x = s.x;
     x.setTransform(R.k, 0, 0, R.k, 0, 0); x.globalCompositeOperation = 'source-over';
-    x.clearRect(0, 0, 960, 540); x.fillStyle = 'rgba(0,0,0,' + (0.93 * this.k).toFixed(3) + ')'; x.fillRect(0, 0, 960, 540);
+    x.clearRect(0, 0, 960, 540); x.fillStyle = 'rgba(0,0,0,' + (0.97 * this.k).toFixed(3) + ')'; x.fillRect(0, 0, 960, 540);
     x.globalCompositeOperation = 'destination-out';
     const hole = (hx, hy, r, a = 1) => {
       const g = x.createRadialGradient(hx, hy, 0, hx, hy, r);
       g.addColorStop(0, 'rgba(0,0,0,' + a + ')'); g.addColorStop(0.55, 'rgba(0,0,0,' + (a * 0.7) + ')'); g.addColorStop(1, 'rgba(0,0,0,0)');
       x.fillStyle = g; x.fillRect(hx - r, hy - r, r * 2, r * 2);
     };
-    if (!P.dead) hole(P.cx - camX, P.cy - camY, 120, 0.85);
-    hole(Echo.x - camX, Echo.y - camY, 230 + 30 * Math.sin(Game.time * 2), 1);
+    if (!P.dead) hole(P.cx - camX, P.cy - camY, 80, 0.6);
+    if (!Echo.hidden) hole(Echo.x - camX, Echo.y - camY, 250 + 20 * Math.sin(Game.time * 2), 1);
     for (const e of Ents.list) if (e.light && !e.dead) hole(e.x + e.w / 2 - camX, e.y + e.h / 2 - camY, e.light, 0.8);
     x.globalCompositeOperation = 'source-over';
     ctx.drawImage(s.c, 0, 0, 960, 540);
+    // a luz do Echo tinge o que está perto (halo claro, só no escuro)
+    if (!Echo.hidden) {
+      const ex = Echo.x - camX, ey = Echo.y - camY, f = 0.85 + 0.15 * Math.sin(Game.time * 2);
+      R.draw(R.glow('c', 64), ex, ey, 3.6, 0.32 * this.k * f, true);
+      R.draw(R.glow('w', 64), ex, ey, 1.6, 0.22 * this.k * f, true);
+    }
   },
 };
 
