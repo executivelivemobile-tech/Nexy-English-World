@@ -73,7 +73,7 @@ LEVELS['1-2'] = {
   },
   // alvos das frases. rune: c/r = coluna e linha de base; anchor = de onde cresce; small/big = tamanho em tiles
   targets: {
-    rune1: { kind: 'rune', c: 24, r: 29, anchor: 'left', small: { w: 1, h: 1 }, big: { w: 2, h: 5 }, state: 'small' },
+    rune1: { kind: 'rune', c: 24, r: 29, anchor: 'left', small: { w: 1, h: 1 }, big: { w: 2, h: 3 }, state: 'small' },
     rune2: { kind: 'rune', c: 231, r: 35, anchor: 'center', small: { w: 1, h: 1 }, big: { w: 3, h: 4 }, state: 'big' },
     rune3: { kind: 'rune', c: 280, r: 9, anchor: 'left', small: { w: 1, h: 1 }, big: { w: 8, h: 1 }, state: 'small' },
     giants: { kind: 'giants' },

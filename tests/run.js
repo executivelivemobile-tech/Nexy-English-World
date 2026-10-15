@@ -332,26 +332,94 @@ test('1-2: carrega com WORLD, 2 saídas, 13 palavras e barra de 10', async ({ pa
   expect(r.music === 'nave', 'música da nave');
 }, L12);
 
-test('1-2 altar 1: IT IS BIG ergue a runa, e só assim se alcança a sacada da letra W', async ({ page }) => {
+test('1-2 altar 1: IT IS BIG ergue a runa; do chão se sobe nela e dela na sacada da letra W', async ({ page }) => {
   await page.evaluate(HELP12);
   const r = await page.evaluate(async () => {
     const P = NEXY.P, G = NEXY.Game, W = NEXY.World, out = {};
     H.noEnemies();
-    const ledge = () => P.onGround && Math.round(P.y + P.h) === 704;
-    const tries = () => { let n = 0; for (const c of [20, 22, 23, 24, 25, 26]) for (const dir of ['left', 'right']) for (const run of [[], ['run']]) n += H12.tryHop([0], H12.edge(c, 29, dir, (dir === 'right' ? 26 : 25) * 32), [dir, ...run], ledge); return n; };
-    out.before = tries();
+    const ledge = () => P.onGround && Math.round(P.y + P.h) === 768;
+    // corre e pula em vários pontos; quando pousa (no chão ou na runa pequena), pula de novo na hora
+    const attempts = () => {
+      let n = 0;
+      for (let thr = 17 * 32; thr < 26 * 32; thr += 6) for (const again of [false, true]) {
+        H.tp(14, 29, 999); H.set(['right', 'run']); P.vx = 230; let jumped = 0, best = 0;
+        for (let i = 0; i < 160; i++) {
+          if (jumped === 0 && P.x + P.w >= thr) { H.set(['right', 'run', 'jump']); H.press('jump'); jumped = 1; }
+          else if (jumped === 1 && again && P.onGround && i > 0) { H.press('jump'); jumped = 2; }
+          H.step(1); if (ledge()) { best = 1; break; }
+        }
+        n += best;
+      }
+      return n;
+    };
+    out.before = attempts();
     H12.hit(13, 29); H12.hit(18, 29);
     await H12.panel(21, 29, ['IT', 'BIG']); H.step(60);
     out.rune = JSON.stringify(W.targets.rune1.cur);
-    H.tp(24, 24, 999); H.step(5); H.set(['right']); H.step(6);
-    out.after = H12.tryHop([0], () => { }, ['right'], ledge);
-    H.set(['right']); H.step(60); out.W = G.letters[0]; out.kept = G.bar.join();
+    // caminho de verdade, sem teletransporte: do altar pula na runa, da runa pula na sacada e pega o W
+    H.tp(21, 29, 999); H.set([]); H.step(5);
+    H.set(['right']); for (let i = 0; i < 60; i++) { H.step(1); if (P.x + P.w >= 24 * 32 - 6) break; }
+    H.set(['right', 'jump']); H.press('jump'); for (let i = 0; i < 60; i++) { H.step(1); if (i > 5 && P.onGround) break; }
+    out.onRune = Math.round(P.y + P.h);
+    H.set(['right']); for (let i = 0; i < 40; i++) { H.step(1); if (P.x + P.w >= 26 * 32 - 2) break; }
+    H.set(['right', 'jump']); H.press('jump'); for (let i = 0; i < 60; i++) { H.step(1); if (i > 5 && P.onGround) break; }
+    out.onLedge = Math.round(P.y + P.h);
+    H.set(['right']); H.step(40); H.set([]);
+    out.W = G.letters[0]; out.kept = G.bar.join();
     return out;
   });
   expect(r.before === 0, `sem a runa a sacada foi alcançada ${r.before} vezes`);
-  expect(r.rune === '{"w":2,"h":5}', `runa ${r.rune}`);
-  expect(r.after === 1 && r.W, 'da runa grande alcança a sacada e a letra W');
+  expect(r.rune === '{"w":2,"h":3}', `runa ${r.rune}`);
+  expect(r.onRune === 864 && r.onLedge === 768 && r.W, `do chão para a runa (${r.onRune}) e para a sacada (${r.onLedge}), letra W ${r.W}`);
   expect(r.kept === 'IT,BIG', 'o altar não gasta as palavras');
+}, L12);
+
+test('1-2 caminhos de verdade: lustre do sino FINE, Alado da letra O e poço de saída da cripta', async ({ page }) => {
+  await page.evaluate(HELP12);
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, G = NEXY.Game, W = NEXY.World, E = NEXY.Ents, out = {};
+    H.noEnemies();
+    const ch = E.list.find(e => e.type === 'chandelier' && e.c === 161);
+    // do degrau para o lustre; do lustre, o sino FINE
+    out.stepToChand = H12.tryHop(H12.range(0, 3.2, 0.05), H12.edge(156, 26, 'right', 158 * 32), ['right'], () => P.riding === ch);
+    let fine = 0;
+    for (const t0 of H12.range(0, 3.2, 0.1)) {
+      W.doors.gate.chimes = []; W.doors.gate.busy = false; G.timers = [];
+      G.simTime = t0; H12.on(ch)(); H.set([]);
+      for (let i = 0; i < 200; i++) {
+        const bx = 164 * 32 + 16;
+        if (P.riding === ch) { H.set([P.cx < bx - 6 ? 'right' : P.cx > bx + 6 ? 'left' : 'x']); if (Math.abs(P.cx - bx) < 20) { H.set(['jump']); H.press('jump'); } }
+        H.step(1); if (W.doors.gate.chimes.includes('FINE')) { fine++; break; } if (P.onGround && !P.riding) break;
+      }
+    }
+    out.fine = fine;
+    // letra O: do lustre 3, pisão no Alado de patrulha (sem teletransporte para cima dele)
+    H.wakeSpawns(); const c3 = E.list.find(e => e.type === 'chandelier' && e.c === 94);
+    let gotO = false;
+    for (let tries = 0; tries < 12 && !gotO; tries++) {
+      G.simTime = tries * 0.3; H12.on(c3)(); H.step(2);
+      const u = E.list.find(e => e.type === 'flyer' && e.opts.path === 'h' && !e.dead) || E.list.find(e => e.type === 'flyer' && e.opts.path === 'h');
+      if (!u || u.type !== 'flyer') { H.wakeSpawns(); H.step(5); continue; }
+      for (let i = 0; i < 300 && !gotO; i++) {
+        const ux = u.x + 13, keys = [];
+        if (P.riding === c3 && Math.abs(ux - P.cx) < 40 && u.y > P.y - 140) { keys.push('jump'); H.press('jump'); }
+        if (!P.onGround) { keys.push('jump'); if (u.type === 'flyer') keys.push(ux > P.cx + 4 ? 'right' : ux < P.cx - 4 ? 'left' : 'x'); else keys.push(97.5 * 32 > P.cx ? 'right' : 'left'); }
+        H.set(keys); H.step(1); if (G.letters[1]) gotO = true; if (P.dead || P.y > 1100) break;
+        if (P.onGround && !P.riding && i > 20) break;
+      }
+      if (P.dead) { P.dead = false; P.invuln = 999; }
+      H.noEnemies(); H.wakeSpawns();
+    }
+    out.O = gotO;
+    // poço de saída da cripta: chão da cripta → plataforma → chão da sala de saída
+    out.crypt1 = H12.tryHop([0], () => NEXY.teleport(237, 35), [], () => P.onGround && Math.round(P.y + P.h) === 33 * 32);
+    out.crypt2 = H12.tryHop([0], () => NEXY.teleport(237, 32), ['right'], () => P.onGround && Math.round(P.y + P.h) === 30 * 32 && P.x > 238 * 32);
+    return out;
+  });
+  expect(r.stepToChand >= 6, `degrau → lustre: ${r.stepToChand}`);
+  expect(r.fine >= 10, `do lustre se toca o FINE: ${r.fine}/32`);
+  expect(r.O, 'do lustre se pisa no Alado e se pega a letra O');
+  expect(r.crypt1 === 1 && r.crypt2 === 1, `poço da cripta: ${r.crypt1}, ${r.crypt2}`);
 }, L12);
 
 test('1-2 portas 1 e 2: NEXY abre, YOU mostra o reflexo, YES vira Rastejante, NO I AM NOT abre', async ({ page }) => {
