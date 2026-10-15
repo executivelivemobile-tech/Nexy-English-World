@@ -112,6 +112,10 @@ O orbe que segue o Nexy é o **Echo**, o companheiro. Na primeira partida ele se
 your friend.", com legenda), fala as palavras em inglês, ilumina o escuro e é o alvo de YOU na 1-2. Tem ficha no
 Grimório (aba CREATURES).
 
+A voz é a do próprio aparelho. O jogo escolhe sozinho a mais natural (as "Natural" do Edge/Windows 11 e as do Google
+no Chrome soam bem; as antigas do Windows, como Zira e David, são robóticas). Para trocar: pausa → ASSIST →
+**ECHO'S VOICE**; cada toque passa para a próxima voz e o Echo se apresenta com ela. A escolha fica salva.
+
 Trilha: a mesma progressão da 1-1, a 100 BPM, com o órgão "respondendo" à melodia, coro e sino; abafada na cripta e
 em crescendo no campanário.
 

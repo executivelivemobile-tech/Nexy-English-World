@@ -286,24 +286,41 @@ const Music = {
 /* ============================== VOZ (Web Speech API) ============================== */
 const Voice = {
   enabled: false, voice: null, speaking: false, who: null, timer: null, pulse: 0,
+  // Escolhe a voz mais natural do aparelho. As vozes "Natural"/"Neural"/"Online" (Edge, Windows 11, Android) e as do
+  // Google (Chrome) soam bem; as antigas do Windows (Zira, David, Mark "Desktop") são robóticas e ficam por último.
+  // O jogador pode trocar em ASSIST → ECHO'S VOICE (fica salvo).
+  score(v) {
+    const n = (v.name || '').toLowerCase(), l = (v.lang || '').toLowerCase().replace('_', '-');
+    let s = 0;
+    if (l === 'en-us') s += 50; else if (l === 'en-gb') s += 40; else if (l.startsWith('en')) s += 20; else return -1;
+    if (/natural|neural|online|premium|enhanced/.test(n)) s += 40;
+    if (/google/.test(n)) s += 30;
+    if (/aria|jenny|guy|ava|andrew|emma|brian|samantha|allison|serena|daniel|karen|moira|libby|sonia/.test(n)) s += 12;
+    if (/desktop|zira|david|mark|hazel|george|espeak/.test(n)) s -= 25;
+    return s;
+  },
+  list() {
+    const vs = ('speechSynthesis' in window && window.speechSynthesis.getVoices()) || [];
+    return vs.filter(v => this.score(v) >= 0).sort((a, b) => this.score(b) - this.score(a));
+  },
+  label(v) { return v ? v.name.replace(/^Microsoft\s+|^Google\s+/, '').replace(/\s*Online\s*\(Natural\)/i, ' (Natural)').replace(/\s*-\s*English.*$/i, '') : '—'; },
   init() {
     if (!('speechSynthesis' in window)) return;
     const pick = () => {
-      const vs = window.speechSynthesis.getVoices() || [];
-      const score = v => {
-        const n = (v.name || '').toLowerCase(), l = (v.lang || '').toLowerCase().replace('_', '-');
-        let s = 0;
-        if (l === 'en-us') s += 50; else if (l === 'en-gb') s += 40; else if (l.startsWith('en')) s += 20; else return -1;
-        if (/google|natural|neural|samantha|aria|jenny|zira|serena|daniel/.test(n)) s += 10;
-        if (v.localService) s += 2;
-        return s;
-      };
-      let best = null, bs = -1;
-      for (const v of vs) { const s = score(v); if (s > bs) { bs = s; best = v; } }
-      this.voice = best;
+      const vs = this.list(), want = Save.data && Save.data.voiceURI;
+      this.voice = (want && vs.find(v => v.voiceURI === want)) || vs[0] || null;
+      if (typeof UI !== 'undefined' && UI.renderAssist) UI.renderAssist();
     };
     pick();
     try { window.speechSynthesis.addEventListener('voiceschanged', pick); } catch (e) { window.speechSynthesis.onvoiceschanged = pick; }
+  },
+  // ASSIST: passa para a próxima voz e o Echo se apresenta com ela
+  nextVoice() {
+    const vs = this.list(); if (!vs.length) return null;
+    const i = vs.indexOf(this.voice); this.voice = vs[(i + 1) % vs.length];
+    Save.data.voiceURI = this.voice.voiceURI; Save.write();
+    this.say('Hello! I am Echo. I am your friend.', 'echo');
+    return this.voice;
   },
   // opts: onBoundary(charIndex) para o karaokê da leitura, onEnd()
   say(text, who = 'echo', opts = {}) {
@@ -313,7 +330,7 @@ const Voice = {
     try { ss.cancel(); } catch (e) { /* ignora */ }
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'en-US'; if (this.voice) u.voice = this.voice;
-    if (who === 'door') { u.pitch = 0.75; u.rate = 0.85; } else if (who === 'story') { u.pitch = 1.05; u.rate = 0.8; } else { u.pitch = 1.2; u.rate = 0.9; }
+    if (who === 'door') { u.pitch = 0.8; u.rate = 0.88; } else if (who === 'story') { u.pitch = 1; u.rate = 0.85; } else { u.pitch = 1.05; u.rate = 0.95; }
     const done = () => { if (this.cur !== u) return; this.speaking = false; AudioSys.duck(false); if (opts.onEnd) opts.onEnd(); };
     if (opts.onBoundary) u.onboundary = e => { if (this.cur === u && (!e.name || e.name === 'word')) opts.onBoundary(e.charIndex); };
     u.onend = done; u.onerror = done;

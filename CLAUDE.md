@@ -35,6 +35,9 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 - Futuro: depois do jogo inteiro, app Android (Google Play). Mantenha tudo pensado para toque e offline.
 - Preferências já dadas: sem voz em combos e nomes de criaturas; correr com toque duplo na seta (janela medida da
   soltura); quique alto com janela antes/depois (só no ar); blocos-fantasma dependem da barra, não do Grimório.
+- Voz: `Voice.score` prefere vozes Natural/Neural/Online e do Google; as robóticas do Windows (Zira, David) ficam por
+  último. O Echo fala com tom quase natural (pitch 1.05); o dono achou feio o tom esticado de antes. O jogador troca a
+  voz em ASSIST → ECHO'S VOICE (salvo em `Save.data.voiceURI`).
 - O **Echo** (orbe que segue o Nexy) é o companheiro: fala as palavras, se apresenta na 1ª partida
   (`ECHO.lines.intro`), avisa no escuro e é a luz da cripta. O dono não sabia o que era: sempre apresente as coisas.
 

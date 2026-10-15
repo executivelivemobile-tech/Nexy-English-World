@@ -453,6 +453,7 @@ body.touch #touch { display: block; }
           <button class="tgl" data-opt="freeHints"><span><span class="tn">FREE HINTS</span><span class="td">Dicas sem custo de orbes.</span></span><span class="sw"></span></button>
           <button class="tgl" data-opt="subtitles"><span><span class="tn">SUBTITLES</span><span class="td">Tradução sempre visível sob as inscrições.</span></span><span class="sw"></span></button>
           <button class="tgl" data-opt="voice" id="tglvoice"><span><span class="tn">VOICE MODE</span><span class="td">Diga a frase em voz alta na porta (V).</span></span><span class="sw"></span></button>
+          <button class="tgl" id="tglvname"><span><span class="tn">ECHO'S VOICE</span><span class="td" id="vname">Toque para ouvir a próxima voz.</span></span><span style="font:700 16px var(--f-display);color:var(--cy);text-shadow:var(--glow-text-cy);padding:0 8px">▸</span></button>
         </div>
       </div>
       <button class="btn small" data-act="back">BACK</button>
@@ -799,7 +800,7 @@ const Save = {
       map: { at: '1-1', revealed: {} },
       flags: { palaces: { toBe: false } },
       assist: { slow: false, safeFall: false, freeHints: false, subtitles: false, voice: false },
-      muted: false,
+      muted: false, voiceURI: null,
     };
   },
   load() {
@@ -821,7 +822,7 @@ const Save = {
           for (const id in d.exits) if (d.exits[id].normal || d.exits[id].secret) d.cleared[id] = true;
           if (s.flags && s.flags.palaces) Object.assign(d.flags.palaces, s.flags.palaces);
           Object.assign(d.assist, s.assist);
-          d.muted = !!s.muted;
+          d.muted = !!s.muted; d.voiceURI = s.voiceURI || null;
         }
       }
     } catch (e) { /* sem armazenamento: segue com os padrões */ }
@@ -1399,24 +1400,41 @@ const Music = {
 /* ============================== VOZ (Web Speech API) ============================== */
 const Voice = {
   enabled: false, voice: null, speaking: false, who: null, timer: null, pulse: 0,
+  // Escolhe a voz mais natural do aparelho. As vozes "Natural"/"Neural"/"Online" (Edge, Windows 11, Android) e as do
+  // Google (Chrome) soam bem; as antigas do Windows (Zira, David, Mark "Desktop") são robóticas e ficam por último.
+  // O jogador pode trocar em ASSIST → ECHO'S VOICE (fica salvo).
+  score(v) {
+    const n = (v.name || '').toLowerCase(), l = (v.lang || '').toLowerCase().replace('_', '-');
+    let s = 0;
+    if (l === 'en-us') s += 50; else if (l === 'en-gb') s += 40; else if (l.startsWith('en')) s += 20; else return -1;
+    if (/natural|neural|online|premium|enhanced/.test(n)) s += 40;
+    if (/google/.test(n)) s += 30;
+    if (/aria|jenny|guy|ava|andrew|emma|brian|samantha|allison|serena|daniel|karen|moira|libby|sonia/.test(n)) s += 12;
+    if (/desktop|zira|david|mark|hazel|george|espeak/.test(n)) s -= 25;
+    return s;
+  },
+  list() {
+    const vs = ('speechSynthesis' in window && window.speechSynthesis.getVoices()) || [];
+    return vs.filter(v => this.score(v) >= 0).sort((a, b) => this.score(b) - this.score(a));
+  },
+  label(v) { return v ? v.name.replace(/^Microsoft\s+|^Google\s+/, '').replace(/\s*Online\s*\(Natural\)/i, ' (Natural)').replace(/\s*-\s*English.*$/i, '') : '—'; },
   init() {
     if (!('speechSynthesis' in window)) return;
     const pick = () => {
-      const vs = window.speechSynthesis.getVoices() || [];
-      const score = v => {
-        const n = (v.name || '').toLowerCase(), l = (v.lang || '').toLowerCase().replace('_', '-');
-        let s = 0;
-        if (l === 'en-us') s += 50; else if (l === 'en-gb') s += 40; else if (l.startsWith('en')) s += 20; else return -1;
-        if (/google|natural|neural|samantha|aria|jenny|zira|serena|daniel/.test(n)) s += 10;
-        if (v.localService) s += 2;
-        return s;
-      };
-      let best = null, bs = -1;
-      for (const v of vs) { const s = score(v); if (s > bs) { bs = s; best = v; } }
-      this.voice = best;
+      const vs = this.list(), want = Save.data && Save.data.voiceURI;
+      this.voice = (want && vs.find(v => v.voiceURI === want)) || vs[0] || null;
+      if (typeof UI !== 'undefined' && UI.renderAssist) UI.renderAssist();
     };
     pick();
     try { window.speechSynthesis.addEventListener('voiceschanged', pick); } catch (e) { window.speechSynthesis.onvoiceschanged = pick; }
+  },
+  // ASSIST: passa para a próxima voz e o Echo se apresenta com ela
+  nextVoice() {
+    const vs = this.list(); if (!vs.length) return null;
+    const i = vs.indexOf(this.voice); this.voice = vs[(i + 1) % vs.length];
+    Save.data.voiceURI = this.voice.voiceURI; Save.write();
+    this.say('Hello! I am Echo. I am your friend.', 'echo');
+    return this.voice;
   },
   // opts: onBoundary(charIndex) para o karaokê da leitura, onEnd()
   say(text, who = 'echo', opts = {}) {
@@ -1426,7 +1444,7 @@ const Voice = {
     try { ss.cancel(); } catch (e) { /* ignora */ }
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'en-US'; if (this.voice) u.voice = this.voice;
-    if (who === 'door') { u.pitch = 0.75; u.rate = 0.85; } else if (who === 'story') { u.pitch = 1.05; u.rate = 0.8; } else { u.pitch = 1.2; u.rate = 0.9; }
+    if (who === 'door') { u.pitch = 0.8; u.rate = 0.88; } else if (who === 'story') { u.pitch = 1; u.rate = 0.85; } else { u.pitch = 1.05; u.rate = 0.95; }
     const done = () => { if (this.cur !== u) return; this.speaking = false; AudioSys.duck(false); if (opts.onEnd) opts.onEnd(); };
     if (opts.onBoundary) u.onboundary = e => { if (this.cur === u && (!e.name || e.name === 'word')) opts.onBoundary(e.charIndex); };
     u.onend = done; u.onerror = done;
@@ -4304,7 +4322,8 @@ const UI = {
     }));
     $('grimoire').querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => this.openGrimoire(b.dataset.tab)));
     document.querySelectorAll('[data-act="back"]').forEach(b => b.addEventListener('click', () => this.back()));
-    $('assist').querySelectorAll('.tgl').forEach(b => b.addEventListener('click', () => {
+    $('tglvname').addEventListener('click', () => { Voice.nextVoice(); SFX.ui(); this.renderAssist(); });
+    $('assist').querySelectorAll('.tgl[data-opt]').forEach(b => b.addEventListener('click', () => {
       const k = b.dataset.opt; Save.data.assist[k] = !Save.data.assist[k]; Save.write(); SFX.ui(); this.renderAssist();
     }));
     if (!Listen.available()) $('tglvoice').style.display = 'none';
@@ -4417,7 +4436,11 @@ const UI = {
     }
   },
   openAssist() { Game.menuFrom = Game.state; Game.state = 'assist'; this.show('assist'); this.renderAssist(); },
-  renderAssist() { $('assist').querySelectorAll('.tgl').forEach(b => b.classList.toggle('on', !!Save.data.assist[b.dataset.opt])); },
+  renderAssist() {
+    $('assist').querySelectorAll('.tgl[data-opt]').forEach(b => b.classList.toggle('on', !!Save.data.assist[b.dataset.opt]));
+    const vs = Voice.list(), i = vs.indexOf(Voice.voice);
+    $('vname').textContent = Voice.voice ? Voice.label(Voice.voice) + (vs.length > 1 ? '  ·  ' + (i + 1) + ' de ' + vs.length + ', toque para trocar' : '') : 'Sem voz em inglês neste aparelho.';
+  },
   menuKey(e) {
     const c = e.code;
     if (c === 'Escape' || c === 'KeyP') { if (Game.state === 'pause') Game.resume(); else this.back(); return; }

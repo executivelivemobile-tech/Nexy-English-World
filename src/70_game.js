@@ -235,7 +235,8 @@ const UI = {
     }));
     $('grimoire').querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => this.openGrimoire(b.dataset.tab)));
     document.querySelectorAll('[data-act="back"]').forEach(b => b.addEventListener('click', () => this.back()));
-    $('assist').querySelectorAll('.tgl').forEach(b => b.addEventListener('click', () => {
+    $('tglvname').addEventListener('click', () => { Voice.nextVoice(); SFX.ui(); this.renderAssist(); });
+    $('assist').querySelectorAll('.tgl[data-opt]').forEach(b => b.addEventListener('click', () => {
       const k = b.dataset.opt; Save.data.assist[k] = !Save.data.assist[k]; Save.write(); SFX.ui(); this.renderAssist();
     }));
     if (!Listen.available()) $('tglvoice').style.display = 'none';
@@ -348,7 +349,11 @@ const UI = {
     }
   },
   openAssist() { Game.menuFrom = Game.state; Game.state = 'assist'; this.show('assist'); this.renderAssist(); },
-  renderAssist() { $('assist').querySelectorAll('.tgl').forEach(b => b.classList.toggle('on', !!Save.data.assist[b.dataset.opt])); },
+  renderAssist() {
+    $('assist').querySelectorAll('.tgl[data-opt]').forEach(b => b.classList.toggle('on', !!Save.data.assist[b.dataset.opt]));
+    const vs = Voice.list(), i = vs.indexOf(Voice.voice);
+    $('vname').textContent = Voice.voice ? Voice.label(Voice.voice) + (vs.length > 1 ? '  ·  ' + (i + 1) + ' de ' + vs.length + ', toque para trocar' : '') : 'Sem voz em inglês neste aparelho.';
+  },
   menuKey(e) {
     const c = e.code;
     if (c === 'Escape' || c === 'KeyP') { if (Game.state === 'pause') Game.resume(); else this.back(); return; }

@@ -284,7 +284,7 @@ const Save = {
       map: { at: '1-1', revealed: {} },
       flags: { palaces: { toBe: false } },
       assist: { slow: false, safeFall: false, freeHints: false, subtitles: false, voice: false },
-      muted: false,
+      muted: false, voiceURI: null,
     };
   },
   load() {
@@ -306,7 +306,7 @@ const Save = {
           for (const id in d.exits) if (d.exits[id].normal || d.exits[id].secret) d.cleared[id] = true;
           if (s.flags && s.flags.palaces) Object.assign(d.flags.palaces, s.flags.palaces);
           Object.assign(d.assist, s.assist);
-          d.muted = !!s.muted;
+          d.muted = !!s.muted; d.voiceURI = s.voiceURI || null;
         }
       }
     } catch (e) { /* sem armazenamento: segue com os padrões */ }
