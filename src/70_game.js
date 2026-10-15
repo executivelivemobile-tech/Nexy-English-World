@@ -358,7 +358,7 @@ const UI = {
     const card = (name, pt, meta, lore, say, locked, master) => {
       const c = document.createElement('div'); c.className = 'gcard' + (locked ? ' locked' : '') + (master ? ' master' : '');
       const btn = document.createElement('button'); btn.className = 'listen'; btn.setAttribute('aria-label', 'Listen');
-      if (locked) btn.disabled = true; else btn.addEventListener('click', ev => { ev.stopPropagation(); Voice.say(say, 'echo'); });
+      if (locked) btn.disabled = true; else btn.addEventListener('click', ev => { ev.stopPropagation(); Voice.say(say, 'echo', { cut: true }); });
       const w = document.createElement('div'); w.className = 'gw'; w.textContent = locked ? '· · ·' : name;
       const p = document.createElement('span'); p.className = 'gpt'; p.textContent = locked ? '' : pt; w.appendChild(p);
       const m = document.createElement('div'); m.className = 'gmeta'; m.textContent = meta;
@@ -405,7 +405,7 @@ const UI = {
     const all = g.letters.every(Boolean);
     const chip = (w, pt, say, master) => {
       const d = document.createElement('div'); d.className = 'lw' + (master ? ' master' : '');
-      const b = document.createElement('button'); b.className = 'listen'; b.setAttribute('aria-label', 'Listen ' + w); b.addEventListener('click', () => Voice.say(say, 'echo'));
+      const b = document.createElement('button'); b.className = 'listen'; b.setAttribute('aria-label', 'Listen ' + w); b.addEventListener('click', () => Voice.say(say, 'echo', { cut: true }));
       const a = document.createElement('span'); a.className = 'w'; a.textContent = w;
       const p = document.createElement('span'); p.className = 'p'; p.textContent = pt;
       d.append(b, a, p); box.appendChild(d);

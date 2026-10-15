@@ -969,6 +969,30 @@ test('vozes: todas as falas gravadas tocam; a porta repete palavra por palavra; 
   expect(r.kara === 10, `karaokê: uma marca por palavra na leitura do Baú (${r.kara})`);
 });
 
+test('vozes: uma de cada vez; a seguinte espera a anterior terminar; um botão do jogador corta e esvazia a fila', async ({ page }) => {
+  const r = await page.evaluate(async () => {
+    Voice.stop();
+    const ev = [], at = () => performance.now();
+    Voice.say('Big or small?', 'door', { onStart: () => ev.push(['door+', at()]), onEnd: () => ev.push(['door-', at()]) });
+    Voice.say('It is dark.', 'echo', { onStart: () => ev.push(['echo+', at()]), onEnd: () => ev.push(['echo-', at()]) });
+    Voice.say('It is dark.', 'echo');   // a mesma fala de novo: não repete
+    const queued = Voice.queue.length, first = Voice.cur;
+    for (let i = 0; i < 60 && !ev.some(e => e[0] === 'echo-'); i++) await new Promise(res => setTimeout(res, 100));
+    const t = k => (ev.find(e => e[0] === k) || [])[1];
+    const order = ev.map(e => e[0]).join(' ');
+    // corte: o jogador apertou um botão
+    Voice.say('Hello', 'story'); Voice.say('Is', 'echo'); Voice.say('Are', 'echo');
+    const before = Voice.queue.length;
+    Voice.say('Small.', 'echo', { cut: true });
+    const after = { q: Voice.queue.length, cur: Voice.cur };
+    Voice.stop();
+    return { queued, first, order, gap: t('echo+') - t('door-'), before, after };
+  });
+  expect(r.queued === 1 && r.first === 'door:big or small?', `a Echo esperou na fila (${JSON.stringify(r)})`);
+  expect(r.order === 'door+ door- echo+ echo-' && r.gap >= 0, `a porta terminou antes da Echo começar (${r.order}, ${r.gap} ms)`);
+  expect(r.before === 2 && r.after.q === 0 && r.after.cur === 'echo:small.', `o corte toca na hora (${JSON.stringify(r.after)})`);
+});
+
 test('index.html está em dia com src/', async () => {
   execFileSync(process.execPath, [path.join(__dirname, '..', 'build.js'), '--check'], { stdio: 'pipe' });
 }, { ownPages: true });

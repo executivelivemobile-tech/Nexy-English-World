@@ -406,8 +406,18 @@ const Echo = {
     this.line = null; this.lines = [];
   },
   // o Echo fala (balão com o inglês e a legenda em português)
-  talk(lines) { this.lines = lines.slice(); this.nextLine(); },
-  nextLine() { this.line = this.lines.shift() || null; this.lineT = 0; if (this.line) Voice.say(this.line.en, 'echo'); },
+  talk(lines) { this.lines = lines.slice(); this.outT = null; this.nextLine(); },
+  // o balão aparece quando a voz dela começa (se outra voz ainda fala, ela espera a vez) e fica até ela terminar
+  nextLine() {
+    const l = this.line = this.lines.shift() || null; this.lineT = 0; this.waitT = 0; this.outT = null;
+    if (!l) return;
+    this.said = false; this.heard = false;
+    const ok = Voice.say(l.en, 'echo', {
+      onStart: () => { if (this.line === l) { this.said = true; this.lineT = 0; } },
+      onEnd: () => { if (this.line === l) { this.said = true; this.heard = true; } },
+    });
+    if (!ok) { this.said = true; this.heard = true; }
+  },
   // alvo de YOU: cresce (e vira plataforma quando a fase tem um caminho para ele) ou encolhe
   act(what, ride) {
     if (what === 'big' && ride) {
@@ -426,7 +436,12 @@ const Echo = {
     if (this.puff > 0) this.puff = Math.max(0, this.puff - dt);
     if (this.tiny > 0) this.tiny = Math.max(0, this.tiny - dt);
     if (this.shake > 0) this.shake = Math.max(0, this.shake - dt);
-    if (this.line) { this.lineT += dt; if (this.lineT > 3) this.nextLine(); }
+    if (this.line) {
+      if (!this.said) { this.waitT += dt; if (this.waitT > 2.5) this.said = true; }   // a fila demorou demais: mostra assim mesmo
+      else this.lineT += dt;
+      if (this.outT == null && this.lineT > 2.8 && (this.heard || this.lineT > 7)) this.outT = 0.2;
+      if (this.outT != null) { this.outT -= dt; if (this.outT <= 0) this.nextLine(); }
+    }
     const t = Game.time, s = P.scale;
     const tx = P.cx - P.facing * (24 + 8 * s), ty = P.y - 6 - 6 * s + Math.sin(t * 2.2) * 4;
     const k = 1 - Math.exp(-dt * (P.dead ? 1.5 : 4.5));
@@ -446,8 +461,8 @@ const Echo = {
     if (this.line) this.drawBubble(ctx, x, y);
   },
   drawBubble(ctx, x, y) {
-    const l = this.line, k = Math.min(1, this.lineT * 5, (3 - this.lineT) * 5);
-    if (k <= 0) return;
+    const l = this.line, k = Math.min(1, this.lineT * 5, this.outT != null ? this.outT * 5 : 1);
+    if (!this.said || k <= 0) return;
     const en = R.text(l.en, '700 12px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(217,70,239,0.9)', 5), pt = R.text(l.pt, '400 11px Inter, sans-serif', wa(0.75), null, 0);
     // o balão fica do lado de trás do Nexy (não cobre o que está à frente, nem o que o Echo revelou)
     const w = Math.max(en.w, pt.w) + 6, h = 44, bx = clamp(x - P.facing * (w / 2 - 14), w / 2 + 10, CFG.VIEW_W - w / 2 - 10), by = y - 40;

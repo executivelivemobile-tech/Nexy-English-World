@@ -409,21 +409,51 @@ const Voice = {
     const next = cs[(cs.indexOf(this.current()) + 1) % cs.length];
     this.studio = next === 'studio'; if (!this.studio) this.voice = next;
     Save.data.voiceURI = this.studio ? 'studio' : next.voiceURI; Save.write();
-    this.say('Hello! I am Echo. I am your friend.', 'echo');
+    this.say('Hello! I am Echo. I am your friend.', 'echo', { cut: true });
     return next;
   },
-  // opts: onBoundary(charIndex) para o karaokê da leitura, onEnd(), volume, rate, pitch
+  // Uma fala de cada vez: quem chega enquanto outra voz fala entra na fila e só começa quando a anterior termina
+  // (a Echo nunca atropela a porta, nem o narrador a Echo). opts.cut = o jogador pediu agora (botão, leitura do baú,
+  // cena): corta o que estiver tocando e esvazia a fila.
+  // opts: onBoundary(charIndex) para o karaokê da leitura, onStart(), onEnd(), volume, rate, pitch, cut
+  queue: [], cur: null, gapT: null,
   say(text, who = 'echo', opts = {}) {
-    if (!this.enabled || AudioSys.muted || !text) return;
+    if (!this.enabled || AudioSys.muted || !text) return false;
     text = String(text);
-    this.stop(true);
+    const k = who + ':' + text.toLowerCase();
+    if (opts.cut) this.stop();
+    else if (this.speaking) {
+      if (this.cur === k || this.queue.some(q => q.k === k)) return true;   // a mesma fala já vai tocar
+      this.queue.push({ text, who, opts, k, at: performance.now() });
+      while (this.queue.length > 4) this.drop(this.queue.shift());
+      return true;
+    }
+    this.start(text, who, opts, k);
+    return true;
+  },
+  start(text, who, opts, k) {
+    VoiceClips.stop();
+    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) { /* ignora */ }
     const id = ++this.seq, live = () => this.seq === id;
-    const done = () => { if (!live()) return; clearTimeout(this.timer); this.speaking = false; AudioSys.duck(false); if (opts.onEnd) opts.onEnd(); };
-    this.speaking = true; this.who = who; this.pulse = 1; AudioSys.duck(true);
+    const done = () => { if (!live()) return; clearTimeout(this.timer); this.cur = null; if (opts.onEnd) opts.onEnd(); this.next(who); };
+    this.speaking = true; this.who = who; this.cur = k; this.pulse = 1; AudioSys.duck(true);
+    if (opts.onStart) opts.onStart();
     const plan = this.studio && AudioSys.ctx ? VoiceClips.plan(who, text) : null;
     if (plan) { VoiceClips.play(plan, who, opts, live, failed => { if (!live()) return; if (failed) this.tts(text, who, opts, live, done); else done(); }); return; }
     this.tts(text, who, opts, live, done);
   },
+  // a próxima da fila, depois de um respiro (maior depois da porta, por causa do eco da catedral);
+  // falas que esperaram demais perderam a hora e saem da fila
+  next(prevWho) {
+    const now = performance.now();
+    while (this.queue.length && !this.queue[0].opts.keep && now - this.queue[0].at > 6000) this.drop(this.queue.shift());
+    const q = this.queue.shift();
+    if (!q) { this.speaking = false; AudioSys.duck(false); return; }
+    const id = this.seq;
+    clearTimeout(this.gapT);
+    this.gapT = setTimeout(() => { if (this.seq === id) this.start(q.text, q.who, q.opts, q.k); }, prevWho === 'door' ? 380 : 160);
+  },
+  drop(q) { if (q && q.opts.onEnd) q.opts.onEnd(); },
   tts(text, who, opts, live, done) {
     if (!('speechSynthesis' in window)) { done(); return; }
     const ss = window.speechSynthesis;
@@ -436,11 +466,12 @@ const Voice = {
     clearTimeout(this.timer); this.timer = setTimeout(done, 900 + text.length * 110);
     try { ss.speak(u); } catch (e) { done(); }
   },
-  stop(keepState) {
+  // para tudo: a fala atual e a fila
+  stop() {
     VoiceClips.stop();
     try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) { /* ignora */ }
-    if (keepState) return;
-    this.seq++; clearTimeout(this.timer); this.speaking = false; AudioSys.duck(false);
+    const q = this.queue; this.queue = []; for (const x of q) this.drop(x);
+    this.seq++; clearTimeout(this.timer); clearTimeout(this.gapT); this.speaking = false; this.cur = null; AudioSys.duck(false);
   },
 };
 

@@ -112,6 +112,7 @@ const Chest = {
     const mark = i => spans.forEach((s, j) => s.classList.toggle('k', j === i));
     let viaBoundary = false;
     Voice.say(text, 'story', {
+      cut: true,
       onBoundary: ci => { viaBoundary = true; let j = 0; while (j + 1 < offs.length && offs[j + 1] <= ci) j++; mark(j); },
       onEnd: () => mark(-1),
     });
@@ -125,7 +126,7 @@ const Chest = {
     return text.split(' ').map(tok => { const bare = tok.toLowerCase().replace(/[^a-z]/g, ''); return `<span class="${nw.has(bare) ? 'nw' : ''}">${tok}</span>`; }).join(' ');
   },
   wireText(box) {
-    box.querySelectorAll('span').forEach(sp => sp.addEventListener('click', () => { const w = sp.textContent.replace(/[^A-Za-z']/g, ''); if (w) Voice.say(w, 'echo'); }));
+    box.querySelectorAll('span').forEach(sp => sp.addEventListener('click', () => { const w = sp.textContent.replace(/[^A-Za-z']/g, ''); if (w) Voice.say(w, 'echo', { cut: true }); }));
     return [...box.querySelectorAll('span')];
   },
   pt(text) { return `<div class="c-pt" data-pt="${text.replace(/"/g, '&quot;')}">${this.showPt ? text : ''}</div>`; },
@@ -188,9 +189,9 @@ const Chest = {
     if (st.step === 'words') this.playWords();
     else if (st.step === 'read') this.speakSpans(S.pages[st.page].en, this.spans);
     else if (st.step === 'cread') this.speakSpans(S.climb.page.en, this.spans);
-    else if (st.step === 'quiz') Voice.say(S.questions[st.qi].q, 'story');
-    else if (st.step === 'climb') Voice.say(S.climb.rungs[st.rung].q, 'story');
-    else if (st.step === 'you') Voice.say('Now you. Say it.', 'echo');
+    else if (st.step === 'quiz') Voice.say(S.questions[st.qi].q, 'story', { cut: true });
+    else if (st.step === 'climb') Voice.say(S.climb.rungs[st.rung].q, 'story', { cut: true });
+    else if (st.step === 'you') Voice.say('Now you. Say it.', 'echo', { cut: true });
     setTimeout(() => { const f = body.querySelector('.btn.primary') || body.querySelector('.copt') || body.querySelector('.btn'); if (f) f.focus({ preventScroll: true }); }, 30);
   },
   // as 4 palavras: entram no Grimório e na Fluência ao serem apresentadas
@@ -201,7 +202,7 @@ const Chest = {
       Game.grimoireWord(w.w, null);
     }
     S.words.forEach((w, i) => this.kara.push(setTimeout(() => {
-      cards.forEach((c, j) => c.classList.toggle('say', j === i)); Voice.say(w.w, 'story'); SFX.select();
+      cards.forEach((c, j) => c.classList.toggle('say', j === i)); Voice.say(w.w, 'story', { cut: true }); SFX.select();
     }, 300 + i * 1300)));
     this.kara.push(setTimeout(() => cards.forEach(c => c.classList.remove('say')), 300 + S.words.length * 1300));
   },
@@ -209,7 +210,7 @@ const Chest = {
   act(a, el) {
     if (this.busy && a !== 'mic') return;
     const st = this.st, S = this.S;
-    if (a === 'word') { const w = S.words[+el.dataset.i].w; Voice.say(w, 'story'); document.querySelectorAll('#chest .ccard').forEach(c => c.classList.toggle('say', c === el)); return; }
+    if (a === 'word') { const w = S.words[+el.dataset.i].w; Voice.say(w, 'story', { cut: true }); document.querySelectorAll('#chest .ccard').forEach(c => c.classList.toggle('say', c === el)); return; }
     if (a === 'hear') { if (st.step === 'words') { this.stopKara(); this.playWords(); } else if (this.spans.length) this.speakSpans(st.step === 'cread' ? S.climb.page.en : S.pages[st.page].en, this.spans); return; }
     if (a === 'prev') return this.go('read', { page: st.page - 1 });
     if (a === 'next') {
@@ -234,7 +235,7 @@ const Chest = {
   answer(i, el) {
     const st = this.st, q = this.S.questions[st.qi];
     if (el.classList.contains('wrong')) return;
-    Voice.say(q.options[i], 'echo');
+    Voice.say(q.options[i], 'echo', { cut: true });
     if (i === q.answer) {
       el.classList.add('right'); SFX.letter(); this.busy = true;
       if (!st.missedQ) st.firstTry++;
@@ -252,7 +253,7 @@ const Chest = {
     const st = this.st, r = this.S.climb.rungs[st.rung], opts = [...document.querySelectorAll('#chest .copt')];
     if (opts.some(b => b.disabled)) return;
     opts.forEach(b => { b.disabled = true; });
-    Voice.say(r.options[i], 'echo');
+    Voice.say(r.options[i], 'echo', { cut: true });
     const right = i === r.answer;
     opts[r.answer].classList.add('right');
     if (right) {
@@ -271,7 +272,7 @@ const Chest = {
   say(w) {
     const f = this.S.final, slot = $('cslot'); if (!slot) return;
     slot.innerHTML = ''; slot.appendChild(UI.capsule(w, true));
-    Voice.say('I am ' + WORDS[w].say + '.', 'echo');
+    Voice.say('I am ' + WORDS[w].say + '.', 'echo', { cut: true });
     if (w === f.answer) { SFX.right(); this.busy = true; this.kara.push(setTimeout(() => this.finish(), 1500)); return; }
     this.busy = true;
     if (w === f.afraid) {
@@ -358,7 +359,7 @@ const Cine = {
       });
     });
     // 5. o grito de batalha
-    if (t > 6.6) this.once('cry', () => { this.title = { text: this.d.def.story.cries[this.tier], k: 0 }; this.flash = 0.45; Voice.say(this.title.text, 'door'); SFX.warDrum(); Game.shake(8); });
+    if (t > 6.6) this.once('cry', () => { this.title = { text: this.d.def.story.cries[this.tier], k: 0 }; this.flash = 0.45; Voice.say(this.title.text, 'door', { cut: true }); SFX.warDrum(); Game.shake(8); });
     if (this.title) this.title.k = Math.min(1, this.title.k + dt * 3);
     // 6. investida em câmera lenta
     if (t > 7.4 && t < 7.8) { P.squash = 0.35; }

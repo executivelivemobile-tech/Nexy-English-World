@@ -1550,21 +1550,51 @@ const Voice = {
     const next = cs[(cs.indexOf(this.current()) + 1) % cs.length];
     this.studio = next === 'studio'; if (!this.studio) this.voice = next;
     Save.data.voiceURI = this.studio ? 'studio' : next.voiceURI; Save.write();
-    this.say('Hello! I am Echo. I am your friend.', 'echo');
+    this.say('Hello! I am Echo. I am your friend.', 'echo', { cut: true });
     return next;
   },
-  // opts: onBoundary(charIndex) para o karaokê da leitura, onEnd(), volume, rate, pitch
+  // Uma fala de cada vez: quem chega enquanto outra voz fala entra na fila e só começa quando a anterior termina
+  // (a Echo nunca atropela a porta, nem o narrador a Echo). opts.cut = o jogador pediu agora (botão, leitura do baú,
+  // cena): corta o que estiver tocando e esvazia a fila.
+  // opts: onBoundary(charIndex) para o karaokê da leitura, onStart(), onEnd(), volume, rate, pitch, cut
+  queue: [], cur: null, gapT: null,
   say(text, who = 'echo', opts = {}) {
-    if (!this.enabled || AudioSys.muted || !text) return;
+    if (!this.enabled || AudioSys.muted || !text) return false;
     text = String(text);
-    this.stop(true);
+    const k = who + ':' + text.toLowerCase();
+    if (opts.cut) this.stop();
+    else if (this.speaking) {
+      if (this.cur === k || this.queue.some(q => q.k === k)) return true;   // a mesma fala já vai tocar
+      this.queue.push({ text, who, opts, k, at: performance.now() });
+      while (this.queue.length > 4) this.drop(this.queue.shift());
+      return true;
+    }
+    this.start(text, who, opts, k);
+    return true;
+  },
+  start(text, who, opts, k) {
+    VoiceClips.stop();
+    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) { /* ignora */ }
     const id = ++this.seq, live = () => this.seq === id;
-    const done = () => { if (!live()) return; clearTimeout(this.timer); this.speaking = false; AudioSys.duck(false); if (opts.onEnd) opts.onEnd(); };
-    this.speaking = true; this.who = who; this.pulse = 1; AudioSys.duck(true);
+    const done = () => { if (!live()) return; clearTimeout(this.timer); this.cur = null; if (opts.onEnd) opts.onEnd(); this.next(who); };
+    this.speaking = true; this.who = who; this.cur = k; this.pulse = 1; AudioSys.duck(true);
+    if (opts.onStart) opts.onStart();
     const plan = this.studio && AudioSys.ctx ? VoiceClips.plan(who, text) : null;
     if (plan) { VoiceClips.play(plan, who, opts, live, failed => { if (!live()) return; if (failed) this.tts(text, who, opts, live, done); else done(); }); return; }
     this.tts(text, who, opts, live, done);
   },
+  // a próxima da fila, depois de um respiro (maior depois da porta, por causa do eco da catedral);
+  // falas que esperaram demais perderam a hora e saem da fila
+  next(prevWho) {
+    const now = performance.now();
+    while (this.queue.length && !this.queue[0].opts.keep && now - this.queue[0].at > 6000) this.drop(this.queue.shift());
+    const q = this.queue.shift();
+    if (!q) { this.speaking = false; AudioSys.duck(false); return; }
+    const id = this.seq;
+    clearTimeout(this.gapT);
+    this.gapT = setTimeout(() => { if (this.seq === id) this.start(q.text, q.who, q.opts, q.k); }, prevWho === 'door' ? 380 : 160);
+  },
+  drop(q) { if (q && q.opts.onEnd) q.opts.onEnd(); },
   tts(text, who, opts, live, done) {
     if (!('speechSynthesis' in window)) { done(); return; }
     const ss = window.speechSynthesis;
@@ -1577,11 +1607,12 @@ const Voice = {
     clearTimeout(this.timer); this.timer = setTimeout(done, 900 + text.length * 110);
     try { ss.speak(u); } catch (e) { done(); }
   },
-  stop(keepState) {
+  // para tudo: a fala atual e a fila
+  stop() {
     VoiceClips.stop();
     try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) { /* ignora */ }
-    if (keepState) return;
-    this.seq++; clearTimeout(this.timer); this.speaking = false; AudioSys.duck(false);
+    const q = this.queue; this.queue = []; for (const x of q) this.drop(x);
+    this.seq++; clearTimeout(this.timer); clearTimeout(this.gapT); this.speaking = false; this.cur = null; AudioSys.duck(false);
   },
 };
 
@@ -4049,8 +4080,18 @@ const Echo = {
     this.line = null; this.lines = [];
   },
   // o Echo fala (balão com o inglês e a legenda em português)
-  talk(lines) { this.lines = lines.slice(); this.nextLine(); },
-  nextLine() { this.line = this.lines.shift() || null; this.lineT = 0; if (this.line) Voice.say(this.line.en, 'echo'); },
+  talk(lines) { this.lines = lines.slice(); this.outT = null; this.nextLine(); },
+  // o balão aparece quando a voz dela começa (se outra voz ainda fala, ela espera a vez) e fica até ela terminar
+  nextLine() {
+    const l = this.line = this.lines.shift() || null; this.lineT = 0; this.waitT = 0; this.outT = null;
+    if (!l) return;
+    this.said = false; this.heard = false;
+    const ok = Voice.say(l.en, 'echo', {
+      onStart: () => { if (this.line === l) { this.said = true; this.lineT = 0; } },
+      onEnd: () => { if (this.line === l) { this.said = true; this.heard = true; } },
+    });
+    if (!ok) { this.said = true; this.heard = true; }
+  },
   // alvo de YOU: cresce (e vira plataforma quando a fase tem um caminho para ele) ou encolhe
   act(what, ride) {
     if (what === 'big' && ride) {
@@ -4069,7 +4110,12 @@ const Echo = {
     if (this.puff > 0) this.puff = Math.max(0, this.puff - dt);
     if (this.tiny > 0) this.tiny = Math.max(0, this.tiny - dt);
     if (this.shake > 0) this.shake = Math.max(0, this.shake - dt);
-    if (this.line) { this.lineT += dt; if (this.lineT > 3) this.nextLine(); }
+    if (this.line) {
+      if (!this.said) { this.waitT += dt; if (this.waitT > 2.5) this.said = true; }   // a fila demorou demais: mostra assim mesmo
+      else this.lineT += dt;
+      if (this.outT == null && this.lineT > 2.8 && (this.heard || this.lineT > 7)) this.outT = 0.2;
+      if (this.outT != null) { this.outT -= dt; if (this.outT <= 0) this.nextLine(); }
+    }
     const t = Game.time, s = P.scale;
     const tx = P.cx - P.facing * (24 + 8 * s), ty = P.y - 6 - 6 * s + Math.sin(t * 2.2) * 4;
     const k = 1 - Math.exp(-dt * (P.dead ? 1.5 : 4.5));
@@ -4089,8 +4135,8 @@ const Echo = {
     if (this.line) this.drawBubble(ctx, x, y);
   },
   drawBubble(ctx, x, y) {
-    const l = this.line, k = Math.min(1, this.lineT * 5, (3 - this.lineT) * 5);
-    if (k <= 0) return;
+    const l = this.line, k = Math.min(1, this.lineT * 5, this.outT != null ? this.outT * 5 : 1);
+    if (!this.said || k <= 0) return;
     const en = R.text(l.en, '700 12px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(217,70,239,0.9)', 5), pt = R.text(l.pt, '400 11px Inter, sans-serif', wa(0.75), null, 0);
     // o balão fica do lado de trás do Nexy (não cobre o que está à frente, nem o que o Echo revelou)
     const w = Math.max(en.w, pt.w) + 6, h = 44, bx = clamp(x - P.facing * (w / 2 - 14), w / 2 + 10, CFG.VIEW_W - w / 2 - 10), by = y - 40;
@@ -4609,7 +4655,7 @@ const UI = {
     const card = (name, pt, meta, lore, say, locked, master) => {
       const c = document.createElement('div'); c.className = 'gcard' + (locked ? ' locked' : '') + (master ? ' master' : '');
       const btn = document.createElement('button'); btn.className = 'listen'; btn.setAttribute('aria-label', 'Listen');
-      if (locked) btn.disabled = true; else btn.addEventListener('click', ev => { ev.stopPropagation(); Voice.say(say, 'echo'); });
+      if (locked) btn.disabled = true; else btn.addEventListener('click', ev => { ev.stopPropagation(); Voice.say(say, 'echo', { cut: true }); });
       const w = document.createElement('div'); w.className = 'gw'; w.textContent = locked ? '· · ·' : name;
       const p = document.createElement('span'); p.className = 'gpt'; p.textContent = locked ? '' : pt; w.appendChild(p);
       const m = document.createElement('div'); m.className = 'gmeta'; m.textContent = meta;
@@ -4656,7 +4702,7 @@ const UI = {
     const all = g.letters.every(Boolean);
     const chip = (w, pt, say, master) => {
       const d = document.createElement('div'); d.className = 'lw' + (master ? ' master' : '');
-      const b = document.createElement('button'); b.className = 'listen'; b.setAttribute('aria-label', 'Listen ' + w); b.addEventListener('click', () => Voice.say(say, 'echo'));
+      const b = document.createElement('button'); b.className = 'listen'; b.setAttribute('aria-label', 'Listen ' + w); b.addEventListener('click', () => Voice.say(say, 'echo', { cut: true }));
       const a = document.createElement('span'); a.className = 'w'; a.textContent = w;
       const p = document.createElement('span'); p.className = 'p'; p.textContent = pt;
       d.append(b, a, p); box.appendChild(d);
@@ -5149,6 +5195,7 @@ const Chest = {
     const mark = i => spans.forEach((s, j) => s.classList.toggle('k', j === i));
     let viaBoundary = false;
     Voice.say(text, 'story', {
+      cut: true,
       onBoundary: ci => { viaBoundary = true; let j = 0; while (j + 1 < offs.length && offs[j + 1] <= ci) j++; mark(j); },
       onEnd: () => mark(-1),
     });
@@ -5162,7 +5209,7 @@ const Chest = {
     return text.split(' ').map(tok => { const bare = tok.toLowerCase().replace(/[^a-z]/g, ''); return `<span class="${nw.has(bare) ? 'nw' : ''}">${tok}</span>`; }).join(' ');
   },
   wireText(box) {
-    box.querySelectorAll('span').forEach(sp => sp.addEventListener('click', () => { const w = sp.textContent.replace(/[^A-Za-z']/g, ''); if (w) Voice.say(w, 'echo'); }));
+    box.querySelectorAll('span').forEach(sp => sp.addEventListener('click', () => { const w = sp.textContent.replace(/[^A-Za-z']/g, ''); if (w) Voice.say(w, 'echo', { cut: true }); }));
     return [...box.querySelectorAll('span')];
   },
   pt(text) { return `<div class="c-pt" data-pt="${text.replace(/"/g, '&quot;')}">${this.showPt ? text : ''}</div>`; },
@@ -5225,9 +5272,9 @@ const Chest = {
     if (st.step === 'words') this.playWords();
     else if (st.step === 'read') this.speakSpans(S.pages[st.page].en, this.spans);
     else if (st.step === 'cread') this.speakSpans(S.climb.page.en, this.spans);
-    else if (st.step === 'quiz') Voice.say(S.questions[st.qi].q, 'story');
-    else if (st.step === 'climb') Voice.say(S.climb.rungs[st.rung].q, 'story');
-    else if (st.step === 'you') Voice.say('Now you. Say it.', 'echo');
+    else if (st.step === 'quiz') Voice.say(S.questions[st.qi].q, 'story', { cut: true });
+    else if (st.step === 'climb') Voice.say(S.climb.rungs[st.rung].q, 'story', { cut: true });
+    else if (st.step === 'you') Voice.say('Now you. Say it.', 'echo', { cut: true });
     setTimeout(() => { const f = body.querySelector('.btn.primary') || body.querySelector('.copt') || body.querySelector('.btn'); if (f) f.focus({ preventScroll: true }); }, 30);
   },
   // as 4 palavras: entram no Grimório e na Fluência ao serem apresentadas
@@ -5238,7 +5285,7 @@ const Chest = {
       Game.grimoireWord(w.w, null);
     }
     S.words.forEach((w, i) => this.kara.push(setTimeout(() => {
-      cards.forEach((c, j) => c.classList.toggle('say', j === i)); Voice.say(w.w, 'story'); SFX.select();
+      cards.forEach((c, j) => c.classList.toggle('say', j === i)); Voice.say(w.w, 'story', { cut: true }); SFX.select();
     }, 300 + i * 1300)));
     this.kara.push(setTimeout(() => cards.forEach(c => c.classList.remove('say')), 300 + S.words.length * 1300));
   },
@@ -5246,7 +5293,7 @@ const Chest = {
   act(a, el) {
     if (this.busy && a !== 'mic') return;
     const st = this.st, S = this.S;
-    if (a === 'word') { const w = S.words[+el.dataset.i].w; Voice.say(w, 'story'); document.querySelectorAll('#chest .ccard').forEach(c => c.classList.toggle('say', c === el)); return; }
+    if (a === 'word') { const w = S.words[+el.dataset.i].w; Voice.say(w, 'story', { cut: true }); document.querySelectorAll('#chest .ccard').forEach(c => c.classList.toggle('say', c === el)); return; }
     if (a === 'hear') { if (st.step === 'words') { this.stopKara(); this.playWords(); } else if (this.spans.length) this.speakSpans(st.step === 'cread' ? S.climb.page.en : S.pages[st.page].en, this.spans); return; }
     if (a === 'prev') return this.go('read', { page: st.page - 1 });
     if (a === 'next') {
@@ -5271,7 +5318,7 @@ const Chest = {
   answer(i, el) {
     const st = this.st, q = this.S.questions[st.qi];
     if (el.classList.contains('wrong')) return;
-    Voice.say(q.options[i], 'echo');
+    Voice.say(q.options[i], 'echo', { cut: true });
     if (i === q.answer) {
       el.classList.add('right'); SFX.letter(); this.busy = true;
       if (!st.missedQ) st.firstTry++;
@@ -5289,7 +5336,7 @@ const Chest = {
     const st = this.st, r = this.S.climb.rungs[st.rung], opts = [...document.querySelectorAll('#chest .copt')];
     if (opts.some(b => b.disabled)) return;
     opts.forEach(b => { b.disabled = true; });
-    Voice.say(r.options[i], 'echo');
+    Voice.say(r.options[i], 'echo', { cut: true });
     const right = i === r.answer;
     opts[r.answer].classList.add('right');
     if (right) {
@@ -5308,7 +5355,7 @@ const Chest = {
   say(w) {
     const f = this.S.final, slot = $('cslot'); if (!slot) return;
     slot.innerHTML = ''; slot.appendChild(UI.capsule(w, true));
-    Voice.say('I am ' + WORDS[w].say + '.', 'echo');
+    Voice.say('I am ' + WORDS[w].say + '.', 'echo', { cut: true });
     if (w === f.answer) { SFX.right(); this.busy = true; this.kara.push(setTimeout(() => this.finish(), 1500)); return; }
     this.busy = true;
     if (w === f.afraid) {
@@ -5395,7 +5442,7 @@ const Cine = {
       });
     });
     // 5. o grito de batalha
-    if (t > 6.6) this.once('cry', () => { this.title = { text: this.d.def.story.cries[this.tier], k: 0 }; this.flash = 0.45; Voice.say(this.title.text, 'door'); SFX.warDrum(); Game.shake(8); });
+    if (t > 6.6) this.once('cry', () => { this.title = { text: this.d.def.story.cries[this.tier], k: 0 }; this.flash = 0.45; Voice.say(this.title.text, 'door', { cut: true }); SFX.warDrum(); Game.shake(8); });
     if (this.title) this.title.k = Math.min(1, this.title.k + dt * 3);
     // 6. investida em câmera lenta
     if (t > 7.4 && t < 7.8) { P.squash = 0.35; }
