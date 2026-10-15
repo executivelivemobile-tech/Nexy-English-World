@@ -8,7 +8,7 @@ Plataforma 2D neon-noir para ensinar inglês (nível A1) a brasileiros. Tudo est
 | Teclado | Ação |
 | --- | --- |
 | ← → ou A D | mover |
-| → → ou ← ← (toque duplo, segurando o 2º) | correr até soltar a seta |
+| seta, solta e aperta de novo logo em seguida (segurando) | correr até soltar a seta |
 | ↓ ou S | agachar |
 | Shift (segurar) | correr e carregar a carapaça |
 | Z ou Espaço | pular (segure para ir mais alto) |

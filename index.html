@@ -442,7 +442,7 @@ body.touch #touch { display: block; }
 const CFG = {
   TILE: 32, VIEW_W: 960, VIEW_H: 540, STEP: 1 / 60,
   // movimento horizontal (px/s e px/s²)
-  // DOUBLE_TAP_MS: toque duplo na direção (→ →, segurando o 2º toque) = correr até soltar
+  // DOUBLE_TAP_MS: soltou a seta e apertou de novo dentro desse prazo (segurando) = correr até soltar
   DOUBLE_TAP_MS: 280,
   WALK: 140, RUN: 230, ACC: 640, RUN_ACC: 480, FRICTION: 560, SKID: 1400, AIR_CONTROL: 0.7, CROUCH_FRICTION: 380, OVERSPEED_DECEL: 300,
   // pulo: v0 = JUMP_V + JUMP_RUN_BONUS * (|vx| / RUN). Parado ≈ 4 tiles, correndo ≈ 5 tiles.
@@ -990,7 +990,7 @@ const Input = {
   held: { left: false, right: false, down: false, up: false, run: false, jump: false, spin: false },
   touchHeld: {},
   pressedAt: { jump: -1, spin: -1 },
-  tapAt: { left: -1, right: -1 }, dashDir: null,   // toque duplo na direção liga a corrida até soltar
+  relAt: { left: -1e9, right: -1e9 }, dashDir: null,   // soltou a seta e apertou de novo logo em seguida: corre até soltar
   queue: [],           // eventos de tecla de borda para a lógica (pressionadas desde o último passo)
   KEYMAP: {
     ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right', ArrowDown: 'down', KeyS: 'down',
@@ -1013,14 +1013,17 @@ const Input = {
   },
   edge(k) {
     if (k === 'jump' || k === 'spin') this.pressedAt[k] = Game.simTime;
-    if (k === 'left' || k === 'right') {
-      const now = performance.now();
-      if (now - this.tapAt[k] < CFG.DOUBLE_TAP_MS) { this.dashDir = k; this.tapAt[k] = -1; if (Game.onDash) Game.onDash(); }
-      else this.tapAt[k] = now;
+    // 1º toque (pode segurar) anda; soltou e apertou de novo em até DOUBLE_TAP_MS: corre enquanto segurar
+    if ((k === 'left' || k === 'right') && performance.now() - this.relAt[k] < CFG.DOUBLE_TAP_MS) {
+      this.dashDir = k; this.relAt[k] = -1e9; if (Game.onDash) Game.onDash();
     }
     this.queue.push(k);
   },
-  release(k) { if (k === this.dashDir && !this.get(k)) this.dashDir = null; },
+  release(k) {
+    if ((k !== 'left' && k !== 'right') || this.get(k)) return;
+    this.relAt[k] = performance.now();
+    if (k === this.dashDir) this.dashDir = null;
+  },
   dashing() { return !!this.dashDir && this.get(this.dashDir); },
   get(k) { return this.held[k] || !!this.touchHeld[k]; },
   initTouch() {
@@ -2859,7 +2862,7 @@ const Panel = {
     $('panel').classList.remove('on'); Listen.stop();
     this.door = null; Game.state = 'play'; Music.normal();
     Input.pressedAt.jump = -1; Input.pressedAt.spin = -1; Input.queue.length = 0;
-    Input.dashDir = null; Input.tapAt.left = Input.tapAt.right = -1;
+    Input.dashDir = null; Input.relAt.left = Input.relAt.right = -1e9;
   },
   filled() { return this.slots.filter(v => v != null).length; },
   place(i) {
