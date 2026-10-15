@@ -37,8 +37,9 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 - Preferências já dadas: sem voz em combos e nomes de criaturas; correr com toque duplo na seta (janela medida da
   soltura); quique alto com janela antes/depois (só no ar); blocos-fantasma dependem da barra, não do Grimório.
 - **Vozes gravadas (ElevenLabs)**: 217 falas em `src/voice/` (MP3 + `manifest.json`), embutidas pelo build.
-  Elenco: **Echo = Lulu** (feminina e sensual, escolhida pelo dono), **narrador do Baú = Lawrence**, **portas e altares
-  = Elder Rowan** (acelerada 1,15× no corte). A Echo agora é **ela** nos textos em português ("a Echo", "sua amiga").
+  Elenco: **Echo = Lulu** (feminina e sensual, escolhida pelo dono), **narrador do Baú = Elder Rowan** (a voz antiga
+  das portas, pedida pelo dono no lugar do Lawrence; `[warmly]`, 1,08×), **portas e altares = Elder Rowan** (`[slowly]`,
+  acelerada 1,15× no corte). Não imitar vozes de pessoas reais (ele citou Morgan Freeman: só a referência de idoso e grave). A Echo agora é **ela** nos textos em português ("a Echo", "sua amiga").
   Falas sem gravação: a porta repete palavra por palavra; senão outra voz gravada; senão a voz do aparelho
   (`Voice.score` prefere Natural/Neural/Google). ASSIST → ECHO'S VOICE alterna "Lulu · studio" e as vozes do aparelho.
   Como gerar falas novas: `tools/voice/README.md`.

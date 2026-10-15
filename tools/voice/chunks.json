@@ -1,27 +1,181 @@
 [
  {
-  "id": "echo-1",
-  "who": "echo",
-  "voice": "Lt0VPfndF8W0Iwvl0bDe",
+  "id": "story-1",
+  "who": "story",
+  "voice": "N8jsIhEtPnj3PWFmH8hZ",
   "lines": [
    {
-    "text": "They are big.",
-    "prompt": "[warmly] They are big."
+    "text": "Nexy is small. The city is dark. Nobody says hello.",
+    "prompt": "[warmly] Nexy is small. The city is dark. Nobody says hello."
    },
    {
-    "text": "Make them small!",
-    "prompt": "[warmly] Make them small!"
+    "text": "Nexy finds a word. Then another word. Every word is a light.",
+    "prompt": "[warmly] Nexy finds a word. Then another word. Every word is a light."
    },
    {
-    "text": "It is big.",
-    "prompt": "[warmly] It is big."
+    "text": "Nexy is not afraid now. Echo is a friend. Words make Nexy strong.",
+    "prompt": "[warmly] Nexy is not afraid now. Echo is a friend. Words make Nexy strong."
    },
    {
-    "text": "Make it small!",
-    "prompt": "[warmly] Make it small!"
+    "text": "Yesterday, Nexy was afraid of the dark. Today, he is stronger than yesterday, because every word he learns becomes a part of him.",
+    "prompt": "[warmly] Yesterday, Nexy was afraid of the dark. Today, he is stronger than yesterday, because every word he learns becomes a part of him."
+   },
+   {
+    "text": "How was Nexy yesterday?",
+    "prompt": "[warmly] How was Nexy yesterday?"
+   },
+   {
+    "text": "When is Nexy stronger?",
+    "prompt": "[warmly] When is Nexy stronger?"
+   },
+   {
+    "text": "Why is Nexy stronger?",
+    "prompt": "[warmly] Why is Nexy stronger?"
+   },
+   {
+    "text": "What does the story teach?",
+    "prompt": "[warmly] What does the story teach?"
+   },
+   {
+    "text": "Is the city dark?",
+    "prompt": "[warmly] Is the city dark?"
+   },
+   {
+    "text": "The city is dark.",
+    "prompt": "[warmly] The city is dark."
+   },
+   {
+    "text": "What is every word?",
+    "prompt": "[warmly] What is every word?"
    }
   ],
-  "chars": 145,
-  "prompt": "[warmly] They are big. [long pause] [warmly] Make them small! [long pause] [warmly] It is big. [long pause] [warmly] Make it small!"
+  "chars": 703,
+  "prompt": "[warmly] Nexy is small. The city is dark. Nobody says hello. [long pause] [warmly] Nexy finds a word. Then another word. Every word is a light. [long pause] [warmly] Nexy is not afraid now. Echo is a friend. Words make Nexy strong. [long pause] [warmly] Yesterday, Nexy was afraid of the dark. Today, he is stronger than yesterday, because every word he learns becomes a part of him. [long pause] [warmly] How was Nexy yesterday? [long pause] [warmly] When is Nexy stronger? [long pause] [warmly] Why is Nexy stronger? [long pause] [warmly] What does the story teach? [long pause] [warmly] Is the city dark? [long pause] [warmly] The city is dark. [long pause] [warmly] What is every word?"
+ },
+ {
+  "id": "story-2",
+  "who": "story",
+  "voice": "N8jsIhEtPnj3PWFmH8hZ",
+  "lines": [
+   {
+    "text": "Every word is a light.",
+    "prompt": "[warmly] Every word is a light."
+   },
+   {
+    "text": "Is Nexy afraid now?",
+    "prompt": "[warmly] Is Nexy afraid now?"
+   },
+   {
+    "text": "Nexy is not afraid now.",
+    "prompt": "[warmly] Nexy is not afraid now."
+   },
+   {
+    "text": "Hello",
+    "prompt": "[warmly] Hello."
+   },
+   {
+    "text": "I",
+    "prompt": "[warmly] I."
+   },
+   {
+    "text": "am",
+    "prompt": "[warmly] am."
+   },
+   {
+    "text": "is",
+    "prompt": "[warmly] is."
+   },
+   {
+    "text": "are",
+    "prompt": "[warmly] are."
+   },
+   {
+    "text": "fine",
+    "prompt": "[warmly] fine."
+   },
+   {
+    "text": "it",
+    "prompt": "[warmly] it."
+   },
+   {
+    "text": "a",
+    "prompt": "[warmly] a."
+   },
+   {
+    "text": "key",
+    "prompt": "[warmly] key."
+   },
+   {
+    "text": "door",
+    "prompt": "[warmly] door."
+   },
+   {
+    "text": "big",
+    "prompt": "[warmly] big."
+   },
+   {
+    "text": "small",
+    "prompt": "[warmly] small."
+   },
+   {
+    "text": "Nexy",
+    "prompt": "[warmly] Nexy."
+   },
+   {
+    "text": "you",
+    "prompt": "[warmly] you."
+   },
+   {
+    "text": "they",
+    "prompt": "[warmly] they."
+   },
+   {
+    "text": "we",
+    "prompt": "[warmly] we."
+   },
+   {
+    "text": "yes",
+    "prompt": "[warmly] yes."
+   },
+   {
+    "text": "no",
+    "prompt": "[warmly] no."
+   },
+   {
+    "text": "not",
+    "prompt": "[warmly] not."
+   },
+   {
+    "text": "friend",
+    "prompt": "[warmly] friend."
+   },
+   {
+    "text": "dark",
+    "prompt": "[warmly] dark."
+   }
+  ],
+  "chars": 703,
+  "prompt": "[warmly] Every word is a light. [long pause] [warmly] Is Nexy afraid now? [long pause] [warmly] Nexy is not afraid now. [long pause] [warmly] Hello. [long pause] [warmly] I. [long pause] [warmly] am. [long pause] [warmly] is. [long pause] [warmly] are. [long pause] [warmly] fine. [long pause] [warmly] it. [long pause] [warmly] a. [long pause] [warmly] key. [long pause] [warmly] door. [long pause] [warmly] big. [long pause] [warmly] small. [long pause] [warmly] Nexy. [long pause] [warmly] you. [long pause] [warmly] they. [long pause] [warmly] we. [long pause] [warmly] yes. [long pause] [warmly] no. [long pause] [warmly] not. [long pause] [warmly] friend. [long pause] [warmly] dark."
+ },
+ {
+  "id": "story-3",
+  "who": "story",
+  "voice": "N8jsIhEtPnj3PWFmH8hZ",
+  "lines": [
+   {
+    "text": "light",
+    "prompt": "[warmly] light."
+   },
+   {
+    "text": "afraid",
+    "prompt": "[warmly] afraid."
+   },
+   {
+    "text": "strong",
+    "prompt": "[warmly] strong."
+   }
+  ],
+  "chars": 89,
+  "prompt": "[warmly] light. [long pause] [warmly] afraid. [long pause] [warmly] strong."
  }
 ]

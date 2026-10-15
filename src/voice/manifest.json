@@ -5,8 +5,8 @@
    "id": "Lt0VPfndF8W0Iwvl0bDe"
   },
   "story": {
-   "name": "Lawrence",
-   "id": "8wePOEVMsHVU2qfSJbtC"
+   "name": "Elder Rowan",
+   "id": "N8jsIhEtPnj3PWFmH8hZ"
   },
   "door": {
    "name": "Elder Rowan",
@@ -3033,11 +3033,11 @@
   "story:a": {
    "file": "story/a.mp3",
    "text": "a",
-   "dur": 0.41,
+   "dur": 0.6,
    "b": [
     [
      0,
-     0.05
+     0.12
     ]
    ],
    "from": "story-2"
@@ -3045,11 +3045,11 @@
   "story:afraid": {
    "file": "story/afraid.mp3",
    "text": "afraid",
-   "dur": 0.91,
+   "dur": 0.99,
    "b": [
     [
      0,
-     0.09
+     0.06
     ]
    ],
    "from": "story-3"
@@ -3057,11 +3057,11 @@
   "story:am": {
    "file": "story/am.mp3",
    "text": "am",
-   "dur": 0.52,
+   "dur": 0.85,
    "b": [
     [
      0,
-     0.1
+     0.21
     ]
    ],
    "from": "story-2"
@@ -3069,95 +3069,7 @@
   "story:are": {
    "file": "story/are.mp3",
    "text": "are",
-   "dur": 0.52,
-   "b": [
-    [
-     0,
-     0.1
-    ]
-   ],
-   "from": "story-2"
-  },
-  "story:big": {
-   "file": "story/big.mp3",
-   "text": "big",
-   "dur": 0.48,
-   "b": [
-    [
-     0,
-     0.04
-    ]
-   ],
-   "from": "story-2"
-  },
-  "story:dark": {
-   "file": "story/dark.mp3",
-   "text": "dark",
-   "dur": 0.55,
-   "b": [
-    [
-     0,
-     0.04
-    ]
-   ],
-   "from": "story-2"
-  },
-  "story:door": {
-   "file": "story/door.mp3",
-   "text": "door",
-   "dur": 0.67,
-   "b": [
-    [
-     0,
-     0.06
-    ]
-   ],
-   "from": "story-2"
-  },
-  "story:every word is a light": {
-   "file": "story/every-word-is-a-light.mp3",
-   "text": "Every word is a light.",
-   "dur": 1.92,
-   "b": [
-    [
-     0,
-     0.16
-    ],
-    [
-     6,
-     0.48
-    ],
-    [
-     11,
-     1.04
-    ],
-    [
-     14,
-     1.2
-    ],
-    [
-     16,
-     1.36
-    ]
-   ],
-   "from": "story-2"
-  },
-  "story:fine": {
-   "file": "story/fine.mp3",
-   "text": "fine",
-   "dur": 0.68,
-   "b": [
-    [
-     0,
-     0.04
-    ]
-   ],
-   "from": "story-2"
-  },
-  "story:friend": {
-   "file": "story/friend.mp3",
-   "text": "friend",
-   "dur": 0.65,
+   "dur": 0.69,
    "b": [
     [
      0,
@@ -3166,14 +3078,102 @@
    ],
    "from": "story-2"
   },
-  "story:hello": {
-   "file": "story/hello.mp3",
-   "text": "Hello",
-   "dur": 0.6,
+  "story:big": {
+   "file": "story/big.mp3",
+   "text": "big",
+   "dur": 0.66,
    "b": [
     [
      0,
-     0.04
+     0.11
+    ]
+   ],
+   "from": "story-2"
+  },
+  "story:dark": {
+   "file": "story/dark.mp3",
+   "text": "dark",
+   "dur": 1.5,
+   "b": [
+    [
+     0,
+     0.05
+    ]
+   ],
+   "from": "story-2"
+  },
+  "story:door": {
+   "file": "story/door.mp3",
+   "text": "door",
+   "dur": 0.64,
+   "b": [
+    [
+     0,
+     0.35
+    ]
+   ],
+   "from": "story-2"
+  },
+  "story:every word is a light": {
+   "file": "story/every-word-is-a-light.mp3",
+   "text": "Every word is a light.",
+   "dur": 2.78,
+   "b": [
+    [
+     0,
+     0.15
+    ],
+    [
+     6,
+     0.81
+    ],
+    [
+     11,
+     1.78
+    ],
+    [
+     14,
+     2
+    ],
+    [
+     16,
+     2.22
+    ]
+   ],
+   "from": "story-2"
+  },
+  "story:fine": {
+   "file": "story/fine.mp3",
+   "text": "fine",
+   "dur": 0.8,
+   "b": [
+    [
+     0,
+     0.06
+    ]
+   ],
+   "from": "story-2"
+  },
+  "story:friend": {
+   "file": "story/friend.mp3",
+   "text": "friend",
+   "dur": 0.85,
+   "b": [
+    [
+     0,
+     0.07
+    ]
+   ],
+   "from": "story-2"
+  },
+  "story:hello": {
+   "file": "story/hello.mp3",
+   "text": "Hello",
+   "dur": 0.78,
+   "b": [
+    [
+     0,
+     0.08
     ]
    ],
    "from": "story-2"
@@ -3181,23 +3181,23 @@
   "story:how was nexy yesterday": {
    "file": "story/how-was-nexy-yesterday.mp3",
    "text": "How was Nexy yesterday?",
-   "dur": 1.81,
+   "dur": 2.29,
    "b": [
     [
      0,
-     0.09
+     0.14
     ],
     [
      4,
-     0.33
+     0.44
     ],
     [
      8,
-     0.49
+     0.73
     ],
     [
      13,
-     0.97
+     1.47
     ]
    ],
    "from": "story-1"
@@ -3205,11 +3205,11 @@
   "story:i": {
    "file": "story/i.mp3",
    "text": "I",
-   "dur": 0.5,
+   "dur": 0.64,
    "b": [
     [
      0,
-     0.22
+     0.23
     ]
    ],
    "from": "story-2"
@@ -3217,11 +3217,11 @@
   "story:is": {
    "file": "story/is.mp3",
    "text": "is",
-   "dur": 0.54,
+   "dur": 0.7,
    "b": [
     [
      0,
-     0.18
+     0.14
     ]
    ],
    "from": "story-2"
@@ -3229,23 +3229,23 @@
   "story:is nexy afraid now": {
    "file": "story/is-nexy-afraid-now.mp3",
    "text": "Is Nexy afraid now?",
-   "dur": 1.44,
+   "dur": 1.68,
    "b": [
     [
      0,
-     0.04
+     0.08
     ],
     [
      3,
-     0.2
+     0.31
     ],
     [
      8,
-     0.52
+     0.75
     ],
     [
      15,
-     1.08
+     1.27
     ]
    ],
    "from": "story-2"
@@ -3253,23 +3253,23 @@
   "story:is the city dark": {
    "file": "story/is-the-city-dark.mp3",
    "text": "Is the city dark?",
-   "dur": 1.45,
+   "dur": 1.6,
    "b": [
     [
      0,
-     0.04
+     0.09
     ],
     [
      3,
-     0.2
+     0.31
     ],
     [
      7,
-     0.36
+     0.53
     ],
     [
      12,
-     0.76
+     0.98
     ]
    ],
    "from": "story-1"
@@ -3277,11 +3277,11 @@
   "story:it": {
    "file": "story/it.mp3",
    "text": "it",
-   "dur": 0.48,
+   "dur": 0.55,
    "b": [
     [
      0,
-     0.22
+     0.07
     ]
    ],
    "from": "story-2"
@@ -3289,11 +3289,11 @@
   "story:key": {
    "file": "story/key.mp3",
    "text": "key",
-   "dur": 0.49,
+   "dur": 0.64,
    "b": [
     [
      0,
-     0.09
+     0.05
     ]
    ],
    "from": "story-2"
@@ -3301,11 +3301,11 @@
   "story:light": {
    "file": "story/light.mp3",
    "text": "light",
-   "dur": 0.76,
+   "dur": 0.78,
    "b": [
     [
      0,
-     0.08
+     0.22
     ]
    ],
    "from": "story-3"
@@ -3313,11 +3313,11 @@
   "story:nexy": {
    "file": "story/nexy.mp3",
    "text": "Nexy",
-   "dur": 0.6,
+   "dur": 0.84,
    "b": [
     [
      0,
-     0.08
+     0.14
     ]
    ],
    "from": "story-2"
@@ -3325,55 +3325,55 @@
   "story:nexy finds a word then another word every word is a light": {
    "file": "story/nexy-finds-a-word-then-another-word-every-word-i.mp3",
    "text": "Nexy finds a word. Then another word. Every word is a light.",
-   "dur": 5.86,
+   "dur": 7.29,
    "b": [
     [
      0,
-     0.1
+     0.15
     ],
     [
      5,
-     0.58
+     0.74
     ],
     [
      11,
-     0.9
+     1.18
     ],
     [
      13,
-     1.06
+     1.33
     ],
     [
      19,
-     2.1
+     2.66
     ],
     [
      24,
-     2.34
+     3.03
     ],
     [
      32,
-     2.74
+     3.55
     ],
     [
      38,
-     4.18
+     4.89
     ],
     [
      44,
-     4.5
+     5.4
     ],
     [
      49,
-     4.98
+     6.44
     ],
     [
      52,
-     5.14
+     6.59
     ],
     [
      54,
-     5.3
+     6.81
     ]
    ],
    "from": "story-1"
@@ -3381,27 +3381,27 @@
   "story:nexy is not afraid now": {
    "file": "story/nexy-is-not-afraid-now.mp3",
    "text": "Nexy is not afraid now.",
-   "dur": 1.68,
+   "dur": 2.62,
    "b": [
     [
      0,
-     0.04
+     0.14
     ],
     [
      5,
-     0.44
+     0.74
     ],
     [
      8,
-     0.6
+     1.03
     ],
     [
      12,
-     0.84
+     1.48
     ],
     [
      19,
-     1.32
+     2.07
     ]
    ],
    "from": "story-2"
@@ -3409,59 +3409,59 @@
   "story:nexy is not afraid now echo is a friend words make nexy strong": {
    "file": "story/nexy-is-not-afraid-now-echo-is-a-friend-words-ma.mp3",
    "text": "Nexy is not afraid now. Echo is a friend. Words make Nexy strong.",
-   "dur": 6.02,
+   "dur": 7.74,
    "b": [
     [
      0,
-     0.09
+     0.11
     ],
     [
      5,
-     0.41
+     0.7
     ],
     [
      8,
-     0.57
+     0.93
     ],
     [
      12,
-     0.81
+     1.22
     ],
     [
      19,
-     1.29
+     1.74
     ],
     [
      24,
-     2.17
+     2.93
     ],
     [
      29,
-     2.49
+     3.59
     ],
     [
      32,
-     2.65
+     3.82
     ],
     [
      34,
-     2.81
+     3.96
     ],
     [
      42,
-     4.17
+     5.3
     ],
     [
      48,
-     4.57
+     5.96
     ],
     [
      53,
-     4.89
+     6.41
     ],
     [
      58,
-     5.37
+     7.08
     ]
    ],
    "from": "story-1"
@@ -3469,47 +3469,47 @@
   "story:nexy is small the city is dark nobody says hello": {
    "file": "story/nexy-is-small-the-city-is-dark-nobody-says-hello.mp3",
    "text": "Nexy is small. The city is dark. Nobody says hello.",
-   "dur": 4.4,
+   "dur": 6.04,
    "b": [
     [
      0,
-     0.07
+     0.13
     ],
     [
      5,
-     0.36
+     0.67
     ],
     [
      8,
-     0.48
+     0.89
     ],
     [
      15,
-     1.2
+     1.7
     ],
     [
      19,
-     1.52
+     2.07
     ],
     [
      24,
-     1.84
+     2.67
     ],
     [
      27,
-     1.92
+     2.96
     ],
     [
      33,
-     2.72
+     4.15
     ],
     [
      40,
-     3.52
+     4.89
     ],
     [
      45,
-     4
+     5.33
     ]
    ],
    "from": "story-1"
@@ -3517,7 +3517,7 @@
   "story:no": {
    "file": "story/no.mp3",
    "text": "no",
-   "dur": 0.57,
+   "dur": 0.94,
    "b": [
     [
      0,
@@ -3529,11 +3529,11 @@
   "story:not": {
    "file": "story/not.mp3",
    "text": "not",
-   "dur": 0.53,
+   "dur": 1.07,
    "b": [
     [
      0,
-     0.11
+     0.2
     ]
    ],
    "from": "story-2"
@@ -3541,11 +3541,11 @@
   "story:small": {
    "file": "story/small.mp3",
    "text": "small",
-   "dur": 0.7,
+   "dur": 0.82,
    "b": [
     [
      0,
-     0.1
+     0.08
     ]
    ],
    "from": "story-2"
@@ -3553,11 +3553,11 @@
   "story:strong": {
    "file": "story/strong.mp3",
    "text": "strong",
-   "dur": 0.88,
+   "dur": 1.24,
    "b": [
     [
      0,
-     0.13
+     0.17
     ]
    ],
    "from": "story-3"
@@ -3565,23 +3565,23 @@
   "story:the city is dark": {
    "file": "story/the-city-is-dark.mp3",
    "text": "The city is dark.",
-   "dur": 1.35,
+   "dur": 1.78,
    "b": [
     [
      0,
-     0.05
+     0.04
     ],
     [
      4,
-     0.21
+     0.63
     ],
     [
      9,
-     0.53
+     0.93
     ],
     [
      12,
-     0.77
+     1.22
     ]
    ],
    "from": "story-1"
@@ -3589,11 +3589,11 @@
   "story:they": {
    "file": "story/they.mp3",
    "text": "they",
-   "dur": 0.56,
+   "dur": 0.74,
    "b": [
     [
      0,
-     0.04
+     0.12
     ]
    ],
    "from": "story-2"
@@ -3601,11 +3601,11 @@
   "story:we": {
    "file": "story/we.mp3",
    "text": "we",
-   "dur": 0.53,
+   "dur": 0.74,
    "b": [
     [
      0,
-     0.17
+     0.47
     ]
    ],
    "from": "story-2"
@@ -3613,27 +3613,27 @@
   "story:what does the story teach": {
    "file": "story/what-does-the-story-teach.mp3",
    "text": "What does the story teach?",
-   "dur": 1.68,
+   "dur": 2.16,
    "b": [
     [
      0,
-     0.08
+     0.12
     ],
     [
      5,
-     0.32
+     0.49
     ],
     [
      10,
-     0.52
+     0.79
     ],
     [
      14,
-     0.64
+     0.94
     ],
     [
      20,
-     1.12
+     1.6
     ]
    ],
    "from": "story-1"
@@ -3641,23 +3641,23 @@
   "story:what is every word": {
    "file": "story/what-is-every-word.mp3",
    "text": "What is every word?",
-   "dur": 1.22,
+   "dur": 1.83,
    "b": [
     [
      0,
-     0.06
+     0.1
     ],
     [
      5,
-     0.3
+     0.55
     ],
     [
      8,
-     0.46
+     0.92
     ],
     [
      14,
-     0.78
+     1.36
     ]
    ],
    "from": "story-1"
@@ -3665,23 +3665,23 @@
   "story:when is nexy stronger": {
    "file": "story/when-is-nexy-stronger.mp3",
    "text": "When is Nexy stronger?",
-   "dur": 1.71,
+   "dur": 2.1,
    "b": [
     [
      0,
-     0.06
+     0.14
     ],
     [
      5,
-     0.3
+     0.58
     ],
     [
      8,
-     0.46
+     0.88
     ],
     [
      13,
-     0.86
+     1.4
     ]
    ],
    "from": "story-1"
@@ -3689,23 +3689,23 @@
   "story:why is nexy stronger": {
    "file": "story/why-is-nexy-stronger.mp3",
    "text": "Why is Nexy stronger?",
-   "dur": 1.77,
+   "dur": 2.16,
    "b": [
     [
      0,
-     0.09
+     0.19
     ],
     [
      4,
-     0.33
+     0.71
     ],
     [
      7,
-     0.49
+     0.93
     ],
     [
      12,
-     0.89
+     1.53
     ]
    ],
    "from": "story-1"
@@ -3713,11 +3713,11 @@
   "story:yes": {
    "file": "story/yes.mp3",
    "text": "yes",
-   "dur": 0.57,
+   "dur": 0.81,
    "b": [
     [
      0,
-     0.13
+     0.18
     ]
    ],
    "from": "story-2"
@@ -3725,99 +3725,99 @@
   "story:yesterday nexy was afraid of the dark today he is stronger than yesterday because every word he learns becomes a part of him": {
    "file": "story/yesterday-nexy-was-afraid-of-the-dark-today-he-i.mp3",
    "text": "Yesterday, Nexy was afraid of the dark. Today, he is stronger than yesterday, because every word he learns becomes a part of him.",
-   "dur": 9.39,
+   "dur": 11.59,
    "b": [
     [
      0,
-     0.11
+     0.14
     ],
     [
      11,
-     0.91
+     1.4
     ],
     [
      16,
-     1.31
+     2
     ],
     [
      20,
-     1.47
+     2.14
     ],
     [
      27,
-     1.87
+     2.77
     ],
     [
      30,
-     2.03
+     2.88
     ],
     [
      34,
-     2.19
+     3.03
     ],
     [
      40,
-     3.15
+     4.29
     ],
     [
      47,
-     3.71
+     5.4
     ],
     [
      50,
-     3.87
+     5.55
     ],
     [
      53,
-     4.03
+     5.85
     ],
     [
      62,
-     4.59
+     6.4
     ],
     [
      67,
-     4.75
+     6.59
     ],
     [
      78,
-     5.95
+     7.63
     ],
     [
      86,
-     6.51
+     8.22
     ],
     [
      92,
-     6.83
+     8.66
     ],
     [
      97,
-     7.15
+     9.03
     ],
     [
      100,
-     7.39
+     9.18
     ],
     [
      107,
-     7.91
+     10.07
     ],
     [
      115,
-     8.35
+     10.66
     ],
     [
      117,
-     8.51
+     10.81
     ],
     [
      122,
-     8.83
+     11.11
     ],
     [
      125,
-     8.99
+     11.26
     ]
    ],
    "from": "story-1"
@@ -3825,11 +3825,11 @@
   "story:you": {
    "file": "story/you.mp3",
    "text": "you",
-   "dur": 0.47,
+   "dur": 0.7,
    "b": [
     [
      0,
-     0.11
+     0.22
     ]
    ],
    "from": "story-2"

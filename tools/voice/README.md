@@ -8,7 +8,7 @@ O jogo toca falas gravadas em estúdio. Quando uma fala não foi gravada, ele us
 | Quem fala | Voz | Onde aparece |
 | --- | --- | --- |
 | `echo` | **Lulu** (aveludada, sensual, escolhida pelo dono) | a Echo: palavras, falas, opções do Baú, letras |
-| `story` | **Lawrence** (narrador de audiolivro, claro) | leitura e perguntas do Baú da Memória; palavras na 1-1 antes da Echo nascer |
+| `story` | **Elder Rowan** (a mesma voz antiga das portas, mais calorosa: `[warmly]`, 1,08×) | leitura e perguntas do Baú da Memória; palavras na 1-1 antes da Echo nascer. O dono achou o Lawrence fraco e pediu um idoso de voz bonita |
 | `door` | **Elder Rowan** (antiga, grave, lenta) | inscrições das portas e altares, as frases que o jogador monta, o grito da cena épica |
 
 ## Como gerar falas novas

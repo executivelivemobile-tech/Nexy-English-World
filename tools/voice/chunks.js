@@ -9,7 +9,7 @@ const { build, norm } = require('./lines');
 
 const CAST = {
   echo:  { name: 'Lulu',        id: 'Lt0VPfndF8W0Iwvl0bDe', tag: '[warmly]' },  // a companheira: aveludada, sensual
-  story: { name: 'Lawrence',    id: '8wePOEVMsHVU2qfSJbtC', tag: '[calmly]' },  // o narrador do Baú da Memória
+  story: { name: 'Elder Rowan', id: 'N8jsIhEtPnj3PWFmH8hZ', tag: '[warmly]', tempo: 1.08 },  // o narrador do Baú: a mesma voz antiga das portas (pedido do dono)
   door:  { name: 'Elder Rowan', id: 'N8jsIhEtPnj3PWFmH8hZ', tag: '[slowly]', tempo: 1.15 },  // portas e altares: antiga, lenta, clara
   // tempo: acelera no corte sem mudar o tom (a Elder Rowan com [slowly] arrasta demais as frases curtas)
 };
