@@ -34,8 +34,19 @@ Tudo fica no topo do `<script>` de `index.html`:
   (frases "erradas" que a porta encena, como `IT IS A DOOR`).
 - **Palavras:** `WORDS` guarda classe gramatical, tradução e a linha de lore do Grimório.
 
-## Blocos-fantasma (semente do Palácio do To Be)
+## Blocos-fantasma: o que se aprendeu vira chão
 
-Os blocos `M`, `I` e `R` (AM, IS, ARE) ficam intangíveis enquanto a flag `palaces.toBe` for falsa.
-Para testá-los sólidos, abra o jogo com `#tobe` no fim do endereço (ou `?toBe=1`), ou rode no console
-`NEXY.setFlag('palaces.toBe', true)` (passe `true` como terceiro argumento para salvar no progresso).
+Os blocos tracejados `M`, `I` e `R` (AM, IS, ARE) começam intangíveis. Cada um vira vidro sólido assim que
+a palavra dele é aprendida, ou seja, entra no Grimório ao ser coletada. Na seção 2 as três palavras estão
+antes da escada (ARE fica no bloco acima da segunda plataforma flutuante), então o jogador vê o degrau
+acender no momento em que pega a palavra e consegue subir até os orbes e a lanterna lá no alto. Como o
+Grimório fica salvo, nas próximas partidas a escada já aparece sólida.
+
+A flag `palaces.toBe` continua existindo para o futuro Palácio do To Be: com ela verdadeira, todos os
+blocos-fantasma ficam sólidos, mesmo sem as palavras. Para testar, abra o jogo com `#tobe` no fim do
+endereço (ou `?toBe=1`), ou rode no console `NEXY.setFlag('palaces.toBe', true)`.
+
+## Brilho
+
+O brilho de contornos, bordas e da luz de recorte fica num único ajuste no topo do script:
+`const LOOK = { bright: 2, bg: 1.6, rim: 1.15 }`. Valores maiores clareiam as silhuetas; `bg` vale só para o fundo.

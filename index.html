@@ -412,9 +412,9 @@ body.touch #touch { display: block; }
      ?   bloco "?" com 1 orbe
      G   bloco de vidro vazio
      g   bloco de vidro com 3 orbes dentro
-     M   bloco-fantasma AM   ┐ intangíveis enquanto a flag palaces.toBe for falsa;
-     I   bloco-fantasma IS   │ viram vidro sólido quando ela for verdadeira
-     R   bloco-fantasma ARE  ┘ (semente do Palácio do To Be)
+     M   bloco-fantasma AM   ┐ intangíveis até a palavra ser aprendida (entrar no Grimório);
+     I   bloco-fantasma IS   │ aí viram vidro sólido: o que se aprendeu vira chão.
+     R   bloco-fantasma ARE  ┘ A flag palaces.toBe (Palácio do To Be) solidifica todos de uma vez.
 
    BLOCOS COM CONTEÚDO DA FASE (editáveis em LEVELS['1-1'].blocks)
      h a i f k r d b   bloco "?" com palavra (HELLO, AM, IS, FINE, KEY, ARE, DOOR, BIG)
@@ -547,7 +547,7 @@ const LEVELS = {
       '........................................##...........................R..........................f....##......................................===.....##.........................................#..............#', // 11
       '........................................##.........................................................E.##..............................................##.........................................#..............#', // 12
       '........................................##........................................................==.##..............................................##.........................................#..............#', // 13
-      '........................................##.........................I.................................##....................................l.....==..##......................*..................X..............#', // 14
+      '........................................##.............r...........I.................................##....................................l.....==..##......................*..................X..............#', // 14
       '...........o............................##.......o.....o.............................................##..............................................##....oo...C...............................X..............#', // 15
       '..........o.o.....h....*............?...##................a..i...................c....AAA............##........i...r...d.............u...............##...o..o.===............C....a..b..s......X.......N......#', // 16
       '.........o...o............ooo...H.......11......===...===........M...................####............22......................###....oo........==.....33....................######........o....##################', // 17
@@ -1221,7 +1221,8 @@ const World = {
         else if (def.block) {
           this.tiles[i] = T.BLOCK;
           const b = { c, r, kind: def.block, content: def.content || null, secret: def.secret || null, word: def.word, flag: def.flag,
-            state: def.block === 'invisible' ? 'hidden' : 'ready', bump: 0, wob: 0 };
+            state: def.block === 'invisible' ? 'hidden' : 'ready', bump: 0, wob: 0, flash: 0 };
+          if (b.kind === 'ghost') b.solid = this.ghostWanted(b);
           this.blocks.set(i, b);
           if (b.secret) secrets++;
           if (b.content && b.content.word) words.add(b.content.word);
@@ -1275,12 +1276,14 @@ const World = {
   blockAt(c, r) { return this.blocks.get(r * this.w + c); },
   doorAt(c, r) { return this.doors[this.doorTiles.get(r * this.w + c)]; },
   solidStatic(c, r) { const t = this.type(c, r); return t === T.SOLID || t === T.FAKE; },
+  // bloco-fantasma fica sólido quando a palavra já está no Grimório ou quando o Palácio do To Be foi concluído
+  ghostWanted(b) { return Flags.get(b.flag) || !!(Save.data && Save.data.grimoire.words[b.word]); },
   blockSolid(b) {
     switch (b.kind) {
       case 'question': return true;
       case 'glass': return b.state !== 'broken';
       case 'invisible': return b.state === 'revealed';
-      case 'ghost': return Flags.get(b.flag);
+      case 'ghost': return !!b.solid;
       default: return false;
     }
   },
@@ -1418,7 +1421,17 @@ const World = {
     if (ct.letter != null) Ents.spawn('letter', { index: ct.letter, x: cx, y: cy, magnet: true });
   },
   updateBlocks(dt) {
-    for (const b of this.blocks.values()) { if (b.bump > 0) b.bump = Math.max(0, b.bump - dt * 5.5); if (b.wob > 0) b.wob = Math.max(0, b.wob - dt * 4); }
+    for (const b of this.blocks.values()) {
+      if (b.bump > 0) b.bump = Math.max(0, b.bump - dt * 5.5);
+      if (b.wob > 0) b.wob = Math.max(0, b.wob - dt * 4);
+      if (b.kind !== 'ghost') continue;
+      if (b.flash > 0) b.flash = Math.max(0, b.flash - dt * 0.9);
+      // acabou de aprender a palavra: o fantasma vira chão (espera o jogador sair de dentro dele)
+      if (!b.solid && this.ghostWanted(b) && !overlap({ x: b.c * TS, y: b.r * TS, w: TS, h: TS }, P.box())) {
+        b.solid = true; b.flash = 1; SFX.letter();
+        FX.burst(b.c * TS + TS / 2, b.r * TS + TS / 2, 26, 'c', 200, { life: 0.9, g: 0 });
+      }
+    }
     for (const v of this.veils) if (v.found && v.alpha > 0) v.alpha = Math.max(0, v.alpha - dt * 2);
     for (const id in this.doors) {
       const d = this.doors[id];
@@ -1504,7 +1517,8 @@ const World = {
     const wob = b.wob > 0 ? Math.sin(b.wob * 30) * 1.5 * b.wob : 0;
     y += off; x += wob;
     if (k === 'ghost') {
-      const solid = Flags.get(b.flag);
+      const solid = b.solid;
+      if (b.flash > 0) R.draw(R.glow('t', 48), x + TS / 2, y + TS / 2, 1 + b.flash * 0.6, b.flash, true);
       if (!solid) {
         ctx.save(); ctx.setLineDash([4, 4]); rrect(ctx, x + 2.5, y + 2.5, TS - 5, TS - 5, 8);
         ctx.strokeStyle = wa(0.3); ctx.lineWidth = 1; ctx.stroke(); ctx.restore();
