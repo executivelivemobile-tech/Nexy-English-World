@@ -104,10 +104,19 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 
 ## 7. Próximos passos e ideias anotadas
 
-- **Vozes do ElevenLabs** (pedido do dono, para depois): o caminho recomendado é a chave da API como segredo do ambiente
-  (`ELEVENLABS_API_KEY`) + `api.elevenlabs.io` liberado na rede + o voice_id escolhido; um script extrai todas as falas
-  dos dados do jogo, gera os MP3 e embute no `index.html` (a voz do navegador fica só de reserva para frases montadas
-  erradas). Hoje a rede bloqueia `api.elevenlabs.io` e não há chave.
+- **Vozes do ElevenLabs** (pedido do dono): o **conector ElevenLabs** (ferramentas `mcp__ElevenLabs__creative_*`) está
+  ligado e o caminho foi provado: `creative_generate_speech` (modelo `eleven_v4`, 1 crédito/caractere; Flash 0,5) →
+  `creative_get_flow_run_status` dá um `content_url` em `storage.googleapis.com` que o `curl` daqui baixa (MP3 128 kbps
+  mono, ~22 KB/s). `api.elevenlabs.io` direto continua bloqueado na rede, e não precisa. Plano: um script junta todas as
+  falas (hoje ~3 mil caracteres: 1-1 + 1-2), gera 1 versão de cada, comprime e embute no `index.html`; a voz do
+  navegador fica de reserva, e o karaokê sincroniza pela duração.
+  - Conta do dono era gratuita: só 1 geração por vez (`generations_count: 1`; 4 dá 429) e **a ElevenLabs desligou o
+    gratuito** depois de 4 amostras ("unusual activity… proxy or VPN"). Para continuar é preciso plano pago (Starter,
+    que também dá o uso comercial exigido para a Google Play). Não tente de novo sem o dono confirmar o plano.
+  - Voz preferida pelo dono: **feminina e sensual**. Amostras feitas (fluxo `4viAQTLgLrXIp0TdMNZn`): Sloane
+    `BAMYoBHLZM7lJgJAmFz0` e Saira `KF337ZXYjoHdNuYUrufC` (e VALF, masculina, descartada). Candidatas não testadas:
+    Zoey `ROkSP7oeR0SRS2aHJXMo`, Aria (vilã) `TC0Zp7WVFzhA8zpTlRqV`. Se o Echo ficar feminino, as traduções dizem
+    "o Echo"/"amigo" e precisam virar feminino (decisão do dono).
 
 - Esperando aprovação da 1-2 (com o baú). Depois: 1-3, Palácio do To Be (saída secreta da 1-1), Casa "PUSH OR PULL?"
   (saída secreta da 1-2), forte e castelo do Mundo 1.
