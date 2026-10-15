@@ -3,6 +3,12 @@
 Plataforma 2D neon-noir para ensinar inglês (nível A1) a brasileiros. Tudo está em um único arquivo:
 `index.html` (HTML, CSS e JavaScript puro, sem imagens nem áudios externos). Abra o arquivo no navegador.
 
+## Versões aprovadas
+
+| Fase | Status | Commit |
+| --- | --- | --- |
+| 1-1 · Hello World | aprovada | `3702f14` |
+
 ## Controles
 
 | Teclado | Ação |
