@@ -697,7 +697,7 @@ const Game = {
     if (bonus) { let k = 0; const iv = setInterval(() => { if (k++ >= bonus) return clearInterval(iv); this.addOrbs(1); }, 30); UI.msg('+' + bonus + ' ORBS'); }
     const S = Save.data, id = World.level.id, mw = World.level.masterWord, ex = S.exits[id] || (S.exits[id] = {});
     const newPath = !ex[exit];
-    ex[exit] = true; S.cleared[id] = true;
+    ex[exit] = true; S.cleared[id] = true; S.map.at = id;
     const best = S.letters[id] || (S.letters[id] = mw.split('').map(() => false));
     this.letters.forEach((v, i) => { if (v) best[i] = true; });
     const all = this.letters.every(Boolean);

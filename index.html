@@ -4582,7 +4582,7 @@ const Game = {
     if (bonus) { let k = 0; const iv = setInterval(() => { if (k++ >= bonus) return clearInterval(iv); this.addOrbs(1); }, 30); UI.msg('+' + bonus + ' ORBS'); }
     const S = Save.data, id = World.level.id, mw = World.level.masterWord, ex = S.exits[id] || (S.exits[id] = {});
     const newPath = !ex[exit];
-    ex[exit] = true; S.cleared[id] = true;
+    ex[exit] = true; S.cleared[id] = true; S.map.at = id;
     const best = S.letters[id] || (S.letters[id] = mw.split('').map(() => false));
     this.letters.forEach((v, i) => { if (v) best[i] = true; });
     const all = this.letters.every(Boolean);
@@ -4660,6 +4660,14 @@ const Transition = {
           if (on) R.draw(R.glow('m', 18), x, y, 1, 0.8 * k, true);
           R.draw(R.text(on ? c.word[i] : '_', '700 16px Orbitron, Inter, sans-serif', on ? '#ffffff' : 'rgba(255,255,255,0.35)', on ? 'rgba(217,70,239,1)' : null, on ? 6 : 0), x, y, 1, k);
         }
+      }
+      // como o "MARIO × 5" do Mario World
+      if (c.lives != null) {
+        R.draw(R.glow('m', 16), 452, 372, 1, 0.8 * k, true);
+        ctx.save(); ctx.globalAlpha = k; ctx.translate(452, 380); ctx.scale(0.5, 0.5);
+        const of = P.facing, og = P.onGround, ow = P.walkPhase; P.facing = 1; P.onGround = true; P.walkPhase = 0.6; P.drawBody(ctx, time); P.facing = of; P.onGround = og; P.walkPhase = ow;
+        ctx.restore();
+        R.draw(R.text('×  ' + c.lives, '700 14px JetBrains Mono, monospace', '#ffffff', null, 0), 492, 368, 1, k);
       }
     }
   },
@@ -4765,7 +4773,7 @@ const WorldMap = {
     this.hop = 1; SFX.jump();
     Transition.start({
       x: this.x, y: this.y - 18, shape: 'circle',
-      card: { label: 'WORLD ' + id, name: L.name, word: L.masterWord, found },
+      card: { label: 'WORLD ' + id, name: L.name, word: L.masterWord, found, lives: Game.lives },
       mid: () => { this.leave(); Game.enterLevel(id, true); },
       openAt: () => ({ x: P.cx - Cam.x, y: P.cy - Cam.y }),
     });
@@ -4793,21 +4801,27 @@ const WorldMap = {
   ensureStars() {
     if (this.stars) return;
     const rnd = mulberry32(5); this.stars = [];
-    for (let i = 0; i < 90; i++) this.stars.push({ x: rnd() * 960, y: rnd() * 260, s: 0.4 + rnd() * 1.1, p: rnd() * 6 });
+    for (let i = 0; i < 140; i++) this.stars.push({ x: rnd() * 960, y: 56 + rnd() * 484, s: 0.4 + rnd() * 1.1, p: rnd() * 6 });
   },
-  // "HELLO WORLD" em estrelas: cada letra acende quando a letra rara correspondente foi achada
+  // "HELLO WORLD" em estrelas: cada letra acende quando a letra rara correspondente foi achada;
+  // letras vizinhas acesas se ligam por uma linha, como numa constelação
   constellation(ctx, t) {
-    const words = [['1-1', 'HELLO'], ['1-2', 'WORLD']], letterW = 34, gap = 30;
-    const total = 10 * letterW + gap, x0 = 480 - total / 2 + letterW / 2;
+    const words = [['1-1', 'HELLO'], ['1-2', 'WORLD']], letterW = 32, gap = 26, cy = 96;
+    const total = 10 * letterW + gap, x0 = 590 - total / 2 + letterW / 2, pts = [];
     let i = 0;
     for (const [id, w] of words) {
       const found = Save.data.letters[id] || [];
-      for (let k = 0; k < w.length; k++, i++) {
-        const x = x0 + i * letterW + (i >= 5 ? gap : 0), on = !!found[k];
-        if (on) R.draw(R.glow('m', 22), x, 52, 1, 0.55 + 0.15 * Math.sin(t * 2 + i), true);
-        R.draw(R.text(w[k], '900 20px Orbitron, Inter, sans-serif', on ? '#ffffff' : 'rgba(255,255,255,0.13)', on ? 'rgba(217,70,239,1)' : null, on ? 8 : 0), x, 52);
-      }
+      for (let k = 0; k < w.length; k++, i++) pts.push({ x: x0 + i * letterW + (i >= 5 ? gap : 0), y: cy + Math.sin(i * 1.7) * 7, ch: w[k], on: !!found[k], word: id });
     }
+    for (let j = 0; j < pts.length - 1; j++) {
+      const a = pts[j], b = pts[j + 1]; if (a.word !== b.word) continue;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+      ctx.strokeStyle = a.on && b.on ? 'rgba(232,121,249,0.55)' : 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1; ctx.stroke();
+    }
+    pts.forEach((p, j) => {
+      if (p.on) R.draw(R.glow('m', 22), p.x, p.y, 1, 0.55 + 0.15 * Math.sin(t * 2 + j), true);
+      R.draw(R.text(p.ch, '900 18px Orbitron, Inter, sans-serif', p.on ? '#ffffff' : 'rgba(255,255,255,0.14)', p.on ? 'rgba(217,70,239,1)' : null, p.on ? 8 : 0), p.x, p.y);
+    });
   },
   land() {
     return R.sprite('worldmap1', 960, 540, (x) => {
@@ -4825,12 +4839,26 @@ const WorldMap = {
       // rio de luz
       x.beginPath(); x.moveTo(300, 520); x.bezierCurveTo(330, 420, 420, 380, 460, 260); x.bezierCurveTo(490, 180, 600, 160, 640, 60);
       x.strokeStyle = 'rgba(34,211,238,0.10)'; x.lineWidth = 16; x.stroke(); x.strokeStyle = 'rgba(34,211,238,0.22)'; x.lineWidth = 2; x.stroke();
+      // a cidade gótica vista do alto: telhados, pináculos e janelas acesas (longe dos nós e caminhos)
+      const rnd = mulberry32(42), W = this.W, near = (px, py) => W.nodes.some(n => Math.hypot(n.x - px, n.y - py) < 46) ||
+        W.edges.some(e => this.edgePts(e, e.a).some(([qx, qy]) => Math.hypot(qx - px, qy - py) < 26));
+      for (let k = 0; k < 170; k++) {
+        const px = 60 + rnd() * 870, py = 120 + rnd() * 400; if (near(px, py)) continue;
+        const w = 8 + rnd() * 14, h = 6 + rnd() * 10, kind = rnd();
+        x.save(); x.translate(px, py);
+        if (kind < 0.55) { rrect(x, -w / 2, -h / 2, w, h, 1.5); x.fillStyle = 'rgba(5,7,9,0.9)'; x.fill(); x.strokeStyle = 'rgba(34,211,238,0.12)'; x.lineWidth = 0.8; x.stroke(); x.beginPath(); x.moveTo(-w / 2, 0); x.lineTo(w / 2, 0); x.strokeStyle = 'rgba(34,211,238,0.06)'; x.stroke(); }
+        else if (kind < 0.8) { x.beginPath(); x.moveTo(-w * 0.3, h * 0.4); x.lineTo(0, -h); x.lineTo(w * 0.3, h * 0.4); x.closePath(); x.fillStyle = 'rgba(5,7,9,0.9)'; x.fill(); x.strokeStyle = 'rgba(34,211,238,0.16)'; x.lineWidth = 0.8; x.stroke(); }
+        else { x.beginPath(); x.arc(0, 0, w * 0.28, 0, Math.PI * 2); x.fillStyle = 'rgba(5,7,9,0.9)'; x.fill(); x.strokeStyle = 'rgba(34,211,238,0.14)'; x.lineWidth = 0.8; x.stroke(); }
+        if (rnd() < 0.35) { x.fillStyle = 'rgba(122,216,255,' + (0.35 + rnd() * 0.4).toFixed(2) + ')'; x.fillRect(-0.8, -0.8, 1.6, 1.6); }
+        x.restore();
+      }
       x.restore();
     });
   },
   icon(ctx, kind, x, y, on) {
-    ctx.save(); ctx.translate(x, y - 26);
-    ctx.strokeStyle = on ? 'rgba(34,211,238,0.75)' : 'rgba(255,255,255,0.14)'; ctx.fillStyle = 'rgba(10,15,18,0.95)'; ctx.lineWidth = 1;
+    ctx.save(); ctx.translate(x, y - 13); ctx.scale(1.45, 1.45);
+    if (on) R.draw(R.glow('c', 30), x, y - 30, 1, 0.22, true);
+    ctx.strokeStyle = on ? 'rgba(34,211,238,0.8)' : 'rgba(255,255,255,0.14)'; ctx.fillStyle = 'rgba(10,15,18,0.95)'; ctx.lineWidth = 0.8;
     const tower = (tx, w, h) => { ctx.beginPath(); ctx.moveTo(tx - w / 2, 0); ctx.lineTo(tx - w / 2, -h); ctx.lineTo(tx, -h - w * 0.9); ctx.lineTo(tx + w / 2, -h); ctx.lineTo(tx + w / 2, 0); ctx.closePath(); ctx.fill(); ctx.stroke(); };
     if (kind === 'gate') { tower(-12, 10, 16); tower(12, 10, 16); ctx.beginPath(); ctx.moveTo(-7, 0); ctx.quadraticCurveTo(0, -18, 7, 0); ctx.stroke(); }
     else if (kind === 'nave') { tower(0, 22, 18); tower(-15, 8, 10); tower(15, 8, 10); ctx.beginPath(); ctx.arc(0, -12, 4, 0, Math.PI * 2); ctx.stroke(); }
@@ -4844,6 +4872,9 @@ const WorldMap = {
   render(ctx, t) {
     this.ensureStars();
     for (const s of this.stars) R.draw(R.glow('w', 3), s.x, s.y, s.s, 0.35 + 0.3 * Math.sin(t * 1.5 + s.p), true);
+    // lua crescente
+    R.draw(R.glow('w', 60), 92, 118, 1, 0.35, true);
+    ctx.save(); ctx.beginPath(); ctx.arc(92, 118, 20, 0, Math.PI * 2); ctx.arc(101, 112, 18, 0, Math.PI * 2, true); ctx.fillStyle = 'rgba(240,250,255,0.92)'; ctx.fill('evenodd'); ctx.restore();
     this.constellation(ctx, t);
     R.draw(this.land(), 480, 270);
     const W = this.W;
