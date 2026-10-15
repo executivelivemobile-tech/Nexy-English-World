@@ -45,6 +45,14 @@ A flag `palaces.toBe` continua existindo para o futuro Palácio do To Be: com el
 blocos-fantasma ficam sólidos, mesmo sem as palavras. Para testar, abra o jogo com `#tobe` no fim do
 endereço (ou `?toBe=1`), ou rode no console `NEXY.setFlag('palaces.toBe', true)`.
 
+## Combo de pisões
+
+Cada pisão seguido, sem tocar o chão, deixa o quique mais alto (`CFG.COMBO_BOUNCE = [1, 1.38, 1.55]`):
+segurando o pulo, o 1º pisão sobe cerca de 7 tiles, o 2º cerca de 13 e o 3º cerca de 16. Na tela aparece
+"1x", "2x"… luminoso no ponto do pisão, e o jogador brilha mais forte enquanto o combo durar. Dois
+Rastejantes-guarda patrulham embaixo da escada-fantasma: com um 2x dá para alcançar a plataforma alta
+mesmo sem as palavras.
+
 ## Brilho
 
 O brilho de contornos, bordas e da luz de recorte fica num único ajuste no topo do script:

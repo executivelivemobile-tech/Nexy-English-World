@@ -432,7 +432,8 @@ body.touch #touch { display: block; }
      o   orbe                       *   lanterna gótica
      H E L O   letras raras (H, E, 1º L, O; o 2º L está no bloco 'l')
      C   Rastejante (CRAWLER)       A   Rastejante de emboscada (acorda a 7 tiles do jogador)
-     Y   Rastejante-guarda (patrulha sem cair das beiradas e renasce se morrer)
+     Y   Rastejante-guarda (patrulha sem cair das beiradas e renasce se morrer). Pisões seguidos = combo:
+         cada pisão sem tocar o chão aumenta o quique (CFG.COMBO_BOUNCE) e mostra "1x", "2x"…
      K   Casco (SHELL)              J   Casco-guarda (renasce no início do corredor se a carapaça se perder)
      N   fim normal (portal)        Z   fim secreto (portal com fechadura)
    ===================================================================================== */
@@ -450,6 +451,8 @@ const CFG = {
   BOUNCE: 380, BOUNCE_HELD: 800, SPIN_BOUNCE: 330, SPIN_BOUNCE_HELD: 560, HITSTOP_FRAMES: 3,
   // facilidade do quique alto: apertar o pulo pouco antes (EARLY) ou logo depois (LATE, ainda no ar) do pisão vale como segurar
   BOUNCE_EARLY: 0.15, BOUNCE_LATE: 0.3,
+  // combo: cada pisão seguido (sem tocar o chão) aumenta a força do quique. Índice = 1º, 2º, 3º+ pisão.
+  COMBO_BOUNCE: [1, 1.38, 1.55],
   PLAYER_W: 22, PLAYER_H: 46, CROUCH_H: 34, INVULN: 1.5,
   SHELL_SPEED: 400, SHELL_THROW_UP: 850, SHELL_GRAVITY: 2000,
   CRAWLER_SPEED: 50, CASCO_SPEED: 45, ENEMY_GRAVITY: 2000,
@@ -552,7 +555,7 @@ const LEVELS = {
       '..........o.o.....h....*............?...##................a..i...................c....AAA............##........i...r...d.............u...............##...o..o.===............C....a..b..s......X.......N......#', // 16
       '.........o...o............ooo...H.......11......===...===........M...................####............22......................###....oo........==.....33....................######........o....##################', // 17
       '.....................................oo.11..ooo......................................####.......Y....22......o...o...o...o...###.ooo.................33................O...W.*.*#......oo.....#########........#', // 18
-      '...P......###................C..........11.................................g.g.g.....####.L..#######.22.F..J.................k##.....................33............K.......Wo.oo#.g........V...................#', // 19
+      '...P......###................C..........11..........................Y...Y..g.g.g.....####.L..#######.22.F..J.................k##.....................33............K.......Wo.oo#.g........V...................#', // 19
       '################################..##############...###...#################################...#############################################################....#######....##############################........#', // 20
       '################################..##############...###...#################################...#############################################################....#######....##############################..Z.....#', // 21
       '################################..##############...###...#################################...#############################################################....#######....#######################################' // 22
@@ -2140,6 +2143,19 @@ Ents.reg('reserve', {
   draw(ctx, e, x, y) { drawCrystal(ctx, x + 11, y + 14, e.t); },
 });
 
+/* ---------- TEXTO DO COMBO ("1x", "2x", ...) ---------- */
+Ents.reg('combotext', {
+  layer: 'front',
+  init(e) { e.w = 1; e.h = 1; e.x0 = e.x; e.y0 = e.y; },
+  update(e) { e.y = e.y0 - 54 * (1 - Math.pow(1 - Math.min(1, e.t / 0.9), 2)); if (e.t > 1.1) e.dead = true; },
+  draw(ctx, e, x, y) {
+    const n = Math.min(e.n, 9), size = 18 + Math.min(n, 5) * 4;
+    const pop = e.t < 0.14 ? 1.7 - (e.t / 0.14) * 0.7 : 1, a = e.t > 0.7 ? Math.max(0, 1 - (e.t - 0.7) / 0.4) : 1;
+    R.draw(R.glow('m', 40), x, y, 0.8 + n * 0.25, a * Math.min(1, 0.35 + n * 0.15), true);
+    R.draw(R.text(e.n + 'x', '900 ' + size + 'px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(217,70,239,1)', 6 + n * 2), x, y, pop, a);
+  },
+});
+
 /* ---------- LANTERNA GÓTICA ---------- */
 Ents.reg('lantern', {
   layer: 'back',
@@ -2290,7 +2306,7 @@ const P = {
     this.x = footX - this.w / 2; this.y = footY - this.h; this.px = this.x; this.py = this.y;
     this.vx = 0; this.vy = 0; this.facing = 1; this.onGround = false; this.crouch = false; this.spinning = false;
     this.aura = false; this.invuln = 0; this.dead = false; this.deathT = 0; this.combo = 0; this.held = null;
-    this.giant = false; this.trail = []; this.interact = null; this.lastSafe = { x: footX, y: footY }; this.jumpedSinceGround = true; this.bounceWindow = 0; this.lockRise = false;
+    this.giant = false; this.trail = []; this.interact = null; this.lastSafe = { x: footX, y: footY }; this.jumpedSinceGround = true; this.bounceWindow = 0; this.lockRise = false; this.comboGlow = 0;
   },
 
   update(dt) {
@@ -2358,6 +2374,7 @@ const P = {
     if (this.spinning) this.spinT += dt;
     if (this.squash) this.squash = approach(this.squash, 0, dt * 2.2);
     if (this.kickT > 0) this.kickT -= dt;
+    this.comboGlow = approach(this.comboGlow || 0, this.onGround ? 0 : Math.min(this.combo, 4), dt * (this.onGround ? 3 : 8));
     if (this.scaleT < 1) { this.scaleT = Math.min(1, this.scaleT + dt / 0.6); this.visScale = lerp(this.scaleFrom, this.scale, this.easeBack(this.scaleT)); }
     if (this.onGround && Math.abs(this.vx) > 5) this.walkPhase += Math.abs(this.vx) * dt * 0.09;
 
@@ -2399,8 +2416,9 @@ const P = {
     const I = Input, now = Game.simTime;
     const held = I.get('jump') || I.get('spin');
     const early = now - Math.max(I.pressedAt.jump, I.pressedAt.spin) <= CFG.BOUNCE_EARLY;
-    const strong = spin ? CFG.SPIN_BOUNCE_HELD : CFG.BOUNCE_HELD;
-    this.vy = -(held || early ? strong : (spin ? CFG.SPIN_BOUNCE : CFG.BOUNCE));
+    const CB = CFG.COMBO_BOUNCE, mult = CB[clamp(this.combo, 1, CB.length) - 1];
+    const strong = (spin ? CFG.SPIN_BOUNCE_HELD : CFG.BOUNCE_HELD) * mult;
+    this.vy = -(held || early ? strong : (spin ? CFG.SPIN_BOUNCE : CFG.BOUNCE) * mult);
     // apertou pouco antes do pisão: quique alto garantido, mesmo que solte o botão
     this.lockRise = early && !held;
     if (early) { I.pressedAt.jump = -1; I.pressedAt.spin = -1; }
@@ -2452,6 +2470,8 @@ const P = {
     this.y = topY - this.h;
     SFX.stomp(this.combo); Game.hitstop(CFG.HITSTOP_FRAMES);
     FX.burst(cx, topY + 4, 12, 'c', 160, { life: 0.45 });
+    Ents.spawn('combotext', { x: cx, y: topY - 6, n: this.combo });
+    if (this.combo > 1) FX.burst(this.cx, this.y + this.h, 10 + this.combo * 6, 'm', 160 + this.combo * 40, { life: 0.7, g: 0 });
     this.bounce(spin);
     Game.comboVoice(this.combo, isNew ? creature : null);
   },
@@ -2545,7 +2565,7 @@ const P = {
     if (!this.dead) for (let i = 0; i < this.trail.length - 1; i++) {
       const p = this.trail[i], k = (i + 1) / this.trail.length, sp = p.s;
       if (sp < 0.2) continue;
-      const a2 = (sp - 0.2) * k * alpha, tx = p.x - camX, ty = p.y - camY, hh = this.h * 0.86;
+      const a2 = Math.min(1, (sp - 0.2) * (1 + (this.comboGlow || 0) * 0.5)) * k * alpha, tx = p.x - camX, ty = p.y - camY, hh = this.h * 0.86;
       R.draw(R.glow('m', 24), tx, ty, (0.5 + 0.6 * k) * s, a2 * 0.6, true);
       rrect(ctx, tx - 8 * s, ty - hh / 2, 16 * s, hh, 8 * s);
       ctx.fillStyle = `rgba(217,70,239,${(a2 * 0.16).toFixed(3)})`; ctx.fill();
@@ -2558,6 +2578,13 @@ const P = {
       }
     }
     if (!this.dead) R.draw(R.glow('m', 40), fx, fy - 24 * s, 0.85 * s, 0.24 * LOOK.rim * alpha, true);
+    // brilho do combo: cresce a cada pisão seguido e se apaga ao tocar o chão
+    const cg = this.dead ? 0 : this.comboGlow || 0;
+    if (cg > 0.02) {
+      const pulse = 0.85 + 0.15 * Math.sin(t * 18);
+      R.draw(R.glow('m', 64), fx, fy - 24 * s, (0.9 + cg * 0.35) * s, Math.min(1, 0.25 + cg * 0.22) * pulse * alpha, true);
+      R.draw(R.glow('w', 32), fx, fy - 24 * s, (0.6 + cg * 0.2) * s, Math.min(0.5, cg * 0.12) * pulse * alpha, true);
+    }
     if (this.aura && !this.dead) R.draw(R.glow('t', 64), fx, fy - 24 * s, 1.15 * s, (0.8 + 0.2 * Math.sin(t * 6)) * alpha, true);
     if (this.giant && !this.dead) R.draw(R.glow('m', 64), fx, fy - 24 * s, 1.2 * s, 0.35 * alpha, true);
     if (this.scaleT < 1) R.draw(R.glow('m', 64), fx, fy - 24 * s, 1.6 * s, (1 - this.scaleT) * 0.9, true);
