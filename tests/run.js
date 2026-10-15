@@ -627,6 +627,25 @@ test('1-2 lustres: checkpoint no pilar 1; cair no abismo depois dele volta para 
   expect(r.death[0] === 1 && r.death[1] === 88 && r.death[2] === 864, `morte no abismo volta ao pilar: ${r.death}`);
 }, L12);
 
+test('plataformas compridas aparecem inteiras, mesmo passando de um bloco de 16 colunas para o outro', async ({ page }) => {
+  const r = await page.evaluate(() => {
+    const W = NEXY.World, G = NEXY.Game, out = {};
+    for (const id of ['1-1', '1-2']) {
+      G.loadLevel(id);
+      const missing = [];
+      for (let r = 0; r < W.h; r++) for (let c = 0; c < W.w; c++) {
+        if (W.type(c, r) !== 2) continue;   // T.PLATFORM
+        const ci = Math.floor(c / W.CHUNK), s = W.chunk(ci), k = s.c.width / (W.CHUNK * 32);
+        const px = Math.floor((c * 32 - ci * W.CHUNK * 32 + 16) * k), py = Math.floor((r * 32 + 7) * k);
+        if (s.c.getContext('2d').getImageData(px, py, 1, 1).data[3] < 200) missing.push(c + ',' + r);
+      }
+      out[id] = missing;
+    }
+    return out;
+  });
+  expect(!r['1-1'].length && !r['1-2'].length, `plataforma invisível em: 1-1 ${r['1-1'].join(' ')} · 1-2 ${r['1-2'].slice(0, 12).join(' ')}`);
+});
+
 test('1-2 ponte de Alados: 3 pisões seguidos levam à vida escondida, 2 não bastam', async ({ page }) => {
   await page.evaluate(HELP12);
   const r = await page.evaluate(() => {

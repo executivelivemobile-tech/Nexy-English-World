@@ -2286,11 +2286,13 @@ const World = {
     if (this.chunks.size > 6) this.chunks.delete(this.chunks.keys().next().value);
     const cw = this.CHUNK * TS, s = R.make(cw, this.pxH), x = s.x, ox = ci * cw;
     const c0 = ci * this.CHUNK - 1, c1 = c0 + this.CHUNK + 1;
-    // brilho sob as plataformas
+    // brilho sob as plataformas. Uma plataforma comprida pode passar de um bloco de 16 colunas para o outro:
+    // cada bloco desenha a plataforma inteira (a tela corta o que sobra), senão a parte do bloco seguinte some
     for (let r = 0; r < this.h; r++) for (let c = Math.max(0, c0); c <= Math.min(this.w - 1, c1); c++) {
-      if (this.type(c, r) !== T.PLATFORM || this.type(c - 1, r) === T.PLATFORM) continue;
+      if (this.type(c, r) !== T.PLATFORM || (c > Math.max(0, c0) && this.type(c - 1, r) === T.PLATFORM)) continue;
+      let s0 = c; while (s0 > 0 && this.type(s0 - 1, r) === T.PLATFORM) s0--;
       let e = c; while (this.type(e + 1, r) === T.PLATFORM) e++;
-      const px = c * TS - ox + 3, pw = (e - c + 1) * TS - 6, py = r * TS;
+      const px = s0 * TS - ox + 3, pw = (e - s0 + 1) * TS - 6, py = r * TS;
       x.save(); x.translate(px + pw / 2, py + 16); x.scale(pw / 2 + 10, 20);
       const g = x.createRadialGradient(0, 0, 0, 0, 0, 1); g.addColorStop(0, ca(0.22)); g.addColorStop(1, ca(0));
       x.fillStyle = g; x.beginPath(); x.arc(0, 0, 1, 0, Math.PI * 2); x.fill(); x.restore();
