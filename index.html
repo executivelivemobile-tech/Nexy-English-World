@@ -1541,9 +1541,13 @@ const World = {
       const solid = b.solid;
       if (b.flash > 0) R.draw(R.glow('t', 48), x + TS / 2, y + TS / 2, 1 + b.flash * 0.6, b.flash, true);
       if (!solid) {
-        ctx.save(); ctx.setLineDash([4, 4]); rrect(ctx, x + 2.5, y + 2.5, TS - 5, TS - 5, 8);
-        ctx.strokeStyle = wa(0.3); ctx.lineWidth = 1; ctx.stroke(); ctx.restore();
-        R.draw(R.text(b.word, '700 9px Orbitron, Inter, sans-serif', wa(0.2), null, 0), x + TS / 2, y + TS / 2);
+        // vazio: halo suave + tracejado ciano que "anda" + palavra só no contorno. Sem corpo, para não parecer preenchido.
+        const p = 0.5 + 0.5 * Math.sin(time * 2.2 + b.c);
+        R.draw(R.glow('c', 30), x + TS / 2, y + TS / 2, 1, 0.12 + 0.1 * p, true);
+        ctx.save(); ctx.setLineDash([5, 4]); ctx.lineDashOffset = -time * 10;
+        rrect(ctx, x + 2.5, y + 2.5, TS - 5, TS - 5, 8);
+        ctx.strokeStyle = ca(0.32 + 0.08 * p); ctx.lineWidth = 1.5; ctx.stroke(); ctx.restore();
+        R.draw(this.hollowWord(b.word), x + TS / 2, y + TS / 2, 1, 0.75 + 0.2 * p);
         return;
       }
       this.glassShape(ctx, x, y, true);
@@ -1577,6 +1581,14 @@ const World = {
     } else {
       ctx.beginPath(); ctx.arc(x + TS / 2, y + TS / 2, 2, 0, Math.PI * 2); ctx.fillStyle = wa(0.08); ctx.fill();
     }
+  },
+  // palavra vazada (só contorno) para os blocos-fantasma ainda vazios
+  hollowWord(word) {
+    return R.sprite('hollow:' + word, 40, 20, (x, w, h) => {
+      x.font = '800 10px Orbitron, Inter, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+      try { x.letterSpacing = '0.6px'; } catch (e) { /* ok */ }
+      x.lineWidth = 0.9; x.strokeStyle = 'rgba(255,255,255,0.95)'; x.strokeText(word, w / 2, h / 2 + 0.5);
+    });
   },
   glassShape(ctx, x, y, ghostSolid) {
     rrect(ctx, x + 1, y + 1, TS - 2, TS - 2, 7);
