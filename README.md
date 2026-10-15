@@ -22,12 +22,36 @@ Plataforma 2D neon-noir para ensinar inglês (nível A1) a brasileiros. Tudo est
 
 No celular aparecem botões de toque (◀ ▼ ▶, RUN, JUMP, SPIN e OPEN perto das portas). O toque duplo em ◀ ou ▶ também faz correr.
 
+## Estrutura do projeto
+
+O jogo que vai para o jogador é só o `index.html`, autocontido. Ele é **gerado** a partir de `src/`:
+
+| Arquivo | O que tem |
+| --- | --- |
+| `src/00_head.html` | HTML, CSS, HUD, painel das portas e telas |
+| `src/10_data.js` | legenda do mapa, `CFG` (física), `LOOK` (brilho), palavras, dados das fases, save e flags |
+| `src/20_audio.js` | efeitos sintetizados, música em camadas, voz e reconhecimento de fala |
+| `src/30_input_render.js` | teclado, toque, escala da tela e cache dos brilhos |
+| `src/40_world.js` | tiles, blocos, colisão, fundo em parallax e partículas |
+| `src/50_entities.js` | inimigos, itens, portais e pedestal |
+| `src/60_player.js` | jogador, Echo, câmera e desenho das portas |
+| `src/70_game.js` | frases, painel, interface e laço principal |
+| `src/levels/1-1.map` | o mapa ASCII da fase 1-1 (23 linhas × 208 colunas) |
+| `build.js` | junta tudo em `index.html` |
+| `tests/` | testes de regressão da 1-1 (Playwright + Chromium) |
+
+```
+node build.js          # gera index.html a partir de src/
+node build.js --check  # confere se index.html está em dia com src/
+npm test               # confere o build e roda os testes (precisa de: npm i && npx playwright install chromium)
+```
+
+Edite sempre em `src/` e rode `node build.js`. Mudanças feitas direto no `index.html` são apagadas no próximo build.
+
 ## Como editar a fase
 
-Tudo fica no topo do `<script>` de `index.html`:
-
-- **Mapa:** `LEVELS['1-1'].map` é um array de strings, um caractere por tile de 32 px. A legenda está
-  comentada no início do script (`#` pedra, `=` plataforma, `?` bloco, `C` Rastejante, `K` Casco etc.).
+- **Mapa:** `src/levels/1-1.map`, um caractere por tile de 32 px. A legenda está comentada no início de
+  `src/10_data.js` (`#` pedra, `=` plataforma, `?` bloco, `C` Rastejante, `K` Casco etc.).
 - **Conteúdo dos blocos:** `LEVELS['1-1'].blocks` liga cada letra minúscula do mapa a um bloco e ao que ele
   libera (`{ word: 'KEY', rise: 3.7 }`, `{ crystal: true }`, `{ orbs: 3 }`, `{ letter: 3 }`).
 - **Portas e pedestal:** `LEVELS['1-1'].doors`. Cada porta tem `inscription`, `mold` (com `_` para as

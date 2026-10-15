@@ -1,0 +1,13 @@
+{
+  "name": "nexy-english-world",
+  "private": true,
+  "description": "Plataforma 2D neon-noir para ensinar inglês A1 — o jogo é um único index.html gerado a partir de src/.",
+  "scripts": {
+    "build": "node build.js",
+    "check": "node build.js --check",
+    "test": "node build.js --check && node tests/run.js"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1"
+  }
+}

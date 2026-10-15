@@ -1,0 +1,612 @@
+
+/* ============================== FRASES: montagem, encenação e resultados ============================== */
+const Sentence = {
+  // texto pronunciável ("I AM FINE." → "I am fine.")
+  speakable(tokens) {
+    let out = '';
+    tokens.forEach((t, i) => {
+      if (/^[.!?]$/.test(t)) { out += t; return; }
+      let w = WORDS[t] ? WORDS[t].say : t.toLowerCase();
+      if (t === 'I') w = 'I';
+      if (i === 0) w = w.charAt(0).toUpperCase() + w.slice(1);
+      out += (out ? ' ' : '') + w;
+    });
+    return out;
+  },
+  speakInscription(s) { const l = s.toLowerCase().replace(/\bi\b/g, 'I'); return l.charAt(0).toUpperCase() + l.slice(1); },
+  fill(def, words) { let i = 0; return def.mold.map(t => t === '_' ? (words[i++] || '___') : t); },
+  normalized(def, words) { return normalizeSentence(this.fill(def, words).join(' ')); },
+  // resolve uma tentativa: 'accept' | 'enact' | 'wrong'
+  judge(def, words) {
+    const key = words.join(' ');
+    const a = def.accept.find(x => x.words.join(' ') === key);
+    if (a) return { kind: 'accept', rule: a };
+    const e = (def.enact || []).find(x => x.words.join(' ') === key);
+    if (e) return { kind: 'enact', rule: e };
+    return { kind: 'wrong' };
+  },
+  judgeSpoken(def, alts) {
+    for (const alt of alts) {
+      const n = normalizeSentence(alt);
+      for (const a of def.accept) if (n === this.normalized(def, a.words) || n.endsWith(this.normalized(def, a.words))) return { kind: 'accept', rule: a, heard: alt };
+      for (const e of def.enact || []) if (n === this.normalized(def, e.words)) return { kind: 'enact', rule: e, heard: alt };
+    }
+    return { kind: 'wrong', heard: alts[0] || '' };
+  },
+  // encenação de uma frase "errada" (ex.: IT IS A DOOR → o ícone vira porta por 1 s)
+  enact(d, rule) { const r = rule.result; if (r.type === 'morph') { d.morph = r.duration || 1; SFX.summon(); FX.burst(d.x - 30, d.y + 18, 16, 'c', 120, { g: 0, life: 0.6 }); } },
+  // aplica o resultado de uma frase aceita
+  apply(d, rule, words) {
+    const r = rule.result, def = d.def;
+    d.solved = words.slice();
+    if (r.type === 'open') { d.opening = 0.001; SFX.doorOpen(); Game.shake(2); }
+    else if (r.type === 'transform') {
+      if (P.setScale(r.scale)) { (r.scale > 1 ? SFX.grow : SFX.shrink)(); Game.shake(r.scale > 1 ? 5 : 2); FX.burst(P.cx, P.cy, 50, 'm', 300, { life: 1, g: 0 }); }
+    } else if (r.type === 'exit') Game.finish(r.exit, 0);
+    // Grimório: palavras usadas + palavras fixas do molde
+    const used = words.concat(def.mold.filter(t => WORDS[t]));
+    for (const w of used) Game.grimoireWord(w, def.inscription);
+    if (def.consume !== false) Game.consumeWords(words);
+  },
+};
+
+/* ============================== PAINEL DE MONTAGEM ============================== */
+const Panel = {
+  door: null, slots: [], sel: 0, busy: false,
+  get nSlots() { return this.door.def.mold.filter(t => t === '_').length; },
+  available() { const used = new Set(this.slots.filter(v => v != null)); return Game.bar.map((w, i) => i).filter(i => !used.has(i)); },
+  open(d) {
+    this.door = d; this.slots = new Array(this.nSlots).fill(null); this.busy = false;
+    const av = this.available(); this.sel = av.length ? av[0] : -1;
+    $('pkind').textContent = d.kind === 'pedestal' ? 'PEDESTAL OF THE VOICE' : 'DOOR';
+    $('pinsc').textContent = d.def.inscription;
+    $('pheard').textContent = '';
+    $('pmic').style.display = Save.data.assist.voice && Listen.available() ? '' : 'none';
+    $('panel').classList.add('on');
+    Music.layers(0);
+    this.render();
+  },
+  close() {
+    $('panel').classList.remove('on'); Listen.stop();
+    this.door = null; Game.state = 'play'; Music.normal();
+    Input.pressedAt.jump = -1; Input.pressedAt.spin = -1; Input.queue.length = 0;
+    Input.dashDir = null; Input.relAt.left = Input.relAt.right = -1e9;
+  },
+  filled() { return this.slots.filter(v => v != null).length; },
+  place(i) {
+    if (this.busy || i == null || i < 0 || Game.bar[i] == null) return;
+    const at = this.slots.indexOf(null); if (at < 0) return;
+    if (this.slots.includes(i)) return;
+    this.slots[at] = i; SFX.place(); Voice.say(WORDS[Game.bar[i]] ? WORDS[Game.bar[i]].say : Game.bar[i], 'echo');
+    Music.layers(this.filled());
+    const av = this.available(); this.sel = av.length ? av[0] : -1;
+    this.render();
+  },
+  removeSlot(s) {
+    if (this.busy || this.slots[s] == null) return;
+    this.slots[s] = null; SFX.remove(); Music.layers(this.filled());
+    const av = this.available(); if (this.sel < 0 && av.length) this.sel = av[0];
+    this.render();
+  },
+  removeLast() { for (let s = this.slots.length - 1; s >= 0; s--) if (this.slots[s] != null) return this.removeSlot(s); },
+  move(dir) {
+    const av = this.available(); if (!av.length) return;
+    let k = av.indexOf(this.sel); k = k < 0 ? 0 : (k + dir + av.length) % av.length; this.sel = av[k]; SFX.select(); this.render();
+  },
+  hint() {
+    const d = this.door; if (!d) return;
+    Game.buyHint(d); this.render();
+  },
+  confirm() {
+    if (this.busy) return;
+    if (this.filled() < this.nSlots) { if (this.sel >= 0) this.place(this.sel); return; }
+    const words = this.slots.map(i => Game.bar[i]);
+    this.resolve(Sentence.judge(this.door.def, words), words);
+  },
+  resolve(j, words) {
+    const d = this.door, def = d.def, tokens = Sentence.fill(def, words);
+    this.busy = true;
+    Voice.say(Sentence.speakable(tokens), 'door');
+    const mold = $('pmold');
+    if (j.kind === 'accept') {
+      SFX.right(); mold.classList.add('win');
+      FX.burst(d.x + d.w / 2, d.y, 30, 'c', 200, { g: -80, life: 1 });
+      setTimeout(() => { Sentence.apply(d, j.rule, words); this.close(); }, 1600);
+    } else {
+      SFX.wrong(); Music.layers(0); d.errors++;
+      mold.classList.remove('shake'); void mold.offsetWidth; mold.classList.add('shake');
+      setTimeout(() => {
+        mold.classList.remove('shake'); this.slots = this.slots.map(() => null); this.busy = false;
+        const av = this.available(); this.sel = av.length ? av[0] : -1;
+        if (j.kind === 'enact') { this.close(); Sentence.enact(d, j.rule); }
+        else this.render();
+      }, 1100);
+    }
+  },
+  listen() {
+    if (!this.door || this.busy || !Listen.available() || !Save.data.assist.voice) return;
+    $('pheard').textContent = 'LISTENING…';
+    const ok = Listen.start(alts => {
+      const j = Sentence.judgeSpoken(this.door.def, alts);
+      $('pheard').textContent = 'HEARD · "' + (j.heard || '').toUpperCase() + '"';
+      if (j.kind !== 'wrong') {
+        const words = j.rule.words.slice();
+        // usa as palavras da barra se estiverem lá
+        const idx = []; const used = new Set();
+        for (const w of words) { const i = Game.bar.findIndex((b, k) => b === w && !used.has(k)); if (i >= 0) { used.add(i); idx.push(i); } }
+        this.slots = new Array(this.nSlots).fill(null); idx.forEach((v, k) => { if (k < this.slots.length) this.slots[k] = v; });
+        this.renderVoiceWords = words; this.render();
+        this.resolve(j, words);
+      } else { SFX.wrong(); }
+    }, got => { if (!got && this.door) $('pheard').textContent = 'NO VOICE HEARD · TRY AGAIN OR BUILD IT'; });
+    if (!ok) $('pheard').textContent = 'MICROPHONE UNAVAILABLE';
+  },
+  render() {
+    const d = this.door; if (!d) return;
+    const def = d.def;
+    $('ppt').textContent = (d.hint || Save.data.assist.subtitles) ? (PHRASES_PT[def.inscription] || '') : '';
+    const mold = $('pmold'); mold.classList.remove('win'); mold.innerHTML = '';
+    let si = 0;
+    const voiceWords = this.renderVoiceWords; this.renderVoiceWords = null;
+    const nextEmpty = this.slots.indexOf(null);
+    for (const tok of def.mold) {
+      if (tok === '_') {
+        const s = si++, el = document.createElement('div');
+        const bi = this.slots[s];
+        el.className = 'slot' + (bi != null ? ' filled' : '') + (s === nextEmpty ? ' next' : '');
+        const w = bi != null ? Game.bar[bi] : (voiceWords ? voiceWords[s] : null);
+        if (w) el.appendChild(UI.capsule(w, true));
+        el.addEventListener('click', () => this.removeSlot(s));
+        mold.appendChild(el);
+      } else {
+        const el = document.createElement('div'); el.className = 'fx'; el.textContent = tok; mold.appendChild(el);
+      }
+    }
+    const bar = $('pbar'); bar.innerHTML = '';
+    const used = new Set(this.slots.filter(v => v != null));
+    // dica: depois de 2 erros, a palavra certa da próxima lacuna brilha fraco
+    let hintIdx = -1;
+    const hinted = Math.min(this.nSlots, d.errors - 1);
+    if (d.errors >= 2 && nextEmpty >= 0 && nextEmpty < hinted) {
+      const want = def.accept[0].words[nextEmpty];
+      hintIdx = Game.bar.findIndex((w, i) => w === want && !used.has(i));
+    }
+    if (!Game.bar.length) { const n = document.createElement('div'); n.className = 'p-none'; n.textContent = 'Nenhuma palavra ainda. Bata nos blocos para libertar palavras.'; bar.appendChild(n); }
+    Game.bar.forEach((w, i) => {
+      const c = UI.capsule(w, true);
+      if (used.has(i)) c.classList.add('used');
+      if (i === this.sel) c.classList.add('sel');
+      if (i === hintIdx) c.classList.add('hint');
+      c.addEventListener('click', () => { if (!used.has(i)) { this.sel = i; this.place(i); } });
+      bar.appendChild(c);
+    });
+    const cost = Save.data.assist.freeHints || Game.orbs < CFG.HINT_COST ? 'FREE' : CFG.HINT_COST + ' ORBS';
+    $('phint').textContent = d.hint ? 'HINT ✓' : 'HINT · ' + cost;
+    $('phint').disabled = !!d.hint;
+    $('pok').disabled = this.filled() < this.nSlots || this.busy;
+  },
+  key(e) {
+    const c = e.code;
+    if (c === 'ArrowLeft' || c === 'KeyA') this.move(-1);
+    else if (c === 'ArrowRight' || c === 'KeyD') this.move(1);
+    else if (c === 'Enter' || c === 'NumpadEnter' || c === 'Space' || c === 'KeyZ') { e.preventDefault(); this.confirm(); }
+    else if (c === 'Backspace' || c === 'Delete') { e.preventDefault(); this.removeLast(); }
+    else if (c === 'Escape' || c === 'KeyX') { if (!this.busy) this.close(); }
+    else if (c === 'KeyH') this.hint();
+    else if (c === 'KeyV') this.listen();
+  },
+};
+
+/* ============================== INTERFACE (HUD, barra, telas) ============================== */
+const UI = {
+  last: {}, msgT: null,
+  init() {
+    $('pausebtn').addEventListener('click', () => { if (Game.state === 'play') Game.pause(); else if (Game.state === 'pause') Game.resume(); });
+    $('mutebtn').addEventListener('click', () => Game.toggleMute());
+    $('itemslot').addEventListener('click', () => { if (Game.state === 'play') Game.dropReserve(); });
+    $('startbtn').addEventListener('click', () => Game.start());
+    $('title').addEventListener('click', () => Game.start());
+    $('pause').querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', () => {
+      const a = b.dataset.act;
+      if (a === 'resume') Game.resume();
+      else if (a === 'restart') { this.hideAll(); Game.restartLevel(); }
+      else if (a === 'grimoire') this.openGrimoire('words');
+      else if (a === 'assist') this.openAssist();
+    }));
+    $('grimoire').querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => this.openGrimoire(b.dataset.tab)));
+    document.querySelectorAll('[data-act="back"]').forEach(b => b.addEventListener('click', () => this.back()));
+    $('assist').querySelectorAll('.tgl').forEach(b => b.addEventListener('click', () => {
+      const k = b.dataset.opt; Save.data.assist[k] = !Save.data.assist[k]; Save.write(); SFX.ui(); this.renderAssist();
+    }));
+    if (!Listen.available()) $('tglvoice').style.display = 'none';
+    $('cAgain').addEventListener('click', () => Game.playAgain());
+    $('phint').addEventListener('click', () => Panel.hint());
+    $('pmic').addEventListener('click', () => Panel.listen());
+    $('pok').addEventListener('click', () => Panel.confirm());
+    $('pback').addEventListener('click', () => { if (!Panel.busy) Panel.close(); });
+    $('mutebtn').classList.toggle('off', AudioSys.muted);
+    const best = Save.data.bestFluency['1-1'];
+    $('titlebest').textContent = best ? 'BEST FLUENCY · ' + best + '%' : '';
+  },
+  capsule(word, big) {
+    const el = document.createElement('div');
+    el.className = 'cap ' + ((WORDS[word] && WORDS[word].cls) || 'noun') + (big ? ' big' : '');
+    if (!['noun', 'verb', 'adjective'].includes((WORDS[word] || {}).cls)) el.classList.add('other');
+    el.textContent = word;
+    return el;
+  },
+  frame() {
+    const g = Game, L = this.last;
+    if (L.lives !== g.lives) {
+      L.lives = g.lives; const el = $('lives'); el.innerHTML = '';
+      for (let i = 0; i < Math.min(g.lives, 6); i++) el.appendChild(document.createElement('i'));
+      if (g.lives > 6) { const b = document.createElement('b'); b.textContent = '×' + g.lives; el.appendChild(b); }
+    }
+    if (L.orbs !== g.orbs) { L.orbs = g.orbs; $('orbs').textContent = String(g.orbs).padStart(3, '0'); }
+    const lk = g.letters.join(); if (L.letters !== lk) { L.letters = lk; $('letters').querySelectorAll('span').forEach((s, i) => s.classList.toggle('on', g.letters[i])); }
+    if (L.item !== g.reserve) { L.item = g.reserve; $('itemslot').classList.toggle('full', !!g.reserve); }
+    const ts = fmtTime(g.timeRun); if (L.time !== ts) { L.time = ts; $('time').textContent = ts; }
+    const showOpen = g.state === 'play' && !!P.interact;
+    if (L.open !== showOpen) { L.open = showOpen; $('tbopen').classList.toggle('show', showOpen); $('tbopen').textContent = P.interact && P.interact.kind === 'pedestal' ? 'SPEAK' : 'OPEN'; }
+    const hudOn = g.state !== 'title';
+    if (L.hud !== hudOn) { L.hud = hudOn; $('hud').style.opacity = hudOn ? 1 : 0; $('wordbar').style.opacity = hudOn ? 1 : 0; }
+    const touch = document.body.classList.contains('touch');
+    if (L.touch !== touch) { L.touch = touch; $('wordbar').classList.toggle('top', touch); }
+  },
+  renderBar(arriveIdx = -1, hideIdx = -1) {
+    const box = $('wbslots'); box.innerHTML = '';
+    Game.bar.forEach((w, i) => {
+      const c = this.capsule(w, false);
+      if (i === arriveIdx) c.classList.add('arrive');
+      if (i === hideIdx) c.style.visibility = 'hidden';
+      box.appendChild(c);
+    });
+    for (let i = Game.bar.length; i < CFG.WORD_BAR_MAX; i++) { const e = document.createElement('div'); e.className = 'empty'; box.appendChild(e); }
+  },
+  stageRect(el) {
+    const st = $('stage').getBoundingClientRect(), r = el.getBoundingClientRect(), s = st.width / CFG.VIEW_W;
+    return { x: (r.left - st.left) / s, y: (r.top - st.top) / s, w: r.width / s, h: r.height / s };
+  },
+  flyWord(word, sx, sy) {
+    const idx = Game.bar.length - 1;
+    this.renderBar(-1, idx);
+    const target = $('wbslots').children[idx];
+    const fly = this.capsule(word, false); fly.classList.add('fly');
+    const st = $('stage'); st.appendChild(fly);
+    const fr = this.stageRect(fly);
+    fly.style.left = (sx - fr.w / 2) + 'px'; fly.style.top = (sy - fr.h / 2) + 'px';
+    const tr = this.stageRect(target);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      fly.style.transform = `translate(${tr.x - (sx - fr.w / 2)}px, ${tr.y - (sy - fr.h / 2)}px)`;
+    }));
+    setTimeout(() => { fly.remove(); this.renderBar(idx); }, 600);
+  },
+  msg(text, t = 1600) {
+    const m = $('msg'); m.textContent = text; m.classList.add('show');
+    clearTimeout(this.msgT); this.msgT = setTimeout(() => m.classList.remove('show'), t);
+  },
+  toast() {
+    const t = $('toast'); t.querySelector('.t1').textContent = 'WORLD ' + World.level.id; t.querySelector('.t2').textContent = World.level.name;
+    t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2600);
+  },
+  hideAll() { ['pause', 'grimoire', 'assist', 'clear', 'gameover'].forEach(id => $(id).classList.remove('on')); },
+  show(id) { this.hideAll(); $(id).classList.add('on'); const f = $(id).querySelector('.btn, .tgl'); if (f) setTimeout(() => f.focus({ preventScroll: true }), 30); },
+  back() {
+    SFX.ui();
+    if (Game.state === 'grimoire' || Game.state === 'assist') { Game.state = Game.menuFrom || 'pause'; if (Game.state === 'pause') this.show('pause'); else if (Game.state === 'clear') this.show('clear'); }
+  },
+  openGrimoire(tab) {
+    Game.menuFrom = Game.state === 'grimoire' ? Game.menuFrom : Game.state; Game.state = 'grimoire'; this.show('grimoire');
+    $('grimoire').querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('cur', b.dataset.tab === tab));
+    const list = $('glist'); list.innerHTML = ''; const G = Save.data.grimoire;
+    const card = (name, pt, meta, lore, say, locked, master) => {
+      const c = document.createElement('div'); c.className = 'gcard' + (locked ? ' locked' : '') + (master ? ' master' : '');
+      const btn = document.createElement('button'); btn.className = 'listen'; btn.setAttribute('aria-label', 'Listen');
+      if (locked) btn.disabled = true; else btn.addEventListener('click', ev => { ev.stopPropagation(); Voice.say(say, 'echo'); });
+      const w = document.createElement('div'); w.className = 'gw'; w.textContent = locked ? '· · ·' : name;
+      const p = document.createElement('span'); p.className = 'gpt'; p.textContent = locked ? '' : pt; w.appendChild(p);
+      const m = document.createElement('div'); m.className = 'gmeta'; m.textContent = meta;
+      const l = document.createElement('div'); l.className = 'glore'; l.textContent = locked ? 'Ainda não foi ouvida neste mundo.' : '“' + lore + '”';
+      c.append(btn, w, m, l); list.appendChild(c);
+    };
+    if (tab === 'words') {
+      for (const mw in MASTER_WORDS) if (G.master[mw]) card(mw, MASTER_WORDS[mw].pt, 'MASTER WORD · H E L L O', MASTER_WORDS[mw].lore, 'Hello', false, true);
+      for (const w of Object.keys(WORDS)) {
+        const e = G.words[w], info = WORDS[w];
+        card(w, info.pt, e ? (e.door ? 'USED AT · ' + e.door : 'COLLECTED · ' + info.cls.toUpperCase()) : 'UNKNOWN', info.lore, info.say, !e);
+      }
+    } else {
+      for (const k of Object.keys(CREATURES)) { const c = CREATURES[k]; card(k, c.pt, G.creatures[k] ? 'CREATURE · WORLD 1' : 'UNKNOWN', c.lore, c.say, !G.creatures[k]); }
+    }
+  },
+  openAssist() { Game.menuFrom = Game.state; Game.state = 'assist'; this.show('assist'); this.renderAssist(); },
+  renderAssist() { $('assist').querySelectorAll('.tgl').forEach(b => b.classList.toggle('on', !!Save.data.assist[b.dataset.opt])); },
+  menuKey(e) {
+    const c = e.code;
+    if (c === 'Escape' || c === 'KeyP') { if (Game.state === 'pause') Game.resume(); else this.back(); return; }
+    const scr = $(Game.state); if (!scr) return;
+    const items = [...scr.querySelectorAll('.btn, .tgl')].filter(b => b.offsetParent !== null && !b.disabled);
+    if (!items.length) return;
+    let i = items.indexOf(document.activeElement);
+    if (c === 'ArrowDown' || c === 'ArrowRight' || c === 'KeyS' || c === 'KeyD') { i = (i + 1) % items.length; items[i].focus(); SFX.select(); }
+    else if (c === 'ArrowUp' || c === 'ArrowLeft' || c === 'KeyW' || c === 'KeyA') { i = (i - 1 + items.length) % items.length; items[i].focus(); SFX.select(); }
+    else if (c === 'Enter' || c === 'Space' || c === 'KeyZ') { e.preventDefault(); (i >= 0 ? items[i] : items[0]).click(); }
+  },
+  showClear(exit) {
+    const g = Game;
+    $('ctitle').textContent = exit === 'secret' ? 'SECRET EXIT' : 'STAGE CLEAR';
+    $('cOrbs').textContent = g.orbsTotal; $('cTime').textContent = fmtTime(g.timeRun);
+    $('cLettersLbl').textContent = 'Letters ' + g.letters.filter(Boolean).length + '/5';
+    $('cLetters').innerHTML = 'HELLO'.split('').map((ch, i) => `<span class="${g.letters[i] ? 'on' : ''}">${ch}</span>`).join('');
+    $('cFlu').textContent = g.fluency + '%';
+    const box = $('cWords'); box.innerHTML = '';
+    const all = g.letters.every(Boolean);
+    const chip = (w, pt, say, master) => {
+      const d = document.createElement('div'); d.className = 'lw' + (master ? ' master' : '');
+      const b = document.createElement('button'); b.className = 'listen'; b.setAttribute('aria-label', 'Listen ' + w); b.addEventListener('click', () => Voice.say(say, 'echo'));
+      const a = document.createElement('span'); a.className = 'w'; a.textContent = w;
+      const p = document.createElement('span'); p.className = 'p'; p.textContent = pt;
+      d.append(b, a, p); box.appendChild(d);
+    };
+    if (all) chip('HELLO', 'palavra-mestra', 'Hello', true);
+    for (const w of g.learnedOrder) chip(w, WORDS[w].pt, WORDS[w].say, false);
+    if (!g.learnedOrder.length) { const n = document.createElement('div'); n.className = 'p'; n.textContent = '—'; box.appendChild(n); }
+    $('cBest').textContent = 'BEST FLUENCY · ' + (Save.data.bestFluency['1-1'] || g.fluency) + '%  ·  FOUND ' + g.fluencyFound + ' OF ' + g.fluencyTotal;
+    this.drawMinimap(exit);
+    Game.state = 'clear'; this.show('clear');
+  },
+  drawMinimap(exit) {
+    const svg = $('minimap'), wm = World.level.worldMap, ex = Save.data.exits['1-1'] || {};
+    const node = id => wm.nodes.find(n => n.id === id);
+    const lit = id => id === '1-1' || (id === '1-2' && ex.normal) || (id === 'palace' && ex.secret);
+    let h = '<defs><linearGradient id="mmg" x1="0" x2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#d946ef"/></linearGradient>' +
+      '<filter id="mmf" filterUnits="userSpaceOnUse" x="0" y="0" width="560" height="92"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+    for (const p of wm.paths) {
+      const a = node(p.from), b = node(p.to), on = p.exit && ex[p.exit], fresh = p.exit === exit;
+      const d = a.y === b.y ? `M${a.x},${a.y} L${b.x},${b.y}` : `M${a.x},${a.y} Q${a.x + 20},${b.y} ${b.x - (b.w || 44) / 2},${b.y}`;
+      h += `<path d="${d}" fill="none" stroke="${on ? 'url(#mmg)' : 'rgba(255,255,255,0.12)'}" stroke-width="${on ? 2 : 1}" ${on ? 'filter="url(#mmf)"' : 'stroke-dasharray="3 4"'}>` +
+        (fresh ? '<animate attributeName="stroke-dasharray" from="0 400" to="400 0" dur="1.4s" fill="freeze"/>' : '') + '</path>';
+    }
+    for (const n of wm.nodes) {
+      const w = n.w || 44, on = lit(n.id), cur = n.id === '1-1';
+      h += `<rect x="${n.x - w / 2}" y="${n.y - 11}" width="${w}" height="22" rx="11" fill="${on ? 'rgba(10,15,18,0.95)' : 'rgba(10,15,18,0.6)'}" stroke="${cur ? '#d946ef' : on ? 'rgba(34,211,238,0.8)' : 'rgba(255,255,255,0.12)'}" stroke-width="1" ${on ? 'filter="url(#mmf)"' : ''}/>` +
+        `<text x="${n.x}" y="${n.y + 3.5}" text-anchor="middle" font-family="Orbitron, Inter, sans-serif" font-size="${n.w ? 8 : 10}" font-weight="700" letter-spacing="1.5" fill="${on ? '#ffffff' : 'rgba(255,255,255,0.25)'}">${n.label}</text>`;
+    }
+    svg.innerHTML = h;
+  },
+};
+
+/* ============================== JOGO: estados, regras e laço principal ============================== */
+const Game = {
+  state: 'title', simTime: 0, time: 0, acc: 0, last: 0, hitstopN: 0, menuFrom: 'pause',
+  lives: CFG.START_LIVES, orbs: 0, orbsTotal: 0, letters: [false, false, false, false, false], bar: [],
+  wordsSeen: new Set(), learnedOrder: [], creatures: new Set(), secrets: new Set(), timeRun: 0,
+  checkpoint: null, reserve: null, autoWalk: false, clearT: 0, exit: null, orbSfxT: 0,
+  fluency: 0, fluencyFound: 0, fluencyTotal: 0,
+
+  boot() {
+    Save.load(); Flags.readURL(); AudioSys.muted = Save.data.muted;
+    R.init(); Input.init(); Voice.init(); UI.init();
+    this.loadLevel('1-1');
+    document.addEventListener('visibilitychange', () => { if (document.hidden && this.state === 'play' && !P.dead) this.pause(); });
+    this.last = performance.now();
+    const loop = ts => { this.frame(ts); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+  },
+  newRun() {
+    this.lives = CFG.START_LIVES; this.orbs = 0; this.orbsTotal = 0; this.letters = [false, false, false, false, false]; this.bar = [];
+    this.wordsSeen = new Set(); this.learnedOrder = []; this.creatures = new Set(); this.secrets = new Set(); this.timeRun = 0;
+    this.checkpoint = null; this.reserve = null; this.autoWalk = false; this.exit = null;
+  },
+  loadLevel(id) {
+    this.newRun();
+    World.load(LEVELS[id]); Ents.clear(); FX.list = [];
+    for (const s of World.statics) {
+      const o = { c: s.c, r: s.r, opts: s.opts };
+      if (s.type === 'letter') o.index = s.opts.index;
+      Ents.spawn(s.type, o);
+    }
+    Spawns.reset();
+    P.reset(World.start.x, World.start.y); Echo.reset(); Cam.snap();
+    UI.renderBar(); UI.last = {};
+  },
+  start() {
+    if (this.state !== 'title') return;
+    AudioSys.init(); Voice.enabled = true; Music.normal();
+    $('title').classList.remove('on'); this.state = 'play'; this.last = performance.now(); this.acc = 0;
+    Input.pressedAt.jump = -1; Input.pressedAt.spin = -1; Input.queue.length = 0;
+    setTimeout(() => UI.toast(), 250);
+  },
+  restartLevel() { this.loadLevel(World.level.id); this.state = 'play'; Music.normal(); UI.toast(); },
+  playAgain() { UI.hideAll(); this.restartLevel(); },
+  pause() { if (this.state !== 'play') return; this.state = 'pause'; UI.show('pause'); Music.set({ organ: 0, perc: 0 }); Voice.stop(); },
+  resume() { UI.hideAll(); this.state = 'play'; this.last = performance.now(); Music.normal(); Input.queue.length = 0; Input.pressedAt.jump = -1; Input.pressedAt.spin = -1; },
+  onDash() {
+    if (this.state !== 'play' || P.dead) return;
+    SFX.dash();
+    const back = Input.dashDir === 'right' ? -1 : 1;
+    for (let i = 0; i < 8; i++) FX.add(P.cx + back * 6, P.y + P.h - 4 - Math.random() * 10, { vx: back * (80 + Math.random() * 120), vy: -20 - Math.random() * 40, life: 0.35, size: 1.3, c: 'm', g: 0 });
+  },
+  toggleMute() { AudioSys.setMuted(!AudioSys.muted); Save.data.muted = AudioSys.muted; Save.write(); $('mutebtn').classList.toggle('off', AudioSys.muted); },
+
+  onKey(e) {
+    const c = e.code;
+    if (this.state === 'title') { if (['Enter', 'Space', 'KeyZ', 'KeyX', 'NumpadEnter'].includes(c)) this.start(); return; }
+    if (c === 'KeyM') return this.toggleMute();
+    switch (this.state) {
+      case 'play':
+        if (c === 'Escape' || c === 'KeyP') this.pause();
+        else if (c === 'KeyQ') this.dropReserve();
+        else if (c === 'KeyH') { if (P.interact) this.buyHint(P.interact); else UI.msg('HINTS WORK NEAR DOORS'); }
+        else if (c === 'KeyV' && Save.data.assist.voice && Listen.available() && P.interact) { this.openPanel(P.interact); Panel.listen(); }
+        break;
+      case 'panel': Panel.key(e); break;
+      case 'pause': case 'grimoire': case 'assist': UI.menuKey(e); break;
+      case 'clear': if (c === 'Enter' || c === 'NumpadEnter') { e.preventDefault(); this.playAgain(); } break;
+    }
+  },
+
+  frame(ts) {
+    const dt = Math.min(0.1, Math.max(0, (ts - this.last) / 1000)); this.last = ts; this.time += dt;
+    if (this.state === 'play' || this.state === 'clearing') {
+      this.acc += dt * (Save.data.assist.slow ? 0.8 : 1);
+      let n = 0;
+      while (this.acc >= CFG.STEP && n < 8) { this.step(CFG.STEP); this.acc -= CFG.STEP; n++; }
+      if (n >= 8) this.acc = 0;
+    }
+    this.render(clamp(this.acc / CFG.STEP, 0, 1));
+    UI.frame();
+  },
+  step(dt) {
+    this.simTime += dt;
+    if (this.hitstopN > 0) { this.hitstopN--; return; }
+    P.px = P.x; P.py = P.y; Ents.save(); Cam.px = Cam.x; Cam.py = Cam.y; Echo.px = Echo.x; Echo.py = Echo.y;
+    for (const k of Input.queue) if (k === 'up' && this.state === 'play') P.tryInteract();
+    Input.queue.length = 0;
+    if (this.state !== 'play' && this.state !== 'clearing') return;
+    if (P.dead) { P.update(dt); FX.update(dt); Echo.update(dt); Cam.update(dt); return; }
+    if (this.autoWalk) { Input.touchHeld = { right: true }; for (const k in Input.held) Input.held[k] = false; }
+    P.update(dt);
+    if (this.state === 'panel') return;
+    Spawns.update(dt);
+    Ents.update(dt);
+    World.updateBlocks(dt);
+    FX.update(dt);
+    Echo.update(dt);
+    Cam.update(dt);
+    if (this.state === 'play') this.timeRun += dt;
+    if (this.orbSfxT > 0) this.orbSfxT -= dt;
+    if (this.state === 'clearing') { this.clearT += dt; if (this.clearT > 2.2) { this.autoWalk = false; Input.touchHeld = {}; UI.showClear(this.exit); } }
+  },
+  render(a) {
+    const ctx = R.ctx; ctx.setTransform(R.k, 0, 0, R.k, 0, 0); ctx.clearRect(0, 0, CFG.VIEW_W, CFG.VIEW_H);
+    const camX = lerp(Cam.px, Cam.x, a) + Cam.sx, camY = lerp(Cam.py, Cam.y, a) + Cam.sy, t = this.time;
+    BG.draw(ctx, camX, camY, t);
+    World.drawTerrain(ctx, camX, camY);
+    Doors.draw(ctx, camX, camY, t);
+    World.drawDynamic(ctx, camX, camY, t);
+    Ents.draw(ctx, camX, camY, a, 'back');
+    Ents.draw(ctx, camX, camY, a, 'mid');
+    Ents.draw(ctx, camX, camY, a, 'enemy');
+    World.drawVeils(ctx, camX, camY);
+    P.draw(ctx, camX, camY, a);
+    Echo.draw(ctx, camX, camY, a);
+    FX.draw(ctx, camX, camY);
+    Ents.draw(ctx, camX, camY, a, 'front');
+    Doors.drawPrompt(ctx, camX, camY);
+    R.draw(R.sprite('vignette', 960, 540, (x, w, h) => {
+      const g = x.createRadialGradient(w / 2, h / 2, h * 0.35, w / 2, h / 2, w * 0.62);
+      g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.3)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
+    }), 480, 270);
+  },
+
+  /* ---------- regras ---------- */
+  hitstop(n) { this.hitstopN = Math.max(this.hitstopN, n); },
+  shake(a) { if (Cam.shakeT <= 0) Cam.shakeA = 0; Cam.shakeA = Math.max(Cam.shakeA, a * 2); Cam.shakeT = 0.3; },
+  addOrbs(n) {
+    this.orbs += n; this.orbsTotal += n;
+    if (this.orbSfxT <= 0) { SFX.orb(); this.orbSfxT = 0.05; }
+    while (this.orbs >= CFG.ORBS_PER_LIFE) { this.orbs -= CFG.ORBS_PER_LIFE; this.lives++; SFX.oneUp(); UI.msg('1 UP'); }
+  },
+  collectWord(word, e) {
+    if (this.bar.length >= CFG.WORD_BAR_MAX) return false;
+    this.bar.push(word);
+    if (!this.wordsSeen.has(word)) { this.wordsSeen.add(word); this.learnedOrder.push(word); }
+    this.grimoireWord(word, null);
+    SFX.wordCollect(); Voice.say(WORDS[word] ? WORDS[word].say : word, 'echo');
+    FX.burst(e.x + 15, e.y + 12, 16, 'm', 180, { life: 0.5, g: 0 });
+    UI.flyWord(word, e.x + 15 - Cam.x, e.y + 12 - Cam.y);
+    return true;
+  },
+  grimoireWord(word, door) {
+    if (!WORDS[word]) return;
+    const G = Save.data.grimoire.words, e = G[word] || (G[word] = {});
+    if (door) e.door = door;
+    Save.write();
+  },
+  consumeWords(words) {
+    for (const w of words) { const i = this.bar.indexOf(w); if (i >= 0) this.bar.splice(i, 1); }
+    UI.renderBar();
+  },
+  collectLetter(i, e) {
+    if (this.letters[i]) return;
+    this.letters[i] = true; SFX.letter(); Voice.say('HELLO'[i] === 'O' ? 'O' : 'HELLO'[i], 'echo');
+    FX.burst(e.x + 14, e.y + 14, 24, 'm', 220, { life: 0.7, g: 0 });
+    const sp = $('letters').children[i]; sp.classList.remove('pop'); void sp.offsetWidth; sp.classList.add('pop');
+    if (this.letters.every(Boolean)) UI.msg('H · E · L · L · O');
+  },
+  collectCrystal() {
+    if (!P.aura) { P.aura = true; SFX.powerup(); FX.burst(P.cx, P.cy, 40, 'c', 260, { life: 0.9, g: 0 }); }
+    else if (!this.reserve) { this.reserve = 'crystal'; SFX.reserve(); UI.msg('ITEM RESERVED · Q'); }
+    else this.addOrbs(10);
+  },
+  dropReserve(auto) {
+    if (!this.reserve) { if (!auto) SFX.thud(); return; }
+    this.reserve = null; SFX.reserve();
+    Ents.spawn('reserve', { x: P.cx - 11, y: Cam.y - 34 });
+  },
+  buyHint(d) {
+    if (d.hint) return;
+    const free = Save.data.assist.freeHints || this.orbs < CFG.HINT_COST;
+    if (!free) this.orbs -= CFG.HINT_COST;
+    d.hint = true; SFX.ui(); UI.msg(PHRASES_PT[d.def.inscription] || '', 2400);
+  },
+  foundSecret(id) { if (this.secrets.has(id)) return; this.secrets.add(id); UI.msg('SECRET FOUND'); },
+  registerCreature(name) {
+    if (this.creatures.has(name)) return false;
+    this.creatures.add(name);
+    const isNewEver = !Save.data.grimoire.creatures[name];
+    Save.data.grimoire.creatures[name] = true; Save.write();
+    if (isNewEver) UI.msg('GRIMOIRE · ' + name);
+    return true;
+  },
+  // combo de pisões: só visual ("1x", "2x"… e o brilho) e efeitos sonoros, sem voz. A partir do 8º pisão, vida extra.
+  comboReward(n) {
+    if (n >= 8) { this.lives++; SFX.oneUp(); UI.msg('1 UP'); }
+  },
+  setCheckpoint(e) { this.checkpoint = { x: e.x + e.w / 2, y: e.y + e.h }; },
+  openPanel(d) { if (!d || this.state !== 'play') return; this.state = 'panel'; P.vx *= 0.3; Panel.open(d); },
+  onDeath() { this.lives--; Music.set({ organ: 0, perc: 0, pad: 0.5 }); },
+  respawn() {
+    if (this.lives <= 0) {
+      this.state = 'gameover'; $('gameover').classList.add('on');
+      setTimeout(() => { $('gameover').classList.remove('on'); this.restartLevel(); }, 2600);
+      return;
+    }
+    const cp = this.checkpoint || World.start;
+    P.reset(cp.x, cp.y); Spawns.reset(); Echo.reset(); Cam.snap(); Music.normal();
+  },
+  finish(exit, bonus) {
+    if (this.state !== 'play') return;
+    this.state = 'clearing'; this.clearT = 0; this.exit = exit; this.autoWalk = true;
+    SFX.goal(); Music.resolve();
+    if (bonus) { let k = 0; const iv = setInterval(() => { if (k++ >= bonus) return clearInterval(iv); this.addOrbs(1); }, 30); UI.msg('+' + bonus + ' ORBS'); }
+    const S = Save.data, ex = S.exits['1-1'] || (S.exits['1-1'] = {});
+    ex[exit] = true;
+    const all = this.letters.every(Boolean);
+    if (all) S.grimoire.master.HELLO = true;
+    // FLUENCY = itens encontrados ÷ total
+    const T = World.totals;
+    const words = T.wordList.filter(w => this.wordsSeen.has(w)).length;
+    const found = words + this.letters.filter(Boolean).length + (ex.normal ? 1 : 0) + (ex.secret ? 1 : 0) + this.secrets.size + this.creatures.size;
+    const total = T.words + T.letters + T.exits + T.secrets + T.creatures;
+    this.fluencyFound = found; this.fluencyTotal = total; this.fluency = Math.round(found / total * 100);
+    S.bestFluency['1-1'] = Math.max(S.bestFluency['1-1'] || 0, this.fluency);
+    Save.write();
+    setTimeout(() => { if (all) Voice.say('Hello!', 'echo'); }, 2600);
+    setTimeout(() => { if (exit === 'secret') Voice.say('New path!', 'echo'); }, all ? 3900 : 2800);
+  },
+};
+
+/* ============================== API de teste no console ============================== */
+window.NEXY = {
+  Game, P, World, Ents, Cam, Flags, Save, CFG,
+  setFlag(path, value = true, persist = false) { Flags.set(path, value, persist); return Flags.get(path); },
+  teleport(c, r) { P.x = c * TS + TS / 2 - P.w / 2; P.y = (r + 1) * TS - P.h; P.px = P.x; P.py = P.y; P.vx = P.vy = 0; Cam.snap(); },
+  give(...words) { for (const w of words) if (WORDS[w] && Game.bar.length < CFG.WORD_BAR_MAX) Game.bar.push(w); UI.renderBar(); },
+};
+
+Game.boot();
+</script>
+</body>
+</html>

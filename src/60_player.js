@@ -1,0 +1,484 @@
+
+/* ============================== JOGADOR ============================== */
+const P = {
+  kind: 'player', x: 0, y: 0, w: CFG.PLAYER_W, h: CFG.PLAYER_H, vx: 0, vy: 0, px: 0, py: 0,
+  facing: 1, onGround: false, lastGround: -1, jumpedSinceGround: true, crouch: false, spinning: false, spinT: 0,
+  scale: 1, visScale: 1, scaleFrom: 1, scaleT: 1, aura: false, invuln: 0, dead: false, deathT: 0, pitDeath: false,
+  combo: 0, held: null, giant: false, spinBreak: false, trail: [], walkPhase: 0, squash: 0, interact: null,
+  lastSafe: null, kickT: 0,
+  get cx() { return this.x + this.w / 2; },
+  get cy() { return this.y + this.h / 2; },
+  box() { return this.dead ? { x: -9999, y: -9999, w: 0, h: 0 } : this; },
+
+  reset(footX, footY) {
+    this.scale = 1; this.visScale = 1; this.scaleT = 1; this.w = CFG.PLAYER_W; this.h = CFG.PLAYER_H;
+    this.x = footX - this.w / 2; this.y = footY - this.h; this.px = this.x; this.py = this.y;
+    this.vx = 0; this.vy = 0; this.facing = 1; this.onGround = false; this.crouch = false; this.spinning = false;
+    this.aura = false; this.invuln = 0; this.dead = false; this.deathT = 0; this.combo = 0; this.held = null;
+    this.giant = false; this.trail = []; this.interact = null; this.lastSafe = { x: footX, y: footY }; this.jumpedSinceGround = true; this.bounceWindow = 0; this.lockRise = false; this.comboGlow = 0;
+  },
+
+  update(dt) {
+    if (this.dead) return this.updateDeath(dt);
+    const I = Input, now = Game.simTime;
+    const carry = I.get('run'), run = carry || I.dashing(), down = I.get('down');
+    const dir = (I.get('right') ? 1 : 0) - (I.get('left') ? 1 : 0);
+
+    // agachar (reduz a altura)
+    if (down && this.onGround && !this.crouch) this.setCrouch(true);
+    else if (!down && this.crouch) this.setCrouch(false);
+
+    // aceleração e inércia
+    const maxV = run ? CFG.RUN : CFG.WALK, av = Math.abs(this.vx);
+    if (this.onGround) {
+      if (this.crouch) this.vx = approach(this.vx, 0, CFG.CROUCH_FRICTION * dt);
+      else if (dir) {
+        if (this.vx * dir < 0) { this.vx += dir * CFG.SKID * dt; if (av > 120 && Math.random() < 0.5) FX.add(this.cx, this.y + this.h, { vx: -dir * 40, vy: -30, life: 0.3, size: 1.2, c: 'c', g: 0 }); }
+        else if (av < maxV) this.vx = dir * Math.min(av + (av > CFG.WALK ? CFG.RUN_ACC : CFG.ACC) * dt, maxV);
+        else this.vx = approach(this.vx, dir * maxV, CFG.OVERSPEED_DECEL * dt);
+      } else this.vx = approach(this.vx, 0, CFG.FRICTION * dt);
+    } else if (dir) {
+      const acc = CFG.ACC * CFG.AIR_CONTROL;
+      if (this.vx * dir < 0) this.vx += dir * acc * 1.3 * dt;
+      else if (av < maxV) this.vx = dir * Math.min(av + acc * dt, maxV);
+    } else this.vx = approach(this.vx, 0, 50 * dt);
+    if (dir) this.facing = dir;
+
+    if (this.bounceWindow > 0) this.lateBounce(dt);
+    // pulo com coyote time e buffer
+    const canJump = this.onGround || (now - this.lastGround <= CFG.COYOTE && !this.jumpedSinceGround);
+    const wj = now - I.pressedAt.jump <= CFG.BUFFER, ws = now - I.pressedAt.spin <= CFG.BUFFER;
+    if (canJump && (wj || ws)) {
+      const spin = ws && (!wj || I.pressedAt.spin > I.pressedAt.jump);
+      this.doJump(spin); I.pressedAt.jump = -1; I.pressedAt.spin = -1;
+    }
+
+    // gravidade: subida segurando < subida solta < descida
+    if (this.vy >= 0) this.lockRise = false;
+    const holdBtn = this.spinning ? (I.get('spin') || I.get('jump')) : I.get('jump');
+    const g = this.vy < 0 ? (holdBtn || this.lockRise ? CFG.G_UP : CFG.G_CUT) : CFG.G_DOWN;
+    this.vy = Math.min(this.vy + g * dt, CFG.MAX_FALL);
+
+    // movimento e colisão
+    this.giant = this.scale > 1.5; this.spinBreak = this.spinning && this.vy > 0;
+    const wasGround = this.onGround;
+    const res = World.move(this, this.vx * dt, this.vy * dt);
+    if (res.wall) this.vx = 0;
+    if (res.ceil && this.vy < 0) { this.vy = 30; this.headHit(res.ceilTiles); }
+    if (res.spinBroke) { this.vy = -140; Game.hitstop(2); Game.shake(2); }
+    if (res.floor) {
+      if (!wasGround) this.land();
+      this.vy = 0; this.onGround = true; this.lastGround = now; this.jumpedSinceGround = false;
+    } else this.onGround = false;
+
+    if (this.x < 0) { this.x = 0; if (this.vx < 0) this.vx = 0; }
+    if (this.x + this.w > World.pxW) { this.x = World.pxW - this.w; if (this.vx > 0) this.vx = 0; }
+    if (this.y > World.pxH + 30) return this.fallInPit();
+
+    // última posição segura (para SAFE FALL)
+    if (this.onGround && World.isFloor(Math.floor((this.x + 1) / TS), Math.floor((this.y + this.h + 2) / TS)) &&
+        World.isFloor(Math.floor((this.x + this.w - 1) / TS), Math.floor((this.y + this.h + 2) / TS))) this.lastSafe = { x: this.cx, y: this.y + this.h };
+
+    if (this.invuln > 0) this.invuln -= dt;
+    if (this.spinning) this.spinT += dt;
+    if (this.squash) this.squash = approach(this.squash, 0, dt * 2.2);
+    if (this.kickT > 0) this.kickT -= dt;
+    this.comboGlow = approach(this.comboGlow || 0, this.onGround ? 0 : Math.min(this.combo, 4), dt * (this.onGround ? 3 : 8));
+    if (this.scaleT < 1) { this.scaleT = Math.min(1, this.scaleT + dt / 0.6); this.visScale = lerp(this.scaleFrom, this.scale, this.easeBack(this.scaleT)); }
+    if (this.onGround && Math.abs(this.vx) > 5) this.walkPhase += Math.abs(this.vx) * dt * 0.09;
+
+    // carapaça carregada
+    if (this.held) { if (!carry) this.throwHeld(); else this.updateHeld(); }
+
+    // rastro magenta
+    this.trail.push({ x: this.cx, y: this.cy, s: Math.min(1, Math.hypot(this.vx, this.vy * 0.4) / CFG.RUN) });
+    if (this.trail.length > 9) this.trail.shift();
+
+    this.enemyContacts();
+    this.findInteract();
+    for (const v of World.veils) if (!v.found && overlap(v, this)) { v.found = true; Game.foundSecret(v.id); SFX.letter(); }
+  },
+  easeBack(t) { const c = 1.7; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); },
+
+  setCrouch(on) {
+    const s = this.scale, H = CFG.PLAYER_H * s, CH = CFG.CROUCH_H * s;
+    if (on) { this.crouch = true; this.y += this.h - CH; this.h = CH; return; }
+    if (World.fits(this.x, this.y + this.h - H, this.w, H, this)) { this.y += this.h - H; this.h = H; this.crouch = false; }
+  },
+  doJump(spin) {
+    const v = CFG.JUMP_V + CFG.JUMP_RUN_BONUS * Math.min(1, Math.abs(this.vx) / CFG.RUN);
+    this.vy = -v * (spin ? CFG.SPIN_FACTOR : 1);
+    this.onGround = false; this.jumpedSinceGround = true; this.spinning = spin; this.spinT = 0; this.squash = -0.3;
+    if (spin) SFX.spin(); else SFX.jump();
+    for (let i = 0; i < 5; i++) FX.add(this.cx + (Math.random() - 0.5) * this.w, this.y + this.h, { vx: (Math.random() - 0.5) * 80, vy: -20 - Math.random() * 30, life: 0.35, size: 1.2, c: 'c', g: 0 });
+  },
+  land() {
+    this.spinning = false; this.combo = 0; this.squash = 0.25; this.lockRise = false; this.bounceWindow = 0;
+    if (this.vy > 450) for (let i = 0; i < 6; i++) FX.add(this.cx + (Math.random() - 0.5) * this.w, this.y + this.h, { vx: (Math.random() - 0.5) * 120, vy: -30, life: 0.35, size: 1.3, c: 'c', g: 0 });
+  },
+  headHit(tiles) {
+    let best = null, bd = 1e9;
+    for (const [c, r] of tiles) { const d = Math.abs(c * TS + TS / 2 - this.cx); if (d < bd) { bd = d; best = [c, r]; } }
+    if (best) World.hitFromBelow(best[0], best[1], 'player');
+  },
+  bounce(spin) {
+    const I = Input, now = Game.simTime;
+    const held = I.get('jump') || I.get('spin');
+    const early = now - Math.max(I.pressedAt.jump, I.pressedAt.spin) <= CFG.BOUNCE_EARLY;
+    const CB = CFG.COMBO_BOUNCE, mult = CB[clamp(this.combo, 1, CB.length) - 1];
+    const strong = (spin ? CFG.SPIN_BOUNCE_HELD : CFG.BOUNCE_HELD) * mult;
+    this.vy = -(held || early ? strong : (spin ? CFG.SPIN_BOUNCE : CFG.BOUNCE) * mult);
+    // apertou pouco antes do pisão: quique alto garantido, mesmo que solte o botão
+    this.lockRise = early && !held;
+    if (early) { I.pressedAt.jump = -1; I.pressedAt.spin = -1; }
+    // quique fraco: abre uma janela curta para apertar o pulo logo em seguida
+    this.bounceWindow = held || early ? 0 : CFG.BOUNCE_LATE;
+    this.bounceFrom = this.y + this.h; this.bounceStrong = strong; this.stompT = now;
+    this.onGround = false; this.jumpedSinceGround = true; this.squash = -0.25;
+  },
+  // pulo apertado logo depois do pisão, ainda no ar: vira o quique alto,
+  // com o mesmo ápice de quem segurou o botão no impacto (a janela fecha ao tocar o chão)
+  lateBounce(dt) {
+    const I = Input;
+    this.bounceWindow -= dt;
+    if (Math.max(I.pressedAt.jump, I.pressedAt.spin) <= this.stompT) return;
+    const risen = Math.max(-TS * 1.25, this.bounceFrom - (this.y + this.h));
+    this.vy = -Math.sqrt(Math.max(0, this.bounceStrong * this.bounceStrong - 2 * CFG.G_UP * risen));
+    this.lockRise = true; this.bounceWindow = 0; I.pressedAt.jump = -1; I.pressedAt.spin = -1;
+    SFX.jump(); FX.burst(this.cx, this.y + this.h, 10, 'm', 140, { life: 0.4, g: 0 });
+  },
+  enemyContacts() {
+    for (const e of Ents.enemies()) {
+      if (e.state === 'held' || this.dead || !overlap(this, e)) continue;
+      const falling = this.y - this.py > 0.01 || this.vy > 0;
+      const above = this.py + this.h <= e.y + e.h * 0.5 + 3;
+      if (this.giant) { Enemy.kill(e, 'pop', sign(e.x + e.w / 2 - this.cx) || 1); SFX.crush(); Game.shake(3); continue; }
+      if (e.type === 'casco' && e.state === 'shell') {
+        if (e.immune > 0) continue;
+        const kdir = e.x + e.w / 2 >= this.cx ? 1 : -1;
+        if (falling && above) {
+          if (this.spinning) { Enemy.kill(e, 'pop', kdir); this.bounce(true); Game.hitstop(2); }
+          else { this.y = e.y - this.h; Ents.types.casco.kick(e, kdir); this.bounce(false); }
+        } else if (Input.get('run') && !this.held) this.grab(e);
+        else { Ents.types.casco.kick(e, kdir); this.kickT = 0.15; }
+        continue;
+      }
+      if (e.type === 'casco' && e.state === 'slide' && e.immune > 0) continue;
+      if (falling && above) { this.stomp(e); continue; }
+      this.hurt();
+    }
+  },
+  stomp(e) {
+    const spin = this.spinning, topY = e.y, cx = e.x + e.w / 2;
+    this.combo++;
+    if (spin) Enemy.kill(e, 'pop', this.facing);
+    else if (e.type === 'crawler') Enemy.kill(e, 'flat');
+    else if (e.state === 'walk') { Ents.types.casco.toShell(e); e.immune = 0.15; Game.registerCreature('SHELL'); }
+    else if (e.state === 'slide') { e.state = 'shell'; e.vx = 0; e.immune = 0.15; }
+    this.y = topY - this.h;
+    SFX.stomp(this.combo); Game.hitstop(CFG.HITSTOP_FRAMES);
+    FX.burst(cx, topY + 4, 12, 'c', 160, { life: 0.45 });
+    Ents.spawn('combotext', { x: cx, y: topY - 6, n: this.combo });
+    if (this.combo > 1) FX.burst(this.cx, this.y + this.h, 10 + this.combo * 6, 'm', 160 + this.combo * 40, { life: 0.7, g: 0 });
+    this.bounce(spin);
+    Game.comboReward(this.combo);
+  },
+  hurt() {
+    if (this.invuln > 0 || this.dead) return;
+    if (this.aura) {
+      this.aura = false; this.invuln = CFG.INVULN; SFX.damage(); Game.shake(4);
+      FX.burst(this.cx, this.cy, 30, 'c', 260, { life: 0.8 });
+      this.dropHeld(); Game.dropReserve(true);
+    } else this.die();
+  },
+  die(pit) {
+    if (this.dead) return;
+    this.dropHeld(); this.dead = true; this.deathT = 0; this.pitDeath = !!pit; this.vx = 0; this.vy = pit ? 0 : -540;
+    this.spinning = false; this.crouch = false; this.aura = false;
+    SFX.death(); Game.shake(pit ? 0 : 5); Game.onDeath();
+  },
+  fallInPit() {
+    if (Save.data.assist.safeFall && this.lastSafe) {
+      this.x = this.lastSafe.x - this.w / 2; this.y = this.lastSafe.y - this.h; this.px = this.x; this.py = this.y;
+      this.vx = 0; this.vy = 0; this.invuln = 1.2; SFX.damage(); Cam.ty = this.y + this.h - CFG.VIEW_H * 0.74;
+      FX.burst(this.cx, this.cy, 24, 'm', 200, { life: 0.7, g: -60 });
+      return;
+    }
+    this.die(true);
+  },
+  updateDeath(dt) {
+    this.deathT += dt;
+    if (!this.pitDeath && this.deathT > 0.45) { this.vy += 1600 * dt; this.y += this.vy * dt; }
+    if (this.deathT > (this.pitDeath ? 1.4 : 2.1)) Game.respawn();
+  },
+  grab(e) { this.held = e; e.state = 'held'; e.vx = 0; e.vy = 0; SFX.ui(); this.updateHeld(); },
+  updateHeld() {
+    const e = this.held;
+    if (!e || e.dead || e.state !== 'held') { this.held = null; return; }
+    e.x = this.facing > 0 ? this.x + this.w - 6 : this.x - e.w + 6;
+    e.y = this.y + this.h * 0.55 - e.h / 2;
+  },
+  throwHeld() {
+    const e = this.held; this.held = null;
+    if (!e || e.dead) return;
+    if (!World.fits(e.x, e.y, e.w, e.h, e)) e.x = this.cx - e.w / 2;
+    if (!World.fits(e.x, e.y, e.w, e.h, e)) e.y = this.y + this.h - e.h;
+    if (Input.get('up')) { e.state = 'shell'; e.vx = this.vx * 0.4; e.vy = -CFG.SHELL_THROW_UP; e.immune = 0.45; e.x = this.cx - e.w / 2; e.y = this.y - e.h + 6; if (!World.fits(e.x, e.y, e.w, e.h, e)) e.y = this.y; SFX.kick(); }
+    else if (Input.get('down')) {
+      e.state = 'shell'; e.vx = 0; e.vy = 0; e.immune = 0.4; e.y = this.y + this.h - e.h;
+      e.x = this.facing > 0 ? this.x + this.w + 1 : this.x - e.w - 1;
+      if (!World.fits(e.x, e.y, e.w, e.h, e)) e.x = this.cx - e.w / 2;
+    } else Ents.types.casco.kick(e, this.facing);
+    this.kickT = 0.15;
+  },
+  dropHeld() { const e = this.held; this.held = null; if (e && e.state === 'held') { e.state = 'shell'; e.vx = 0; e.immune = 0.3; } },
+  setScale(s) {
+    if (s === this.scale) return false;
+    const footX = this.cx, footY = this.y + this.h, nw = CFG.PLAYER_W * s, nh = CFG.PLAYER_H * s;
+    let nx = footX - nw / 2; const ny = footY - nh;
+    if (!World.fits(nx, ny, nw, nh, this)) {
+      for (const d of [8, -8, 16, -16, 24, -24, 32, -32, 48, -48, 64, -64, 96, -96]) if (World.fits(nx + d, ny, nw, nh, this)) { nx += d; break; }
+    }
+    this.scaleFrom = this.scale / s; this.scaleT = 0; this.visScale = this.scaleFrom; // escala visual relativa à nova caixa
+    this.scale = s; this.w = nw; this.h = nh; this.x = nx; this.y = ny; this.crouch = false; this.px = this.x; this.py = this.y;
+    return true;
+  },
+  findInteract() {
+    this.interact = null;
+    for (const id in World.doors) {
+      const d = World.doors[id], dcx = d.x + d.w / 2;
+      if (!d.read && Math.abs(this.cx - dcx) < TS * 7 && Math.abs((this.y + this.h) - (d.y + d.h)) < TS * 4 && (d.kind === 'pedestal' || !d.open)) {
+        d.read = true; Voice.say(Sentence.speakInscription(d.def.inscription), 'door');
+      }
+      if (d.open && d.kind === 'door') continue;
+      const feetOk = Math.abs((this.y + this.h) - (d.y + d.h)) < 10;
+      const near = d.kind === 'door' ? (this.x + this.w > d.x - 44 && this.x < d.x + 2) : Math.abs(this.cx - dcx) < 40;
+      if (near && feetOk && this.onGround) this.interact = d;
+    }
+  },
+  tryInteract() {
+    if (this.dead || !this.interact || this.held || !this.onGround) return false;
+    Game.openPanel(this.interact); return true;
+  },
+
+  /* ---------- desenho ---------- */
+  draw(ctx, camX, camY, a) {
+    const x = lerp(this.px, this.x, a) - camX, y = lerp(this.py, this.y, a) - camY;
+    const s = this.visScale * this.scale, t = Game.time;
+    if (this.dead && this.pitDeath) return;
+    let alpha = 1;
+    if (this.invuln > 0 && Math.floor(this.invuln * 18) % 2 === 0) alpha = 0.3;
+    const fx = x + this.w / 2, fy = y + this.h;
+    // rastro magenta que cresce com a velocidade
+    if (!this.dead) for (let i = 0; i < this.trail.length - 1; i++) {
+      const p = this.trail[i], k = (i + 1) / this.trail.length, sp = p.s;
+      if (sp < 0.2) continue;
+      const a2 = Math.min(1, (sp - 0.2) * (1 + (this.comboGlow || 0) * 0.5)) * k * alpha, tx = p.x - camX, ty = p.y - camY, hh = this.h * 0.86;
+      R.draw(R.glow('m', 24), tx, ty, (0.5 + 0.6 * k) * s, a2 * 0.6, true);
+      rrect(ctx, tx - 8 * s, ty - hh / 2, 16 * s, hh, 8 * s);
+      ctx.fillStyle = `rgba(217,70,239,${(a2 * 0.16).toFixed(3)})`; ctx.fill();
+      ctx.strokeStyle = `rgba(232,121,249,${(a2 * 0.45).toFixed(3)})`; ctx.lineWidth = 1; ctx.stroke();
+    }
+    if (this.spinning && !this.dead) {
+      for (let i = 0; i < 10; i++) {
+        const ang = this.spinT * 22 - i * 0.55, rr = (12 + i * 1.4) * s;
+        R.draw(R.glow('m', 6), fx + Math.cos(ang) * rr, fy - 23 * s + Math.sin(ang) * rr * 0.45 + i * 1.6 * s, s, (1 - i / 10) * 0.8, true);
+      }
+    }
+    if (!this.dead) R.draw(R.glow('m', 40), fx, fy - 24 * s, 0.85 * s, 0.24 * LOOK.rim * alpha, true);
+    // brilho do combo: cresce a cada pisão seguido e se apaga ao tocar o chão
+    const cg = this.dead ? 0 : this.comboGlow || 0;
+    if (cg > 0.02) {
+      const pulse = 0.85 + 0.15 * Math.sin(t * 18);
+      R.draw(R.glow('m', 64), fx, fy - 24 * s, (0.9 + cg * 0.35) * s, Math.min(1, 0.25 + cg * 0.22) * pulse * alpha, true);
+      R.draw(R.glow('w', 32), fx, fy - 24 * s, (0.6 + cg * 0.2) * s, Math.min(0.5, cg * 0.12) * pulse * alpha, true);
+    }
+    if (this.aura && !this.dead) R.draw(R.glow('t', 64), fx, fy - 24 * s, 1.15 * s, (0.8 + 0.2 * Math.sin(t * 6)) * alpha, true);
+    if (this.giant && !this.dead) R.draw(R.glow('m', 64), fx, fy - 24 * s, 1.2 * s, 0.35 * alpha, true);
+    if (this.scaleT < 1) R.draw(R.glow('m', 64), fx, fy - 24 * s, 1.6 * s, (1 - this.scaleT) * 0.9, true);
+
+    ctx.save(); ctx.globalAlpha = alpha;
+    ctx.translate(fx, fy);
+    if (this.dead) { ctx.translate(0, -23 * s); ctx.rotate(Math.min(this.deathT, 0.5) * 6); ctx.translate(0, 23 * s); }
+    let sx = 1 + this.squash * 0.6, sy = 1 - this.squash * 0.6;
+    if (this.spinning) sx *= Math.cos(this.spinT * 26);
+    ctx.scale(sx * s, sy * s);
+    if (this.crouch) ctx.scale(1.06, CFG.CROUCH_H / CFG.PLAYER_H);
+    this.drawBody(ctx, t);
+    ctx.restore();
+  },
+  drawBody(ctx, t) {
+    const f = this.facing, lw = 1.9 / (this.visScale * this.scale);
+    const wp = this.onGround ? this.walkPhase : 0.6, airborne = !this.onGround;
+    // pés
+    for (const side of [-1, 1]) {
+      const off = airborne ? side * 1.5 : Math.sin(wp + (side > 0 ? 0 : Math.PI)) * 4;
+      const lift = airborne ? -3 : Math.max(0, Math.cos(wp + (side > 0 ? 0 : Math.PI))) * 2.5;
+      capsulePath(ctx, side * 4.5 + off, -3 - lift, 8, 5);
+      ctx.fillStyle = '#050505'; ctx.fill(); ctx.strokeStyle = 'rgba(217,70,239,0.85)'; ctx.lineWidth = lw; ctx.stroke();
+    }
+    // corpo em cápsula
+    rrect(ctx, -9, -31, 18, 26, 9);
+    ctx.fillStyle = '#050505'; ctx.fill(); ctx.strokeStyle = '#d946ef'; ctx.lineWidth = lw; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-5, -25); ctx.lineTo(5, -25); ctx.strokeStyle = 'rgba(232,121,249,0.35)'; ctx.lineWidth = lw * 0.8; ctx.stroke();
+    // braço (empurrando a carapaça ao chutar)
+    const arm = this.held || this.kickT > 0 ? 9 : 4;
+    capsulePath(ctx, f * (6 + arm / 2), -18, arm + 4, 4.5); ctx.fillStyle = '#050505'; ctx.fill(); ctx.strokeStyle = 'rgba(217,70,239,0.85)'; ctx.lineWidth = lw; ctx.stroke();
+    // cabeça circular
+    ctx.beginPath(); ctx.arc(0, -38.5, 8.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#050505'; ctx.fill(); ctx.strokeStyle = '#d946ef'; ctx.lineWidth = lw; ctx.stroke();
+    // visor
+    R.draw(R.glow('m', 10), f * 3.5, -39, 1, 0.8, true);
+    capsulePath(ctx, f * 3.5, -39, 9, 3.8); ctx.fillStyle = '#f0abfc'; ctx.fill();
+  },
+};
+
+/* ============================== ECHO (familiar, a voz do jogo) ============================== */
+const Echo = {
+  x: 0, y: 0, px: 0, py: 0, pulse: 0,
+  reset() { this.x = P.cx - 26; this.y = P.y - 10; this.px = this.x; this.py = this.y; },
+  update(dt) {
+    const t = Game.time, s = P.scale;
+    const tx = P.cx - P.facing * (24 + 8 * s), ty = P.y - 6 - 6 * s + Math.sin(t * 2.2) * 4;
+    const k = 1 - Math.exp(-dt * (P.dead ? 1.5 : 4.5));
+    this.x = lerp(this.x, tx, k); this.y = lerp(this.y, ty, k);
+    if (Voice.speaking && Voice.who === 'echo') this.pulse = 1; else this.pulse = Math.max(0, this.pulse - dt * 3);
+  },
+  draw(ctx, camX, camY, a) {
+    const x = lerp(this.px, this.x, a) - camX, y = lerp(this.py, this.y, a) - camY, t = Game.time;
+    const talk = this.pulse > 0 ? 1 + 0.45 * Math.abs(Math.sin(t * 17)) * this.pulse : 1;
+    R.draw(R.glow('m', 26), x, y, 0.7 * talk, 0.55 + 0.35 * this.pulse, true);
+    ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2);
+    const g = ctx.createRadialGradient(x - 2.5, y - 2.5, 0, x, y, 7);
+    g.addColorStop(0, wa(0.22)); g.addColorStop(1, wa(0.03));
+    ctx.fillStyle = g; ctx.fill(); ctx.strokeStyle = wa(0.32); ctx.lineWidth = 1; ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y, 2.8 * talk, 0, Math.PI * 2); ctx.fillStyle = '#e879f9'; ctx.fill();
+    ctx.beginPath(); ctx.arc(x - 2.4, y - 2.6, 1.3, 0, Math.PI * 2); ctx.fillStyle = wa(0.65); ctx.fill();
+  },
+};
+
+/* ============================== CÂMERA ============================== */
+const Cam = {
+  x: 0, y: 0, px: 0, py: 0, look: 0, ty: 0, shakeT: 0, shakeA: 0, sx: 0, sy: 0,
+  snap() {
+    this.look = 0; this.x = clamp(P.cx - CFG.VIEW_W / 2, 0, World.pxW - CFG.VIEW_W);
+    this.ty = clamp(P.y + P.h - CFG.VIEW_H * 0.74, 0, World.pxH - CFG.VIEW_H); this.y = this.ty; this.px = this.x; this.py = this.y;
+  },
+  update(dt) {
+    if (!P.dead) {
+      const target = Math.abs(P.vx) > 40 ? sign(P.vx) * 88 : this.look;
+      this.look = lerp(this.look, target, 1 - Math.exp(-dt * 2.4));
+      const tx = clamp(P.cx - CFG.VIEW_W / 2 + this.look, 0, World.pxW - CFG.VIEW_W);
+      this.x = lerp(this.x, tx, 1 - Math.exp(-dt * 9));
+      // ajuste vertical só ao pousar numa nova altura ou perto da borda da tela
+      const feet = P.y + P.h;
+      if (P.onGround) this.ty = feet - CFG.VIEW_H * 0.74;
+      if (P.y < this.y + 80) this.ty = Math.min(this.ty, P.y - 80);
+      if (feet > this.y + CFG.VIEW_H - 60) this.ty = Math.max(this.ty, feet - CFG.VIEW_H + 60);
+      this.ty = clamp(this.ty, 0, World.pxH - CFG.VIEW_H);
+      this.y = lerp(this.y, this.ty, 1 - Math.exp(-dt * 4.5));
+    }
+    if (this.shakeT > 0) { this.shakeT -= dt; const a = this.shakeA * (this.shakeT / 0.3); this.sx = (Math.random() - 0.5) * a; this.sy = (Math.random() - 0.5) * a; }
+    else { this.sx = 0; this.sy = 0; }
+  },
+};
+
+/* ============================== PORTAS: desenho das inscrições e moldes ============================== */
+const Doors = {
+  moldSprite(d) {
+    const solved = d.solved ? d.solved.join(',') : '';
+    const key = 'moldS:' + d.id + ':' + solved, hit = R.cache.get(key);
+    if (hit) return hit;
+    {
+      const parts = [], m = R.make(1, 1).x;
+      let wi = 0, total = 0;
+      for (const tok of d.def.mold) {
+        if (tok === '_') {
+          const w = d.solved ? d.solved[wi] : null; wi++;
+          if (w) { m.font = '700 12px Orbitron, Inter, sans-serif'; const tw = m.measureText(w).width + w.length * 1.4 + 18; parts.push({ slot: true, word: w, w: tw }); total += tw; }
+          else { parts.push({ slot: true, w: 44 }); total += 44; }
+        } else if (/^[.!?]$/.test(tok)) { m.font = '600 13px Orbitron, Inter, sans-serif'; const tw = m.measureText(tok).width; parts.push({ txt: tok, w: tw, punct: true }); total += tw; }
+        else { m.font = '600 13px Orbitron, Inter, sans-serif'; const tw = m.measureText(tok).width + tok.length * 1.4; parts.push({ txt: tok, w: tw }); total += tw; }
+      }
+      const gap = 8; total += gap * (parts.length - 1);
+      const s = R.make(total + 30, 40), x = s.x; let px = 15;
+      for (let i = 0; i < parts.length; i++) {
+        const p = parts[i];
+        if (p.punct && i > 0) px -= gap - 2;
+        if (p.slot) {
+          if (p.word) {
+            x.save(); x.shadowColor = 'rgba(217,70,239,0.9)'; x.shadowBlur = 10 * R.k; capsulePath(x, px + p.w / 2, 20, p.w, 18);
+            x.fillStyle = 'rgba(217,70,239,0.22)'; x.fill(); x.strokeStyle = '#d946ef'; x.lineWidth = 1; x.stroke(); x.restore();
+            x.font = '700 12px Orbitron, Inter, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = '#fff';
+            try { x.letterSpacing = '1.4px'; } catch (e) { /* ok */ }
+            x.fillText(p.word, px + p.w / 2 + 0.7, 20.5);
+          } else {
+            x.save(); x.setLineDash([3, 3]); capsulePath(x, px + p.w / 2, 20, p.w, 18); x.strokeStyle = wa(0.4); x.lineWidth = 1; x.stroke(); x.restore();
+          }
+        } else {
+          x.font = '600 13px Orbitron, Inter, sans-serif'; x.textAlign = 'left'; x.textBaseline = 'middle'; x.fillStyle = wa(0.88);
+          try { x.letterSpacing = '1.4px'; } catch (e) { /* ok */ }
+          x.fillText(p.txt, px, 20.5);
+        }
+        px += p.w + gap;
+      }
+      R.cache.set(key, s);
+      return s;
+    }
+  },
+  draw(ctx, camX, camY, t) {
+    const sub = Save.data.assist.subtitles;
+    for (const id in World.doors) {
+      const d = World.doors[id], x = d.x - camX, y = d.y - camY;
+      if (x > CFG.VIEW_W + 200 || x + d.w < -200) continue;
+      if (d.kind === 'door') this.drawArch(ctx, d, x, y, t);
+      const cx = x + d.w / 2, top = d.kind === 'door' ? y - 40 : y - 92;
+      const dim = d.kind === 'door' && d.open ? 0.4 : 1;
+      R.draw(R.text(d.def.inscription, '700 15px Orbitron, Inter, sans-serif', '#22d3ee', 'rgba(0,217,249,0.7)', 10), cx, top - 62, 1, dim);
+      if (sub || d.hint) R.draw(R.text(PHRASES_PT[d.def.inscription] || '', '400 11px Inter, sans-serif', wa(0.5), null, 0), cx, top - 44, 1, dim);
+      R.draw(this.moldSprite(d), cx, top - 22, 1, dim);
+      if (d.def.icon && !d.open) this.drawIcon(ctx, d, x - 30, y + 18 + Math.sin(t * 2) * 4, t);
+    }
+  },
+  drawArch(ctx, d, x, y, t) {
+    const a = d.open ? 0 : 1 - d.opening;
+    // moldura gótica fixa na parede
+    ctx.save();
+    ogivePath(ctx, x - 6, y - 34, d.w + 12, d.h + 34); ctx.strokeStyle = ca(0.14); ctx.lineWidth = 1; ctx.stroke();
+    if (a > 0) {
+      ctx.globalAlpha = a;
+      ogivePath(ctx, x + 1, y - 24, d.w - 2, d.h + 24);
+      const g = ctx.createLinearGradient(0, y - 24, 0, y + d.h);
+      g.addColorStop(0, 'rgba(10,15,18,0.96)'); g.addColorStop(1, 'rgba(5,8,10,0.96)');
+      ctx.fillStyle = g; ctx.fill();
+      ctx.fillStyle = `rgba(34,211,238,${0.03 + 0.02 * Math.sin(t * 2)})`; ctx.fill();
+      ctx.strokeStyle = ca(0.9); ctx.lineWidth = 1; ctx.stroke();
+      ogivePath(ctx, x + 9, y - 10, d.w - 18, d.h + 10); ctx.strokeStyle = ca(0.22); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x + d.w / 2, y + 6); ctx.lineTo(x + d.w / 2, y + d.h);
+      ctx.moveTo(x + 9, y + d.h * 0.45); ctx.lineTo(x + d.w - 9, y + d.h * 0.45); ctx.strokeStyle = ca(0.12); ctx.stroke();
+      ctx.beginPath(); ctx.arc(x + d.w / 2, y - 2, 6, 0, Math.PI * 2); ctx.strokeStyle = ca(0.35); ctx.stroke();
+      R.draw(R.glow('c', 24), x + d.w / 2, y - 2, 1, 0.35, true);
+    }
+    ctx.restore();
+  },
+  drawIcon(ctx, d, x, y, t) {
+    R.draw(R.glow('c', 30), x, y, 1, 0.6, true);
+    ctx.save(); ctx.translate(x, y); ctx.strokeStyle = '#22d3ee'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+    if (d.morph > 0) {
+      // encenação: a chave vira uma pequena porta
+      ogivePath(ctx, -7, -11, 14, 22); ctx.stroke(); ctx.beginPath(); ctx.arc(3, 2, 1.2, 0, Math.PI * 2); ctx.fillStyle = '#22d3ee'; ctx.fill();
+    } else {
+      ctx.beginPath(); ctx.arc(-6, 0, 5, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-1, 0); ctx.lineTo(11, 0); ctx.moveTo(7, 0); ctx.lineTo(7, 4); ctx.moveTo(10, 0); ctx.lineTo(10, 5); ctx.stroke();
+    }
+    ctx.restore();
+  },
+  drawPrompt(ctx, camX, camY) {
+    const d = P.interact; if (!d || Game.state !== 'play') return;
+    const label = d.kind === 'pedestal' ? '↑ SPEAK' : '↑ OPEN';
+    const s = R.text(label, '600 10px Orbitron, Inter, sans-serif', '#22d3ee', 'rgba(0,217,249,0.7)', 6);
+    const x = P.cx - camX, y = P.y - camY - 30 - Math.sin(Game.time * 4) * 2;
+    capsulePath(ctx, x, y, s.w - 14, 20); ctx.fillStyle = 'rgba(2,2,2,0.7)'; ctx.fill(); ctx.strokeStyle = ca(0.6); ctx.lineWidth = 1; ctx.stroke();
+    R.draw(s, x, y + 0.5);
+  },
+};
