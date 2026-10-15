@@ -8,6 +8,7 @@ Plataforma 2D neon-noir para ensinar inglês (nível A1) a brasileiros. Tudo est
 | Teclado | Ação |
 | --- | --- |
 | ← → ou A D | mover |
+| → → ou ← ← (toque duplo, segurando o 2º) | correr até soltar a seta |
 | ↓ ou S | agachar |
 | Shift (segurar) | correr e carregar a carapaça |
 | Z ou Espaço | pular (segure para ir mais alto) |
@@ -19,7 +20,7 @@ Plataforma 2D neon-noir para ensinar inglês (nível A1) a brasileiros. Tudo est
 | M | som liga/desliga |
 | Esc ou P | pausa |
 
-No celular aparecem botões de toque (◀ ▼ ▶, RUN, JUMP, SPIN e OPEN perto das portas).
+No celular aparecem botões de toque (◀ ▼ ▶, RUN, JUMP, SPIN e OPEN perto das portas). O toque duplo em ◀ ou ▶ também faz correr.
 
 ## Como editar a fase
 
