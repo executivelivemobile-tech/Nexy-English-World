@@ -870,6 +870,26 @@
   "prompt": "Big or small?"
  },
  {
+  "who": "echo",
+  "text": "They are big.",
+  "prompt": "They are big."
+ },
+ {
+  "who": "echo",
+  "text": "Make them small!",
+  "prompt": "Make them small!"
+ },
+ {
+  "who": "echo",
+  "text": "It is big.",
+  "prompt": "It is big."
+ },
+ {
+  "who": "echo",
+  "text": "Make it small!",
+  "prompt": "Make it small!"
+ },
+ {
   "who": "door",
   "text": "They are small.",
   "prompt": "They are small."

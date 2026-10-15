@@ -87,6 +87,8 @@ function build() {
         for (const c of S.cries || []) add('door', c, '[shouting] ' + inscription(c).replace(/\bi\b/g, 'I'));
         continue;
       }
+      if (def.nudge) for (const n of def.nudge) for (const l of n.lines) add('echo', l.en);   // dicas da Echo no altar
+      if (def.nudgeMissing) add('echo', def.nudgeMissing.en);
       if (!def.mold) continue;
       // as frases que o jogador monta: as certas, as encenações e os erros de concordância mais prováveis
       const slots = def.mold.filter(t => t === '_').length;

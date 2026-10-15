@@ -36,7 +36,7 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 - Futuro: depois do jogo inteiro, app Android (Google Play). Mantenha tudo pensado para toque e offline.
 - Preferências já dadas: sem voz em combos e nomes de criaturas; correr com toque duplo na seta (janela medida da
   soltura); quique alto com janela antes/depois (só no ar); blocos-fantasma dependem da barra, não do Grimório.
-- **Vozes gravadas (ElevenLabs)**: 213 falas em `src/voice/` (MP3 + `manifest.json`), embutidas pelo build.
+- **Vozes gravadas (ElevenLabs)**: 217 falas em `src/voice/` (MP3 + `manifest.json`), embutidas pelo build.
   Elenco: **Echo = Lulu** (feminina e sensual, escolhida pelo dono), **narrador do Baú = Lawrence**, **portas e altares
   = Elder Rowan** (acelerada 1,15× no corte). A Echo agora é **ela** nos textos em português ("a Echo", "sua amiga").
   Falas sem gravação: a porta repete palavra por palavra; senão outra voz gravada; senão a voz do aparelho
@@ -94,6 +94,12 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 - Checkpoints: c140, c212 (entrada da cripta), c246. Lua (3UP) atrás da parede falsa c248. Vidas: ponte de Alados (3x),
   bloco c143, sinos de primeira, Lua, sacada do campanário, e as do Coração.
 - Barra de palavras = 10 nesta fase (`barMax`). YES de reserva só se não tiver um (`ifMissing`).
+- **Poço de palavras** `m` em c217 L32 (logo depois do altar 2): cada batida dá a próxima palavra que falta de
+  THEY/ARE/SMALL/IT/IS (`content.reserve`). O SMALL fica no alto dos tubos do órgão; sem o poço, quem passava direto
+  ficava preso nos gigantes (aconteceu com o dono).
+- Altar 2 tem `nudge`: frase certa que não abre o caminho (YOU ARE BIG, THEY ARE BIG...) faz a Echo dizer o que ainda
+  bloqueia (1ª vez "They are big.", depois "Make them small!", ou "Something is here!" apontando o poço se faltar palavra;
+  idem para a pedra). O dono achou que tinha travado ali.
 
 ## 6. Testes (`node tests/run.js [filtro]`, Playwright, ~3 min)
 

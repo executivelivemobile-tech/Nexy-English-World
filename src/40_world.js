@@ -246,6 +246,15 @@ const World = {
     const cx = b.c * TS + TS / 2, cy = b.r * TS + TS / 2;
     // bloco "de reserva": só dá a palavra se o jogador ainda não a tem (senão, orbes)
     if (ct.word && ct.ifMissing && Game.bar.includes(ct.word)) { for (let i = 0; i < 3; i++) Ents.spawn('orb', { x: cx, y: b.r * TS, vx: (i - 1) * 80, vy: -300, homing: true, delay: 0.2 + i * 0.05 }); return; }
+    // poço de palavras: dá a primeira palavra da lista que o jogador não tem; se ainda faltar outra, volta a ficar pronto
+    if (ct.reserve) {
+      const flying = new Set(Ents.list.filter(e => e.type === 'capsule' && !e.dead).map(e => e.word));
+      const missing = ct.reserve.filter(w => !Game.bar.includes(w) && !flying.has(w));
+      if (!missing.length) { for (let i = 0; i < 3; i++) Ents.spawn('orb', { x: cx, y: b.r * TS, vx: (i - 1) * 80, vy: -300, homing: true, delay: 0.2 + i * 0.05 }); return; }
+      Ents.spawn('capsule', { word: missing[0], x: cx, y: cy, baseY: b.r * TS - 1.1 * TS + TS * 0.5, homing, src: { c: b.c, r: b.r } }); SFX.wordAppear();
+      if (missing.length > 1) Game.later(0.7, () => { b.state = 'ready'; b.bump = 0.5; });
+      return;
+    }
     if (ct.word) { Ents.spawn('capsule', { word: ct.word, x: cx, y: cy, baseY: b.r * TS - (ct.rise || 1.1) * TS + TS * 0.5, homing, src: { c: b.c, r: b.r } }); SFX.wordAppear(); }
     if (ct.life) { Ents.spawn('life', { x: cx, y: cy, baseY: b.r * TS - TS * 0.6, emerge: true }); SFX.wordAppear(); }
     if (ct.crystal) Ents.spawn('crystal', { x: cx, y: cy, baseY: b.r * TS - TS * 0.55, emerge: 1 });

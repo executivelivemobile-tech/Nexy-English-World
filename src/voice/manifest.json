@@ -2262,6 +2262,26 @@
    ],
    "from": "echo-3"
   },
+  "echo:it is big": {
+   "file": "echo/it-is-big.mp3",
+   "text": "It is big.",
+   "dur": 1.08,
+   "b": [
+    [
+     0,
+     0.04
+    ],
+    [
+     3,
+     0.2
+    ],
+    [
+     6,
+     0.52
+    ]
+   ],
+   "from": "echo-1"
+  },
   "echo:it is dark": {
    "file": "echo/it-is-dark.mp3",
    "text": "It is dark.",
@@ -2405,6 +2425,46 @@
     ]
    ],
    "from": "echo-4"
+  },
+  "echo:make it small": {
+   "file": "echo/make-it-small.mp3",
+   "text": "Make it small!",
+   "dur": 1.17,
+   "b": [
+    [
+     0,
+     0.08
+    ],
+    [
+     5,
+     0.32
+    ],
+    [
+     8,
+     0.68
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:make them small": {
+   "file": "echo/make-them-small.mp3",
+   "text": "Make them small!",
+   "dur": 1.35,
+   "b": [
+    [
+     0,
+     0.07
+    ],
+    [
+     5,
+     0.31
+    ],
+    [
+     10,
+     0.55
+    ]
+   ],
+   "from": "echo-1"
   },
   "echo:new path": {
    "file": "echo/new-path.mp3",
@@ -2753,6 +2813,26 @@
     ]
    ],
    "from": "echo-3"
+  },
+  "echo:they are big": {
+   "file": "echo/they-are-big.mp3",
+   "text": "They are big.",
+   "dur": 1.71,
+   "b": [
+    [
+     0,
+     0.13
+    ],
+    [
+     5,
+     0.32
+    ],
+    [
+     9,
+     0.64
+    ]
+   ],
+   "from": "echo-1"
   },
   "echo:today": {
    "file": "echo/today.mp3",

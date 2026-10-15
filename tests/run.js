@@ -750,6 +750,48 @@ test('1-2 cripta: gigantes fecham o túnel; THEY ARE SMALL e IT IS SMALL abrem; 
   expect(r.moon === 3 && r.secret >= 1, `parede falsa e a Lua com 3 vidas (${r.moon})`);
 }, L12);
 
+test('1-2 cripta: frase certa que não abre o caminho faz a Echo apontar o que bloqueia (sem parecer travado)', async ({ page }) => {
+  await page.evaluate(HELP12);
+  const r = await page.evaluate(async () => {
+    const out = [];
+    H.noEnemies();
+    NEXY.give('IT', 'IS', 'THEY', 'ARE', 'SMALL', 'BIG', 'YOU', 'WE');
+    const say = async words => { Echo.line = null; Echo.lines = []; await H12.panel(215, 35, words); H.step(40); out.push(Echo.line ? Echo.line.en : '-'); };
+    await say(['YOU', 'ARE', 'BIG']);      // os gigantes ainda fecham: só o problema
+    await say(['WE', 'ARE', 'SMALL']);     // de novo: já com a frase
+    await say(['THEY', 'ARE', 'SMALL']);   // progresso: sem dica
+    H.step(120);
+    await say(['YOU', 'ARE', 'BIG']);      // agora é a pedra
+    await say(['IT', 'IS', 'SMALL']);      // progresso
+    H.step(120);
+    await say(['YOU', 'ARE', 'BIG']);      // caminho aberto: sem dica
+    return { out, state: NEXY.Game.state };
+  });
+  expect(r.out.join(' | ') === 'They are big. | Make them small! | - | It is big. | - | -', `dicas: ${r.out.join(' | ')}`);
+  expect(r.state === 'play', 'o jogo segue normal');
+}, L12);
+
+test('1-2 cripta sem o SMALL (e sem THEY/IS): o poço de palavras depois do altar dá o que falta, e a Echo aponta para ele', async ({ page }) => {
+  await page.evaluate(HELP12);
+  const r = await page.evaluate(async () => {
+    const G = NEXY.Game, W = NEXY.World, out = { got: [] };
+    H.noEnemies();
+    G.bar.length = 0; NEXY.give('IT', 'BIG', 'YOU', 'YES', 'ARE', 'WE');   // como chegou o jogador que travou: sem THEY, SMALL e IS
+    Echo.line = null; Echo.lines = [];
+    await H12.panel(215, 35, ['YOU', 'ARE', 'BIG']); H.step(40); out.n1 = Echo.line && Echo.line.en;
+    Echo.line = null; Echo.lines = [];
+    await H12.panel(215, 35, ['YOU', 'ARE', 'BIG']); H.step(40); out.n2 = Echo.line && Echo.line.en;
+    for (let k = 0; k < 5; k++) { const before = G.bar.slice(); H12.hit(217, 35); out.got.push(G.bar.filter(w => !before.includes(w)).join() || '-'); }
+    await H12.panel(215, 35, ['THEY', 'ARE', 'SMALL']); H.step(60);
+    await H12.panel(215, 35, ['IT', 'IS', 'SMALL']); H.step(90);
+    out.giants = NEXY.Ents.list.filter(e => e.type === 'giant' && !e.dead).length; out.stone = W.targets.rune2.state;
+    return out;
+  });
+  expect(r.n1 === 'They are big.' && r.n2 === 'Something is here!', `a Echo: problema, depois o poço (${r.n1} / ${r.n2})`);
+  expect(r.got.join(' ') === 'THEY SMALL IS - -', `cada batida dá a que falta (${r.got.join(' ')})`);
+  expect(r.giants === 0 && r.stone === 'small', `com as palavras do poço os gigantes e a pedra encolhem (${r.giants}, ${r.stone})`);
+}, L12);
+
 test('1-2 campanário: tubos, sacada, lustre e telhado; atalho-fantasma com IS e ARE', async ({ page }) => {
   await page.evaluate(HELP12);
   const r = await page.evaluate(() => {

@@ -18,7 +18,7 @@ O jogo toca falas gravadas em estúdio. Quando uma fala não foi gravada, ele us
    `[long pause]`.
 3. Para cada bloco, pelo conector ElevenLabs desta sessão (conta do dono, plano Creator):
    - `creative_generate_speech` com o `prompt` do bloco, a voz do bloco, modelo `eleven_v4` e `generations_count: 1`;
-   - `creative_transcribe_audio` (grátis) ligado ao nó da geração: devolve o tempo de cada palavra;
+   - `creative_transcribe_audio` (custa pouco) ligado ao nó da geração: devolve o tempo de cada palavra;
    - `creative_get_flow_run_status` da transcrição traz o MP3 (`source.url`) e as palavras (`words_download_url`).
      Os dois ficam em `storage.googleapis.com`, que o `curl` daqui alcança.
 4. `node tools/voice/split.js <bloco> <bloco.mp3> <bloco.words.json>`: corta nas pausas, normaliza o volume, comprime

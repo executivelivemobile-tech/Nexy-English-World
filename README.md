@@ -73,7 +73,10 @@ Palavra-mestra: **WORLD**. Na 1-2 a barra de palavras cresce para **10** espaço
    Tubos do órgão sobem e descem na batida da música (do alto do tubo 2 sai o SMALL). Corredor do **Ladrão de
    Palavras**: ele leva a última palavra da barra; um pisão devolve; se ele fugir, a palavra volta para o bloco.
 4. **A Cripta.** Escura e de teto baixo; a Echo é a luz ("It is dark. I am your light."). Altar "BIG OR SMALL?" com os
-   dois alvos: os gigantes (THEY) e a pedra (IT). No fim, o **Baú da Memória** e o **Muro do Silêncio** (veja abaixo).
+   dois alvos: os gigantes (THEY) e a pedra (IT): **THEY ARE SMALL** e **IT IS SMALL** abrem o túnel. Logo depois do
+   altar, um bloco "?" é o **poço de palavras**: cada batida dá a próxima palavra que falta (THEY, ARE, SMALL, IT, IS),
+   para ninguém ficar preso sem o SMALL dos tubos do órgão. Uma frase certa que não abre nada (YOU ARE BIG...) faz a Echo
+   dizer o que ainda bloqueia. No fim, o **Baú da Memória** e o **Muro do Silêncio** (veja abaixo).
    Atrás do muro, a câmara da luz; uma parede falsa debaixo da torre esconde a **Lua** (3 vidas).
 5. **O Campanário.** Subida vertical: tubos, sacada com vida, plataformas, lustre e o telhado. Atalho-fantasma
    (IS e ARE na barra viram degraus). Porta "IS IT A DOOR?" → YES, IT IS. No telhado, o altar "WHO IS BIG?":

@@ -33,6 +33,9 @@ LEVELS['1-2'] = {
     'y': { block: 'question', content: { word: 'YOU' } },
     'e': { block: 'question', content: { word: 'YES' } },
     'h': { block: 'question', content: { word: 'YES', ifMissing: true } },   // reserva: só se você não tiver um YES
+    // poço de palavras da cripta: cada batida dá a próxima palavra que falta para THEY ARE SMALL / IT IS SMALL
+    // (o SMALL fica no alto dos tubos do órgão; quem passa direto não chega preso aos gigantes)
+    'm': { block: 'question', content: { reserve: ['THEY', 'ARE', 'SMALL', 'IT', 'IS'] } },
     'k': { block: 'question', content: { word: 'NO' } },
     'j': { block: 'question', content: { word: 'NOT' } },
     'a': { block: 'question', content: { word: 'THEY' } },
@@ -178,6 +181,18 @@ LEVELS['1-2'] = {
         { words: ['YOU', '*', '*'], result: { type: 'confused', target: 'echo' } },
         { words: ['WE', '*', '*'], result: { type: 'confused', target: 'echo' } },
       ],
+      // frase certa que não abre o caminho (YOU ARE BIG, THEY ARE BIG...): a Echo aponta o que ainda fecha o túnel,
+      // primeiro só o problema, depois a frase (para ninguém achar que o jogo travou)
+      nudge: [
+        { blocks: 'giants', needs: ['THEY', 'ARE', 'SMALL'], lines: [
+          { en: 'They are big.', pt: 'Os gigantes (THEY) continuam grandes e fecham o túnel.' },
+          { en: 'Make them small!', pt: 'Deixe os gigantes pequenos: THEY ARE SMALL.' }] },
+        { blocks: 'rune2', needs: ['IT', 'IS', 'SMALL'], lines: [
+          { en: 'It is big.', pt: 'A pedra (IT) continua grande e fecha o caminho.' },
+          { en: 'Make it small!', pt: 'Encolha a pedra: IT IS SMALL.' }] },
+      ],
+      // falta palavra na barra para a frase certa: a Echo aponta o poço de palavras
+      nudgeMissing: { en: 'Something is here!', pt: 'Falta palavra? Bata no bloco ? depois do altar: ele dá a que falta.' },
     },
     altar3: {
       kind: 'pedestal', title: 'ALTAR OF THE RUNES', inscription: 'WHO IS BIG?', mold: ['_', '_', 'BIG', '.'], consume: false, reusable: true,

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* Corta o áudio de um bloco (tools/voice/chunks.json) em uma fala por arquivo e registra no manifesto.
  *   node tools/voice/split.js <id do bloco> <bloco.mp3> <bloco.words.json>
- * <bloco.words.json> é o alinhamento palavra a palavra da transcrição (ElevenLabs Scribe, grátis): diz onde cada fala
+ * <bloco.words.json> é o alinhamento palavra a palavra da transcrição (ElevenLabs Scribe, custa pouco): diz onde cada fala
  * começa e termina. Os silêncios (ffmpeg silencedetect) dão a borda exata; o alinhamento decide qual trecho é de qual
  * fala e dá o tempo de cada palavra (o karaokê da leitura). Cada fala: volume normalizado, MP3 mono 24 kHz 48 kbps,
  * em src/voice/<quem>/<nome>.mp3, registrada em src/voice/manifest.json. */

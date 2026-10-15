@@ -59,6 +59,22 @@ const Sentence = {
     const used = words.concat(def.mold.filter(t => WORDS[t]));
     for (const w of used) Game.grimoireWord(w, def.inscription);
     if (def.consume !== false) Game.consumeWords(words);
+    if (def.nudge && !(r.type === 'target' && r.act === 'small')) Game.later(1.4, () => this.nudge(d));
+  },
+  // o alvo ainda fecha o caminho? (gigantes acordados ou runa que não encolheu)
+  blocking(id) {
+    const t = World.targets[id]; if (!t) return false;
+    if (t.kind === 'giants') return Ents.list.some(e => e.type === 'giant' && !e.dead && e.state !== 'shrink');
+    return t.state !== 'small';
+  },
+  // a frase deu certo mas nada abriu: a Echo diz o que ainda bloqueia (a 2ª vez, já com a frase)
+  nudge(d) {
+    const n = d.def.nudge.find(x => this.blocking(x.blocks));
+    if (!n || !Game.echoBorn) return;
+    d.nudged = d.nudged || {};
+    const i = d.nudged[n.blocks] = (d.nudged[n.blocks] || 0) + 1;
+    const lacks = (n.needs || []).some(w => !Game.bar.includes(w));
+    Echo.talk(lacks && i > 1 && d.def.nudgeMissing ? [d.def.nudgeMissing] : [n.lines[Math.min(i, n.lines.length) - 1]]);
   },
 };
 

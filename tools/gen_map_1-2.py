@@ -92,6 +92,7 @@ for k in range(6):                                          # escada descendo
 fill(212, 237, 32, 35, '.')                                 # túnel da cripta (4 de altura)
 put(212, 35, 'F')                                           # checkpoint na entrada da cripta
 put(215, 35, 'V')                                           # altar 2: BIG OR SMALL?
+put(217, 32, 'm')                                           # poço de palavras: dá a que falta para as frases do altar 2
 put(213, 33, '*')
 for x in (219, 221, 223): put(x, 35, '&')                   # três Rastejantes gigantes
 fill(220, 222, 28, 31, '.')                                 # nicho no teto
