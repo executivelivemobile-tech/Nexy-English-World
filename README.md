@@ -50,7 +50,8 @@ endereço (ou `?toBe=1`), ou rode no console `NEXY.setFlag('palaces.toBe', true)
 
 Cada pisão seguido, sem tocar o chão, deixa o quique mais alto (`CFG.COMBO_BOUNCE = [1, 1.38, 1.55]`):
 segurando o pulo, o 1º pisão sobe cerca de 7 tiles, o 2º cerca de 13 e o 3º cerca de 16. Na tela aparece
-"1x", "2x"… luminoso no ponto do pisão, e o jogador brilha mais forte enquanto o combo durar. Dois
+"1x", "2x"… luminoso no ponto do pisão, e o jogador brilha mais forte enquanto o combo durar. O combo
+não é falado em voz alta: o retorno é só visual e sonoro (a partir do 8º pisão, cada um dá uma vida extra). Dois
 Rastejantes-guarda patrulham embaixo da escada-fantasma: com um 2x dá para alcançar a plataforma alta
 mesmo sem as palavras.
 

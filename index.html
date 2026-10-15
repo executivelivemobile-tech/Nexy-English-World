@@ -496,7 +496,6 @@ const CREATURES = {
 const MASTER_WORDS = {
   HELLO: { pt: 'olá', lore: 'Cinco letras espalhadas pelo escuro. Juntas, são a primeira coisa que o mundo responde.' },
 };
-const SPOKEN_NUMBERS = ['one', 'two', 'three', 'four', 'five', 'six', 'seven'];
 const PHRASES_PT = {
   'HELLO!': 'Olá!', 'HOW ARE YOU?': 'Como você está?', 'WHAT IS THIS?': 'O que é isso?',
   'ARE YOU BIG OR SMALL?': 'Você é grande ou pequeno?',
@@ -2478,7 +2477,6 @@ const P = {
   stomp(e) {
     const spin = this.spinning, topY = e.y, cx = e.x + e.w / 2;
     this.combo++;
-    const creature = e.type === 'crawler' ? 'CRAWLER' : 'SHELL', isNew = !Game.creatures.has(creature);
     if (spin) Enemy.kill(e, 'pop', this.facing);
     else if (e.type === 'crawler') Enemy.kill(e, 'flat');
     else if (e.state === 'walk') { Ents.types.casco.toShell(e); e.immune = 0.15; Game.registerCreature('SHELL'); }
@@ -2489,7 +2487,7 @@ const P = {
     Ents.spawn('combotext', { x: cx, y: topY - 6, n: this.combo });
     if (this.combo > 1) FX.burst(this.cx, this.y + this.h, 10 + this.combo * 6, 'm', 160 + this.combo * 40, { life: 0.7, g: 0 });
     this.bounce(spin);
-    Game.comboVoice(this.combo, isNew ? creature : null);
+    Game.comboReward(this.combo);
   },
   hurt() {
     if (this.invuln > 0 || this.dead) return;
@@ -3351,10 +3349,9 @@ const Game = {
     if (isNewEver) UI.msg('GRIMOIRE · ' + name);
     return true;
   },
-  comboVoice(n, newCreature) {
-    if (n >= 8) { this.lives++; SFX.oneUp(); Voice.say('extra life!', 'echo'); UI.msg('1 UP'); return; }
-    if (n === 1 && newCreature) return;
-    Voice.say(SPOKEN_NUMBERS[n - 1], 'echo');
+  // combo de pisões: só visual ("1x", "2x"… e o brilho) e efeitos sonoros, sem voz. A partir do 8º pisão, vida extra.
+  comboReward(n) {
+    if (n >= 8) { this.lives++; SFX.oneUp(); UI.msg('1 UP'); }
   },
   setCheckpoint(e) { this.checkpoint = { x: e.x + e.w / 2, y: e.y + e.h }; },
   openPanel(d) { if (!d || this.state !== 'play') return; this.state = 'panel'; P.vx *= 0.3; Panel.open(d); },
