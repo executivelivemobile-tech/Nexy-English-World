@@ -274,6 +274,8 @@ const World = {
         b.solid = true; b.flash = 1; SFX.letter();
         FX.burst(cx, cy, 26, 'c', 200, { life: 0.9, g: 0 });
       }
+      // pisou num degrau que a palavra criou: a placa "WORDS ARE THE FLOOR" já cumpriu o papel
+      if (b.solid && P.onGround && Math.abs(P.y + P.h - b.r * TS) < 1 && P.x + P.w > b.c * TS && P.x < (b.c + 1) * TS) Hints.mark('ghost');
       // a palavra saiu da barra (foi usada numa porta): o degrau volta a ser fantasma
       if (b.solid && !want) { b.solid = false; b.flash = 0; SFX.remove(); FX.burst(cx, cy, 16, 'c', 120, { life: 0.7, g: -40 }); }
     }

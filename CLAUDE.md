@@ -36,7 +36,7 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 - Futuro: depois do jogo inteiro, app Android (Google Play). Mantenha tudo pensado para toque e offline.
 - Preferências já dadas: sem voz em combos e nomes de criaturas; correr com toque duplo na seta (janela medida da
   soltura); quique alto com janela antes/depois (só no ar); blocos-fantasma dependem da barra, não do Grimório.
-- **Vozes gravadas (ElevenLabs)**: 217 falas em `src/voice/` (MP3 + `manifest.json`), embutidas pelo build.
+- **Vozes gravadas (ElevenLabs)**: 222 falas em `src/voice/` (MP3 + `manifest.json`), embutidas pelo build.
   Elenco: **Echo = Lulu** (feminina e sensual, escolhida pelo dono), **narrador do Baú = Elder Rowan** (a voz antiga
   das portas, pedida pelo dono no lugar do Lawrence; `[warmly]`, 1,08×), **portas e altares = Elder Rowan** (`[slowly]`,
   acelerada 1,15× no corte). Não imitar vozes de pessoas reais (ele citou Morgan Freeman: só a referência de idoso e grave). A Echo agora é **ela** nos textos em português ("a Echo", "sua amiga").
@@ -62,6 +62,7 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 | `70_game.js` | `Sentence`, `Panel`, `UI`, `Game` (estados, `later()` no tempo da simulação, laço, render com zoom da cena) |
 | `72_chest.js` | Baú da Memória (`Chest`), ícones, `HEART_LOOK`, `drawHeart`, cena épica (`Cine`) |
 | `73_echo.js` | `Arrival` (chegada no feixe), `Birth` (o Echo nasce do HELLO na porta 1), `EchoPulse` (sonar, C/LB/toque), `Hints` (placas) |
+| `74_prologue.js` | `Prologue`: A Lei das Palavras (1ª partida; `Save.data.met.prologue`), entidade `floorword` |
 | `75_worldmap.js` | `Transition` (íris/fechadura + cartão "Nexy × vidas"), `WorldMap` (andar, revelar caminhos, toque) |
 | `99_boot.js` | `window.NEXY` (API de teste) e `Game.boot()` |
 
@@ -120,6 +121,16 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   transcrever cada bloco pelo conector → split → build). Gastou ~8 mil créditos (213 falas + testes de voz).
   Testes de vozes que o dono ouviu: Sloane, Saira, Zoey, Rosie, **Lulu (escolhida)**, Viktoria, Serafina, Briony.
 
+- **Prólogo A Lei das Palavras** (pedido do dono: ensinar logo no início, sem chamar ninguém de burro): mostra, não
+  explica; a regra em PT só aparece depois que o jogador usou SMALL. `PROLOGUE` em `10_data.js`. Lembranças: placa na
+  escada-fantasma (1-1, `until: 'ghost'`), placa no altar 1 (1-2, `until: 'altar1'`; `Sentence.apply` marca o id da porta).
+- **Visual novo do Nexy** (pedido do dono, com uma arte de referência: armadura de gato, asas de fênix): proposta em
+  `src/62_nexy_look.js` + folha https://claude.ai/artifact/9GzkEvZ2PrXqBoJZHtc7qR. Começa rascunho de neon sem
+  armadura e ganha peças fase a fase. Esperando aprovação antes de entrar no build.
+- **Pedidos na fila**: segredo da 1-1 (casco jogado para cima num tijolo invisível acima do checkpoint c104 → falso
+  erro → WARP CARD → TO BE ENGINE no corredor 2: tabela completa do TO BE com HE = Nexy e SHE = Echo, 7 seguidas,
+  escalada → teletransporte para a praça final com as vidas cheias) e o **Tiro da Echo** (1º tiro paralisa o
+  Rastejante, 2º quebra; tecla F / Y; VOICE MODE: segurar V e dizer STOP!).
 - Esperando aprovação da 1-2 (com o baú). Depois: 1-3, Palácio do To Be (saída secreta da 1-1), Casa "PUSH OR PULL?"
   (saída secreta da 1-2), forte e castelo do Mundo 1.
 - Cada fase nova: algo inédito + acréscimo ao Coração + desafio crescente acima do A1 + caminho alternativo + um passo

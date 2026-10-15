@@ -77,6 +77,8 @@ LEVELS['1-2'] = {
   },
   // palavras que se aprendem lendo (Baú da Memória): contam para a Fluência como as dos blocos
   extraWords: ['DARK', 'LIGHT', 'AFRAID', 'STRONG'],
+  // a lei do prólogo de volta no primeiro altar: o que você diz vira verdade
+  hints: [{ c: 16, r: 27, en: 'WHAT YOU SAY IS TRUE', pt: 'diga IT IS BIG e a runa cresce', until: 'altar1' }],
   // alvos das frases. rune: c/r = coluna e linha de base; anchor = de onde cresce; small/big = tamanho em tiles
   targets: {
     rune1: { kind: 'rune', c: 24, r: 29, anchor: 'left', small: { w: 1, h: 1 }, big: { w: 2, h: 3 }, state: 'small' },
@@ -186,10 +188,10 @@ LEVELS['1-2'] = {
       nudge: [
         { blocks: 'giants', needs: ['THEY', 'ARE', 'SMALL'], lines: [
           { en: 'They are big.', pt: 'Os gigantes (THEY) continuam grandes e fecham o túnel.' },
-          { en: 'Make them small!', pt: 'Deixe os gigantes pequenos: THEY ARE SMALL.' }] },
+          { en: 'Make them small!', pt: 'Lembra do começo? Diga que eles SÃO pequenos: THEY ARE SMALL.' }] },
         { blocks: 'rune2', needs: ['IT', 'IS', 'SMALL'], lines: [
           { en: 'It is big.', pt: 'A pedra (IT) continua grande e fecha o caminho.' },
-          { en: 'Make it small!', pt: 'Encolha a pedra: IT IS SMALL.' }] },
+          { en: 'Make it small!', pt: 'Diga que a pedra É pequena: IT IS SMALL.' }] },
       ],
       // falta palavra na barra para a frase certa: a Echo aponta o poço de palavras
       nudgeMissing: { en: 'Something is here!', pt: 'Falta palavra? Bata no bloco ? depois do altar: ele dá a que falta.' },

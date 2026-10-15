@@ -3214,6 +3214,38 @@
    ],
    "from": "story-2"
   },
+  "story:in this world words are magic": {
+   "file": "story/in-this-world-words-are-magic.mp3",
+   "text": "In this world, words are magic.",
+   "dur": 3.52,
+   "b": [
+    [
+     0,
+     0.22
+    ],
+    [
+     3,
+     0.44
+    ],
+    [
+     8,
+     0.81
+    ],
+    [
+     15,
+     1.85
+    ],
+    [
+     21,
+     2.67
+    ],
+    [
+     25,
+     2.89
+    ]
+   ],
+   "from": "story-1"
+  },
   "story:is": {
    "file": "story/is.mp3",
    "text": "is",
@@ -3538,6 +3570,38 @@
    ],
    "from": "story-2"
   },
+  "story:say it and it is true": {
+   "file": "story/say-it-and-it-is-true.mp3",
+   "text": "Say it, and it is true.",
+   "dur": 2.37,
+   "b": [
+    [
+     0,
+     0.12
+    ],
+    [
+     4,
+     0.41
+    ],
+    [
+     8,
+     1.23
+    ],
+    [
+     12,
+     1.45
+    ],
+    [
+     15,
+     1.6
+    ],
+    [
+     18,
+     1.82
+    ]
+   ],
+   "from": "story-1"
+  },
   "story:small": {
    "file": "story/small.mp3",
    "text": "small",
@@ -3662,6 +3726,34 @@
    ],
    "from": "story-1"
   },
+  "story:what you say is true": {
+   "file": "story/what-you-say-is-true.mp3",
+   "text": "What you say is true.",
+   "dur": 2.29,
+   "b": [
+    [
+     0,
+     0.14
+    ],
+    [
+     5,
+     0.51
+    ],
+    [
+     9,
+     0.73
+    ],
+    [
+     13,
+     1.47
+    ],
+    [
+     16,
+     1.7
+    ]
+   ],
+   "from": "story-1"
+  },
   "story:when is nexy stronger": {
    "file": "story/when-is-nexy-stronger.mp3",
    "text": "When is Nexy stronger?",
@@ -3706,6 +3798,30 @@
     [
      12,
      1.53
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:words are the floor": {
+   "file": "story/words-are-the-floor.mp3",
+   "text": "Words are the floor.",
+   "dur": 2.23,
+   "b": [
+    [
+     0,
+     0.16
+    ],
+    [
+     6,
+     1.05
+    ],
+    [
+     10,
+     1.27
+    ],
+    [
+     14,
+     1.56
     ]
    ],
    "from": "story-1"
@@ -3833,6 +3949,22 @@
     ]
    ],
    "from": "story-2"
+  },
+  "story:your turn": {
+   "file": "story/your-turn.mp3",
+   "text": "Your turn.",
+   "dur": 0.96,
+   "b": [
+    [
+     0,
+     0.1
+    ],
+    [
+     5,
+     0.4
+    ]
+   ],
+   "from": "story-1"
   }
  }
 }

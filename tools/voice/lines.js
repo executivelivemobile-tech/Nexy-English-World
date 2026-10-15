@@ -19,12 +19,12 @@ function loadData() {
   const store = {};
   const ctx = { document: { getElementById: () => null }, localStorage: { getItem: () => null, setItem() {} }, window: {}, console };
   vm.createContext(ctx);
-  vm.runInContext(src + '\n;this.__ = { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS };', ctx);
+  vm.runInContext(src + '\n;this.__ = { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE };', ctx);
   return ctx.__;
 }
 
 function build() {
-  const { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS } = loadData();
+  const { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE } = loadData();
   const out = [], seen = new Set();
   const add = (who, text, prompt) => {
     if (!text || !/[A-Za-z]/.test(text)) return;
@@ -65,6 +65,9 @@ function build() {
   add('echo', 'New path!', '[excited] New path!');
   add('echo', 'Now you. Say it.', '[warmly] Now you. Say it.');
   add('echo', 'Are you?', '[curious] Are you?');
+
+  /* ---------------- prólogo: A Lei das Palavras (o narrador; IT IS BIG/SMALL saem na voz das portas) ---------------- */
+  for (const k of ['magic', 'floor', 'truth', 'turn', 'rule']) add('story', PROLOGUE[k].en);
 
   /* ---------------- portas, altares, baú ---------------- */
   for (const id in LEVELS) {

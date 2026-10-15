@@ -245,6 +245,31 @@
   "prompt": "[curious] Are you?"
  },
  {
+  "who": "story",
+  "text": "In this world, words are magic.",
+  "prompt": "In this world, words are magic."
+ },
+ {
+  "who": "story",
+  "text": "Words are the floor.",
+  "prompt": "Words are the floor."
+ },
+ {
+  "who": "story",
+  "text": "What you say is true.",
+  "prompt": "What you say is true."
+ },
+ {
+  "who": "story",
+  "text": "Your turn.",
+  "prompt": "Your turn."
+ },
+ {
+  "who": "story",
+  "text": "Say it, and it is true.",
+  "prompt": "Say it, and it is true."
+ },
+ {
   "who": "door",
   "text": "Hello!",
   "prompt": "Hello!"

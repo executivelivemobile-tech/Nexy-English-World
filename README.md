@@ -109,6 +109,17 @@ máximo), a investida em câmera lenta, o impacto congelado, o Muro do Silêncio
 **Quem não consegue** passar pelo baú tem outro caminho: um poço escuro antes do muro, subindo com um quique num
 Alado, e uma passagem baixa por cima do muro.
 
+## A Lei das Palavras: o prólogo (só na primeira partida)
+
+Antes de pisar no mundo, o jogo mostra as três leis em vez de explicá-las. No escuro, a voz antiga diz "In this world,
+words are magic." As letras de **HELLO** caem e acendem o chão onde o Nexy pousa ("Words are the floor."). Um
+Rastejante pequenino aparece; no ar surge **IT IS BIG.** e ele vira um gigante no caminho ("What you say is true.").
+Então é a vez do jogador: **IT IS ___.** com BIG e SMALL. BIG o deixa ainda maior (sem castigo: o mundo só obedece);
+SMALL o encolhe e ele foge. Só depois disso a regra ganha nome: "Quer que algo fique pequeno? Diga que ele É pequeno."
+No fim, o quadro THE LAW OF WORDS. Esc pula, Enter avança, e HELLO fica gravado no primeiro chão. A lei volta mais
+tarde, na hora em que vale: placa WORDS ARE THE FLOOR na escada-fantasma da 1-1, WHAT YOU SAY IS TRUE no primeiro
+altar da 1-2, e as dicas da Echo na cripta lembram o começo.
+
 ## A Echo: a primeira ferramenta (nasce na 1-1)
 
 A 1-1 começa com o Nexy **sozinho**, descendo do céu num feixe de luz. Placas de dica aparecem nos lugares certos
@@ -153,6 +164,8 @@ O jogo que vai para o jogador é só o `index.html`, autocontido. Ele é **gerad
 | `src/70_game.js` | frases, painel, interface e laço principal |
 | `src/72_chest.js` | Baú da Memória (leitura, perguntas, escalada) e a cena do Coração |
 | `src/73_echo.js` | 1-1: a chegada, o nascimento da Echo, o pulso da Echo e as placas de dica |
+| `src/74_prologue.js` | 1-1: A Lei das Palavras (o prólogo da primeira partida) |
+| `src/62_nexy_look.js` | o visual novo do Nexy em 6 estágios (proposta, ainda fora do build; folha: `tools/look_sheet.js`) |
 | `src/75_worldmap.js` | transições (íris e fechadura) e o mapa-múndi |
 | `src/99_boot.js` | API de teste no console (`NEXY`) e partida |
 | `src/levels/1-1.map` | mapa ASCII da 1-1 (23 linhas × 208 colunas) |

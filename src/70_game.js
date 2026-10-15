@@ -45,7 +45,7 @@ const Sentence = {
   // aplica o resultado de uma frase aceita
   apply(d, rule, words) {
     const r = rule.result, def = d.def;
-    d.solved = words.slice();
+    d.solved = words.slice(); Hints.mark(d.id);
     if (r.type === 'open' && def.birth === 'echo' && !Game.echoBorn) { Hints.mark('door1'); Birth.start(d); }
     else if (r.type === 'open') { d.opening = 0.001; SFX.doorOpen(); Game.shake(2); if (d.id === 'door1') Hints.mark('door1'); }
     else if (r.type === 'transform') {
@@ -244,6 +244,7 @@ const UI = {
     $('mhMute').addEventListener('click', () => Game.toggleMute());
     // no mapa, tocar/clicar numa fase anda até ela; tocar na fase atual entra
     $('game').addEventListener('pointerdown', e => {
+      if (Prologue.active) { const st = $('stage').getBoundingClientRect(), k = st.width / CFG.VIEW_W; Prologue.tap((e.clientX - st.left) / k, (e.clientY - st.top) / k); return; }
       if (Game.state !== 'map') return;
       const st = $('stage').getBoundingClientRect(), k = st.width / CFG.VIEW_W;
       WorldMap.tap((e.clientX - st.left) / k, (e.clientY - st.top) / k);
@@ -465,12 +466,12 @@ const Game = {
     this.checkpoint = null; this.reserve = null; this.autoWalk = false; this.exit = null;
     this.timers = []; this.wordSrc = {}; this.zone = null; Dark.k = 0; this.forceInput = null; this.metDark = false;
     if (typeof Cine !== 'undefined' && Cine.active) Cine.end();
-    if (typeof Birth !== 'undefined') { Birth.active = false; Arrival.active = false; EchoPulse.reset(); Hints.reset(); }
+    if (typeof Birth !== 'undefined') { Birth.active = false; Arrival.active = false; Prologue.active = false; EchoPulse.reset(); Hints.reset(); }
   },
   // tamanho da barra de palavras: cresce nas fases com mais vocabulário (LEVELS[id].barMax)
   barMax() { return (World.level && World.level.barMax) || CFG.WORD_BAR_MAX; },
   // cena ativa (Coração, nascimento do Echo, chegada): todas têm a mesma interface
-  scene() { return Cine.active ? Cine : Birth.active ? Birth : Arrival.active ? Arrival : null; },
+  scene() { return Cine.active ? Cine : Birth.active ? Birth : Prologue.active ? Prologue : Arrival.active ? Arrival : null; },
   // relógio da simulação (para quebra-cabeças determinísticos, como os sinos)
   later(sec, fn) { this.timers.push({ t: this.simTime + sec, fn }); },
   loadLevel(id) {
@@ -504,8 +505,11 @@ const Game = {
     UI.hideAll(); WorldMap.leave(); this.loadLevel(id); this.where = 'level'; this.state = 'play'; this.acc = 0; this.clearInput();
     Music.setVariant(LEVELS[id].music || 'world1'); Music.normal();
     if (!viaTransition) setTimeout(() => UI.toast(), 250);
-    // a 1-1 começa com a chegada do Nexy num feixe de luz (sem o Echo: ele nasce do primeiro HELLO)
-    if (!this.noIntro && !this.echoBorn) setTimeout(() => { if (this.state === 'play' && World.level.id === id && !Arrival.active) Arrival.start(); }, viaTransition ? 0 : 50);
+    // a 1-1 começa com a chegada do Nexy num feixe de luz (sem o Echo: ele nasce do primeiro HELLO).
+    // Na primeira partida, a chegada é o prólogo inteiro: A Lei das Palavras.
+    if (!this.noIntro && !this.echoBorn) setTimeout(() => {
+      if (this.state === 'play' && World.level.id === id && !Arrival.active && !Prologue.active) (Save.data.met.prologue ? Arrival : Prologue).start();
+    }, viaTransition ? 0 : 50);
     else if (!Save.data.met.echo && this.echoBorn) { Save.data.met.echo = true; Save.write(); this.later(1.4, () => Echo.talk(ECHO.lines.intro)); }
     if (LEVELS[id].intro) setTimeout(() => { if (this.where === 'level' && World.level.id === id) UI.msg(LEVELS[id].intro, 3200); }, viaTransition ? 900 : 2800);
     return true;
@@ -653,7 +657,7 @@ const Game = {
       const g = x.createRadialGradient(w / 2, h / 2, h * 0.35, w / 2, h / 2, w * 0.62);
       g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.3)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
     }), 480, 270);
-    Cine.drawScreen(ctx); Birth.drawScreen(ctx); Arrival.drawScreen(ctx);
+    Cine.drawScreen(ctx); Birth.drawScreen(ctx); Arrival.drawScreen(ctx); Prologue.drawScreen(ctx);
     Transition.draw(ctx, this.time);
   },
 

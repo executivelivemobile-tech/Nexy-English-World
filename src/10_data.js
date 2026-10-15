@@ -128,6 +128,21 @@ const ECHO = {
     teaser: [{ en: 'Look! The cathedral.', pt: 'Olha! A catedral.' }, { en: 'What is inside?', pt: 'O que será que tem lá dentro?' }],
   },
 };
+// A LEI DAS PALAVRAS: o prólogo da primeira partida (73_echo.js → Prologue). Quem fala é o narrador (a voz antiga);
+// as frases que o mundo obedece saem na voz das portas. A regra só ganha nome DEPOIS que o jogador a usou.
+const PROLOGUE = {
+  magic: { en: 'In this world, words are magic.', pt: 'Neste mundo, palavras são magia.' },
+  floor: { en: 'Words are the floor.', pt: 'Palavras viram chão.' },
+  truth: { en: 'What you say is true.', pt: 'O que você diz vira verdade.' },
+  turn: { en: 'Your turn.', pt: 'Sua vez: ele está no seu caminho. Escolha a palavra.' },
+  bigger: { en: 'It is big.', pt: 'Você disse BIG, e ele ficou ainda maior. O mundo acredita no que você diz.' },
+  rule: { en: 'Say it, and it is true.', pt: 'Quer que algo fique pequeno? Diga que ele É pequeno.' },
+  law: [
+    { en: 'WORDS ARE MAGIC', pt: 'palavras são magia' },
+    { en: 'WORDS ARE THE FLOOR', pt: 'palavras viram chão' },
+    { en: 'WHAT YOU SAY IS TRUE', pt: 'o que você diz vira verdade' },
+  ],
+};
 const MASTER_WORDS = {
   HELLO: { pt: 'olá', say: 'Hello', lore: 'Cinco letras espalhadas pelo escuro. Juntas, são a primeira coisa que o mundo responde.' },
   WORLD: { pt: 'mundo', say: 'World', lore: 'Depois do olá, o mundo inteiro. A catedral guardava cada letra num lugar mais alto.' },
@@ -199,6 +214,8 @@ const LEVELS = {
       { c: 7, r: 17, en: '← → MOVE · Z JUMP', pt: 'ande com as setas e pule com Z', until: 'jump' },
       { c: 16, r: 14, en: 'HIT THE ? FROM BELOW', pt: 'bata no bloco ? por baixo: ele solta uma palavra', until: 'word' },
       { c: 32, r: 15, en: '↑ OPEN · MAKE THE SENTENCE', pt: 'aperte ↑ na porta e monte a frase com as palavras', until: 'door1' },
+      // a lei do prólogo de volta, na hora em que ela vale: as palavras da barra viram degraus
+      { c: 62, r: 14, en: 'WORDS ARE THE FLOOR', pt: 'com AM, IS e ARE na barra, os degraus-fantasma viram chão', until: 'ghost' },
     ],
     // Entidades com parâmetros extras por caractere (sobrepõem a legenda global).
     entities: {

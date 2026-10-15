@@ -340,7 +340,7 @@ test('1-1: o pulso do Echo revela o bloco invisível, a parede falsa e a palavra
 test('1-1: a chegada no feixe de luz termina com o Nexy no chão e no controle', async ({ browser }) => {
   const { ctx, page, errors } = await openGame(browser, { realtime: true });
   await page.keyboard.press('Enter'); await page.waitForTimeout(300);
-  await page.evaluate(() => NEXY.Game.enterLevel('1-1'));
+  await page.evaluate(() => { NEXY.Save.data.met.prologue = true; NEXY.Game.enterLevel('1-1'); });   // já viu o prólogo: só a chegada
   await page.waitForTimeout(200);
   const mid = await page.evaluate(() => ({ arrival: Arrival.active, state: NEXY.Game.state }));
   await page.waitForTimeout(3500);
@@ -350,6 +350,71 @@ test('1-1: a chegada no feixe de luz termina com o Nexy no chão e no controle',
   expect(mid.arrival && mid.state === 'cinematic', `a chegada começa (${JSON.stringify(mid)})`);
   expect(!end.arrival && end.state === 'play' && end.ground && end.hidden, `termina no chão, ainda sem o Echo (${JSON.stringify(end)})`);
 }, { ownPages: true });
+
+test('1-1 prólogo: letras viram chão; IT IS BIG faz o Rastejante crescer; BIG o deixa maior, SMALL o encolhe e ele foge', async ({ page }) => {
+  const r = await page.evaluate(() => {
+    const G = NEXY.Game, P = NEXY.P, out = {};
+    NEXY.Save.data.met.prologue = false; Voice.enabled = false;
+    const foot = P.y + P.h, c0 = Math.floor(P.cx / 32);
+    Prologue.start();
+    const run = (until, max = 1800) => { let n = 0; while (!until() && n++ < max) Prologue.update(1 / 60); return n < max; };
+    out.dark = Prologue.rev(c0) === 0 && G.state === 'cinematic';
+    out.toChoice = run(() => Prologue.phase === 'choice');
+    out.floor = Prologue.rev(c0) === 1 && Prologue.rev(c0 + 12) === 1 && Prologue.letters.every(l => l.landed >= 0);
+    out.landed = Math.round(P.y + P.h) === Math.round(foot);
+    out.big = +Prologue.crawler.s.toFixed(1);
+    Prologue.key({ code: 'ArrowLeft' }); Prologue.key({ code: 'Enter' });
+    out.slotBig = Prologue.slot; run(() => false, 60); out.bigger = +Prologue.crawler.s.toFixed(1);
+    out.back = run(() => Prologue.phase === 'choice');
+    Prologue.tap(560, 460);   // toque no SMALL
+    out.slotSmall = Prologue.slot;
+    run(() => Prologue.crawler.gone, 600); out.small = Prologue.crawler.gone;
+    out.rule = Prologue.text && Prologue.text.pt;
+    out.end = run(() => !Prologue.active);
+    out.after = { state: G.state, met: NEXY.Save.data.met.prologue, word: NEXY.Ents.list.some(e => e.type === 'floorword') };
+    return out;
+  });
+  expect(r.dark && r.toChoice, `começa no escuro e chega à escolha (${JSON.stringify(r)})`);
+  expect(r.floor && r.landed, `as letras acendem o chão e o Nexy pousa nele (${JSON.stringify(r)})`);
+  expect(r.big >= 3 && r.slotBig === 'BIG' && r.bigger > r.big && r.back, `IT IS BIG: gigante; BIG de novo: ainda maior e volta à escolha (${r.big} → ${r.bigger})`);
+  expect(r.slotSmall === 'SMALL' && r.small && /pequeno/.test(r.rule || ''), `SMALL: encolhe, foge e a regra aparece (${r.rule})`);
+  expect(r.end && r.after.state === 'play' && r.after.met && r.after.word, `termina no controle, lembra que já viu e deixa HELLO no chão (${JSON.stringify(r.after)})`);
+}, { echo: false });
+
+test('1-1 prólogo: só na primeira partida; Esc pula tudo e entrega o controle', async ({ browser }) => {
+  const { ctx, page, errors } = await openGame(browser, { realtime: true });
+  await page.keyboard.press('Enter'); await page.waitForTimeout(300);
+  await page.evaluate(() => { NEXY.Save.data.met.prologue = false; NEXY.Game.enterLevel('1-1'); });
+  await page.waitForTimeout(400);
+  const first = await page.evaluate(() => ({ pro: Prologue.active, arr: Arrival.active }));
+  await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+  const skipped = await page.evaluate(() => ({ pro: Prologue.active, state: NEXY.Game.state, ground: Math.abs(NEXY.P.y + NEXY.P.h - Prologue.foot) < 1, met: NEXY.Save.data.met.prologue }));
+  await page.evaluate(() => NEXY.Game.enterLevel('1-1')); await page.waitForTimeout(400);
+  const again = await page.evaluate(() => ({ pro: Prologue.active, arr: Arrival.active }));
+  await ctx.close();
+  expect(!errors.length, errors.join('; '));
+  expect(first.pro && !first.arr, `primeira vez: o prólogo (${JSON.stringify(first)})`);
+  expect(!skipped.pro && skipped.state === 'play' && skipped.ground && skipped.met, `Esc: no chão e no controle (${JSON.stringify(skipped)})`);
+  expect(!again.pro && again.arr, `depois: só a chegada (${JSON.stringify(again)})`);
+}, { ownPages: true });
+
+test('lembranças da lei: placa na escada-fantasma (1-1) e no primeiro altar (1-2) somem quando a lei é usada', async ({ page }) => {
+  const r = await page.evaluate(async () => {
+    const G = NEXY.Game, P = NEXY.P, out = {};
+    out.h11 = (NEXY.World.level.hints || []).some(h => h.until === 'ghost');
+    H.noEnemies(); NEXY.give('AM'); H.step(5);
+    H.tp(65, 15, 999); H.set([]); H.step(30);   // em cima do degrau AM
+    out.ghostDone = !!Hints.done.ghost;
+    G.loadLevel('1-2'); G.echoBorn = true; Echo.hidden = false;
+    out.h12 = (NEXY.World.level.hints || []).some(h => h.until === 'altar1');
+    NEXY.give('IT', 'BIG'); H.tp(21, 29, 999); H.set([]); H.step(5);
+    G.openPanel(P.interact); Panel.place(G.bar.indexOf('IT')); Panel.place(G.bar.indexOf('BIG')); Panel.confirm(); await H.wait(1800); H.step(10);
+    out.altarDone = !!Hints.done.altar1;
+    return out;
+  });
+  expect(r.h11 && r.ghostDone, `1-1: placa WORDS ARE THE FLOOR some ao pisar no degrau (${JSON.stringify(r)})`);
+  expect(r.h12 && r.altarDone, `1-2: placa WHAT YOU SAY IS TRUE some com IT IS BIG (${JSON.stringify(r)})`);
+});
 
 /* ================================ FASE 1-2 · WHO ARE YOU? ================================ */
 const L12 = { level: '1-2' };
