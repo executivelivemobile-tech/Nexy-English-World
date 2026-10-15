@@ -192,7 +192,7 @@ const P = {
         if (falling && above) { this.y = e.y - this.h; this.bounce(false); SFX.thud(); }
         else {
           const left = this.cx < e.x + e.w / 2; this.x = left ? e.x - this.w : e.x + e.w; this.vx = left ? -90 : 90;
-          if (e.shake <= 0) { e.shake = 0.35; SFX.thud(); }
+          if (e.shake <= 0) { e.shake = 0.35; SFX.thud(); Sentence.bumped('giants'); }
         }
         continue;
       }

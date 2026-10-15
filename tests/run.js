@@ -759,16 +759,34 @@ test('1-2 cripta: frase certa que não abre o caminho faz a Echo apontar o que b
     const say = async words => { Echo.line = null; Echo.lines = []; await H12.panel(215, 35, words); H.step(40); out.push(Echo.line ? Echo.line.en : '-'); };
     await say(['YOU', 'ARE', 'BIG']);      // os gigantes ainda fecham: só o problema
     await say(['WE', 'ARE', 'SMALL']);     // de novo: já com a frase
-    await say(['THEY', 'ARE', 'SMALL']);   // progresso: sem dica
+    await say(['THEY', 'ARE', 'SMALL']);   // gigantes resolvidos: agora aponta a pedra
     H.step(120);
-    await say(['YOU', 'ARE', 'BIG']);      // agora é a pedra
-    await say(['IT', 'IS', 'SMALL']);      // progresso
+    await say(['YOU', 'ARE', 'BIG']);      // a pedra de novo: já com a frase
+    await say(['IT', 'IS', 'SMALL']);      // caminho aberto: sem dica
     H.step(120);
-    await say(['YOU', 'ARE', 'BIG']);      // caminho aberto: sem dica
+    await say(['YOU', 'ARE', 'BIG']);      // continua aberto: sem dica
     return { out, state: NEXY.Game.state };
   });
-  expect(r.out.join(' | ') === 'They are big. | Make them small! | - | It is big. | - | -', `dicas: ${r.out.join(' | ')}`);
+  expect(r.out.join(' | ') === 'They are big. | Make them small! | It is big. | Make it small! | - | -', `dicas: ${r.out.join(' | ')}`);
   expect(r.state === 'play', 'o jogo segue normal');
+}, L12);
+
+test('1-2 cripta: IT IS SMALL primeiro não tira os gigantes; a Echo avisa, e também quando o Nexy empurra os gigantes', async ({ page }) => {
+  await page.evaluate(HELP12);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, out = {};
+    H.noEnemies();
+    NEXY.give('IT', 'IS', 'THEY', 'ARE', 'SMALL', 'BIG', 'YOU', 'WE');
+    Echo.line = null; Echo.lines = [];
+    await H12.panel(215, 35, ['IT', 'IS', 'SMALL']); H.step(40);   // o que o dono fez: a pedra encolhe, os gigantes ficam
+    out.afterStone = Echo.line && Echo.line.en;
+    Echo.line = null; Echo.lines = []; H.step(400);                  // passa o intervalo da dica
+    H.tp(216, 35, 999); H.set(['right']); H.step(90); H.set([]);   // empurra os gigantes
+    out.blocked = Math.round(P.x / 32); out.bump = Echo.line && Echo.line.en;
+    return out;
+  });
+  expect(r.afterStone === 'They are big.', `depois de IT IS SMALL a Echo aponta os gigantes (${r.afterStone})`);
+  expect(r.blocked <= 218 && r.bump === 'Make them small!', `empurrando os gigantes, a dica com a frase (${r.bump})`);
 }, L12);
 
 test('1-2 cripta sem o SMALL (e sem THEY/IS): o poço de palavras depois do altar dá o que falta, e a Echo aponta para ele', async ({ page }) => {

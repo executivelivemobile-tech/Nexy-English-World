@@ -97,8 +97,8 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 - **Poço de palavras** `m` em c217 L32 (logo depois do altar 2): cada batida dá a próxima palavra que falta de
   THEY/ARE/SMALL/IT/IS (`content.reserve`). O SMALL fica no alto dos tubos do órgão; sem o poço, quem passava direto
   ficava preso nos gigantes (aconteceu com o dono).
-- Altar 2 tem `nudge`: frase certa que não abre o caminho (YOU ARE BIG, THEY ARE BIG...) faz a Echo dizer o que ainda
-  bloqueia (1ª vez "They are big.", depois "Make them small!", ou "Something is here!" apontando o poço se faltar palavra;
+- Altar 2 tem `nudge`: depois de qualquer frase certa (até IT IS SMALL, que não tira os gigantes) e quando o Nexy
+  empurra os gigantes (`Sentence.bumped`, a cada 6 s), a Echo diz o que ainda bloqueia (1ª vez "They are big.", depois "Make them small!", ou "Something is here!" apontando o poço se faltar palavra;
   idem para a pedra). O dono achou que tinha travado ali.
 
 ## 6. Testes (`node tests/run.js [filtro]`, Playwright, ~3 min)
