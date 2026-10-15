@@ -7,7 +7,7 @@ Plataforma 2D neon-noir para ensinar inglês (nível A1) a brasileiros. Tudo est
 
 | Fase | Status | Commit |
 | --- | --- | --- |
-| 1-1 · Hello World | aprovada em `3702f14`; nova abertura com o nascimento do Echo aguardando aprovação | branch |
+| 1-1 · Hello World | aprovada em `3702f14`; nova abertura com o nascimento da Echo aguardando aprovação | branch |
 | 1-2 · Who are you? | aguardando aprovação | branch `claude/jolly-faraday-8mbshk` |
 
 ## Como o jogo flui
@@ -57,8 +57,8 @@ Palavra-mestra: **WORLD**. Na 1-2 a barra de palavras cresce para **10** espaço
 | --- | --- |
 | IT IS BIG / SMALL | a pedra com a runa IT cresce ou encolhe |
 | THEY ARE SMALL / BIG | os três Rastejantes gigantes encolhem (e viram Rastejantes comuns) ou crescem de novo |
-| YOU ARE BIG / SMALL | o Echo cresce (no telhado, vira uma plataforma que leva o Nexy) ou encolhe |
-| WE ARE BIG | o Nexy e o Echo juntos |
+| YOU ARE BIG / SMALL | a Echo cresce (no telhado, vira uma plataforma que leva o Nexy) ou encolhe |
+| WE ARE BIG | o Nexy e a Echo juntos |
 | IT ARE SMALL, THEY IS… | concordância errada: o alvo treme, confuso, e nada acontece |
 
 **As cinco seções**
@@ -72,12 +72,12 @@ Palavra-mestra: **WORLD**. Na 1-2 a barra de palavras cresce para **10** espaço
    de cima do lustre). Ordem errada: o eco repete a frase e os sinos zeram. De primeira: uma vida cai do grande sino.
    Tubos do órgão sobem e descem na batida da música (do alto do tubo 2 sai o SMALL). Corredor do **Ladrão de
    Palavras**: ele leva a última palavra da barra; um pisão devolve; se ele fugir, a palavra volta para o bloco.
-4. **A Cripta.** Escura e de teto baixo; o Echo é a luz ("It is dark. I am your light."). Altar "BIG OR SMALL?" com os
+4. **A Cripta.** Escura e de teto baixo; a Echo é a luz ("It is dark. I am your light."). Altar "BIG OR SMALL?" com os
    dois alvos: os gigantes (THEY) e a pedra (IT). No fim, o **Baú da Memória** e o **Muro do Silêncio** (veja abaixo).
    Atrás do muro, a câmara da luz; uma parede falsa debaixo da torre esconde a **Lua** (3 vidas).
 5. **O Campanário.** Subida vertical: tubos, sacada com vida, plataformas, lustre e o telhado. Atalho-fantasma
    (IS e ARE na barra viram degraus). Porta "IS IT A DOOR?" → YES, IT IS. No telhado, o altar "WHO IS BIG?":
-   **IT IS BIG** faz a ponte para o fim normal; **YOU ARE BIG** faz o Echo levar o Nexy pelo céu até o fim secreto.
+   **IT IS BIG** faz a ponte para o fim normal; **YOU ARE BIG** faz a Echo levar o Nexy pelo céu até o fim secreto.
 
 Vidas: ponte de Alados (3x), bloco logo depois da porta 2, sinos de primeira, Lua (3), meio do campanário e as que o
 Coração dá.
@@ -96,7 +96,7 @@ aprendizado:
    "because", inferência), uma tentativa cada. Cada acerto sobe o **Coração das Palavras** de nível e muda a cor dele:
    ciano (quebra o muro) → magenta (+ escudo) → incandescente (+ vida) → prisma (+ 30 orbes) → **Coroa das Palavras**
    (+ vida). Errar encerra a escalada, mas o poder conquistado fica. O melhor nível é salvo e aparece no mapa.
-5. **"I AM STRONG."**: o aluno monta (ou fala) a frase em 1ª pessoa. Escolher AFRAID apaga a luz e o Echo pergunta
+5. **"I AM STRONG."**: o aluno monta (ou fala) a frase em 1ª pessoa. Escolher AFRAID apaga a luz e a Echo pergunta
    "Are you?".
 
 Então vem a cena (na pegada God of War): silêncio, faixas de cinema, as palavras que o aluno aprendeu giram em volta do
@@ -106,26 +106,28 @@ máximo), a investida em câmera lenta, o impacto congelado, o Muro do Silêncio
 **Quem não consegue** passar pelo baú tem outro caminho: um poço escuro antes do muro, subindo com um quique num
 Alado, e uma passagem baixa por cima do muro.
 
-## O Echo: a primeira ferramenta (nasce na 1-1)
+## A Echo: a primeira ferramenta (nasce na 1-1)
 
 A 1-1 começa com o Nexy **sozinho**, descendo do céu num feixe de luz. Placas de dica aparecem nos lugares certos
 (em inglês, com português) e somem quando você já fez a ação. Ao dizer a primeira palavra, **HELLO!** na porta 1, ela
-ecoa pela catedral ("hello… hello… hello"), as ondas voltam, as letras H-E-L-L-O giram e se juntam numa luz: nasce o
-**Echo** ("ECHO · YOUR FIRST TOOL · YOUR FRIEND"). Ele dá uma volta em oito, se apresenta ("Hello! I am Echo. I am
+ecoa pela catedral ("hello… hello… hello"), as ondas voltam, as letras H-E-L-L-O giram e se juntam numa luz: nasce a
+**Echo** ("ECHO · YOUR FIRST TOOL · YOUR FRIEND"). Ela dá uma volta em oito, se apresenta ("Hello! I am Echo. I am
 your friend.") e só então a porta abre. Nas próximas vezes a cena é mais rápida, e Enter pula.
 
-**O pulso do Echo** (tecla **C**, **LB** no controle, botão **ECHO** no celular) é um sonar: revela por alguns segundos
+**O pulso da Echo** (tecla **C**, **LB** no controle, botão **ECHO** no celular) é um sonar: revela por alguns segundos
 os blocos invisíveis e as paredes falsas por perto, e deixa ouvir a palavra que está dentro dos blocos "?". Logo depois
 da porta 1 há um bloco invisível com uma vida para treinar; o mesmo pulso encontra os segredos que já existiam (o
 cristal escondido, o SMALL da saída secreta e a parede falsa). Blocos já usados ficam com borda e marca de vazio, e o
-Echo os ilumina quando passa perto. No fim da 1-1 o Echo olha a catedral: "Look! The cathedral. What is inside?".
+Echo os ilumina quando passa perto. No fim da 1-1 a Echo olha a catedral: "Look! The cathedral. What is inside?".
 
-O Echo também fala as palavras em inglês, ilumina o escuro e é o alvo de YOU na 1-2. Tem ficha no Grimório (aba
+A Echo também fala as palavras em inglês, ilumina o escuro e é o alvo de YOU na 1-2. Tem ficha no Grimório (aba
 CREATURES).
 
-A voz é a do próprio aparelho. O jogo escolhe sozinho a mais natural (as "Natural" do Edge/Windows 11 e as do Google
-no Chrome soam bem; as antigas do Windows, como Zira e David, são robóticas). Para trocar: pausa → ASSIST →
-**ECHO'S VOICE**; cada toque passa para a próxima voz e o Echo se apresenta com ela. A escolha fica salva.
+As vozes são gravadas em estúdio (ElevenLabs): **a Echo** fala com a voz da Lulu, aveludada; o **narrador** do Baú da
+Memória é o Lawrence; as **portas e altares** falam com a Elder Rowan, grave e antiga, com o eco da catedral. São 213
+falas (palavras, frases das portas, a história do Baú, as perguntas). Se você montar numa porta uma frase que não foi
+gravada, a porta repete palavra por palavra. Para usar a voz do aparelho no lugar: pausa → ASSIST → **ECHO'S VOICE**
+(cada toque passa para a próxima voz; a escolha fica salva). Como gravar falas novas: `tools/voice/README.md`.
 
 Trilha: a mesma progressão da 1-1, a 100 BPM, com o órgão "respondendo" à melodia, coro e sino; abafada na cripta e
 em crescendo no campanário.
@@ -139,7 +141,7 @@ O jogo que vai para o jogador é só o `index.html`, autocontido. Ele é **gerad
 | `src/00_head.html` | HTML, CSS, HUD, HUD do mapa, painel das portas e telas |
 | `src/10_data.js` | legenda do mapa, `CFG` (física), `LOOK` (brilho), palavras, fase 1-1, mapa do mundo (`WORLDS`), save e flags |
 | `src/12_level_1-2.js` | dados da fase 1-2 (legenda extra, blocos, alvos, portas, altares, sinos) |
-| `src/20_audio.js` | efeitos sintetizados, música em camadas com variações por fase, voz e reconhecimento de fala |
+| `src/20_audio.js` | efeitos sintetizados, música em camadas com variações por fase, vozes gravadas (com a do aparelho de reserva) e reconhecimento de fala |
 | `src/30_input_render.js` | teclado, toque, controle (gamepad), escala da tela e cache dos brilhos |
 | `src/40_world.js` | tiles, blocos, runas, colisão, zonas, fundos em parallax (cidade e nave), escuridão e partículas |
 | `src/50_entities.js` | inimigos, itens, portais e pedestal |
@@ -147,13 +149,15 @@ O jogo que vai para o jogador é só o `index.html`, autocontido. Ele é **gerad
 | `src/60_player.js` | jogador (plataformas móveis, forma de Rastejante), Echo, câmera e desenho das portas |
 | `src/70_game.js` | frases, painel, interface e laço principal |
 | `src/72_chest.js` | Baú da Memória (leitura, perguntas, escalada) e a cena do Coração |
-| `src/73_echo.js` | 1-1: a chegada, o nascimento do Echo, o pulso do Echo e as placas de dica |
+| `src/73_echo.js` | 1-1: a chegada, o nascimento da Echo, o pulso da Echo e as placas de dica |
 | `src/75_worldmap.js` | transições (íris e fechadura) e o mapa-múndi |
 | `src/99_boot.js` | API de teste no console (`NEXY`) e partida |
 | `src/levels/1-1.map` | mapa ASCII da 1-1 (23 linhas × 208 colunas) |
 | `src/levels/1-2.map` | mapa ASCII da 1-2 (40 linhas × 312 colunas) |
 | `build.js` | junta tudo em `index.html` |
 | `tools/gen_map_1-2.py` | gerador do mapa da 1-2 (edite e rode para regenerar `src/levels/1-2.map`) |
+| `src/voice/` | as falas gravadas (MP3) e o `manifest.json`; o build embute tudo no `index.html` |
+| `tools/voice/` | lista as falas do jogo, agrupa para a ElevenLabs e corta o áudio em uma fala por arquivo |
 | `CLAUDE.md` | contexto de trabalho (decisões, arquitetura, regras) para continuar o projeto |
 | `tests/` | testes de regressão da 1-1, da 1-2 e do mapa (Playwright + Chromium) |
 
@@ -179,7 +183,7 @@ Para testar uma fase direto, sem passar pelo mapa: no console do navegador, `NEX
   `accept` (frases certas e seus resultados: `open`, `transform`, `exit`, `target`, `echo`, `we`) e `enact` (frases
   "erradas" que a porta encena: `morph`, `mirror`, `crawler`, `confused`; `*` vale qualquer palavra).
 - **Alvos das frases (1-2):** `LEVELS['1-2'].targets`. Runas: coluna/linha de base, de onde crescem (`anchor`) e os
-  tamanhos `small`/`big` em tiles. O passeio do Echo gigante fica em `doors.altar3.ride` (onde espera e o caminho).
+  tamanhos `small`/`big` em tiles. O passeio da Echo gigante fica em `doors.altar3.ride` (onde espera e o caminho).
 - **Sinos:** caracteres `5`–`8` em `LEVELS['1-2'].entities` (palavra e portão); o portão é a porta `gate`
   (`kind: 'bells'`), com `reward` = de onde cai a vida de quem acerta de primeira.
 - **Mapa do mundo:** `WORLDS` em `src/10_data.js`: nós (posição e ícone), caminhos (`unlock: [fase, saída]` e pontos

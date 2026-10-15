@@ -289,12 +289,88 @@ const Music = {
   },
 };
 
-/* ============================== VOZ (Web Speech API) ============================== */
+/* ============================== VOZ: gravada em estúdio (ElevenLabs) e, de reserva, a do aparelho ============================== */
+// VOICE_PACK vem do build (src/voice/manifest.json + os MP3): { cast: { echo|story|door: { name } },
+// clips: { 'quem:texto normalizado': [mp3 em base64, [[índice do caractere, segundos], ...]] } }.
+// As marcas de tempo vêm da transcrição (ElevenLabs Scribe) e acendem o karaokê da leitura.
+const VoiceClips = {
+  pack: /*VOICE_PACK*/null,
+  bufs: {}, pending: {}, sources: [], timers: [], out: null,
+  key(who, text) { return who + ':' + String(text).toLowerCase().replace(/[^a-z0-9']+/g, ' ').trim(); },
+  has() { return !!(this.pack && this.pack.clips && Object.keys(this.pack.clips).length); },
+  name(who) { const c = this.pack && this.pack.cast && this.pack.cast[who]; return c ? c.name : 'Studio'; },
+  load(k) {
+    if (this.bufs[k]) return Promise.resolve(this.bufs[k]);
+    if (this.pending[k]) return this.pending[k];
+    const c = AudioSys.ctx, e = this.pack && this.pack.clips[k];
+    if (!c || !e) return Promise.resolve(null);
+    const bin = atob(e[0]), u8 = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+    return (this.pending[k] = new Promise(res => {
+      const ok = b => { this.bufs[k] = b; delete this.pending[k]; res(b); }, bad = () => { delete this.pending[k]; res(null); };
+      try { const p = c.decodeAudioData(u8.buffer, ok, bad); if (p && p.catch) p.catch(bad); } catch (err) { bad(); }
+    }));
+  },
+  // decodifica tudo aos poucos, em segundo plano, para a primeira fala não atrasar
+  warm() {
+    if (!this.has() || !AudioSys.ctx || this.warming) return;
+    this.warming = true;
+    const ks = Object.keys(this.pack.clips); let i = 0;
+    const step = () => { const n = Math.min(ks.length, i + 4); for (; i < n; i++) this.load(ks[i]); if (i < ks.length) setTimeout(step, 80); };
+    setTimeout(step, 500);
+  },
+  // o que tocar: a fala inteira; numa porta, palavra por palavra (a porta repete o que você disse); senão outra voz
+  plan(who, text) {
+    const clips = this.pack.clips, k = this.key(who, text);
+    if (clips[k]) return [{ k, off: 0 }];
+    if (who === 'door') {
+      const out = []; let pos = 0, ok = true;
+      for (const w of text.split(/\s+/)) {
+        const at = text.indexOf(w, pos); pos = at + w.length;
+        if (!this.key('', w).slice(1)) continue;
+        const kk = this.key('door', w);
+        if (!clips[kk]) { ok = false; break; }
+        out.push({ k: kk, off: at });
+      }
+      if (ok && out.length) return out;
+    }
+    for (const o of ['echo', 'story', 'door']) { const kk = this.key(o, text); if (o !== who && clips[kk]) return [{ k: kk, off: 0 }]; }
+    return null;
+  },
+  play(plan, who, opts, live, done) {
+    Promise.all(plan.map(p => this.load(p.k))).then(bufs => {
+      if (!live()) return;
+      if (bufs.some(b => !b)) { done(true); return; }
+      const c = AudioSys.ctx, rate = opts.pitch || 1;
+      const out = c.createGain(); out.gain.value = opts.volume != null ? opts.volume : 1; out.connect(AudioSys.master);
+      // a porta fala dentro da catedral; o Echo tem um brilho de eco; o narrador fica seco
+      const send = { door: 0.6, echo: 0.16, story: 0.05 }[who] || 0;
+      if (send && AudioSys.verb) { const s = c.createGain(); s.gain.value = send; out.connect(s); s.connect(AudioSys.verb); }
+      this.out = out;
+      let t = c.currentTime + 0.03;
+      plan.forEach((p, i) => {
+        const src = c.createBufferSource(); src.buffer = bufs[i]; src.playbackRate.value = rate; src.connect(out); src.start(t);
+        this.sources.push(src);
+        if (opts.onBoundary) for (const [ci, s] of (this.pack.clips[p.k][1] || [[0, 0]])) {
+          this.timers.push(setTimeout(() => { if (live()) opts.onBoundary(p.off + ci); }, (t - c.currentTime + s / rate) * 1000));
+        }
+        t += bufs[i].duration / rate + (i < plan.length - 1 ? 0.14 : 0);
+      });
+      this.timers.push(setTimeout(() => done(false), (t - c.currentTime) * 1000 + 120));
+    });
+  },
+  stop() {
+    for (const s of this.sources) { try { s.stop(); } catch (e) { /* já parou */ } }
+    for (const t of this.timers) clearTimeout(t);
+    if (this.out) { try { this.out.disconnect(); } catch (e) { /* ignora */ } }
+    this.sources = []; this.timers = []; this.out = null;
+  },
+};
+
 const Voice = {
-  enabled: false, voice: null, speaking: false, who: null, timer: null, pulse: 0,
-  // Escolhe a voz mais natural do aparelho. As vozes "Natural"/"Neural"/"Online" (Edge, Windows 11, Android) e as do
-  // Google (Chrome) soam bem; as antigas do Windows (Zira, David, Mark "Desktop") são robóticas e ficam por último.
-  // O jogador pode trocar em ASSIST → ECHO'S VOICE (fica salvo).
+  enabled: false, voice: null, studio: false, speaking: false, who: null, timer: null, pulse: 0, seq: 0,
+  // Voz do aparelho (reserva): as "Natural"/"Neural"/"Online" (Edge, Windows 11, Android) e as do Google (Chrome) soam bem;
+  // as antigas do Windows (Zira, David, Mark "Desktop") são robóticas e ficam por último.
   score(v) {
     const n = (v.name || '').toLowerCase(), l = (v.lang || '').toLowerCase().replace('_', '-');
     let s = 0;
@@ -309,43 +385,63 @@ const Voice = {
     const vs = ('speechSynthesis' in window && window.speechSynthesis.getVoices()) || [];
     return vs.filter(v => this.score(v) >= 0).sort((a, b) => this.score(b) - this.score(a));
   },
-  label(v) { return v ? v.name.replace(/^Microsoft\s+|^Google\s+/, '').replace(/\s*Online\s*\(Natural\)/i, ' (Natural)').replace(/\s*-\s*English.*$/i, '') : '—'; },
+  // ASSIST → ECHO'S VOICE: primeiro a voz gravada em estúdio, depois as do aparelho (fica salvo)
+  choices() { return (VoiceClips.has() ? ['studio'] : []).concat(this.list()); },
+  current() { return this.studio ? 'studio' : this.voice; },
+  label(v) {
+    if (v === 'studio') return VoiceClips.name('echo') + ' · studio';
+    return v ? v.name.replace(/^Microsoft\s+|^Google\s+/, '').replace(/\s*Online\s*\(Natural\)/i, ' (Natural)').replace(/\s*-\s*English.*$/i, '') : '—';
+  },
   init() {
+    const want = Save.data && Save.data.voiceURI;
+    this.studio = VoiceClips.has() && (!want || want === 'studio');
     if (!('speechSynthesis' in window)) return;
     const pick = () => {
-      const vs = this.list(), want = Save.data && Save.data.voiceURI;
-      this.voice = (want && vs.find(v => v.voiceURI === want)) || vs[0] || null;
+      const vs = this.list();
+      this.voice = (want && want !== 'studio' && vs.find(v => v.voiceURI === want)) || vs[0] || null;
       if (typeof UI !== 'undefined' && UI.renderAssist) UI.renderAssist();
     };
     pick();
     try { window.speechSynthesis.addEventListener('voiceschanged', pick); } catch (e) { window.speechSynthesis.onvoiceschanged = pick; }
   },
-  // ASSIST: passa para a próxima voz e o Echo se apresenta com ela
   nextVoice() {
-    const vs = this.list(); if (!vs.length) return null;
-    const i = vs.indexOf(this.voice); this.voice = vs[(i + 1) % vs.length];
-    Save.data.voiceURI = this.voice.voiceURI; Save.write();
+    const cs = this.choices(); if (!cs.length) return null;
+    const next = cs[(cs.indexOf(this.current()) + 1) % cs.length];
+    this.studio = next === 'studio'; if (!this.studio) this.voice = next;
+    Save.data.voiceURI = this.studio ? 'studio' : next.voiceURI; Save.write();
     this.say('Hello! I am Echo. I am your friend.', 'echo');
-    return this.voice;
+    return next;
   },
-  // opts: onBoundary(charIndex) para o karaokê da leitura, onEnd()
+  // opts: onBoundary(charIndex) para o karaokê da leitura, onEnd(), volume, rate, pitch
   say(text, who = 'echo', opts = {}) {
-    if (!this.enabled || AudioSys.muted || !text || !('speechSynthesis' in window)) return;
+    if (!this.enabled || AudioSys.muted || !text) return;
     text = String(text);
+    this.stop(true);
+    const id = ++this.seq, live = () => this.seq === id;
+    const done = () => { if (!live()) return; clearTimeout(this.timer); this.speaking = false; AudioSys.duck(false); if (opts.onEnd) opts.onEnd(); };
+    this.speaking = true; this.who = who; this.pulse = 1; AudioSys.duck(true);
+    const plan = this.studio && AudioSys.ctx ? VoiceClips.plan(who, text) : null;
+    if (plan) { VoiceClips.play(plan, who, opts, live, failed => { if (!live()) return; if (failed) this.tts(text, who, opts, live, done); else done(); }); return; }
+    this.tts(text, who, opts, live, done);
+  },
+  tts(text, who, opts, live, done) {
+    if (!('speechSynthesis' in window)) { done(); return; }
     const ss = window.speechSynthesis;
-    try { ss.cancel(); } catch (e) { /* ignora */ }
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'en-US'; if (this.voice) u.voice = this.voice;
     if (who === 'door') { u.pitch = 0.8; u.rate = 0.88; } else if (who === 'story') { u.pitch = 1; u.rate = 0.85; } else { u.pitch = 1.05; u.rate = 0.95; }
-    const done = () => { if (this.cur !== u) return; this.speaking = false; AudioSys.duck(false); if (opts.onEnd) opts.onEnd(); };
     if (opts.volume != null) u.volume = opts.volume; if (opts.rate) u.rate = opts.rate; if (opts.pitch) u.pitch = opts.pitch;
-    if (opts.onBoundary) u.onboundary = e => { if (this.cur === u && (!e.name || e.name === 'word')) opts.onBoundary(e.charIndex); };
+    if (opts.onBoundary) u.onboundary = e => { if (live() && (!e.name || e.name === 'word')) opts.onBoundary(e.charIndex); };
     u.onend = done; u.onerror = done;
-    this.cur = u; this.speaking = true; this.who = who; this.pulse = 1; AudioSys.duck(true);
     clearTimeout(this.timer); this.timer = setTimeout(done, 900 + text.length * 110);
     try { ss.speak(u); } catch (e) { done(); }
   },
-  stop() { try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) { /* ignora */ } this.speaking = false; AudioSys.duck(false); },
+  stop(keepState) {
+    VoiceClips.stop();
+    try { window.speechSynthesis && window.speechSynthesis.cancel(); } catch (e) { /* ignora */ }
+    if (keepState) return;
+    this.seq++; clearTimeout(this.timer); this.speaking = false; AudioSys.duck(false);
+  },
 };
 
 /* ============================== RECONHECIMENTO DE FALA (modo voz) ============================== */

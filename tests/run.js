@@ -852,6 +852,37 @@ test('mapa: sair da 1-1 abre o caminho da 1-2, e a íris leva para dentro da fas
   expect(end.where === 'level' && end.lvl === '1-2' && end.state === 'play' && !end.active, `dentro da 1-2 (${JSON.stringify(end)})`);
 }, { ownPages: true });
 
+/* ---------------- vozes gravadas (ElevenLabs) ---------------- */
+test('vozes: todas as falas gravadas tocam; a porta repete palavra por palavra; a voz do aparelho fica de reserva', async ({ page }) => {
+  const r = await page.evaluate(async () => {
+    const ks = Object.keys(VoiceClips.pack.clips);
+    const bufs = await Promise.all(ks.map(k => VoiceClips.load(k)));
+    const bad = ks.filter((k, i) => !bufs[i] || bufs[i].duration < 0.15 || bufs[i].duration > 12);
+    const keys = p => p && p.map(x => x.k);
+    const page1 = VoiceClips.pack.clips['story:nexy is small the city is dark nobody says hello'];
+    Voice.say('Hello! I am Echo. I am your friend.', 'echo');
+    await new Promise(res => setTimeout(res, 300));
+    const playing = VoiceClips.sources.length > 0 && Voice.speaking;
+    Voice.stop();
+    return {
+      n: ks.length, bad, studio: Voice.studio, label: Voice.label(Voice.current()), playing, stopped: !Voice.speaking && !VoiceClips.sources.length,
+      exact: keys(VoiceClips.plan('door', 'It is a key.')),
+      words: keys(VoiceClips.plan('door', 'Nexy is friend.')),
+      cross: keys(VoiceClips.plan('story', 'New path!')),
+      none: VoiceClips.plan('echo', 'This sentence was never recorded.'),
+      kara: page1 && page1[1].length,
+    };
+  });
+  expect(r.n >= 213 && !r.bad.length, `${r.n} falas, com problema: ${r.bad.join(', ')}`);
+  expect(r.studio && /Lulu/.test(r.label), `a voz padrão é a gravada (${r.label})`);
+  expect(r.playing && r.stopped, 'Voice.say toca a gravação e Voice.stop para');
+  expect(r.exact && r.exact.join() === 'door:it is a key', `frase gravada inteira (${r.exact})`);
+  expect(r.words && r.words.join() === 'door:nexy,door:is,door:friend', `frase nova: palavra por palavra (${r.words})`);
+  expect(r.cross && r.cross.join() === 'echo:new path', `sem a fala nessa voz, usa outra gravada (${r.cross})`);
+  expect(r.none === null, 'sem gravação nenhuma: voz do aparelho');
+  expect(r.kara === 10, `karaokê: uma marca por palavra na leitura do Baú (${r.kara})`);
+});
+
 test('index.html está em dia com src/', async () => {
   execFileSync(process.execPath, [path.join(__dirname, '..', 'build.js'), '--check'], { stdio: 'pipe' });
 }, { ownPages: true });

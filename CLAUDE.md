@@ -36,9 +36,12 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 - Futuro: depois do jogo inteiro, app Android (Google Play). Mantenha tudo pensado para toque e offline.
 - Preferências já dadas: sem voz em combos e nomes de criaturas; correr com toque duplo na seta (janela medida da
   soltura); quique alto com janela antes/depois (só no ar); blocos-fantasma dependem da barra, não do Grimório.
-- Voz: `Voice.score` prefere vozes Natural/Neural/Online e do Google; as robóticas do Windows (Zira, David) ficam por
-  último. O Echo fala com tom quase natural (pitch 1.05); o dono achou feio o tom esticado de antes. O jogador troca a
-  voz em ASSIST → ECHO'S VOICE (salvo em `Save.data.voiceURI`).
+- **Vozes gravadas (ElevenLabs)**: 213 falas em `src/voice/` (MP3 + `manifest.json`), embutidas pelo build.
+  Elenco: **Echo = Lulu** (feminina e sensual, escolhida pelo dono), **narrador do Baú = Lawrence**, **portas e altares
+  = Elder Rowan** (acelerada 1,15× no corte). A Echo agora é **ela** nos textos em português ("a Echo", "sua amiga").
+  Falas sem gravação: a porta repete palavra por palavra; senão outra voz gravada; senão a voz do aparelho
+  (`Voice.score` prefere Natural/Neural/Google). ASSIST → ECHO'S VOICE alterna "Lulu · studio" e as vozes do aparelho.
+  Como gerar falas novas: `tools/voice/README.md`.
 - O **Echo** (orbe que segue o Nexy) é o companheiro: fala as palavras, se apresenta na 1ª partida
   (`ECHO.lines.intro`), avisa no escuro e é a luz da cripta. O dono não sabia o que era: sempre apresente as coisas.
 
@@ -49,7 +52,7 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 | `00_head.html` | CSS/HTML: HUD, HUD do mapa (`#maphud`), painel das portas, baú (`#chest`), telas, toque |
 | `10_data.js` | legenda global, `CFG` (física), `LOOK` (brilho), `WORDS`, `CREATURES`, `ECHO`, `MASTER_WORDS`, `PHRASES_PT`, `LEVELS['1-1']`, `WORLDS` (mapa), `HEART`, `Save`, `Flags`, utilitários |
 | `12_level_1-2.js` | `LEVELS['1-2']`: legenda extra, blocos, entidades, zonas, alvos (runas), portas/altares/sinos/baú (com a história) |
-| `20_audio.js` | `SFX`, `Music` (variantes `world1`/`map`/`nave`, zonas muffle/boost), `Voice.say(text, who, {onBoundary,onEnd})`, `Listen` |
+| `20_audio.js` | `SFX`, `Music` (variantes `world1`/`map`/`nave`, zonas muffle/boost), `VoiceClips` (vozes gravadas, `/*VOICE_PACK*/`), `Voice.say(text, who, {onBoundary,onEnd})`, `Listen` |
 | `30_input_render.js` | `Input` (teclado, toque, **gamepad** em `pollPad`), `R` (escala, sprites, glow, texto) |
 | `40_world.js` | `World` (tiles, blocos, runas `setTarget`, zonas, veils, colisão `move`), `BG` (cidade e nave), `Dark`, `FX` |
 | `50_entities.js` | `Ents`, `Spawns`, `Enemy`, crawler, casco, orb, letter, capsule, crystal, lantern, checkpoint, goal, pedestal |
@@ -104,19 +107,11 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 
 ## 7. Próximos passos e ideias anotadas
 
-- **Vozes do ElevenLabs** (pedido do dono): o **conector ElevenLabs** (ferramentas `mcp__ElevenLabs__creative_*`) está
-  ligado e o caminho foi provado: `creative_generate_speech` (modelo `eleven_v4`, 1 crédito/caractere; Flash 0,5) →
-  `creative_get_flow_run_status` dá um `content_url` em `storage.googleapis.com` que o `curl` daqui baixa (MP3 128 kbps
-  mono, ~22 KB/s). `api.elevenlabs.io` direto continua bloqueado na rede, e não precisa. Plano: um script junta todas as
-  falas (hoje ~3 mil caracteres: 1-1 + 1-2), gera 1 versão de cada, comprime e embute no `index.html`; a voz do
-  navegador fica de reserva, e o karaokê sincroniza pela duração.
-  - Conta do dono era gratuita: só 1 geração por vez (`generations_count: 1`; 4 dá 429) e **a ElevenLabs desligou o
-    gratuito** depois de 4 amostras ("unusual activity… proxy or VPN"). Para continuar é preciso plano pago (Starter,
-    que também dá o uso comercial exigido para a Google Play). Não tente de novo sem o dono confirmar o plano.
-  - Voz preferida pelo dono: **feminina e sensual**. Amostras feitas (fluxo `4viAQTLgLrXIp0TdMNZn`): Sloane
-    `BAMYoBHLZM7lJgJAmFz0` e Saira `KF337ZXYjoHdNuYUrufC` (e VALF, masculina, descartada). Candidatas não testadas:
-    Zoey `ROkSP7oeR0SRS2aHJXMo`, Aria (vilã) `TC0Zp7WVFzhA8zpTlRqV`. Se o Echo ficar feminino, as traduções dizem
-    "o Echo"/"amigo" e precisam virar feminino (decisão do dono).
+- **Vozes do ElevenLabs: feito.** Conector ElevenLabs na conta do dono (plano Creator, ~226 mil créditos; o
+  fluxo `COwNUEJ4BcLtDt0Uju1O` guarda todas as gerações). A conta gratuita que conectou sozinha antes (de outra pessoa)
+  foi bloqueada pela ElevenLabs e não deve ser usada. Fala nova no jogo = rodar `tools/voice/` (lines → chunks --only-missing → gerar e
+  transcrever cada bloco pelo conector → split → build). Gastou ~8 mil créditos (213 falas + testes de voz).
+  Testes de vozes que o dono ouviu: Sloane, Saira, Zoey, Rosie, **Lulu (escolhida)**, Viktoria, Serafina, Briony.
 
 - Esperando aprovação da 1-2 (com o baú). Depois: 1-3, Palácio do To Be (saída secreta da 1-1), Casa "PUSH OR PULL?"
   (saída secreta da 1-2), forte e castelo do Mundo 1.

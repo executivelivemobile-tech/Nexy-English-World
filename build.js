@@ -3,6 +3,7 @@
 //   node build.js          → gera index.html
 //   node build.js --check  → só confere se index.html está em dia com src/ (sai com erro se não estiver)
 // Os mapas ASCII ficam em src/levels/<id>.map e entram no lugar de /*MAP:<id>*/.
+// As vozes gravadas (src/voice/manifest.json + MP3) entram em base64 no lugar de /*VOICE_PACK*/null (ver tools/voice).
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -38,9 +39,17 @@ function mapRows(id) {
   return rows.map((r, i) => `      '${r}'${i < rows.length - 1 ? ',' : ''} // ${String(i).padStart(2, '0')}`).join('\n');
 }
 
+function voicePack() {
+  const file = path.join(SRC, 'voice', 'manifest.json');
+  if (!fs.existsSync(file)) return 'null';
+  const m = JSON.parse(fs.readFileSync(file, 'utf8')), clips = {};
+  for (const [k, c] of Object.entries(m.clips)) clips[k] = [fs.readFileSync(path.join(SRC, 'voice', c.file)).toString('base64'), c.b || []];
+  return JSON.stringify({ cast: m.cast, clips });
+}
+
 function build() {
   const html = PARTS.map(p => fs.readFileSync(path.join(SRC, p), 'utf8')).join('');
-  return html.replace(/\/\*MAP:([\w-]+)\*\//g, (_, id) => mapRows(id));
+  return html.replace(/\/\*MAP:([\w-]+)\*\//g, (_, id) => mapRows(id)).replace('/*VOICE_PACK*/null', () => voicePack());
 }
 
 const out = build();

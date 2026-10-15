@@ -354,8 +354,8 @@ const UI = {
   openAssist() { Game.menuFrom = Game.state; Game.state = 'assist'; this.show('assist'); this.renderAssist(); },
   renderAssist() {
     $('assist').querySelectorAll('.tgl[data-opt]').forEach(b => b.classList.toggle('on', !!Save.data.assist[b.dataset.opt]));
-    const vs = Voice.list(), i = vs.indexOf(Voice.voice);
-    $('vname').textContent = Voice.voice ? Voice.label(Voice.voice) + (vs.length > 1 ? '  ·  ' + (i + 1) + ' de ' + vs.length + ', toque para trocar' : '') : 'Sem voz em inglês neste aparelho.';
+    const cs = Voice.choices(), cur = Voice.current(), i = cs.indexOf(cur);
+    $('vname').textContent = cur ? Voice.label(cur) + (cs.length > 1 ? '  ·  ' + (i + 1) + ' de ' + cs.length + ', toque para trocar' : '') : 'Sem voz em inglês neste aparelho.';
   },
   menuKey(e) {
     const c = e.code;
@@ -465,7 +465,7 @@ const Game = {
   // tela inicial → mapa do mundo
   start() {
     if (this.state !== 'title') return;
-    AudioSys.init(); Voice.enabled = true;
+    AudioSys.init(); Voice.enabled = true; VoiceClips.warm();
     $('title').classList.remove('on'); this.last = performance.now(); this.acc = 0; this.clearInput();
     this.toMap();
   },

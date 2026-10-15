@@ -99,7 +99,7 @@ LEVELS['1-2'] = {
         pages: [
           { en: 'Nexy is small. The city is dark. Nobody says hello.', pt: 'Nexy é pequeno. A cidade é escura. Ninguém diz olá.' },
           { en: 'Nexy finds a word. Then another word. Every word is a light.', pt: 'Nexy encontra uma palavra. Depois outra palavra. Cada palavra é uma luz.' },
-          { en: 'Nexy is not afraid now. Echo is a friend. Words make Nexy strong.', pt: 'Agora o Nexy não tem medo. O Echo é um amigo. As palavras deixam o Nexy forte.' },
+          { en: 'Nexy is not afraid now. Echo is a friend. Words make Nexy strong.', pt: 'Agora o Nexy não tem medo. A Echo é uma amiga. As palavras deixam o Nexy forte.' },
         ],
         // ev = a frase do texto que prova a resposta (aparece quando o aluno erra)
         questions: [

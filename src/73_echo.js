@@ -154,7 +154,7 @@ const Birth = {
       R.draw(R.glow('m', 64), 480, 116, 3.2, 0.45 * k, true);
       R.draw(R.text('ECHO', '900 54px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(217,70,239,1)', 18), 480, 112, 1 + (1 - k) * 0.6, k);
       R.draw(R.text('YOUR FIRST TOOL · YOUR FRIEND', '600 13px Orbitron, Inter, sans-serif', '#22d3ee', 'rgba(0,217,249,0.8)', 8), 480, 156, 1, k);
-      R.draw(R.text('Sua primeira ferramenta. Seu amigo.', '400 12px Inter, sans-serif', wa(0.7), null, 0), 480, 178, 1, k);
+      R.draw(R.text('Sua primeira ferramenta. Sua amiga.', '400 12px Inter, sans-serif', wa(0.7), null, 0), 480, 178, 1, k);
     }
     if (this.flash > 0) { ctx.fillStyle = `rgba(255,255,255,${Math.min(0.85, this.flash)})`; ctx.fillRect(0, 0, CFG.VIEW_W, CFG.VIEW_H); }
   },

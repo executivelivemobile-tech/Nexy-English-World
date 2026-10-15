@@ -1,0 +1,1067 @@
+[
+ {
+  "who": "echo",
+  "text": "Hello! I am Echo.",
+  "prompt": "Hello! I am Echo."
+ },
+ {
+  "who": "echo",
+  "text": "I am your friend.",
+  "prompt": "I am your friend."
+ },
+ {
+  "who": "echo",
+  "text": "It is dark.",
+  "prompt": "It is dark."
+ },
+ {
+  "who": "echo",
+  "text": "I am your light.",
+  "prompt": "I am your light."
+ },
+ {
+  "who": "echo",
+  "text": "Listen! Press C.",
+  "prompt": "Listen! Press C."
+ },
+ {
+  "who": "echo",
+  "text": "Something is here!",
+  "prompt": "Something is here!"
+ },
+ {
+  "who": "echo",
+  "text": "Look! The cathedral.",
+  "prompt": "Look! The cathedral."
+ },
+ {
+  "who": "echo",
+  "text": "What is inside?",
+  "prompt": "What is inside?"
+ },
+ {
+  "who": "echo",
+  "text": "Hello! I am Echo. I am your friend.",
+  "prompt": "Hello! I am Echo. I am your friend."
+ },
+ {
+  "who": "echo",
+  "text": "Hello",
+  "prompt": "[softly] Hello..."
+ },
+ {
+  "who": "echo",
+  "text": "Echo",
+  "prompt": "Echo."
+ },
+ {
+  "who": "echo",
+  "text": "I",
+  "prompt": "I."
+ },
+ {
+  "who": "echo",
+  "text": "am",
+  "prompt": "am."
+ },
+ {
+  "who": "echo",
+  "text": "is",
+  "prompt": "is."
+ },
+ {
+  "who": "echo",
+  "text": "are",
+  "prompt": "are."
+ },
+ {
+  "who": "echo",
+  "text": "fine",
+  "prompt": "fine."
+ },
+ {
+  "who": "echo",
+  "text": "it",
+  "prompt": "it."
+ },
+ {
+  "who": "echo",
+  "text": "a",
+  "prompt": "a."
+ },
+ {
+  "who": "echo",
+  "text": "key",
+  "prompt": "key."
+ },
+ {
+  "who": "echo",
+  "text": "door",
+  "prompt": "door."
+ },
+ {
+  "who": "echo",
+  "text": "big",
+  "prompt": "big."
+ },
+ {
+  "who": "echo",
+  "text": "small",
+  "prompt": "small."
+ },
+ {
+  "who": "echo",
+  "text": "Nexy",
+  "prompt": "Nexy."
+ },
+ {
+  "who": "echo",
+  "text": "you",
+  "prompt": "you."
+ },
+ {
+  "who": "echo",
+  "text": "they",
+  "prompt": "they."
+ },
+ {
+  "who": "echo",
+  "text": "we",
+  "prompt": "we."
+ },
+ {
+  "who": "echo",
+  "text": "yes",
+  "prompt": "yes."
+ },
+ {
+  "who": "echo",
+  "text": "no",
+  "prompt": "no."
+ },
+ {
+  "who": "echo",
+  "text": "not",
+  "prompt": "not."
+ },
+ {
+  "who": "echo",
+  "text": "friend",
+  "prompt": "friend."
+ },
+ {
+  "who": "echo",
+  "text": "dark",
+  "prompt": "dark."
+ },
+ {
+  "who": "echo",
+  "text": "light",
+  "prompt": "light."
+ },
+ {
+  "who": "echo",
+  "text": "afraid",
+  "prompt": "afraid."
+ },
+ {
+  "who": "echo",
+  "text": "strong",
+  "prompt": "strong."
+ },
+ {
+  "who": "echo",
+  "text": "Crawler",
+  "prompt": "Crawler."
+ },
+ {
+  "who": "echo",
+  "text": "Shell",
+  "prompt": "Shell."
+ },
+ {
+  "who": "echo",
+  "text": "Flyer",
+  "prompt": "Flyer."
+ },
+ {
+  "who": "echo",
+  "text": "Word thief",
+  "prompt": "Word thief."
+ },
+ {
+  "who": "echo",
+  "text": "H",
+  "prompt": "H."
+ },
+ {
+  "who": "echo",
+  "text": "E",
+  "prompt": "E."
+ },
+ {
+  "who": "echo",
+  "text": "L",
+  "prompt": "L."
+ },
+ {
+  "who": "echo",
+  "text": "O",
+  "prompt": "O."
+ },
+ {
+  "who": "echo",
+  "text": "World",
+  "prompt": "World."
+ },
+ {
+  "who": "echo",
+  "text": "W",
+  "prompt": "W."
+ },
+ {
+  "who": "echo",
+  "text": "R",
+  "prompt": "R."
+ },
+ {
+  "who": "echo",
+  "text": "D",
+  "prompt": "D."
+ },
+ {
+  "who": "echo",
+  "text": "New path!",
+  "prompt": "[excited] New path!"
+ },
+ {
+  "who": "echo",
+  "text": "Now you. Say it.",
+  "prompt": "[warmly] Now you. Say it."
+ },
+ {
+  "who": "echo",
+  "text": "Are you?",
+  "prompt": "[curious] Are you?"
+ },
+ {
+  "who": "door",
+  "text": "Hello!",
+  "prompt": "Hello!"
+ },
+ {
+  "who": "door",
+  "text": "How are you?",
+  "prompt": "How are you?"
+ },
+ {
+  "who": "door",
+  "text": "I am fine.",
+  "prompt": "I am fine."
+ },
+ {
+  "who": "door",
+  "text": "I is fine.",
+  "prompt": "I is fine."
+ },
+ {
+  "who": "door",
+  "text": "I are fine.",
+  "prompt": "I are fine."
+ },
+ {
+  "who": "door",
+  "text": "I",
+  "prompt": "I."
+ },
+ {
+  "who": "door",
+  "text": "What is this?",
+  "prompt": "What is this?"
+ },
+ {
+  "who": "door",
+  "text": "It is a key.",
+  "prompt": "It is a key."
+ },
+ {
+  "who": "door",
+  "text": "It is a door.",
+  "prompt": "It is a door."
+ },
+ {
+  "who": "door",
+  "text": "It am a key.",
+  "prompt": "It am a key."
+ },
+ {
+  "who": "door",
+  "text": "It am a door.",
+  "prompt": "It am a door."
+ },
+ {
+  "who": "door",
+  "text": "It are a key.",
+  "prompt": "It are a key."
+ },
+ {
+  "who": "door",
+  "text": "It are a door.",
+  "prompt": "It are a door."
+ },
+ {
+  "who": "door",
+  "text": "it",
+  "prompt": "it."
+ },
+ {
+  "who": "door",
+  "text": "a",
+  "prompt": "a."
+ },
+ {
+  "who": "door",
+  "text": "Are you big or small?",
+  "prompt": "Are you big or small?"
+ },
+ {
+  "who": "door",
+  "text": "I am big.",
+  "prompt": "I am big."
+ },
+ {
+  "who": "door",
+  "text": "I am small.",
+  "prompt": "I am small."
+ },
+ {
+  "who": "door",
+  "text": "I is big.",
+  "prompt": "I is big."
+ },
+ {
+  "who": "door",
+  "text": "I is small.",
+  "prompt": "I is small."
+ },
+ {
+  "who": "door",
+  "text": "I are big.",
+  "prompt": "I are big."
+ },
+ {
+  "who": "door",
+  "text": "I are small.",
+  "prompt": "I are small."
+ },
+ {
+  "who": "story",
+  "text": "Hello",
+  "prompt": "Hello."
+ },
+ {
+  "who": "story",
+  "text": "I",
+  "prompt": "I."
+ },
+ {
+  "who": "story",
+  "text": "am",
+  "prompt": "am."
+ },
+ {
+  "who": "story",
+  "text": "is",
+  "prompt": "is."
+ },
+ {
+  "who": "story",
+  "text": "are",
+  "prompt": "are."
+ },
+ {
+  "who": "story",
+  "text": "fine",
+  "prompt": "fine."
+ },
+ {
+  "who": "story",
+  "text": "it",
+  "prompt": "it."
+ },
+ {
+  "who": "story",
+  "text": "a",
+  "prompt": "a."
+ },
+ {
+  "who": "story",
+  "text": "key",
+  "prompt": "key."
+ },
+ {
+  "who": "story",
+  "text": "door",
+  "prompt": "door."
+ },
+ {
+  "who": "story",
+  "text": "big",
+  "prompt": "big."
+ },
+ {
+  "who": "story",
+  "text": "small",
+  "prompt": "small."
+ },
+ {
+  "who": "story",
+  "text": "Nexy",
+  "prompt": "Nexy."
+ },
+ {
+  "who": "story",
+  "text": "you",
+  "prompt": "you."
+ },
+ {
+  "who": "story",
+  "text": "they",
+  "prompt": "they."
+ },
+ {
+  "who": "story",
+  "text": "we",
+  "prompt": "we."
+ },
+ {
+  "who": "story",
+  "text": "yes",
+  "prompt": "yes."
+ },
+ {
+  "who": "story",
+  "text": "no",
+  "prompt": "no."
+ },
+ {
+  "who": "story",
+  "text": "not",
+  "prompt": "not."
+ },
+ {
+  "who": "story",
+  "text": "friend",
+  "prompt": "friend."
+ },
+ {
+  "who": "story",
+  "text": "dark",
+  "prompt": "dark."
+ },
+ {
+  "who": "story",
+  "text": "light",
+  "prompt": "light."
+ },
+ {
+  "who": "story",
+  "text": "afraid",
+  "prompt": "afraid."
+ },
+ {
+  "who": "story",
+  "text": "strong",
+  "prompt": "strong."
+ },
+ {
+  "who": "door",
+  "text": "Memory chest",
+  "prompt": "Memory chest"
+ },
+ {
+  "who": "story",
+  "text": "Nexy is small. The city is dark. Nobody says hello.",
+  "prompt": "Nexy is small. The city is dark. Nobody says hello."
+ },
+ {
+  "who": "story",
+  "text": "Nexy finds a word. Then another word. Every word is a light.",
+  "prompt": "Nexy finds a word. Then another word. Every word is a light."
+ },
+ {
+  "who": "story",
+  "text": "Nexy is not afraid now. Echo is a friend. Words make Nexy strong.",
+  "prompt": "Nexy is not afraid now. Echo is a friend. Words make Nexy strong."
+ },
+ {
+  "who": "story",
+  "text": "Yesterday, Nexy was afraid of the dark. Today, he is stronger than yesterday, because every word he learns becomes a part of him.",
+  "prompt": "Yesterday, Nexy was afraid of the dark. Today, he is stronger than yesterday, because every word he learns becomes a part of him."
+ },
+ {
+  "who": "story",
+  "text": "How was Nexy yesterday?",
+  "prompt": "How was Nexy yesterday?"
+ },
+ {
+  "who": "echo",
+  "text": "He is afraid.",
+  "prompt": "He is afraid."
+ },
+ {
+  "who": "echo",
+  "text": "He was afraid.",
+  "prompt": "He was afraid."
+ },
+ {
+  "who": "echo",
+  "text": "He was big.",
+  "prompt": "He was big."
+ },
+ {
+  "who": "story",
+  "text": "When is Nexy stronger?",
+  "prompt": "When is Nexy stronger?"
+ },
+ {
+  "who": "echo",
+  "text": "Today.",
+  "prompt": "Today."
+ },
+ {
+  "who": "echo",
+  "text": "Yesterday.",
+  "prompt": "Yesterday."
+ },
+ {
+  "who": "story",
+  "text": "Why is Nexy stronger?",
+  "prompt": "Why is Nexy stronger?"
+ },
+ {
+  "who": "echo",
+  "text": "Because the city is dark.",
+  "prompt": "Because the city is dark."
+ },
+ {
+  "who": "echo",
+  "text": "Because he is afraid.",
+  "prompt": "Because he is afraid."
+ },
+ {
+  "who": "echo",
+  "text": "Because he learns words.",
+  "prompt": "Because he learns words."
+ },
+ {
+  "who": "story",
+  "text": "What does the story teach?",
+  "prompt": "What does the story teach?"
+ },
+ {
+  "who": "echo",
+  "text": "The dark is dangerous.",
+  "prompt": "The dark is dangerous."
+ },
+ {
+  "who": "echo",
+  "text": "Learning makes you grow.",
+  "prompt": "Learning makes you grow."
+ },
+ {
+  "who": "echo",
+  "text": "Friends are not important.",
+  "prompt": "Friends are not important."
+ },
+ {
+  "who": "story",
+  "text": "Is the city dark?",
+  "prompt": "Is the city dark?"
+ },
+ {
+  "who": "story",
+  "text": "The city is dark.",
+  "prompt": "The city is dark."
+ },
+ {
+  "who": "echo",
+  "text": "Yes, it is.",
+  "prompt": "Yes, it is."
+ },
+ {
+  "who": "echo",
+  "text": "No, it is not.",
+  "prompt": "No, it is not."
+ },
+ {
+  "who": "story",
+  "text": "What is every word?",
+  "prompt": "What is every word?"
+ },
+ {
+  "who": "story",
+  "text": "Every word is a light.",
+  "prompt": "Every word is a light."
+ },
+ {
+  "who": "echo",
+  "text": "a door",
+  "prompt": "a door"
+ },
+ {
+  "who": "echo",
+  "text": "a light",
+  "prompt": "a light"
+ },
+ {
+  "who": "echo",
+  "text": "a key",
+  "prompt": "a key"
+ },
+ {
+  "who": "story",
+  "text": "Is Nexy afraid now?",
+  "prompt": "Is Nexy afraid now?"
+ },
+ {
+  "who": "story",
+  "text": "Nexy is not afraid now.",
+  "prompt": "Nexy is not afraid now."
+ },
+ {
+  "who": "echo",
+  "text": "Yes, he is.",
+  "prompt": "Yes, he is."
+ },
+ {
+  "who": "echo",
+  "text": "No, he is not.",
+  "prompt": "No, he is not."
+ },
+ {
+  "who": "echo",
+  "text": "The",
+  "prompt": "The."
+ },
+ {
+  "who": "echo",
+  "text": "city",
+  "prompt": "city."
+ },
+ {
+  "who": "echo",
+  "text": "Nobody",
+  "prompt": "Nobody."
+ },
+ {
+  "who": "echo",
+  "text": "says",
+  "prompt": "says."
+ },
+ {
+  "who": "echo",
+  "text": "finds",
+  "prompt": "finds."
+ },
+ {
+  "who": "echo",
+  "text": "word",
+  "prompt": "word."
+ },
+ {
+  "who": "echo",
+  "text": "Then",
+  "prompt": "Then."
+ },
+ {
+  "who": "echo",
+  "text": "another",
+  "prompt": "another."
+ },
+ {
+  "who": "echo",
+  "text": "Every",
+  "prompt": "Every."
+ },
+ {
+  "who": "echo",
+  "text": "now",
+  "prompt": "now."
+ },
+ {
+  "who": "echo",
+  "text": "Words",
+  "prompt": "Words."
+ },
+ {
+  "who": "echo",
+  "text": "make",
+  "prompt": "make."
+ },
+ {
+  "who": "echo",
+  "text": "was",
+  "prompt": "was."
+ },
+ {
+  "who": "echo",
+  "text": "of",
+  "prompt": "of."
+ },
+ {
+  "who": "echo",
+  "text": "he",
+  "prompt": "he."
+ },
+ {
+  "who": "echo",
+  "text": "stronger",
+  "prompt": "stronger."
+ },
+ {
+  "who": "echo",
+  "text": "than",
+  "prompt": "than."
+ },
+ {
+  "who": "echo",
+  "text": "because",
+  "prompt": "because."
+ },
+ {
+  "who": "echo",
+  "text": "learns",
+  "prompt": "learns."
+ },
+ {
+  "who": "echo",
+  "text": "becomes",
+  "prompt": "becomes."
+ },
+ {
+  "who": "echo",
+  "text": "part",
+  "prompt": "part."
+ },
+ {
+  "who": "echo",
+  "text": "him",
+  "prompt": "him."
+ },
+ {
+  "who": "echo",
+  "text": "I am afraid.",
+  "prompt": "I am afraid."
+ },
+ {
+  "who": "echo",
+  "text": "I am strong.",
+  "prompt": "I am strong."
+ },
+ {
+  "who": "echo",
+  "text": "I am dark.",
+  "prompt": "I am dark."
+ },
+ {
+  "who": "echo",
+  "text": "I am small.",
+  "prompt": "I am small."
+ },
+ {
+  "who": "door",
+  "text": "I AM STRONG!",
+  "prompt": "[shouting] I am strong!"
+ },
+ {
+  "who": "door",
+  "text": "I AM STRONGER!",
+  "prompt": "[shouting] I am stronger!"
+ },
+ {
+  "who": "door",
+  "text": "I AM STRONGER THAN YESTERDAY!",
+  "prompt": "[shouting] I am stronger than yesterday!"
+ },
+ {
+  "who": "door",
+  "text": "Who are you?",
+  "prompt": "Who are you?"
+ },
+ {
+  "who": "door",
+  "text": "I am Nexy.",
+  "prompt": "I am Nexy."
+ },
+ {
+  "who": "door",
+  "text": "I am you.",
+  "prompt": "I am you."
+ },
+ {
+  "who": "door",
+  "text": "am",
+  "prompt": "am."
+ },
+ {
+  "who": "door",
+  "text": "Are you a crawler?",
+  "prompt": "Are you a crawler?"
+ },
+ {
+  "who": "door",
+  "text": "No, I am not.",
+  "prompt": "No, I am not."
+ },
+ {
+  "who": "door",
+  "text": "Yes, I am not.",
+  "prompt": "Yes, I am not."
+ },
+ {
+  "who": "door",
+  "text": "Yes, I am a crawler!",
+  "prompt": "Yes, I am a crawler!"
+ },
+ {
+  "who": "door",
+  "text": "Is it a door?",
+  "prompt": "Is it a door?"
+ },
+ {
+  "who": "door",
+  "text": "Yes, it is.",
+  "prompt": "Yes, it is."
+ },
+ {
+  "who": "door",
+  "text": "is",
+  "prompt": "is."
+ },
+ {
+  "who": "door",
+  "text": "What is big?",
+  "prompt": "What is big?"
+ },
+ {
+  "who": "door",
+  "text": "It is big.",
+  "prompt": "It is big."
+ },
+ {
+  "who": "door",
+  "text": "It is small.",
+  "prompt": "It is small."
+ },
+ {
+  "who": "door",
+  "text": "You is big.",
+  "prompt": "You is big."
+ },
+ {
+  "who": "door",
+  "text": "You is small.",
+  "prompt": "You is small."
+ },
+ {
+  "who": "door",
+  "text": "Big or small?",
+  "prompt": "Big or small?"
+ },
+ {
+  "who": "door",
+  "text": "They are small.",
+  "prompt": "They are small."
+ },
+ {
+  "who": "door",
+  "text": "They are big.",
+  "prompt": "They are big."
+ },
+ {
+  "who": "door",
+  "text": "They is small.",
+  "prompt": "They is small."
+ },
+ {
+  "who": "door",
+  "text": "They is big.",
+  "prompt": "They is big."
+ },
+ {
+  "who": "door",
+  "text": "They am small.",
+  "prompt": "They am small."
+ },
+ {
+  "who": "door",
+  "text": "They am big.",
+  "prompt": "They am big."
+ },
+ {
+  "who": "door",
+  "text": "It are small.",
+  "prompt": "It are small."
+ },
+ {
+  "who": "door",
+  "text": "It are big.",
+  "prompt": "It are big."
+ },
+ {
+  "who": "door",
+  "text": "It am small.",
+  "prompt": "It am small."
+ },
+ {
+  "who": "door",
+  "text": "It am big.",
+  "prompt": "It am big."
+ },
+ {
+  "who": "door",
+  "text": "You are small.",
+  "prompt": "You are small."
+ },
+ {
+  "who": "door",
+  "text": "You are big.",
+  "prompt": "You are big."
+ },
+ {
+  "who": "door",
+  "text": "You am small.",
+  "prompt": "You am small."
+ },
+ {
+  "who": "door",
+  "text": "You am big.",
+  "prompt": "You am big."
+ },
+ {
+  "who": "door",
+  "text": "We are small.",
+  "prompt": "We are small."
+ },
+ {
+  "who": "door",
+  "text": "We are big.",
+  "prompt": "We are big."
+ },
+ {
+  "who": "door",
+  "text": "We is small.",
+  "prompt": "We is small."
+ },
+ {
+  "who": "door",
+  "text": "We is big.",
+  "prompt": "We is big."
+ },
+ {
+  "who": "door",
+  "text": "We am small.",
+  "prompt": "We am small."
+ },
+ {
+  "who": "door",
+  "text": "We am big.",
+  "prompt": "We am big."
+ },
+ {
+  "who": "door",
+  "text": "Who is big?",
+  "prompt": "Who is big?"
+ },
+ {
+  "who": "door",
+  "text": "big",
+  "prompt": "big."
+ },
+ {
+  "who": "door",
+  "text": "are",
+  "prompt": "are."
+ },
+ {
+  "who": "door",
+  "text": "fine",
+  "prompt": "fine."
+ },
+ {
+  "who": "door",
+  "text": "key",
+  "prompt": "key."
+ },
+ {
+  "who": "door",
+  "text": "door",
+  "prompt": "door."
+ },
+ {
+  "who": "door",
+  "text": "small",
+  "prompt": "small."
+ },
+ {
+  "who": "door",
+  "text": "Nexy",
+  "prompt": "Nexy."
+ },
+ {
+  "who": "door",
+  "text": "you",
+  "prompt": "you."
+ },
+ {
+  "who": "door",
+  "text": "they",
+  "prompt": "they."
+ },
+ {
+  "who": "door",
+  "text": "we",
+  "prompt": "we."
+ },
+ {
+  "who": "door",
+  "text": "yes",
+  "prompt": "yes."
+ },
+ {
+  "who": "door",
+  "text": "no",
+  "prompt": "no."
+ },
+ {
+  "who": "door",
+  "text": "not",
+  "prompt": "not."
+ },
+ {
+  "who": "door",
+  "text": "friend",
+  "prompt": "friend."
+ },
+ {
+  "who": "door",
+  "text": "dark",
+  "prompt": "dark."
+ },
+ {
+  "who": "door",
+  "text": "light",
+  "prompt": "light."
+ },
+ {
+  "who": "door",
+  "text": "afraid",
+  "prompt": "afraid."
+ },
+ {
+  "who": "door",
+  "text": "strong",
+  "prompt": "strong."
+ }
+]

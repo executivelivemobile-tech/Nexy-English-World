@@ -96,9 +96,9 @@ const WORDS = {
   SMALL: { cls: 'adjective', pt: 'pequeno', say: 'small', lore: 'Os caminhos mais secretos são feitos para quem cabe neles.' },
   // 1-2 · WHO ARE YOU?
   NEXY:   { cls: 'noun', pt: 'Nexy (o seu nome)', say: 'Nexy', lore: 'Um nome é a primeira resposta. As portas só abrem para quem sabe o próprio.' },
-  YOU:    { cls: 'pronoun', pt: 'você', say: 'you', lore: 'Aponta para quem está na sua frente. Às vezes é o Echo; às vezes é o seu reflexo.' },
+  YOU:    { cls: 'pronoun', pt: 'você', say: 'you', lore: 'Aponta para quem está na sua frente. Às vezes é a Echo; às vezes é o seu reflexo.' },
   THEY:   { cls: 'pronoun', pt: 'eles / elas', say: 'they', lore: 'Quando são muitos, ninguém é IT. São THEY, e pedem ARE.' },
-  WE:     { cls: 'pronoun', pt: 'nós', say: 'we', lore: 'Você e o Echo. Ninguém atravessa a catedral sozinho.' },
+  WE:     { cls: 'pronoun', pt: 'nós', say: 'we', lore: 'Você e a Echo. Ninguém atravessa a catedral sozinho.' },
   YES:    { cls: 'interjection', pt: 'sim', say: 'yes', lore: 'Cuidado com o sim: a porta acredita em tudo o que você diz.' },
   NO:     { cls: 'interjection', pt: 'não', say: 'no', lore: 'A resposta mais curta. Quase sempre precisa de um NOT logo depois.' },
   NOT:    { cls: 'adverb', pt: 'não (depois do verbo)', say: 'not', lore: 'Vem depois do AM, do IS e do ARE, e vira a frase do avesso.' },
@@ -117,12 +117,12 @@ const CREATURES = {
 };
 // O ECHO, o companheiro do Nexy: se apresenta na primeira partida e fala nas horas certas (frases A1 com legenda)
 const ECHO = {
-  pt: 'eco · o seu companheiro', say: 'Echo',
+  pt: 'eco · a sua companheira', say: 'Echo',
   lore: 'Nasceu da primeira palavra que o Nexy ouviu. Fala as palavras em inglês com você, ilumina o escuro e, quando você diz YOU ARE BIG, cresce para te carregar.',
   lines: {
-    intro: [{ en: 'Hello! I am Echo.', pt: 'Olá! Eu sou o Echo.' }, { en: 'I am your friend.', pt: 'Sou seu amigo. Eu falo as palavras em inglês para você.' }],
+    intro: [{ en: 'Hello! I am Echo.', pt: 'Olá! Eu sou a Echo.' }, { en: 'I am your friend.', pt: 'Sou sua amiga. Eu falo as palavras em inglês para você.' }],
     dark: [{ en: 'It is dark.', pt: 'Está escuro.' }, { en: 'I am your light.', pt: 'Eu sou a sua luz. Fique perto de mim.' }],
-    birth: [{ en: 'Hello! I am Echo.', pt: 'Olá! Eu sou o Echo. Nasci do seu primeiro HELLO.' }, { en: 'I am your friend.', pt: 'Sou seu amigo. Eu falo as palavras em inglês para você.' },
+    birth: [{ en: 'Hello! I am Echo.', pt: 'Olá! Eu sou a Echo. Nasci do seu primeiro HELLO.' }, { en: 'I am your friend.', pt: 'Sou sua amiga. Eu falo as palavras em inglês para você.' },
       { en: 'Listen! Press C.', pt: 'Aperte C (LB no controle): eu encontro coisas escondidas.' }],
     found: [{ en: 'Something is here!', pt: 'Tem alguma coisa escondida aqui!' }],
     teaser: [{ en: 'Look! The cathedral.', pt: 'Olha! A catedral.' }, { en: 'What is inside?', pt: 'O que será que tem lá dentro?' }],
