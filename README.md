@@ -34,13 +34,12 @@ Tudo fica no topo do `<script>` de `index.html`:
   (frases "erradas" que a porta encena, como `IT IS A DOOR`).
 - **Palavras:** `WORDS` guarda classe gramatical, tradução e a linha de lore do Grimório.
 
-## Blocos-fantasma: o que se aprendeu vira chão
+## Blocos-fantasma: a palavra que você carrega vira chão
 
-Os blocos tracejados `M`, `I` e `R` (AM, IS, ARE) começam intangíveis. Cada um vira vidro sólido assim que
-a palavra dele é aprendida, ou seja, entra no Grimório ao ser coletada. Na seção 2 as três palavras estão
-antes da escada (ARE fica no bloco acima da segunda plataforma flutuante), então o jogador vê o degrau
-acender no momento em que pega a palavra e consegue subir até os orbes e a lanterna lá no alto. Como o
-Grimório fica salvo, nas próximas partidas a escada já aparece sólida.
+Os blocos tracejados `M`, `I` e `R` (AM, IS, ARE) só ficam sólidos enquanto a palavra deles estiver na
+sua barra. Pegou AM, o degrau AM acende; usou AM numa porta, ele volta a ser fantasma. Na seção 2 as três
+palavras estão antes da escada (ARE fica no bloco acima da segunda plataforma flutuante), então dá para
+subir até os orbes e a lanterna lá no alto antes de gastar o AM na porta "HOW ARE YOU?".
 
 A flag `palaces.toBe` continua existindo para o futuro Palácio do To Be: com ela verdadeira, todos os
 blocos-fantasma ficam sólidos, mesmo sem as palavras. Para testar, abra o jogo com `#tobe` no fim do

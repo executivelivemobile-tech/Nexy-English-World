@@ -412,8 +412,8 @@ body.touch #touch { display: block; }
      ?   bloco "?" com 1 orbe
      G   bloco de vidro vazio
      g   bloco de vidro com 3 orbes dentro
-     M   bloco-fantasma AM   ┐ intangíveis até a palavra ser aprendida (entrar no Grimório);
-     I   bloco-fantasma IS   │ aí viram vidro sólido: o que se aprendeu vira chão.
+     M   bloco-fantasma AM   ┐ só ficam sólidos (vidro) enquanto o jogador carrega a palavra na barra;
+     I   bloco-fantasma IS   │ se a palavra for usada numa porta, o degrau volta a ser fantasma.
      R   bloco-fantasma ARE  ┘ A flag palaces.toBe (Palácio do To Be) solidifica todos de uma vez.
 
    BLOCOS COM CONTEÚDO DA FASE (editáveis em LEVELS['1-1'].blocks)
@@ -1276,8 +1276,8 @@ const World = {
   blockAt(c, r) { return this.blocks.get(r * this.w + c); },
   doorAt(c, r) { return this.doors[this.doorTiles.get(r * this.w + c)]; },
   solidStatic(c, r) { const t = this.type(c, r); return t === T.SOLID || t === T.FAKE; },
-  // bloco-fantasma fica sólido quando a palavra já está no Grimório ou quando o Palácio do To Be foi concluído
-  ghostWanted(b) { return Flags.get(b.flag) || !!(Save.data && Save.data.grimoire.words[b.word]); },
+  // bloco-fantasma fica sólido enquanto o jogador carrega a palavra na barra (ou se o Palácio do To Be foi concluído)
+  ghostWanted(b) { return Flags.get(b.flag) || (typeof Game !== 'undefined' && Game.bar.includes(b.word)); },
   blockSolid(b) {
     switch (b.kind) {
       case 'question': return true;
@@ -1426,11 +1426,14 @@ const World = {
       if (b.wob > 0) b.wob = Math.max(0, b.wob - dt * 4);
       if (b.kind !== 'ghost') continue;
       if (b.flash > 0) b.flash = Math.max(0, b.flash - dt * 0.9);
-      // acabou de aprender a palavra: o fantasma vira chão (espera o jogador sair de dentro dele)
-      if (!b.solid && this.ghostWanted(b) && !overlap({ x: b.c * TS, y: b.r * TS, w: TS, h: TS }, P.box())) {
+      const want = this.ghostWanted(b), cx = b.c * TS + TS / 2, cy = b.r * TS + TS / 2;
+      // pegou a palavra: o fantasma vira chão (espera o jogador sair de dentro dele)
+      if (!b.solid && want && !overlap({ x: b.c * TS, y: b.r * TS, w: TS, h: TS }, P.box())) {
         b.solid = true; b.flash = 1; SFX.letter();
-        FX.burst(b.c * TS + TS / 2, b.r * TS + TS / 2, 26, 'c', 200, { life: 0.9, g: 0 });
+        FX.burst(cx, cy, 26, 'c', 200, { life: 0.9, g: 0 });
       }
+      // a palavra saiu da barra (foi usada numa porta): o degrau volta a ser fantasma
+      if (b.solid && !want) { b.solid = false; b.flash = 0; SFX.remove(); FX.burst(cx, cy, 16, 'c', 120, { life: 0.7, g: -40 }); }
     }
     for (const v of this.veils) if (v.found && v.alpha > 0) v.alpha = Math.max(0, v.alpha - dt * 2);
     for (const id in this.doors) {
