@@ -123,12 +123,23 @@ const SFX = {
   summon() { const t = AudioSys.t; tone('sine', midi(57), t, 0.6, 0.06, { to: midi(69), verb: true }); },
   dash() { const t = AudioSys.t; noise(t, 0.14, 0.07, { type: 'bandpass', freq: 1200, to: 3200, q: 2 }); tone('triangle', 330, t, 0.1, 0.05, { to: 520 }); },
   ui() { const t = AudioSys.t; tone('sine', 1320, t, 0.05, 0.04); },
+  // íris da transição: fechando desce, abrindo sobe
+  iris(closing) {
+    const t = AudioSys.t;
+    noise(t, 0.55, 0.1, { type: 'bandpass', freq: closing ? 3200 : 380, to: closing ? 320 : 3600, q: 1.6, verb: true });
+    tone('sine', closing ? 880 : 220, t, 0.55, 0.06, { to: closing ? 196 : 880, verb: true });
+    if (!closing) tone('sine', midi(93), t + 0.32, 0.9, 0.04, { verb: true });
+  },
+  bell(n = 0) { const t = AudioSys.t, f = midi([72, 76, 79, 84, 67][n % 5]); tone('sine', f, t, 2.2, 0.12, { verb: true }); tone('sine', f * 2.76, t, 1.2, 0.04, { verb: true }); tone('sine', f * 5.4, t, 0.5, 0.02, { verb: true }); },
+  steal() { const t = AudioSys.t; tone('square', 988, t, 0.09, 0.05, { to: 330, filter: { freq: 2400 } }); tone('square', 660, t + 0.09, 0.12, 0.05, { to: 220, filter: { freq: 2400 } }); },
+  rune(up) { const t = AudioSys.t; [0, 4, 7, 12].forEach((iv, i) => tone('triangle', midi((up ? 64 : 76) + (up ? iv : -iv)), t + i * 0.06, 0.5, 0.05, { verb: true })); },
+  moon() { const t = AudioSys.t; [69, 73, 76, 81, 85, 88, 93].forEach((n, i) => tone('sine', midi(n), t + i * 0.09, 1.4, 0.06, { verb: true })); },
 };
 
 /* ============================== MÚSICA PROCEDURAL ==============================
    Darksynth gótico em Lá menor, 96 BPM. Camadas: baixo em arpejo, pad grave, órgão, percussão. */
 const Music = {
-  bpm: 96, step: 0, next: 0, timer: null, bus: {}, target: { bass: 1, pad: 1, organ: 1, perc: 0.8 }, drone: null,
+  bpm: 96, step: 0, next: 0, timer: null, bus: {}, target: { bass: 1, pad: 1, organ: 1, perc: 0.8 }, drone: null, variant: 'world1', lp: null, boost: 1,
   // progressão de 8 compassos: Am F C G | Am F Dm E
   chords: [[45, 0], [41, 1], [48, 1], [43, 1], [45, 0], [41, 1], [38, 0], [40, 1]],
   // melodia curta de órgão nos compassos 5–8: [passo, nota MIDI, duração em passos]
@@ -138,16 +149,45 @@ const Music = {
     6: [[0, 74, 4], [4, 77, 4], [8, 76, 4], [12, 74, 4]],
     7: [[0, 71, 4], [4, 68, 4], [8, 64, 8]],
   },
+  // variações por fase: a mesma progressão; mudam andamento, a melodia do órgão e alguns enfeites
+  VARIANTS: {
+    world1: { bpm: 96 },
+    // mapa: mais calmo, sem bateria cheia, só um sino suave a cada ciclo
+    map: { bpm: 84, melody: {}, bell: true, perc: 0.25 },
+    // 1-2: 100 BPM, o órgão "responde" à melodia da 1-1, coro e sino no começo do ciclo
+    nave: {
+      bpm: 100, choir: true, bell: true,
+      melody: {
+        4: [[0, 81, 4], [4, 76, 4], [8, 72, 4], [12, 69, 4]],
+        5: [[0, 72, 6], [6, 74, 2], [8, 77, 8]],
+        6: [[0, 74, 4], [4, 69, 4], [8, 74, 4], [12, 77, 4]],
+        7: [[0, 76, 4], [4, 80, 4], [8, 83, 8]],
+      },
+    },
+  },
+  setVariant(name) {
+    const v = this.VARIANTS[name] || this.VARIANTS.world1;
+    this.variant = name; this.bpm = v.bpm; this.cur = v;
+    this.zone({});
+  },
+  // zonas da fase: muffle = abafada (cripta), boost = percussão em crescendo (campanário)
+  zone(z) {
+    const c = AudioSys.ctx; this.boost = z.boost ? 1.35 : 1;
+    if (!c || !this.lp) return;
+    this.lp.frequency.setTargetAtTime(z.muffle ? 650 : 18000, c.currentTime, 0.4);
+    this.set({});
+  },
   init() {
     const A = AudioSys, c = A.ctx;
+    this.lp = c.createBiquadFilter(); this.lp.type = 'lowpass'; this.lp.frequency.value = 18000; this.lp.connect(A.music);
     for (const k of ['bass', 'pad', 'organ', 'perc']) {
-      const g = c.createGain(); g.gain.value = this.target[k] * this.vol(k); g.connect(A.music); this.bus[k] = g;
+      const g = c.createGain(); g.gain.value = this.target[k] * this.vol(k); g.connect(this.lp); this.bus[k] = g;
     }
     this.bus.pad.connect(A.verb); this.bus.organ.connect(A.verb);
     this.next = c.currentTime + 0.1; this.step = 0;
     this.timer = setInterval(() => this.tick(), 25);
   },
-  vol(k) { return { bass: 1, pad: 0.9, organ: 0.75, perc: 0.7 }[k]; },
+  vol(k) { const v = this.cur || {}; return { bass: 1, pad: 0.9, organ: 0.75, perc: 0.7 * (v.perc != null ? v.perc : 1) * this.boost }[k]; },
   set(levels) {
     const c = AudioSys.ctx; Object.assign(this.target, levels);
     if (!c) return;
@@ -201,8 +241,12 @@ const Music = {
         tone('sawtooth', midi(root + 12 + iv), t, sp * 16, 0.022, { a: 0.6, hold: sp * 11, filter: { freq: 750 }, detune: -7, dest: B.pad });
       }
     }
+    const V = this.cur || {};
+    // sino no começo de cada ciclo de 8 compassos e coro suave (variações)
+    if (V.bell && step === 0) { const f = midi(81); tone('sine', f, t, 3.2, 0.05, { verb: true, dest: B.pad }); tone('sine', f * 2.76, t, 1.6, 0.018, { verb: true, dest: B.pad }); }
+    if (V.choir && s === 0) for (const iv of [0, 7, 12 + third]) for (const dt of [-5, 5]) tone('triangle', midi(root + 24 + iv), t, sp * 16, 0.012, { a: 1.1, hold: sp * 10, filter: { freq: 1500 }, detune: dt, dest: B.pad });
     // órgão
-    const mel = this.melody[bar];
+    const mel = (V.melody || this.melody)[bar];
     if (mel) for (const [ms, n, len] of mel) if (ms === s) {
       const d = len * sp;
       tone('sine', midi(n), t, d, 0.05, { a: 0.02, hold: d * 0.7, dest: B.organ });

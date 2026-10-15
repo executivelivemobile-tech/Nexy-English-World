@@ -284,6 +284,7 @@ test('cristal, reserva, vidro, parede falsa, letra no vidro e morte', async ({ p
 test('correr: segurar anda, soltar e apertar de novo logo em seguida corre', async ({ browser }) => {
   const { ctx, page } = await openGame(browser, { realtime: true });
   await page.keyboard.press('Enter'); await page.waitForTimeout(300);
+  await page.evaluate(() => NEXY.Game.enterLevel('1-1')); await page.waitForTimeout(100);
   const setup = () => page.evaluate(() => { NEXY.Ents.list = NEXY.Ents.list.filter(e => !e.enemy); NEXY.World.spawns.forEach(s => { s.state = 'consumed'; }); NEXY.teleport(3, 19); NEXY.P.vx = 0; });
   const vmax = async ms => { let m = 0; const t0 = Date.now(); while (Date.now() - t0 < ms) { m = Math.max(m, await page.evaluate(() => Math.abs(NEXY.P.vx))); await page.waitForTimeout(40); } return Math.round(m); };
   await setup(); await page.keyboard.down('ArrowRight'); const walk = await vmax(800);

@@ -19,6 +19,8 @@ const PARTS = [
   '50_entities.js',     // inimigos, itens, portais, pedestal
   '60_player.js',       // jogador, Echo, câmera e desenho das portas
   '70_game.js',         // frases, painel, interface e laço principal
+  '75_worldmap.js',     // transições (íris) e mapa-múndi
+  '99_boot.js',         // API de teste no console e partida
 ];
 
 function mapRows(id) {

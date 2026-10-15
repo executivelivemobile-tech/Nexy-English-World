@@ -100,7 +100,8 @@ const CREATURES = {
   SHELL:   { pt: 'casco', say: 'Shell', lore: 'Uma casa de vidro escuro. Vazia, ela vira arma.' },
 };
 const MASTER_WORDS = {
-  HELLO: { pt: 'olá', lore: 'Cinco letras espalhadas pelo escuro. Juntas, são a primeira coisa que o mundo responde.' },
+  HELLO: { pt: 'olá', say: 'Hello', lore: 'Cinco letras espalhadas pelo escuro. Juntas, são a primeira coisa que o mundo responde.' },
+  WORLD: { pt: 'mundo', say: 'World', lore: 'Depois do olá, o mundo inteiro. A catedral guardava cada letra num lugar mais alto.' },
 };
 const PHRASES_PT = {
   'HELLO!': 'Olá!', 'HOW ARE YOU?': 'Como você está?', 'WHAT IS THIS?': 'O que é isso?',
@@ -190,16 +191,43 @@ const LEVELS = {
         ],
       },
     },
-    // Mini-mapa do Mundo 1 (nós futuros aparecem apagados).
-    worldMap: {
+  },
+};
+
+/* ============================== MUNDOS (mapa-múndi) ==============================
+   Nós em coordenadas de tela (960×540). Cada caminho abre com uma saída (exit) da fase de origem.
+   level = fase jogável; fases sem dados em LEVELS aparecem como "SOON". 'mini' é o mapa pequeno da tela de fim. */
+const WORLDS = {
+  1: {
+    name: 'HELLO WORLD',
+    nodes: [
+      { id: '1-1', label: '1-1', name: 'HELLO WORLD', x: 150, y: 370, icon: 'gate' },
+      { id: '1-2', label: '1-2', name: 'WHO ARE YOU?', x: 360, y: 300, icon: 'nave' },
+      { id: 'palace', label: 'TO BE', name: 'TO BE PALACE', x: 250, y: 455, icon: 'palace' },
+      { id: '1-3', label: '1-3', name: '???', x: 560, y: 340, icon: 'tower' },
+      { id: 'ghost', label: 'PUSH?', name: 'PUSH OR PULL?', x: 470, y: 180, icon: 'ghost' },
+      { id: 'fortress', label: 'FORT', name: 'FORTRESS', x: 700, y: 250, icon: 'fortress' },
+      { id: 'castle', label: 'CASTLE', name: 'THE CASTLE', x: 840, y: 150, icon: 'castle' },
+    ],
+    // pts = pontos intermediários do caminho (curvas); unlock = [fase, saída]
+    edges: [
+      { a: '1-1', b: '1-2', unlock: ['1-1', 'normal'], pts: [[230, 360], [290, 320]] },
+      { a: '1-1', b: 'palace', unlock: ['1-1', 'secret'], pts: [[180, 430]] },
+      { a: '1-2', b: '1-3', unlock: ['1-2', 'normal'], pts: [[450, 300], [500, 340]] },
+      { a: '1-2', b: 'ghost', unlock: ['1-2', 'secret'], pts: [[390, 220], [430, 190]] },
+      { a: '1-3', b: 'fortress', unlock: ['1-3', 'normal'], pts: [[630, 310]] },
+      { a: 'fortress', b: 'castle', unlock: ['fortress', 'normal'], pts: [[780, 220]] },
+    ],
+    mini: {
       nodes: [
         { id: '1-1', label: '1-1', x: 50, y: 46 }, { id: '1-2', label: '1-2', x: 160, y: 46 }, { id: '1-3', label: '1-3', x: 270, y: 46 },
-        { id: 'palace', label: 'TO BE PALACE', x: 160, y: 80, w: 112 }, { id: 'fortress', label: 'FORTRESS', x: 390, y: 46, w: 92 },
-        { id: 'castle', label: 'CASTLE', x: 505, y: 46, w: 80 },
+        { id: 'palace', label: 'TO BE PALACE', x: 160, y: 80, w: 112 }, { id: 'ghost', label: 'PUSH OR PULL?', x: 286, y: 80, w: 112 },
+        { id: 'fortress', label: 'FORTRESS', x: 390, y: 46, w: 92 }, { id: 'castle', label: 'CASTLE', x: 505, y: 46, w: 80 },
       ],
       paths: [
         { from: '1-1', to: '1-2', exit: 'normal' }, { from: '1-1', to: 'palace', exit: 'secret' },
-        { from: '1-2', to: '1-3' }, { from: '1-3', to: 'fortress' }, { from: 'fortress', to: 'castle' },
+        { from: '1-2', to: '1-3', exit: 'normal' }, { from: '1-2', to: 'ghost', exit: 'secret' },
+        { from: '1-3', to: 'fortress', exit: 'normal' }, { from: 'fortress', to: 'castle', exit: 'normal' },
       ],
     },
   },
@@ -213,7 +241,8 @@ const Save = {
   defaults() {
     return {
       grimoire: { words: {}, creatures: {}, master: {} },
-      exits: {}, bestFluency: {},
+      exits: {}, bestFluency: {}, letters: {}, cleared: {},
+      map: { at: '1-1', revealed: {} },
       flags: { palaces: { toBe: false } },
       assist: { slow: false, safeFall: false, freeHints: false, subtitles: false, voice: false },
       muted: false,
@@ -230,6 +259,10 @@ const Save = {
           Object.assign(d.grimoire.creatures, s.grimoire && s.grimoire.creatures);
           Object.assign(d.grimoire.master, s.grimoire && s.grimoire.master);
           Object.assign(d.exits, s.exits); Object.assign(d.bestFluency, s.bestFluency);
+          Object.assign(d.letters, s.letters); Object.assign(d.cleared, s.cleared);
+          if (s.map) { if (s.map.at) d.map.at = s.map.at; Object.assign(d.map.revealed, s.map.revealed); }
+          // saves da versão só com a 1-1: quem já saiu da 1-1 já tem os caminhos abertos
+          for (const id in d.exits) if (d.exits[id].normal || d.exits[id].secret) d.cleared[id] = true;
           if (s.flags && s.flags.palaces) Object.assign(d.flags.palaces, s.flags.palaces);
           Object.assign(d.assist, s.assist);
           d.muted = !!s.muted;

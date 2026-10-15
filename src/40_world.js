@@ -356,7 +356,7 @@ const World = {
         ctx.strokeStyle = wa(0.26); ctx.lineWidth = 1;
         for (let i = 0; i < Math.min(3, ct.orbs); i++) { ctx.beginPath(); ctx.arc(x + 9 + i * 7, y + 16 + (i % 2 ? -4 : 3), 3.2, 0, Math.PI * 2); ctx.stroke(); }
       } else if (ct && ct.letter != null) {
-        R.draw(R.text('HELLO'[ct.letter], '900 15px Orbitron, Inter, sans-serif', wa(0.3), null, 0), x + TS / 2, y + TS / 2 + 1);
+        R.draw(R.text(this.level.masterWord[ct.letter], '900 15px Orbitron, Inter, sans-serif', wa(0.3), null, 0), x + TS / 2, y + TS / 2 + 1);
         ctx.beginPath(); ctx.arc(x + TS / 2, y + TS / 2, 10, 0, Math.PI * 2); ctx.strokeStyle = wa(0.16); ctx.stroke();
       }
       return;

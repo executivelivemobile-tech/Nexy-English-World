@@ -1,8 +1,8 @@
 
-/* ============================== ENTRADA (teclado + toque) ============================== */
+/* ============================== ENTRADA (teclado + toque + controle) ============================== */
 const Input = {
   held: { left: false, right: false, down: false, up: false, run: false, jump: false, spin: false },
-  touchHeld: {},
+  touchHeld: {}, padHeld: {},
   pressedAt: { jump: -1, spin: -1 },
   relAt: { left: -1e9, right: -1e9 }, dashDir: null,   // soltou a seta e apertou de novo logo em seguida: corre até soltar
   queue: [],           // eventos de tecla de borda para a lógica (pressionadas desde o último passo)
@@ -23,6 +23,8 @@ const Input = {
       if (k) { this.held[k] = false; this.release(k); }
     });
     window.addEventListener('blur', () => { for (const k in this.held) this.held[k] = false; this.dashDir = null; });
+    window.addEventListener('gamepadconnected', () => { $('padline').classList.add('on'); if (Game.state !== 'title') UI.msg('GAMEPAD CONNECTED'); });
+    window.addEventListener('gamepaddisconnected', () => { this.padHeld = {}; this.pad.prev = {}; });
     this.initTouch();
   },
   edge(k) {
@@ -39,7 +41,52 @@ const Input = {
     if (k === this.dashDir) this.dashDir = null;
   },
   dashing() { return !!this.dashDir && this.get(this.dashDir); },
-  get(k) { return this.held[k] || !!this.touchHeld[k]; },
+  get(k) { return this.held[k] || !!this.touchHeld[k] || !!this.padHeld[k]; },
+
+  /* ---------- controle (Gamepad API, mapeamento padrão Xbox / PlayStation) ----------
+     Jogando: direcional ou alavanca esquerda movem · A/✕ pula · B/○ giro · X/□, Y/△, LB, RB, LT, RT correm e carregam
+     START pausa · SELECT/BACK solta o item. Nos menus e no painel das portas: A confirma, B volta,
+     X apaga a última palavra, Y pede dica, direcional navega (com repetição ao segurar). */
+  pad: { prev: {}, rep: { k: null, t: 0 } },
+  pollPad() {
+    const list = navigator.getGamepads ? navigator.getGamepads() : null;
+    let gp = null;
+    if (list) for (const p of list) if (p && p.connected && p.buttons && p.buttons.length) { gp = p; break; }
+    const prev = this.pad.prev;
+    if (!gp) { if (Object.keys(prev).length) { for (const k of ['left', 'right']) if (this.padHeld[k]) { this.padHeld[k] = false; this.release(k); } this.padHeld = {}; this.pad.prev = {}; } return; }
+    const b = i => { const x = gp.buttons[i]; return !!x && (x.pressed || x.value > 0.5); };
+    const ax = gp.axes[0] || 0, ay = gp.axes[1] || 0;
+    const now = {
+      left: b(14) || ax < -0.45, right: b(15) || ax > 0.45, up: b(12) || ay < -0.6, down: b(13) || ay > 0.6,
+      jump: b(0), spin: b(1), x: b(2), y: b(3), sh: b(4) || b(5) || b(6) || b(7), start: b(9), select: b(8),
+    };
+    const pressed = k => now[k] && !prev[k];
+    const ui = !['play', 'map'].includes(Game.state);
+    const key = code => Game.onKey({ code, repeat: false, preventDefault() { } });
+    // teclas do jogo (seguradas)
+    const game = { left: now.left, right: now.right, up: now.up, down: now.down, jump: now.jump, spin: now.spin, run: now.x || now.y || now.sh };
+    for (const k in game) {
+      if (game[k] && !this.padHeld[k]) { this.padHeld[k] = true; if (!this.held[k] && !this.touchHeld[k]) this.edge(k); }
+      else if (!game[k] && this.padHeld[k]) { this.padHeld[k] = false; this.release(k); }
+    }
+    // botões de sistema
+    if (pressed('start')) key(Game.state === 'title' ? 'Enter' : 'Escape');
+    if (pressed('select') && Game.state === 'play') key('KeyQ');
+    if (ui) {
+      if (pressed('jump')) key('Enter');
+      if (pressed('spin')) key('Escape');
+      if (pressed('x')) key('Backspace');
+      if (pressed('y')) key('KeyH');
+      // direcional nos menus, com repetição ao segurar
+      const dirs = { left: 'ArrowLeft', right: 'ArrowRight', up: 'ArrowUp', down: 'ArrowDown' }, r = this.pad.rep, t = performance.now();
+      let held = null;
+      for (const d in dirs) if (now[d]) held = d;
+      if (held && held !== r.k) { r.k = held; r.t = t + 380; key(dirs[held]); }
+      else if (held && t >= r.t) { r.t = t + 140; key(dirs[held]); }
+      else if (!held) r.k = null;
+    } else this.pad.rep.k = null;
+    this.pad.prev = now;
+  },
   initTouch() {
     const root = $('touch');
     const active = new Map(); // pointerId → key

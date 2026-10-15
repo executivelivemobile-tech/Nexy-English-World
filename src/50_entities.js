@@ -300,7 +300,7 @@ Ents.reg('letter', {
   init(e) {
     e.w = 28; e.h = 28;
     if (e.c != null) { e.x = e.c * TS + 2; e.y = e.r * TS + 2; } else { e.x -= 14; e.y -= 14; }
-    e.ch = 'HELLO'[e.index];
+    e.ch = World.level.masterWord[e.index];
   },
   update(e, dt) {
     if (Game.letters[e.index]) { e.dead = true; return; }

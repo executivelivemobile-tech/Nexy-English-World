@@ -203,13 +203,22 @@ const UI = {
   init() {
     $('pausebtn').addEventListener('click', () => { if (Game.state === 'play') Game.pause(); else if (Game.state === 'pause') Game.resume(); });
     $('mutebtn').addEventListener('click', () => Game.toggleMute());
+    $('mhPause').addEventListener('click', () => { if (Game.state === 'map') Game.pause(); else if (Game.state === 'pause') Game.resume(); });
+    $('mhMute').addEventListener('click', () => Game.toggleMute());
+    // no mapa, tocar/clicar numa fase anda até ela; tocar na fase atual entra
+    $('game').addEventListener('pointerdown', e => {
+      if (Game.state !== 'map') return;
+      const st = $('stage').getBoundingClientRect(), k = st.width / CFG.VIEW_W;
+      WorldMap.tap((e.clientX - st.left) / k, (e.clientY - st.top) / k);
+    });
     $('itemslot').addEventListener('click', () => { if (Game.state === 'play') Game.dropReserve(); });
     $('startbtn').addEventListener('click', () => Game.start());
     $('title').addEventListener('click', () => Game.start());
     $('pause').querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', () => {
       const a = b.dataset.act;
       if (a === 'resume') Game.resume();
-      else if (a === 'restart') { this.hideAll(); Game.restartLevel(); }
+      else if (a === 'restart') { this.hideAll(); Game.iris(() => Game.restartLevel()); }
+      else if (a === 'map') { this.hideAll(); Game.iris(() => Game.toMap(), { to: 'map' }); }
       else if (a === 'grimoire') this.openGrimoire('words');
       else if (a === 'assist') this.openAssist();
     }));
@@ -220,13 +229,20 @@ const UI = {
     }));
     if (!Listen.available()) $('tglvoice').style.display = 'none';
     $('cAgain').addEventListener('click', () => Game.playAgain());
+    $('cMap').addEventListener('click', () => Game.continueToMap());
     $('phint').addEventListener('click', () => Panel.hint());
     $('pmic').addEventListener('click', () => Panel.listen());
     $('pok').addEventListener('click', () => Panel.confirm());
     $('pback').addEventListener('click', () => { if (!Panel.busy) Panel.close(); });
-    $('mutebtn').classList.toggle('off', AudioSys.muted);
-    const best = Save.data.bestFluency['1-1'];
-    $('titlebest').textContent = best ? 'BEST FLUENCY · ' + best + '%' : '';
+    $('mutebtn').classList.toggle('off', AudioSys.muted); $('mhMute').classList.toggle('off', AudioSys.muted);
+    const bf = Object.values(Save.data.bestFluency);
+    $('titlebest').textContent = bf.length ? 'WORLD FLUENCY · ' + Math.round(bf.reduce((a, b) => a + b, 0) / Math.max(bf.length, 1)) + '%' : '';
+  },
+  // letras da palavra-mestra da fase no HUD
+  setLetters(word) {
+    const box = $('letters'); box.innerHTML = '';
+    for (const ch of word) { const s = document.createElement('span'); s.textContent = ch; box.appendChild(s); }
+    this.last.letters = null;
   },
   capsule(word, big) {
     const el = document.createElement('div');
@@ -248,7 +264,7 @@ const UI = {
     const ts = fmtTime(g.timeRun); if (L.time !== ts) { L.time = ts; $('time').textContent = ts; }
     const showOpen = g.state === 'play' && !!P.interact;
     if (L.open !== showOpen) { L.open = showOpen; $('tbopen').classList.toggle('show', showOpen); $('tbopen').textContent = P.interact && P.interact.kind === 'pedestal' ? 'SPEAK' : 'OPEN'; }
-    const hudOn = g.state !== 'title';
+    const hudOn = g.state !== 'title' && g.where === 'level';
     if (L.hud !== hudOn) { L.hud = hudOn; $('hud').style.opacity = hudOn ? 1 : 0; $('wordbar').style.opacity = hudOn ? 1 : 0; }
     const touch = document.body.classList.contains('touch');
     if (L.touch !== touch) { L.touch = touch; $('wordbar').classList.toggle('top', touch); }
@@ -310,7 +326,7 @@ const UI = {
       c.append(btn, w, m, l); list.appendChild(c);
     };
     if (tab === 'words') {
-      for (const mw in MASTER_WORDS) if (G.master[mw]) card(mw, MASTER_WORDS[mw].pt, 'MASTER WORD · H E L L O', MASTER_WORDS[mw].lore, 'Hello', false, true);
+      for (const mw in MASTER_WORDS) if (G.master[mw]) card(mw, MASTER_WORDS[mw].pt, 'MASTER WORD · ' + mw.split('').join(' '), MASTER_WORDS[mw].lore, MASTER_WORDS[mw].say, false, true);
       for (const w of Object.keys(WORDS)) {
         const e = G.words[w], info = WORDS[w];
         card(w, info.pt, e ? (e.door ? 'USED AT · ' + e.door : 'COLLECTED · ' + info.cls.toUpperCase()) : 'UNKNOWN', info.lore, info.say, !e);
@@ -336,8 +352,9 @@ const UI = {
     const g = Game;
     $('ctitle').textContent = exit === 'secret' ? 'SECRET EXIT' : 'STAGE CLEAR';
     $('cOrbs').textContent = g.orbsTotal; $('cTime').textContent = fmtTime(g.timeRun);
-    $('cLettersLbl').textContent = 'Letters ' + g.letters.filter(Boolean).length + '/5';
-    $('cLetters').innerHTML = 'HELLO'.split('').map((ch, i) => `<span class="${g.letters[i] ? 'on' : ''}">${ch}</span>`).join('');
+    const mw = World.level.masterWord;
+    $('cLettersLbl').textContent = 'Letters ' + g.letters.filter(Boolean).length + '/' + mw.length;
+    $('cLetters').innerHTML = mw.split('').map((ch, i) => `<span class="${g.letters[i] ? 'on' : ''}">${ch}</span>`).join('');
     $('cFlu').textContent = g.fluency + '%';
     const box = $('cWords'); box.innerHTML = '';
     const all = g.letters.every(Boolean);
@@ -348,28 +365,30 @@ const UI = {
       const p = document.createElement('span'); p.className = 'p'; p.textContent = pt;
       d.append(b, a, p); box.appendChild(d);
     };
-    if (all) chip('HELLO', 'palavra-mestra', 'Hello', true);
+    if (all) chip(mw, 'palavra-mestra · ' + MASTER_WORDS[mw].pt, MASTER_WORDS[mw].say, true);
     for (const w of g.learnedOrder) chip(w, WORDS[w].pt, WORDS[w].say, false);
     if (!g.learnedOrder.length) { const n = document.createElement('div'); n.className = 'p'; n.textContent = '—'; box.appendChild(n); }
-    $('cBest').textContent = 'BEST FLUENCY · ' + (Save.data.bestFluency['1-1'] || g.fluency) + '%  ·  FOUND ' + g.fluencyFound + ' OF ' + g.fluencyTotal;
+    $('cBest').textContent = 'BEST FLUENCY · ' + (Save.data.bestFluency[World.level.id] || g.fluency) + '%  ·  FOUND ' + g.fluencyFound + ' OF ' + g.fluencyTotal;
     this.drawMinimap(exit);
     Game.state = 'clear'; this.show('clear');
+    setTimeout(() => { const b = $('cMap'); if (b) b.focus({ preventScroll: true }); }, 40);
   },
   drawMinimap(exit) {
-    const svg = $('minimap'), wm = World.level.worldMap, ex = Save.data.exits['1-1'] || {};
+    const svg = $('minimap'), wm = WORLDS[World.level.world].mini, cur = World.level.id;
+    const open = p => !!(Save.data.exits[p.from] && Save.data.exits[p.from][p.exit]);
     const node = id => wm.nodes.find(n => n.id === id);
-    const lit = id => id === '1-1' || (id === '1-2' && ex.normal) || (id === 'palace' && ex.secret);
+    const lit = id => id === '1-1' || id === cur || wm.paths.some(p => p.to === id && open(p));
     let h = '<defs><linearGradient id="mmg" x1="0" x2="1"><stop offset="0" stop-color="#22d3ee"/><stop offset="1" stop-color="#d946ef"/></linearGradient>' +
       '<filter id="mmf" filterUnits="userSpaceOnUse" x="0" y="0" width="560" height="92"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
     for (const p of wm.paths) {
-      const a = node(p.from), b = node(p.to), on = p.exit && ex[p.exit], fresh = p.exit === exit;
+      const a = node(p.from), b = node(p.to), on = open(p), fresh = p.from === cur && p.exit === exit;
       const d = a.y === b.y ? `M${a.x},${a.y} L${b.x},${b.y}` : `M${a.x},${a.y} Q${a.x + 20},${b.y} ${b.x - (b.w || 44) / 2},${b.y}`;
       h += `<path d="${d}" fill="none" stroke="${on ? 'url(#mmg)' : 'rgba(255,255,255,0.12)'}" stroke-width="${on ? 2 : 1}" ${on ? 'filter="url(#mmf)"' : 'stroke-dasharray="3 4"'}>` +
         (fresh ? '<animate attributeName="stroke-dasharray" from="0 400" to="400 0" dur="1.4s" fill="freeze"/>' : '') + '</path>';
     }
     for (const n of wm.nodes) {
-      const w = n.w || 44, on = lit(n.id), cur = n.id === '1-1';
-      h += `<rect x="${n.x - w / 2}" y="${n.y - 11}" width="${w}" height="22" rx="11" fill="${on ? 'rgba(10,15,18,0.95)' : 'rgba(10,15,18,0.6)'}" stroke="${cur ? '#d946ef' : on ? 'rgba(34,211,238,0.8)' : 'rgba(255,255,255,0.12)'}" stroke-width="1" ${on ? 'filter="url(#mmf)"' : ''}/>` +
+      const w = n.w || 44, on = lit(n.id), here = n.id === cur;
+      h += `<rect x="${n.x - w / 2}" y="${n.y - 11}" width="${w}" height="22" rx="11" fill="${on ? 'rgba(10,15,18,0.95)' : 'rgba(10,15,18,0.6)'}" stroke="${here ? '#d946ef' : on ? 'rgba(34,211,238,0.8)' : 'rgba(255,255,255,0.12)'}" stroke-width="1" ${on ? 'filter="url(#mmf)"' : ''}/>` +
         `<text x="${n.x}" y="${n.y + 3.5}" text-anchor="middle" font-family="Orbitron, Inter, sans-serif" font-size="${n.w ? 8 : 10}" font-weight="700" letter-spacing="1.5" fill="${on ? '#ffffff' : 'rgba(255,255,255,0.25)'}">${n.label}</text>`;
     }
     svg.innerHTML = h;
@@ -378,7 +397,7 @@ const UI = {
 
 /* ============================== JOGO: estados, regras e laço principal ============================== */
 const Game = {
-  state: 'title', simTime: 0, time: 0, acc: 0, last: 0, hitstopN: 0, menuFrom: 'pause',
+  state: 'title', where: 'map', simTime: 0, time: 0, acc: 0, last: 0, hitstopN: 0, menuFrom: 'pause',
   lives: CFG.START_LIVES, orbs: 0, orbsTotal: 0, letters: [false, false, false, false, false], bar: [],
   wordsSeen: new Set(), learnedOrder: [], creatures: new Set(), secrets: new Set(), timeRun: 0,
   checkpoint: null, reserve: null, autoWalk: false, clearT: 0, exit: null, orbSfxT: 0,
@@ -387,19 +406,21 @@ const Game = {
   boot() {
     Save.load(); Flags.readURL(); AudioSys.muted = Save.data.muted;
     R.init(); Input.init(); Voice.init(); UI.init();
-    this.loadLevel('1-1');
+    this.loadLevel('1-1'); // a fase fica carregada atrás do mapa até o jogador escolher outra
+    WorldMap.init();
     document.addEventListener('visibilitychange', () => { if (document.hidden && this.state === 'play' && !P.dead) this.pause(); });
     this.last = performance.now();
     const loop = ts => { this.frame(ts); requestAnimationFrame(loop); };
     requestAnimationFrame(loop);
   },
-  newRun() {
-    this.lives = CFG.START_LIVES; this.orbs = 0; this.orbsTotal = 0; this.letters = [false, false, false, false, false]; this.bar = [];
+  // vidas e orbes atravessam as fases (como no Mario World); o resto é por fase
+  newRun(word = 'HELLO') {
+    this.orbsTotal = 0; this.letters = word.split('').map(() => false); this.bar = [];
     this.wordsSeen = new Set(); this.learnedOrder = []; this.creatures = new Set(); this.secrets = new Set(); this.timeRun = 0;
     this.checkpoint = null; this.reserve = null; this.autoWalk = false; this.exit = null;
   },
   loadLevel(id) {
-    this.newRun();
+    this.newRun(LEVELS[id].masterWord);
     World.load(LEVELS[id]); Ents.clear(); FX.list = [];
     for (const s of World.statics) {
       const o = { c: s.c, r: s.r, opts: s.opts };
@@ -408,32 +429,70 @@ const Game = {
     }
     Spawns.reset();
     P.reset(World.start.x, World.start.y); Echo.reset(); Cam.snap();
-    UI.renderBar(); UI.last = {};
+    UI.setLetters(LEVELS[id].masterWord); UI.renderBar(); UI.last = {};
   },
+  clearInput() { Input.pressedAt.jump = -1; Input.pressedAt.spin = -1; Input.queue.length = 0; Input.dashDir = null; },
+  // tela inicial → mapa do mundo
   start() {
     if (this.state !== 'title') return;
-    AudioSys.init(); Voice.enabled = true; Music.normal();
-    $('title').classList.remove('on'); this.state = 'play'; this.last = performance.now(); this.acc = 0;
-    Input.pressedAt.jump = -1; Input.pressedAt.spin = -1; Input.queue.length = 0;
-    setTimeout(() => UI.toast(), 250);
+    AudioSys.init(); Voice.enabled = true;
+    $('title').classList.remove('on'); this.last = performance.now(); this.acc = 0; this.clearInput();
+    this.toMap();
   },
-  restartLevel() { this.loadLevel(World.level.id); this.state = 'play'; Music.normal(); UI.toast(); },
-  playAgain() { UI.hideAll(); this.restartLevel(); },
-  pause() { if (this.state !== 'play') return; this.state = 'pause'; UI.show('pause'); Music.set({ organ: 0, perc: 0 }); Voice.stop(); },
-  resume() { UI.hideAll(); this.state = 'play'; this.last = performance.now(); Music.normal(); Input.queue.length = 0; Input.pressedAt.jump = -1; Input.pressedAt.spin = -1; },
+  toMap() {
+    UI.hideAll(); this.where = 'map'; this.state = 'map'; this.clearInput();
+    Music.setVariant('map'); Music.normal(); WorldMap.enter();
+  },
+  // viaTransition: a íris já mostrou o cartão da fase, então não repete o letreiro
+  enterLevel(id, viaTransition) {
+    if (!LEVELS[id]) return false;
+    UI.hideAll(); WorldMap.leave(); this.loadLevel(id); this.where = 'level'; this.state = 'play'; this.acc = 0; this.clearInput();
+    Music.setVariant(LEVELS[id].music || 'world1'); Music.normal();
+    if (!viaTransition) setTimeout(() => UI.toast(), 250);
+    return true;
+  },
+  restartLevel(fresh) { if (fresh) { this.lives = CFG.START_LIVES; this.orbs = 0; } this.enterLevel(World.level.id, true); },
+  playAgain() { UI.hideAll(); this.iris(() => this.restartLevel()); },
+  // fim de fase → mapa. Saída secreta fecha numa fechadura.
+  continueToMap() {
+    if (Transition.active) return;
+    UI.hideAll(); this.state = 'leaving';
+    const x = clamp(P.cx - Cam.x, 40, 920), y = clamp(P.cy - Cam.y, 40, 500);
+    Transition.start({ x, y, shape: this.exit === 'secret' ? 'keyhole' : 'circle', mid: () => this.toMap(), openAt: () => ({ x: WorldMap.x, y: WorldMap.y - 18 }) });
+  },
+  // íris rápida sobre o jogador (reiniciar, voltar ao mapa pela pausa)
+  iris(fn, o = {}) {
+    if (Transition.active) return;
+    this.state = 'leaving';
+    const x = clamp(P.cx - Cam.x, 40, 920), y = clamp(P.cy - Cam.y, 40, 500);
+    Transition.start({ x, y, mid: fn, openAt: () => o.to === 'map' ? { x: WorldMap.x, y: WorldMap.y - 18 } : { x: P.cx - Cam.x, y: P.cy - Cam.y } });
+  },
+  pause() {
+    if (this.state !== 'play' && this.state !== 'map') return;
+    this.state = 'pause'; UI.show('pause'); Music.set({ organ: 0, perc: 0 }); Voice.stop();
+    $('pause').querySelectorAll('[data-act="restart"], [data-act="map"]').forEach(b => { b.style.display = this.where === 'map' ? 'none' : ''; });
+    $('pause').querySelector('.h-sub').textContent = this.where === 'map' ? 'WORLD 1 · ' + WORLDS[1].name : 'WORLD ' + World.level.id + ' · ' + World.level.name;
+    UI.show('pause');
+  },
+  resume() { UI.hideAll(); this.state = this.where === 'map' ? 'map' : 'play'; this.last = performance.now(); Music.normal(); this.clearInput(); },
   onDash() {
     if (this.state !== 'play' || P.dead) return;
     SFX.dash();
     const back = Input.dashDir === 'right' ? -1 : 1;
     for (let i = 0; i < 8; i++) FX.add(P.cx + back * 6, P.y + P.h - 4 - Math.random() * 10, { vx: back * (80 + Math.random() * 120), vy: -20 - Math.random() * 40, life: 0.35, size: 1.3, c: 'm', g: 0 });
   },
-  toggleMute() { AudioSys.setMuted(!AudioSys.muted); Save.data.muted = AudioSys.muted; Save.write(); $('mutebtn').classList.toggle('off', AudioSys.muted); },
+  toggleMute() { AudioSys.setMuted(!AudioSys.muted); Save.data.muted = AudioSys.muted; Save.write(); $('mutebtn').classList.toggle('off', AudioSys.muted); $('mhMute').classList.toggle('off', AudioSys.muted); },
 
   onKey(e) {
     const c = e.code;
     if (this.state === 'title') { if (['Enter', 'Space', 'KeyZ', 'KeyX', 'NumpadEnter'].includes(c)) this.start(); return; }
     if (c === 'KeyM') return this.toggleMute();
+    if (Transition.active) return;
     switch (this.state) {
+      case 'map':
+        if (c === 'Escape' || c === 'KeyP') this.pause();
+        else WorldMap.key(c);
+        break;
       case 'play':
         if (c === 'Escape' || c === 'KeyP') this.pause();
         else if (c === 'KeyQ') this.dropReserve();
@@ -442,13 +501,19 @@ const Game = {
         break;
       case 'panel': Panel.key(e); break;
       case 'pause': case 'grimoire': case 'assist': UI.menuKey(e); break;
-      case 'clear': if (c === 'Enter' || c === 'NumpadEnter') { e.preventDefault(); this.playAgain(); } break;
+      case 'clear': UI.menuKey(e); break;
     }
   },
 
   frame(ts) {
     const dt = Math.min(0.1, Math.max(0, (ts - this.last) / 1000)); this.last = ts; this.time += dt;
-    if (this.state === 'play' || this.state === 'clearing') {
+    Input.pollPad();
+    Transition.update(dt);
+    if (this.state === 'map') WorldMap.update(dt);
+    // durante a íris (fechando e no escuro) a fase não anda
+    const frozen = Transition.active && Transition.phase !== 'open';
+    if (frozen) Input.queue.length = 0;
+    if (!frozen && (this.state === 'play' || this.state === 'clearing')) {
       this.acc += dt * (Save.data.assist.slow ? 0.8 : 1);
       let n = 0;
       while (this.acc >= CFG.STEP && n < 8) { this.step(CFG.STEP); this.acc -= CFG.STEP; n++; }
@@ -480,6 +545,7 @@ const Game = {
   },
   render(a) {
     const ctx = R.ctx; ctx.setTransform(R.k, 0, 0, R.k, 0, 0); ctx.clearRect(0, 0, CFG.VIEW_W, CFG.VIEW_H);
+    if (this.where === 'map' || this.state === 'title') { WorldMap.render(ctx, this.time); Transition.draw(ctx, this.time); return; }
     const camX = lerp(Cam.px, Cam.x, a) + Cam.sx, camY = lerp(Cam.py, Cam.y, a) + Cam.sy, t = this.time;
     BG.draw(ctx, camX, camY, t);
     World.drawTerrain(ctx, camX, camY);
@@ -498,6 +564,7 @@ const Game = {
       const g = x.createRadialGradient(w / 2, h / 2, h * 0.35, w / 2, h / 2, w * 0.62);
       g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.3)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
     }), 480, 270);
+    Transition.draw(ctx, this.time);
   },
 
   /* ---------- regras ---------- */
@@ -530,10 +597,11 @@ const Game = {
   },
   collectLetter(i, e) {
     if (this.letters[i]) return;
-    this.letters[i] = true; SFX.letter(); Voice.say('HELLO'[i] === 'O' ? 'O' : 'HELLO'[i], 'echo');
+    const mw = World.level.masterWord;
+    this.letters[i] = true; SFX.letter(); Voice.say(mw[i], 'echo');
     FX.burst(e.x + 14, e.y + 14, 24, 'm', 220, { life: 0.7, g: 0 });
-    const sp = $('letters').children[i]; sp.classList.remove('pop'); void sp.offsetWidth; sp.classList.add('pop');
-    if (this.letters.every(Boolean)) UI.msg('H · E · L · L · O');
+    const sp = $('letters').children[i]; if (sp) { sp.classList.remove('pop'); void sp.offsetWidth; sp.classList.add('pop'); }
+    if (this.letters.every(Boolean)) UI.msg(mw.split('').join(' · '));
   },
   collectCrystal() {
     if (!P.aura) { P.aura = true; SFX.powerup(); FX.burst(P.cx, P.cy, 40, 'c', 260, { life: 0.9, g: 0 }); }
@@ -569,8 +637,12 @@ const Game = {
   onDeath() { this.lives--; Music.set({ organ: 0, perc: 0, pad: 0.5 }); },
   respawn() {
     if (this.lives <= 0) {
+      // como no Mario World: fim de jogo volta ao mapa com as vidas recarregadas
       this.state = 'gameover'; $('gameover').classList.add('on');
-      setTimeout(() => { $('gameover').classList.remove('on'); this.restartLevel(); }, 2600);
+      setTimeout(() => {
+        this.lives = CFG.START_LIVES; this.orbs = 0;
+        Transition.start({ x: 480, y: 270, mid: () => { $('gameover').classList.remove('on'); this.toMap(); }, openAt: () => ({ x: WorldMap.x, y: WorldMap.y - 18 }) });
+      }, 2600);
       return;
     }
     const cp = this.checkpoint || World.start;
@@ -581,32 +653,23 @@ const Game = {
     this.state = 'clearing'; this.clearT = 0; this.exit = exit; this.autoWalk = true;
     SFX.goal(); Music.resolve();
     if (bonus) { let k = 0; const iv = setInterval(() => { if (k++ >= bonus) return clearInterval(iv); this.addOrbs(1); }, 30); UI.msg('+' + bonus + ' ORBS'); }
-    const S = Save.data, ex = S.exits['1-1'] || (S.exits['1-1'] = {});
-    ex[exit] = true;
+    const S = Save.data, id = World.level.id, mw = World.level.masterWord, ex = S.exits[id] || (S.exits[id] = {});
+    const newPath = !ex[exit];
+    ex[exit] = true; S.cleared[id] = true;
+    const best = S.letters[id] || (S.letters[id] = mw.split('').map(() => false));
+    this.letters.forEach((v, i) => { if (v) best[i] = true; });
     const all = this.letters.every(Boolean);
-    if (all) S.grimoire.master.HELLO = true;
+    if (all) S.grimoire.master[mw] = true;
     // FLUENCY = itens encontrados ÷ total
     const T = World.totals;
     const words = T.wordList.filter(w => this.wordsSeen.has(w)).length;
     const found = words + this.letters.filter(Boolean).length + (ex.normal ? 1 : 0) + (ex.secret ? 1 : 0) + this.secrets.size + this.creatures.size;
     const total = T.words + T.letters + T.exits + T.secrets + T.creatures;
     this.fluencyFound = found; this.fluencyTotal = total; this.fluency = Math.round(found / total * 100);
-    S.bestFluency['1-1'] = Math.max(S.bestFluency['1-1'] || 0, this.fluency);
+    S.bestFluency[id] = Math.max(S.bestFluency[id] || 0, this.fluency);
     Save.write();
-    setTimeout(() => { if (all) Voice.say('Hello!', 'echo'); }, 2600);
-    setTimeout(() => { if (exit === 'secret') Voice.say('New path!', 'echo'); }, all ? 3900 : 2800);
+    setTimeout(() => { if (all) Voice.say(MASTER_WORDS[mw].say + '!', 'echo'); }, 2600);
+    setTimeout(() => { if (exit === 'secret' && newPath) Voice.say('New path!', 'echo'); }, all ? 3900 : 2800);
   },
 };
 
-/* ============================== API de teste no console ============================== */
-window.NEXY = {
-  Game, P, World, Ents, Cam, Flags, Save, CFG,
-  setFlag(path, value = true, persist = false) { Flags.set(path, value, persist); return Flags.get(path); },
-  teleport(c, r) { P.x = c * TS + TS / 2 - P.w / 2; P.y = (r + 1) * TS - P.h; P.px = P.x; P.py = P.y; P.vx = P.vy = 0; Cam.snap(); },
-  give(...words) { for (const w of words) if (WORDS[w] && Game.bar.length < CFG.WORD_BAR_MAX) Game.bar.push(w); UI.renderBar(); },
-};
-
-Game.boot();
-</script>
-</body>
-</html>
