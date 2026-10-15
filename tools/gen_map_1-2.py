@@ -41,7 +41,8 @@ row_orbs(28, [65, 66, 67]); put(69, 21, '*')
 fill(73, 111, 30, 39, '.')                                  # abismo
 put(77, 28, 'Q'); put(84, 28, 'q')                          # lustres 1 e 2 (fases opostas)
 fill(88, 89, 27, 39, '#')                                   # pilar 1
-row_orbs(26, [88, 89])
+row_orbs(26, [89])
+put(88, 26, 'F')                                            # checkpoint no pilar 1 (pedido do dono: no meio dos lustres)
 put(94, 28, 'Q'); put(100, 28, 'q')                         # lustres 3 e 4
 fill(104, 105, 27, 39, '#')                                 # pilar 2
 put(96, 25, 'U')                                            # Alado de patrulha

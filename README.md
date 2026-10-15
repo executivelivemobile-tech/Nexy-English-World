@@ -65,8 +65,8 @@ Palavra-mestra: **WORLD**. Na 1-2 a barra de palavras cresce para **10** espaço
 
 1. **Portal da Nave.** Altar "WHAT IS BIG?": IT IS BIG ergue a runa até a sacada da letra W. Primeiro Alado.
    Porta "WHO ARE YOU?" → I AM **NEXY** (I AM YOU faz o reflexo do Nexy acenar no vidro).
-2. **Os Lustres.** Abismo atravessado de lustre em lustre (eles balançam em fases opostas). Ponte de três Alados:
-   quem emenda 3 pisões sobe até uma vida escondida. Porta "ARE YOU A CRAWLER?" → NO, I AM NOT
+2. **Os Lustres.** Abismo atravessado de lustre em lustre (eles balançam em fases opostas), com checkpoint no primeiro pilar.
+   Ponte de três Alados: quem emenda 3 pisões sobe até uma vida escondida. Porta "ARE YOU A CRAWLER?" → NO, I AM NOT
    (com YES, a porta acredita e o Nexy vira Rastejante por alguns segundos).
 3. **O Coro dos Sinos.** Portão "HOW ARE YOU?": toque os sinos na ordem I → AM → FINE (o AM só do degrau; o FINE só
    de cima do lustre). Ordem errada: o eco repete a frase e os sinos zeram. De primeira: uma vida cai do grande sino.

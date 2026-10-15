@@ -91,7 +91,7 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   3 `WHO IS BIG?` (IT = ponte 8×1 em c280 → fim normal; YOU = Echo leva ao fim secreto).
 - Baú da Memória em c233 (linha 35); Muro do Silêncio `X` em c238–239 (linhas 32–35). Caminho alternativo: poço
   c233–235 (plataforma c233 L33, Alado `B` c235 L31) → passagem baixa c236–239 L25–26 → câmara da luz c240–247.
-- Checkpoints: c140, c212 (entrada da cripta), c246. Lua (3UP) atrás da parede falsa c248. Vidas: ponte de Alados (3x),
+- Checkpoints: c88 (pilar 1 dos lustres, pedido do dono), c140, c212 (entrada da cripta), c246. Lua (3UP) atrás da parede falsa c248. Vidas: ponte de Alados (3x),
   bloco c143, sinos de primeira, Lua, sacada do campanário, e as do Coração.
 - Barra de palavras = 10 nesta fase (`barMax`). YES de reserva só se não tiver um (`ifMissing`).
 - **Poço de palavras** `m` em c217 L32 (logo depois do altar 2): cada batida dá a próxima palavra que falta de

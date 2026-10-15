@@ -601,6 +601,32 @@ test('1-2 lustres: o abismo se atravessa de lustre em lustre', async ({ page }) 
   for (const k in r) expect(r[k] >= (k === 'P2toFloor' ? 1 : 6), `${k}: só ${r[k]} tempos de 0,05 s dão certo`);
 }, L12);
 
+test('1-2 lustres: checkpoint no pilar 1; cair no abismo depois dele volta para o pilar', async ({ page }) => {
+  await page.evaluate(HELP12);
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, G = NEXY.Game, E = NEXY.Ents, out = {};
+    H.noEnemies();
+    const cp = E.list.find(e => e.type === 'checkpoint' && e.c === 88);
+    out.exists = !!cp && cp.r === 26;
+    // chega no pilar pulando do 2º lustre, de verdade
+    const ch = E.list.filter(e => e.type === 'chandelier' && e.c < 110).sort((a, b) => a.c - b.c);
+    const pillar = () => P.onGround && !P.riding && Math.round(P.y + P.h) === 864 && P.x > 87 * 32;
+    out.active0 = !!cp && cp.active;
+    for (const t0 of H12.range(0, 3.6, 0.05)) if (H12.tryHop([t0], () => { H12.on(ch[1])(); P.x += 20; }, ['right'], pillar)) break;
+    H.set([]); H.step(5);
+    out.onPillar = pillar(); out.active = !!cp && cp.active;
+    out.cp = G.checkpoint && [Math.floor(G.checkpoint.x / 32), Math.round(G.checkpoint.y)];
+    // cai no abismo entre os lustres
+    const lives = G.lives; P.invuln = 0; H.tp(95, 30, 0); H.set([]); H.step(240);
+    out.death = [lives - G.lives, Math.floor((P.x + P.w / 2) / 32), Math.round(P.y + P.h)];
+    return out;
+  });
+  expect(r.exists && !r.active0, 'checkpoint em c88, em cima do pilar 1, apagado no começo');
+  expect(r.onPillar && r.active, `pular no pilar ativa o checkpoint (no pilar ${r.onPillar}, ativo ${r.active})`);
+  expect(r.cp && r.cp[0] === 88 && r.cp[1] === 864, `checkpoint guardado no pilar: ${r.cp}`);
+  expect(r.death[0] === 1 && r.death[1] === 88 && r.death[2] === 864, `morte no abismo volta ao pilar: ${r.death}`);
+}, L12);
+
 test('1-2 ponte de Alados: 3 pisões seguidos levam à vida escondida, 2 não bastam', async ({ page }) => {
   await page.evaluate(HELP12);
   const r = await page.evaluate(() => {
