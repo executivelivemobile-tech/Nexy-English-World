@@ -46,7 +46,8 @@ const Sentence = {
   apply(d, rule, words) {
     const r = rule.result, def = d.def;
     d.solved = words.slice();
-    if (r.type === 'open') { d.opening = 0.001; SFX.doorOpen(); Game.shake(2); }
+    if (r.type === 'open' && def.birth === 'echo' && !Game.echoBorn) { Hints.mark('door1'); Birth.start(d); }
+    else if (r.type === 'open') { d.opening = 0.001; SFX.doorOpen(); Game.shake(2); if (d.id === 'door1') Hints.mark('door1'); }
     else if (r.type === 'transform') {
       if (P.setScale(r.scale)) { (r.scale > 1 ? SFX.grow : SFX.shrink)(); Game.shake(r.scale > 1 ? 5 : 2); FX.burst(P.cx, P.cy, 50, 'm', 300, { life: 1, g: 0 }); }
     } else if (r.type === 'exit') Game.finish(r.exit, 0);
@@ -122,7 +123,7 @@ const Panel = {
     if (j.kind === 'accept') {
       SFX.right(); mold.classList.add('win');
       FX.burst(d.x + d.w / 2, d.y, 30, 'c', 200, { g: -80, life: 1 });
-      setTimeout(() => { Sentence.apply(d, j.rule, words); this.close(); }, 1600);
+      setTimeout(() => { this.close(); Sentence.apply(d, j.rule, words); }, 1600);
     } else {
       SFX.wrong(); Music.layers(0); d.errors++;
       mold.classList.remove('shake'); void mold.offsetWidth; mold.classList.add('shake');
@@ -276,8 +277,10 @@ const UI = {
     const ts = fmtTime(g.timeRun); if (L.time !== ts) { L.time = ts; $('time').textContent = ts; }
     const showOpen = g.state === 'play' && !!P.interact;
     if (L.open !== showOpen) { L.open = showOpen; $('tbopen').classList.toggle('show', showOpen); $('tbopen').textContent = P.interact && P.interact.kind === 'pedestal' ? 'SPEAK' : 'OPEN'; }
-    const hudOn = g.state !== 'title' && g.where === 'level' && !Cine.active;
+    const hudOn = g.state !== 'title' && g.where === 'level' && !g.scene();
     if (L.hud !== hudOn) { L.hud = hudOn; $('hud').style.opacity = hudOn ? 1 : 0; $('wordbar').style.opacity = hudOn ? 1 : 0; }
+    const pingOn = g.where === 'level' && g.echoBorn && !Echo.hidden;
+    if (L.ping !== pingOn) { L.ping = pingOn; $('tbping').style.display = pingOn ? '' : 'none'; }
     const touch = document.body.classList.contains('touch');
     if (L.touch !== touch) { L.touch = touch; $('wordbar').classList.toggle('top', touch); }
   },
@@ -425,7 +428,7 @@ const Game = {
     R.init(); Input.init(); Voice.init(); UI.init();
     this.loadLevel('1-1'); // a fase fica carregada atrás do mapa até o jogador escolher outra
     WorldMap.init();
-    document.addEventListener('visibilitychange', () => { if (document.hidden && this.state === 'play' && !P.dead && !Cine.active) this.pause(); });
+    document.addEventListener('visibilitychange', () => { if (document.hidden && this.state === 'play' && !P.dead && !this.scene()) this.pause(); });
     this.last = performance.now();
     const loop = ts => { this.frame(ts); requestAnimationFrame(loop); };
     requestAnimationFrame(loop);
@@ -437,9 +440,12 @@ const Game = {
     this.checkpoint = null; this.reserve = null; this.autoWalk = false; this.exit = null;
     this.timers = []; this.wordSrc = {}; this.zone = null; Dark.k = 0; this.forceInput = null; this.metDark = false;
     if (typeof Cine !== 'undefined' && Cine.active) Cine.end();
+    if (typeof Birth !== 'undefined') { Birth.active = false; Arrival.active = false; EchoPulse.reset(); Hints.reset(); }
   },
   // tamanho da barra de palavras: cresce nas fases com mais vocabulário (LEVELS[id].barMax)
   barMax() { return (World.level && World.level.barMax) || CFG.WORD_BAR_MAX; },
+  // cena ativa (Coração, nascimento do Echo, chegada): todas têm a mesma interface
+  scene() { return Cine.active ? Cine : Birth.active ? Birth : Arrival.active ? Arrival : null; },
   // relógio da simulação (para quebra-cabeças determinísticos, como os sinos)
   later(sec, fn) { this.timers.push({ t: this.simTime + sec, fn }); },
   loadLevel(id) {
@@ -452,6 +458,7 @@ const Game = {
     }
     Spawns.reset();
     P.reset(World.start.x, World.start.y); Echo.reset(); Cam.snap();
+    this.echoBorn = !Object.values(LEVELS[id].doors).some(d => d.birth === 'echo'); Echo.hidden = !this.echoBorn;
     UI.setLetters(LEVELS[id].masterWord); UI.renderBar(); UI.last = {};
   },
   clearInput() { Input.pressedAt.jump = -1; Input.pressedAt.spin = -1; Input.queue.length = 0; Input.dashDir = null; },
@@ -472,7 +479,9 @@ const Game = {
     UI.hideAll(); WorldMap.leave(); this.loadLevel(id); this.where = 'level'; this.state = 'play'; this.acc = 0; this.clearInput();
     Music.setVariant(LEVELS[id].music || 'world1'); Music.normal();
     if (!viaTransition) setTimeout(() => UI.toast(), 250);
-    if (!Save.data.met.echo) { Save.data.met.echo = true; Save.write(); this.later(1.4, () => Echo.talk(ECHO.lines.intro)); }
+    // a 1-1 começa com a chegada do Nexy num feixe de luz (sem o Echo: ele nasce do primeiro HELLO)
+    if (!this.noIntro && !this.echoBorn) setTimeout(() => { if (this.state === 'play' && World.level.id === id && !Arrival.active) Arrival.start(); }, viaTransition ? 0 : 50);
+    else if (!Save.data.met.echo && this.echoBorn) { Save.data.met.echo = true; Save.write(); this.later(1.4, () => Echo.talk(ECHO.lines.intro)); }
     if (LEVELS[id].intro) setTimeout(() => { if (this.where === 'level' && World.level.id === id) UI.msg(LEVELS[id].intro, 3200); }, viaTransition ? 900 : 2800);
     return true;
   },
@@ -513,7 +522,7 @@ const Game = {
     if (this.state === 'title') { if (['Enter', 'Space', 'KeyZ', 'KeyX', 'NumpadEnter'].includes(c)) this.start(); return; }
     if (c === 'KeyM') return this.toggleMute();
     if (Transition.active) return;
-    if (Cine.active) return Cine.key(e);
+    const sc = this.scene(); if (sc) return sc.key(e);
     switch (this.state) {
       case 'map':
         if (c === 'Escape' || c === 'KeyP') this.pause();
@@ -522,6 +531,7 @@ const Game = {
       case 'play':
         if (c === 'Escape' || c === 'KeyP') this.pause();
         else if (c === 'KeyQ') this.dropReserve();
+        else if (c === 'KeyC') { if (EchoPulse.fire()) Hints.mark('ping'); }
         else if (c === 'KeyH') { if (P.interact) this.buyHint(P.interact); else UI.msg('HINTS WORK NEAR DOORS'); }
         else if (c === 'KeyV' && Save.data.assist.voice && Listen.available() && P.interact) { this.openPanel(P.interact); Panel.listen(); }
         break;
@@ -536,13 +546,13 @@ const Game = {
     const dt = Math.min(0.1, Math.max(0, (ts - this.last) / 1000)); this.last = ts; this.time += dt;
     Input.pollPad();
     Transition.update(dt);
-    if (Cine.active) Cine.update(dt);
+    const sc = this.scene(); if (sc) sc.update(dt);
     if (this.state === 'map') WorldMap.update(dt);
     // durante a íris (fechando e no escuro) a fase não anda
     const frozen = Transition.active && Transition.phase !== 'open';
     if (frozen) Input.queue.length = 0;
     if (!frozen && (this.state === 'play' || this.state === 'clearing')) {
-      this.acc += dt * (Save.data.assist.slow ? 0.8 : 1) * (Cine.active ? Cine.timeScale : 1);
+      this.acc += dt * (Save.data.assist.slow ? 0.8 : 1) * (sc ? sc.timeScale : 1);
       let n = 0;
       while (this.acc >= CFG.STEP && n < 8) { this.step(CFG.STEP); this.acc -= CFG.STEP; n++; }
       if (n >= 8) this.acc = 0;
@@ -556,7 +566,7 @@ const Game = {
     P.px = P.x; P.py = P.y; Ents.save(); Cam.px = Cam.x; Cam.py = Cam.y; Echo.px = Echo.x; Echo.py = Echo.y;
     // cena: o jogo controla o Nexy (investida)
     if (this.forceInput) { Input.touchHeld = Object.assign({}, this.forceInput); for (const k in Input.held) Input.held[k] = false; Input.padHeld = {}; Input.pressedAt.jump = -1; Input.pressedAt.spin = -1; Input.queue.length = 0; }
-    for (const k of Input.queue) if (k === 'up' && this.state === 'play') P.tryInteract();
+    for (const k of Input.queue) { if (k === 'up' && this.state === 'play') P.tryInteract(); if (k === 'ping' && EchoPulse.fire()) Hints.mark('ping'); }
     Input.queue.length = 0;
     if (this.state !== 'play' && this.state !== 'clearing') return;
     if (P.dead) { P.update(dt); FX.update(dt); Echo.update(dt); Cam.update(dt); return; }
@@ -567,7 +577,7 @@ const Game = {
     Ents.update(dt);
     // quem está em cima de uma plataforma móvel anda com ela
     if (P.riding) { const e = P.riding; if (e.dead) P.riding = null; else { World.move(P, e.dx, 0); World.move(P, 0, e.dy); } }
-    World.updateBlocks(dt);
+    World.updateBlocks(dt); EchoPulse.update(dt);
     if (this.timers.length) { const due = this.timers.filter(x => x.t <= this.simTime); this.timers = this.timers.filter(x => x.t > this.simTime); for (const x of due) x.fn(); }
     // zonas: cripta escura e abafada, campanário em crescendo
     const z = World.zoneAt(P.cx, P.cy);
@@ -585,7 +595,7 @@ const Game = {
     if (this.where === 'map' || this.state === 'title') { WorldMap.render(ctx, this.time); Transition.draw(ctx, this.time); return; }
     const camX = lerp(Cam.px, Cam.x, a) + Cam.sx, camY = lerp(Cam.py, Cam.y, a) + Cam.sy, t = this.time;
     // zoom da cena: a câmera chega perto do Nexy (um pouco abaixo do centro, ângulo heroico)
-    const zoom = Cine.active ? Cine.zoom : 1, zx = lerp(P.px, P.x, a) + P.w / 2 - camX, zy = lerp(P.py, P.y, a) + P.h * 0.75 - camY;
+    const sc = this.scene(), zoom = sc ? sc.zoom : 1, zx = lerp(P.px, P.x, a) + P.w / 2 - camX, zy = lerp(P.py, P.y, a) + P.h * 0.75 - camY;
     const applyZoom = () => { if (zoom !== 1) { ctx.translate(zx, zy); ctx.scale(zoom, zoom); ctx.translate(-zx, -zy); } };
     ctx.save(); applyZoom();
     BG.draw(ctx, camX, camY, t);
@@ -603,19 +613,22 @@ const Game = {
     Dark.draw(ctx, camX, camY);
     Ents.draw(ctx, camX, camY, a, 'front');
     ctx.restore();
-    if (Cine.active) {
+    if (sc) {
       // a cor some do mundo; o Nexy, o Echo e a cena continuam em cor por cima
-      if (Cine.sat > 0.01) { ctx.save(); ctx.globalCompositeOperation = 'saturation'; ctx.fillStyle = `rgba(128,128,128,${Cine.sat.toFixed(3)})`; ctx.fillRect(0, 0, CFG.VIEW_W, CFG.VIEW_H); ctx.restore(); }
+      if (sc.sat > 0.01) { ctx.save(); ctx.globalCompositeOperation = 'saturation'; ctx.fillStyle = `rgba(128,128,128,${sc.sat.toFixed(3)})`; ctx.fillRect(0, 0, CFG.VIEW_W, CFG.VIEW_H); ctx.restore(); }
       ctx.save(); applyZoom();
-      if (Cine.sat > 0.01) { P.draw(ctx, camX, camY, a); Echo.draw(ctx, camX, camY, a); }
-      Cine.drawWorld(ctx, camX, camY, t);
+      if (sc.sat > 0.01) { P.draw(ctx, camX, camY, a); Echo.draw(ctx, camX, camY, a); }
+      sc.drawWorld(ctx, camX, camY, t);
       ctx.restore();
-    } else Doors.drawPrompt(ctx, camX, camY);
+    } else {
+      ctx.save(); applyZoom(); Hints.draw(ctx, camX, camY, t); EchoPulse.draw(ctx, camX, camY); ctx.restore();
+      Doors.drawPrompt(ctx, camX, camY);
+    }
     R.draw(R.sprite('vignette', 960, 540, (x, w, h) => {
       const g = x.createRadialGradient(w / 2, h / 2, h * 0.35, w / 2, h / 2, w * 0.62);
       g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.3)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
     }), 480, 270);
-    Cine.drawScreen(ctx);
+    Cine.drawScreen(ctx); Birth.drawScreen(ctx); Arrival.drawScreen(ctx);
     Transition.draw(ctx, this.time);
   },
 
@@ -633,7 +646,7 @@ const Game = {
     if (e.src) this.wordSrc[word] = e.src;
     if (!this.wordsSeen.has(word)) { this.wordsSeen.add(word); this.learnedOrder.push(word); }
     this.grimoireWord(word, null);
-    SFX.wordCollect(); Voice.say(WORDS[word] ? WORDS[word].say : word, 'echo');
+    SFX.wordCollect(); Voice.say(WORDS[word] ? WORDS[word].say : word, this.echoBorn ? 'echo' : 'story'); Hints.mark('word');
     FX.burst(e.x + 15, e.y + 12, 16, 'm', 180, { life: 0.5, g: 0 });
     UI.flyWord(word, e.x + 15 - Cam.x, e.y + 12 - Cam.y);
     return true;
@@ -718,7 +731,7 @@ const Game = {
       return;
     }
     const cp = this.checkpoint || World.start;
-    P.reset(cp.x, cp.y); Spawns.reset(); Echo.reset(); Cam.snap(); Music.normal();
+    P.reset(cp.x, cp.y); Spawns.reset(); Echo.reset(); Echo.hidden = !this.echoBorn; Cam.snap(); Music.normal();
   },
   finish(exit, bonus) {
     if (this.state !== 'play') return;
@@ -741,6 +754,7 @@ const Game = {
     S.bestFluency[id] = Math.max(S.bestFluency[id] || 0, this.fluency);
     Save.write();
     setTimeout(() => { if (all) Voice.say(MASTER_WORDS[mw].say + '!', 'echo'); }, 2600);
+    if (id === '1-1' && this.echoBorn) this.later(0.4, () => Echo.talk(ECHO.lines.teaser));
     setTimeout(() => { if (exit === 'secret' && newPath) Voice.say('New path!', 'echo'); }, all ? 3900 : 2800);
   },
 };

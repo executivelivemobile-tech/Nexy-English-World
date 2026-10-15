@@ -135,6 +135,12 @@ const SFX = {
   rune(up) { const t = AudioSys.t; [0, 4, 7, 12].forEach((iv, i) => tone('triangle', midi((up ? 64 : 76) + (up ? iv : -iv)), t + i * 0.06, 0.5, 0.05, { verb: true })); },
   moon() { const t = AudioSys.t; [69, 73, 76, 81, 85, 88, 93].forEach((n, i) => tone('sine', midi(n), t + i * 0.09, 1.4, 0.06, { verb: true })); },
   // ---- cena do Baú da Memória (pegada épica: tambor de guerra, coro, impacto pesado) ----
+  // sonar do Echo: um "ping" que se espalha
+  sonar(v = 1) {
+    const t = AudioSys.t;
+    tone('sine', 1320, t, 0.7, 0.09 * v, { to: 660, glide: 0.5, verb: true }); tone('sine', 1980, t + 0.02, 0.4, 0.03 * v, { to: 990, verb: true });
+    tone('triangle', 220, t, 0.25, 0.08 * v, { to: 160 });
+  },
   rumble(d = 1.2) { const t = AudioSys.t; noise(t, d, 0.22, { type: 'lowpass', freq: 140, a: 0.3 }); tone('sine', 41, t, d, 0.18, { a: 0.3 }); },
   warDrum() {
     const t = AudioSys.t;
@@ -332,6 +338,7 @@ const Voice = {
     u.lang = 'en-US'; if (this.voice) u.voice = this.voice;
     if (who === 'door') { u.pitch = 0.8; u.rate = 0.88; } else if (who === 'story') { u.pitch = 1; u.rate = 0.85; } else { u.pitch = 1.05; u.rate = 0.95; }
     const done = () => { if (this.cur !== u) return; this.speaking = false; AudioSys.duck(false); if (opts.onEnd) opts.onEnd(); };
+    if (opts.volume != null) u.volume = opts.volume; if (opts.rate) u.rate = opts.rate; if (opts.pitch) u.pitch = opts.pitch;
     if (opts.onBoundary) u.onboundary = e => { if (this.cur === u && (!e.name || e.name === 'word')) opts.onBoundary(e.charIndex); };
     u.onend = done; u.onerror = done;
     this.cur = u; this.speaking = true; this.who = who; this.pulse = 1; AudioSys.duck(true);

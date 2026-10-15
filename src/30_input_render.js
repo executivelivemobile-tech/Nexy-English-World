@@ -59,7 +59,7 @@ const Input = {
     const ax = gp.axes[0] || 0, ay = gp.axes[1] || 0;
     const now = {
       left: b(14) || ax < -0.45, right: b(15) || ax > 0.45, up: b(12) || ay < -0.6, down: b(13) || ay > 0.6,
-      jump: b(0), spin: b(1), x: b(2), y: b(3), sh: b(4) || b(5) || b(6) || b(7), start: b(9), select: b(8),
+      jump: b(0), spin: b(1), x: b(2), y: b(3), sh: b(5) || b(6) || b(7), lb: b(4), start: b(9), select: b(8),
     };
     const pressed = k => now[k] && !prev[k];
     const ui = !['play', 'map'].includes(Game.state);
@@ -73,6 +73,8 @@ const Input = {
     // botões de sistema
     if (pressed('start')) key(Game.state === 'title' ? 'Enter' : 'Escape');
     if (pressed('select') && Game.state === 'play') key('KeyQ');
+    if (pressed('lb') && Game.state === 'play') key('KeyC');
+    this.padSeen = true;
     if (ui) {
       if (pressed('jump')) key('Enter');
       if (pressed('spin')) key('Escape');
@@ -95,7 +97,7 @@ const Input = {
       const now = {};
       for (const k of active.values()) if (k) now[k] = true;
       const before = this.touchHeld;
-      for (const k of ['left', 'right', 'down', 'up', 'run', 'jump', 'spin']) {
+      for (const k of ['left', 'right', 'down', 'up', 'run', 'jump', 'spin', 'ping']) {
         if (now[k] && !before[k]) this.edge(k);
       }
       this.touchHeld = now;

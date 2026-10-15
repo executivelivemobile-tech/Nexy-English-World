@@ -22,6 +22,7 @@ const PARTS = [
   '60_player.js',       // jogador, Echo, câmera e desenho das portas
   '70_game.js',         // frases, painel, interface e laço principal
   '72_chest.js',        // Baú da Memória (leitura, perguntas, escalada) e a cena do Coração
+  '73_echo.js',         // 1-1: a chegada, o nascimento do Echo, o pulso do Echo e as placas de dica
   '75_worldmap.js',     // transições (íris) e mapa-múndi
   '99_boot.js',         // API de teste no console e partida
 ];

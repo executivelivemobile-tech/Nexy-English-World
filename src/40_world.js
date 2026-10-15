@@ -256,6 +256,7 @@ const World = {
     for (const b of this.blocks.values()) {
       if (b.bump > 0) b.bump = Math.max(0, b.bump - dt * 5.5);
       if (b.wob > 0) b.wob = Math.max(0, b.wob - dt * 4);
+      if (b.ping > 0) b.ping -= dt; if (b.peek > 0) b.peek -= dt;
       if (b.kind !== 'ghost') continue;
       if (b.flash > 0) b.flash = Math.max(0, b.flash - dt * 0.9);
       const want = this.ghostWanted(b), cx = b.c * TS + TS / 2, cy = b.r * TS + TS / 2;
@@ -267,7 +268,7 @@ const World = {
       // a palavra saiu da barra (foi usada numa porta): o degrau volta a ser fantasma
       if (b.solid && !want) { b.solid = false; b.flash = 0; SFX.remove(); FX.burst(cx, cy, 16, 'c', 120, { life: 0.7, g: -40 }); }
     }
-    for (const v of this.veils) if (v.found && v.alpha > 0) v.alpha = Math.max(0, v.alpha - dt * 2);
+    for (const v of this.veils) { if (v.found && v.alpha > 0) v.alpha = Math.max(0, v.alpha - dt * 2); if (v.ping > 0) v.ping -= dt; }
     for (const id in this.doors) {
       const d = this.doors[id];
       if (d.opening > 0 && d.opening < 1) {
@@ -422,6 +423,15 @@ const World = {
   },
   drawBlock(ctx, b, x, y, time) {
     const k = b.kind;
+    // pulso do Echo: o bloco invisível aparece tracejado por alguns segundos; o "?" deixa ouvir a palavra de dentro
+    if (b.ping > 0 && k === 'invisible' && b.state === 'hidden') {
+      const a = Math.min(1, b.ping) * (0.6 + 0.4 * Math.sin(time * 10));
+      R.draw(R.glow('m', 30), x + TS / 2, y + TS / 2, 1, 0.5 * a, true);
+      ctx.save(); ctx.setLineDash([4, 3]); rrect(ctx, x + 2, y + 2, TS - 4, TS - 4, 7); ctx.strokeStyle = `rgba(232,121,249,${0.9 * a})`; ctx.lineWidth = 1.5; ctx.stroke(); ctx.restore();
+      R.draw(R.text('?', '900 16px Orbitron, Inter, sans-serif', '#f0abfc', 'rgba(217,70,239,1)', 6), x + TS / 2, y + TS / 2 + 1, 1, a);
+      return;
+    }
+    if (b.peek > 0 && b.state === 'ready' && b.content && b.content.word) R.draw(R.text(b.content.word, '700 10px Orbitron, Inter, sans-serif', wa(0.85), 'rgba(217,70,239,0.8)', 5), x + TS / 2, y - 12, 1, Math.min(1, b.peek) * 0.85);
     if (k === 'invisible' && b.state === 'hidden') return;
     if (k === 'glass' && b.state === 'broken') return;
     const off = b.bump > 0 ? -Math.sin((1 - b.bump) * Math.PI) * 6 : 0;
@@ -456,11 +466,17 @@ const World = {
       }
       return;
     }
-    // "?" e usados
-    const used = b.state !== 'ready';
+    // "?" e usados. O bloco usado continua bem visível (é chão!): borda ciano, bisel e a marca de vazio.
+    // O Echo ilumina os blocos perto dele.
+    const used = b.state !== 'ready', lit = this.echoLight(b.c * TS + TS / 2, b.r * TS + TS / 2);
+    if (used && lit > 0) R.draw(R.glow('c', 30), x + TS / 2, y + TS / 2, 1.1, 0.35 * lit, true);
     rrect(ctx, x + 1, y + 1, TS - 2, TS - 2, 7);
-    ctx.fillStyle = used ? 'rgba(10,15,18,0.96)' : 'rgba(10,15,18,0.92)'; ctx.fill();
-    ctx.strokeStyle = used ? wa(0.08) : wa(0.16); ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = used ? 'rgba(12,18,22,0.97)' : 'rgba(10,15,18,0.92)'; ctx.fill();
+    ctx.strokeStyle = used ? ca(0.3 + 0.35 * lit) : wa(0.16); ctx.lineWidth = 1; ctx.stroke();
+    if (used) {
+      ctx.beginPath(); ctx.moveTo(x + 6, y + 3.5); ctx.lineTo(x + TS - 6, y + 3.5); ctx.strokeStyle = ca(0.22 + 0.3 * lit); ctx.stroke();
+      ctx.beginPath(); ctx.arc(x + TS / 2, y + TS / 2, 5, 0, Math.PI * 2); ctx.strokeStyle = wa(0.22 + 0.4 * lit); ctx.stroke();
+    }
     if (!used) {
       const g = ctx.createLinearGradient(x, y, x + TS, y + TS);
       g.addColorStop(0, wa(0.07)); g.addColorStop(0.5, wa(0)); g.addColorStop(1, 'rgba(217,70,239,0.06)');
@@ -468,9 +484,12 @@ const World = {
       const p = 0.5 + 0.5 * Math.sin(time * 4 + b.c * 0.7);
       R.draw(R.glow('m', 18), x + TS / 2, y + TS / 2, 1, 0.25 + 0.35 * p, true);
       R.draw(R.text('?', '900 19px Orbitron, Inter, sans-serif', '#f0abfc', 'rgba(217,70,239,1)', 7), x + TS / 2, y + TS / 2 + 1, 0.94 + 0.08 * p, 0.7 + 0.3 * p);
-    } else {
-      ctx.beginPath(); ctx.arc(x + TS / 2, y + TS / 2, 2, 0, Math.PI * 2); ctx.fillStyle = wa(0.08); ctx.fill();
     }
+  },
+  // quanto o Echo ilumina um ponto (0 a 1)
+  echoLight(x, y) {
+    if (typeof Echo === 'undefined' || Echo.hidden) return 0;
+    return clamp(1 - Math.hypot(x - Echo.x, y - Echo.y) / 170, 0, 1);
   },
   // palavra vazada (só contorno) para os blocos-fantasma ainda vazios
   hollowWord(word) {
@@ -515,10 +534,11 @@ const World = {
       ctx.fillStyle = '#0a0f12'; ctx.fillRect(x - 1, y - 1, v.w + 2, v.h + 16);
       const fx = (v.faceC * TS) - camX + (v.openLeft ? 0.5 : TS - 0.5);
       ctx.beginPath(); ctx.moveTo(fx, y); ctx.lineTo(fx, y + v.h); ctx.strokeStyle = wa(0.08); ctx.lineWidth = 1; ctx.stroke();
-      // rachadura quase invisível
-      const cx = v.faceC * TS - camX + 14;
+      // rachadura quase invisível (o pulso do Echo faz ela brilhar)
+      const cx = v.faceC * TS - camX + 14, pg = v.ping > 0 ? Math.min(1, v.ping) * (0.6 + 0.4 * Math.sin(Game.time * 10)) : 0;
       ctx.beginPath(); ctx.moveTo(cx, y + 4); ctx.lineTo(cx + 5, y + 18); ctx.lineTo(cx + 1, y + 30); ctx.lineTo(cx + 6, y + 44); ctx.lineTo(cx + 3, y + 58);
-      ctx.strokeStyle = wa(0.05); ctx.stroke();
+      ctx.strokeStyle = pg ? `rgba(232,121,249,${0.9 * pg})` : wa(0.05); ctx.lineWidth = pg ? 2 : 1; ctx.stroke();
+      if (pg) R.draw(R.glow('m', 40), cx + 3, y + v.h / 2, 1.2, 0.5 * pg, true);
       ctx.restore();
     }
   },

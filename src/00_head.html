@@ -417,9 +417,9 @@ body.touch #touch { display: block; }
       <div class="controls">
         <div><b>← →</b>move · <b>→→</b>run</div><div><b>Z</b><b>SPACE</b>jump</div><div><b>X</b>spin jump</div>
         <div><b>SHIFT</b>run · carry</div><div><b>↓</b>crouch</div><div><b>↑</b>open door</div>
-        <div><b>Q</b>drop item</div><div><b>H</b>hint</div><div><b>M</b>sound · <b>P</b>pause</div>
+        <div><b>Q</b>drop item</div><div><b>H</b>hint</div><div><b>C</b>echo · <b>M</b>sound · <b>P</b>pause</div>
       </div>
-      <div id="padline">GAMEPAD · A JUMP · B SPIN · X / Y RUN · START PAUSE</div>
+      <div id="padline">GAMEPAD · A JUMP · B SPIN · X / Y RUN · LB ECHO · START PAUSE</div>
       <div class="best" id="titlebest"></div>
     </div>
 
@@ -486,7 +486,7 @@ body.touch #touch { display: block; }
   </div>
   <div class="tc" id="tcr">
     <div class="tb wide" data-k="run">RUN</div>
-    <div class="col"><div class="tb wide" data-k="spin">SPIN</div><div class="tb wide" data-k="jump">JUMP</div></div>
+    <div class="col"><div class="tb wide" data-k="ping" id="tbping" style="display:none">ECHO</div><div class="tb wide" data-k="spin">SPIN</div><div class="tb wide" data-k="jump">JUMP</div></div>
   </div>
   <div class="tb wide" id="tbopen" data-k="up">OPEN</div>
 </div>

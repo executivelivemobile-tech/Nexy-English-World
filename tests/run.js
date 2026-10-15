@@ -284,7 +284,7 @@ test('cristal, reserva, vidro, parede falsa, letra no vidro e morte', async ({ p
 test('correr: segurar anda, soltar e apertar de novo logo em seguida corre', async ({ browser }) => {
   const { ctx, page } = await openGame(browser, { realtime: true });
   await page.keyboard.press('Enter'); await page.waitForTimeout(300);
-  await page.evaluate(() => NEXY.Game.enterLevel('1-1')); await page.waitForTimeout(100);
+  await page.evaluate(() => { NEXY.Game.noIntro = true; NEXY.Game.enterLevel('1-1'); NEXY.Game.echoBorn = true; Echo.hidden = false; }); await page.waitForTimeout(100);
   const setup = () => page.evaluate(() => { NEXY.Ents.list = NEXY.Ents.list.filter(e => !e.enemy); NEXY.World.spawns.forEach(s => { s.state = 'consumed'; }); NEXY.teleport(3, 19); NEXY.P.vx = 0; });
   const vmax = async ms => { let m = 0; const t0 = Date.now(); while (Date.now() - t0 < ms) { m = Math.max(m, await page.evaluate(() => Math.abs(NEXY.P.vx))); await page.waitForTimeout(40); } return Math.round(m); };
   await setup(); await page.keyboard.down('ArrowRight'); const walk = await vmax(800);
@@ -294,6 +294,61 @@ test('correr: segurar anda, soltar e apertar de novo logo em seguida corre', asy
   await page.keyboard.up('ArrowRight');
   await ctx.close();
   expect(walk === 140 && run === 230 && slow === 140, `andar ${walk}, correr ${run}, toques lentos ${slow}`);
+}, { ownPages: true });
+
+/* ---------------- 1-1: a chegada e o nascimento do Echo ---------------- */
+test('1-1: o Nexy chega sozinho; o HELLO! na porta 1 faz nascer o Echo, e só depois a porta abre', async ({ page }) => {
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, G = NEXY.Game, W = NEXY.World, out = {};
+    out.start = { born: G.echoBorn, hidden: Echo.hidden, pulse: EchoPulse.fire() };
+    H.noEnemies(); NEXY.give('HELLO'); H.tp(38, 19, 999); H.step(3);
+    G.openPanel(P.interact); Panel.place(G.bar.indexOf('HELLO')); Panel.confirm(); await H.wait(1800);
+    out.scene = { birth: Birth.active, state: G.state, door: W.doors.door1.opening };
+    let n = 0; while (Birth.active && n++ < 900) Birth.update(1 / 60);
+    H.step(120);
+    out.after = { born: G.echoBorn, hidden: Echo.hidden, open: W.doors.door1.open, state: G.state, tut: EchoPulse.tutorial, met: NEXY.Save.data.met.echo, secs: +(n / 60).toFixed(1) };
+    // morrer depois do nascimento não some com o Echo
+    G.respawn(); out.respawn = !Echo.hidden;
+    return out;
+  });
+  expect(!r.start.born && r.start.hidden && !r.start.pulse, `começa sem o Echo (${JSON.stringify(r.start)})`);
+  expect(r.scene.birth && r.scene.state === 'cinematic' && !r.scene.door, `a cena começa e a porta espera (${JSON.stringify(r.scene)})`);
+  expect(r.after.born && !r.after.hidden && r.after.open && r.after.state === 'play' && r.after.tut && r.after.met, `nasce, a porta abre e o pulso é ensinado (${JSON.stringify(r.after)})`);
+  expect(r.respawn, 'o Echo continua depois de morrer');
+}, { echo: false });
+
+test('1-1: o pulso do Echo revela o bloco invisível, a parede falsa e a palavra dentro do "?"', async ({ page }) => {
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, G = NEXY.Game, W = NEXY.World, out = {};
+    H.noEnemies(); H.tp(45, 19, 999); H.step(60);
+    const b = W.blockAt(45, 16), lives = G.lives;
+    out.hiddenBefore = b.state === 'hidden' && !(b.ping > 0);
+    H.press('ping'); H.step(1); out.ping = b.ping > 0; out.cool = !EchoPulse.fire();
+    H.set(['jump']); H.press('jump'); H.step(25); H.set([]); H.step(80);
+    const life = NEXY.Ents.list.find(e => e.type === 'life'); if (life) { P.x = life.x; P.y = life.y + life.h - P.h; P.vx = 0; H.step(3); }
+    out.life = G.lives - lives; out.secret = G.secrets.has('echo-secret');
+    // a parede falsa (sala do 2º L) e a palavra dentro de um "?"
+    H.tp(169, 19, 999); H.step(90); H.press('ping'); H.step(1); out.veil = W.veils.some(v => v.ping > 0);
+    H.tp(112, 19, 999); H.step(90); H.press('ping'); H.step(1); out.peek = W.blockAt(111, 16).peek > 0;
+    return out;
+  });
+  expect(r.hiddenBefore && r.ping && r.cool, `o pulso marca o bloco invisível (${JSON.stringify(r)})`);
+  expect(r.life === 1 && r.secret, `o bloco tem uma vida e conta como segredo (${JSON.stringify(r)})`);
+  expect(r.veil && r.peek, `revela a parede falsa e deixa ouvir a palavra do "?" (${JSON.stringify(r)})`);
+});
+
+test('1-1: a chegada no feixe de luz termina com o Nexy no chão e no controle', async ({ browser }) => {
+  const { ctx, page, errors } = await openGame(browser, { realtime: true });
+  await page.keyboard.press('Enter'); await page.waitForTimeout(300);
+  await page.evaluate(() => NEXY.Game.enterLevel('1-1'));
+  await page.waitForTimeout(200);
+  const mid = await page.evaluate(() => ({ arrival: Arrival.active, state: NEXY.Game.state }));
+  await page.waitForTimeout(3500);
+  const end = await page.evaluate(() => ({ arrival: Arrival.active, state: NEXY.Game.state, ground: NEXY.P.onGround, hidden: Echo.hidden }));
+  await ctx.close();
+  expect(!errors.length, errors.join('; '));
+  expect(mid.arrival && mid.state === 'cinematic', `a chegada começa (${JSON.stringify(mid)})`);
+  expect(!end.arrival && end.state === 'play' && end.ground && end.hidden, `termina no chão, ainda sem o Echo (${JSON.stringify(end)})`);
 }, { ownPages: true });
 
 /* ================================ FASE 1-2 · WHO ARE YOU? ================================ */
@@ -811,7 +866,7 @@ test('index.html está em dia com src/', async () => {
     const t0 = Date.now();
     let page, ctx, errors = [];
     try {
-      if (!t.opts.ownPages) ({ ctx, page, errors } = await openGame(browser, { level: t.opts.level }));
+      if (!t.opts.ownPages) ({ ctx, page, errors } = await openGame(browser, { level: t.opts.level, echo: t.opts.echo !== false }));
       await t.fn({ page, browser });
       if (errors.length) throw new Error('erros na página: ' + errors.join('; '));
       console.log(`  ✓ ${t.name} (${((Date.now() - t0) / 1000).toFixed(1)}s)`);

@@ -140,6 +140,7 @@ const P = {
     if (World.fits(this.x, this.y + this.h - H, this.w, H, this)) { this.y += this.h - H; this.h = H; this.crouch = false; }
   },
   doJump(spin) {
+    Hints.mark('jump');
     const v = CFG.JUMP_V + CFG.JUMP_RUN_BONUS * Math.min(1, Math.abs(this.vx) / CFG.RUN);
     this.vy = -v * (spin ? CFG.SPIN_FACTOR : 1);
     this.onGround = false; this.jumpedSinceGround = true; this.spinning = spin; this.spinT = 0; this.squash = -0.3;
@@ -302,7 +303,7 @@ const P = {
       if (!d.read && Math.abs(this.cx - dcx) < TS * 7 && Math.abs((this.y + this.h) - (d.y + d.h)) < TS * 4 && (d.kind === 'pedestal' || !d.open)) {
         d.read = true; Voice.say(Sentence.speakInscription(d.def.inscription), 'door');
       }
-      if (d.open && d.kind !== 'pedestal' || d.kind === 'bells' || (d.kind === 'chest' && Cine.active)) continue;
+      if (d.open && d.kind !== 'pedestal' || d.kind === 'bells' || (d.kind === 'chest' && Cine.active) || d.opening > 0) continue;
       const feetOk = Math.abs((this.y + this.h) - (d.y + d.h)) < 10;
       const near = d.kind === 'door' ? (this.x + this.w > d.x - 44 && this.x < d.x + 2) : Math.abs(this.cx - dcx) < 40;
       if (near && feetOk && this.onGround) this.interact = d;
@@ -398,7 +399,7 @@ const P = {
 
 /* ============================== ECHO (familiar, a voz do jogo) ============================== */
 const Echo = {
-  x: 0, y: 0, px: 0, py: 0, pulse: 0, hidden: false, puff: 0, tiny: 0, shake: 0, line: null, lines: [], lineT: 0,
+  x: 0, y: 0, px: 0, py: 0, pulse: 0, hidden: false, puff: 0, tiny: 0, shake: 0, line: null, lines: [], lineT: 0, birthK: 1,
   reset() {
     this.x = P.cx - 26; this.y = P.y - 10; this.px = this.x; this.py = this.y; this.hidden = false; this.puff = 0; this.tiny = 0; this.shake = 0;
     for (const e of Ents.list) if (e.type === 'echoride') e.dead = true;
@@ -435,7 +436,8 @@ const Echo = {
   draw(ctx, camX, camY, a) {
     if (this.hidden) return;
     let x = lerp(this.px, this.x, a) - camX; const y = lerp(this.py, this.y, a) - camY, t = Game.time;
-    const size = this.puff > 0 ? 1 + 1.6 * Math.min(1, this.puff * 2, (2.2 - this.puff) * 4) : this.tiny > 0 ? 1 - 0.55 * Math.min(1, this.tiny * 2, (2.2 - this.tiny) * 4) : 1;
+    let size = this.puff > 0 ? 1 + 1.6 * Math.min(1, this.puff * 2, (2.2 - this.puff) * 4) : this.tiny > 0 ? 1 - 0.55 * Math.min(1, this.tiny * 2, (2.2 - this.tiny) * 4) : 1;
+    if (this.birthK < 1) size *= P.easeBack(this.birthK);
     if (this.shake > 0) x += Math.sin(t * 40) * 3 * this.shake;
     if (size !== 1) { ctx.save(); ctx.translate(x, y); ctx.scale(size, size); ctx.translate(-x, -y); }
     this.drawOrb(ctx, x, y, t);
@@ -447,7 +449,8 @@ const Echo = {
     const l = this.line, k = Math.min(1, this.lineT * 5, (3 - this.lineT) * 5);
     if (k <= 0) return;
     const en = R.text(l.en, '700 12px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(217,70,239,0.9)', 5), pt = R.text(l.pt, '400 11px Inter, sans-serif', wa(0.75), null, 0);
-    const w = Math.max(en.w, pt.w) + 6, h = 44, bx = clamp(x, w / 2 + 10, CFG.VIEW_W - w / 2 - 10), by = y - 48;
+    // o balão fica do lado de trás do Nexy (não cobre o que está à frente, nem o que o Echo revelou)
+    const w = Math.max(en.w, pt.w) + 6, h = 44, bx = clamp(x - P.facing * (w / 2 - 14), w / 2 + 10, CFG.VIEW_W - w / 2 - 10), by = y - 40;
     ctx.save(); ctx.globalAlpha = k;
     rrect(ctx, bx - w / 2, by - h / 2, w, h, 14); ctx.fillStyle = 'rgba(2,2,2,0.82)'; ctx.fill(); ctx.strokeStyle = 'rgba(217,70,239,0.7)'; ctx.lineWidth = 1; ctx.stroke();
     ctx.beginPath(); ctx.moveTo(x - 5, by + h / 2); ctx.lineTo(x, by + h / 2 + 8); ctx.lineTo(x + 5, by + h / 2); ctx.fillStyle = 'rgba(2,2,2,0.82)'; ctx.fill();

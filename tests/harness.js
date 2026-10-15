@@ -7,7 +7,8 @@ const { chromium } = require('playwright');
 
 const GAME = 'file://' + path.resolve(__dirname, '..', 'index.html');
 
-async function openGame(browser, { hash = '', realtime = false, context = {}, level = '1-1' } = {}) {
+// echo: true (padrão) = o Echo já nasceu (os testes antigos da 1-1 continuam valendo); false = a 1-1 começa sem ele.
+async function openGame(browser, { hash = '', realtime = false, context = {}, level = '1-1', echo = true } = {}) {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 }, ...context });
   const page = await ctx.newPage();
   const errors = [];
@@ -18,9 +19,10 @@ async function openGame(browser, { hash = '', realtime = false, context = {}, le
   if (!realtime) {
     await page.keyboard.press('Enter');
     await page.waitForTimeout(200);
-    await page.evaluate((level) => {
+    await page.evaluate(([level, echo]) => {
       const G = NEXY.Game;
-      G.enterLevel(level);
+      G.noIntro = true; G.enterLevel(level);
+      if (echo) { G.echoBorn = true; Echo.hidden = false; }
       G.frame = function () { this.render(1); UI.frame(); };
       window.H = {
         set(keys) { for (const k in Input.held) Input.held[k] = false; Input.touchHeld = {}; for (const k of keys) Input.held[k] = true; },
@@ -32,7 +34,7 @@ async function openGame(browser, { hash = '', realtime = false, context = {}, le
         block(c, r) { const b = NEXY.World.blockAt(c, r); return b && b.state; },
         wait(ms) { return new Promise(r => setTimeout(r, ms)); },
       };
-    }, level);
+    }, [level, echo]);
   }
   return { ctx, page, errors };
 }

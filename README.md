@@ -7,7 +7,7 @@ Plataforma 2D neon-noir para ensinar inglês (nível A1) a brasileiros. Tudo est
 
 | Fase | Status | Commit |
 | --- | --- | --- |
-| 1-1 · Hello World | aprovada | `3702f14` |
+| 1-1 · Hello World | aprovada em `3702f14`; nova abertura com o nascimento do Echo aguardando aprovação | branch |
 | 1-2 · Who are you? | aguardando aprovação | branch `claude/jolly-faraday-8mbshk` |
 
 ## Como o jogo flui
@@ -106,11 +106,22 @@ máximo), a investida em câmera lenta, o impacto congelado, o Muro do Silêncio
 **Quem não consegue** passar pelo baú tem outro caminho: um poço escuro antes do muro, subindo com um quique num
 Alado, e uma passagem baixa por cima do muro.
 
-## O Echo
+## O Echo: a primeira ferramenta (nasce na 1-1)
 
-O orbe que segue o Nexy é o **Echo**, o companheiro. Na primeira partida ele se apresenta ("Hello! I am Echo. I am
-your friend.", com legenda), fala as palavras em inglês, ilumina o escuro e é o alvo de YOU na 1-2. Tem ficha no
-Grimório (aba CREATURES).
+A 1-1 começa com o Nexy **sozinho**, descendo do céu num feixe de luz. Placas de dica aparecem nos lugares certos
+(em inglês, com português) e somem quando você já fez a ação. Ao dizer a primeira palavra, **HELLO!** na porta 1, ela
+ecoa pela catedral ("hello… hello… hello"), as ondas voltam, as letras H-E-L-L-O giram e se juntam numa luz: nasce o
+**Echo** ("ECHO · YOUR FIRST TOOL · YOUR FRIEND"). Ele dá uma volta em oito, se apresenta ("Hello! I am Echo. I am
+your friend.") e só então a porta abre. Nas próximas vezes a cena é mais rápida, e Enter pula.
+
+**O pulso do Echo** (tecla **C**, **LB** no controle, botão **ECHO** no celular) é um sonar: revela por alguns segundos
+os blocos invisíveis e as paredes falsas por perto, e deixa ouvir a palavra que está dentro dos blocos "?". Logo depois
+da porta 1 há um bloco invisível com uma vida para treinar; o mesmo pulso encontra os segredos que já existiam (o
+cristal escondido, o SMALL da saída secreta e a parede falsa). Blocos já usados ficam com borda e marca de vazio, e o
+Echo os ilumina quando passa perto. No fim da 1-1 o Echo olha a catedral: "Look! The cathedral. What is inside?".
+
+O Echo também fala as palavras em inglês, ilumina o escuro e é o alvo de YOU na 1-2. Tem ficha no Grimório (aba
+CREATURES).
 
 A voz é a do próprio aparelho. O jogo escolhe sozinho a mais natural (as "Natural" do Edge/Windows 11 e as do Google
 no Chrome soam bem; as antigas do Windows, como Zira e David, são robóticas). Para trocar: pausa → ASSIST →
@@ -136,6 +147,7 @@ O jogo que vai para o jogador é só o `index.html`, autocontido. Ele é **gerad
 | `src/60_player.js` | jogador (plataformas móveis, forma de Rastejante), Echo, câmera e desenho das portas |
 | `src/70_game.js` | frases, painel, interface e laço principal |
 | `src/72_chest.js` | Baú da Memória (leitura, perguntas, escalada) e a cena do Coração |
+| `src/73_echo.js` | 1-1: a chegada, o nascimento do Echo, o pulso do Echo e as placas de dica |
 | `src/75_worldmap.js` | transições (íris e fechadura) e o mapa-múndi |
 | `src/99_boot.js` | API de teste no console (`NEXY`) e partida |
 | `src/levels/1-1.map` | mapa ASCII da 1-1 (23 linhas × 208 colunas) |

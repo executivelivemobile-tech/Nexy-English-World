@@ -122,6 +122,10 @@ const ECHO = {
   lines: {
     intro: [{ en: 'Hello! I am Echo.', pt: 'Olá! Eu sou o Echo.' }, { en: 'I am your friend.', pt: 'Sou seu amigo. Eu falo as palavras em inglês para você.' }],
     dark: [{ en: 'It is dark.', pt: 'Está escuro.' }, { en: 'I am your light.', pt: 'Eu sou a sua luz. Fique perto de mim.' }],
+    birth: [{ en: 'Hello! I am Echo.', pt: 'Olá! Eu sou o Echo. Nasci do seu primeiro HELLO.' }, { en: 'I am your friend.', pt: 'Sou seu amigo. Eu falo as palavras em inglês para você.' },
+      { en: 'Listen! Press C.', pt: 'Aperte C (LB no controle): eu encontro coisas escondidas.' }],
+    found: [{ en: 'Something is here!', pt: 'Tem alguma coisa escondida aqui!' }],
+    teaser: [{ en: 'Look! The cathedral.', pt: 'Olha! A catedral.' }, { en: 'What is inside?', pt: 'O que será que tem lá dentro?' }],
   },
 };
 const MASTER_WORDS = {
@@ -188,7 +192,14 @@ const LEVELS = {
       'u': { block: 'invisible', content: { crystal: true }, secret: 'invisible-crystal' },
       's': { block: 'invisible', content: { word: 'SMALL' }, secret: 'invisible-small' },
       'l': { block: 'glass', content: { letter: 3 } },
+      'v': { block: 'invisible', content: { life: 1 }, secret: 'echo-secret' },   // o 1º segredo que o pulso do Echo revela
     },
+    // Placas de dica: aparecem quando o Nexy chega perto e somem depois que a ação foi feita (until).
+    hints: [
+      { c: 7, r: 17, en: '← → MOVE · Z JUMP', pt: 'ande com as setas e pule com Z', until: 'jump' },
+      { c: 16, r: 14, en: 'HIT THE ? FROM BELOW', pt: 'bata no bloco ? por baixo: ele solta uma palavra', until: 'word' },
+      { c: 32, r: 15, en: '↑ OPEN · MAKE THE SENTENCE', pt: 'aperte ↑ na porta e monte a frase com as palavras', until: 'door1' },
+    ],
     // Entidades com parâmetros extras por caractere (sobrepõem a legenda global).
     entities: {
       'J': { entity: 'casco', respawn: 'offscreen', zone: [103, 124] },
@@ -197,8 +208,9 @@ const LEVELS = {
     // Portas: a frase-molde usa '_' para as lacunas. accept = frases certas (cada uma com seu resultado).
     // enact = frases "erradas" que a porta encena. Resultados: open | transform(scale) | exit(id) | morph(icon).
     doors: {
+      // a primeira palavra: ao dizer HELLO!, ela ecoa e nasce o Echo (a primeira ferramenta). Depois a porta abre.
       door1: {
-        char: '1', inscription: 'HELLO!', mold: ['_', '!'],
+        char: '1', inscription: 'HELLO!', mold: ['_', '!'], birth: 'echo',
         accept: [{ words: ['HELLO'], result: { type: 'open' } }],
       },
       door2: {

@@ -417,9 +417,9 @@ body.touch #touch { display: block; }
       <div class="controls">
         <div><b>← →</b>move · <b>→→</b>run</div><div><b>Z</b><b>SPACE</b>jump</div><div><b>X</b>spin jump</div>
         <div><b>SHIFT</b>run · carry</div><div><b>↓</b>crouch</div><div><b>↑</b>open door</div>
-        <div><b>Q</b>drop item</div><div><b>H</b>hint</div><div><b>M</b>sound · <b>P</b>pause</div>
+        <div><b>Q</b>drop item</div><div><b>H</b>hint</div><div><b>C</b>echo · <b>M</b>sound · <b>P</b>pause</div>
       </div>
-      <div id="padline">GAMEPAD · A JUMP · B SPIN · X / Y RUN · START PAUSE</div>
+      <div id="padline">GAMEPAD · A JUMP · B SPIN · X / Y RUN · LB ECHO · START PAUSE</div>
       <div class="best" id="titlebest"></div>
     </div>
 
@@ -486,7 +486,7 @@ body.touch #touch { display: block; }
   </div>
   <div class="tc" id="tcr">
     <div class="tb wide" data-k="run">RUN</div>
-    <div class="col"><div class="tb wide" data-k="spin">SPIN</div><div class="tb wide" data-k="jump">JUMP</div></div>
+    <div class="col"><div class="tb wide" data-k="ping" id="tbping" style="display:none">ECHO</div><div class="tb wide" data-k="spin">SPIN</div><div class="tb wide" data-k="jump">JUMP</div></div>
   </div>
   <div class="tb wide" id="tbopen" data-k="up">OPEN</div>
 </div>
@@ -616,6 +616,10 @@ const ECHO = {
   lines: {
     intro: [{ en: 'Hello! I am Echo.', pt: 'Olá! Eu sou o Echo.' }, { en: 'I am your friend.', pt: 'Sou seu amigo. Eu falo as palavras em inglês para você.' }],
     dark: [{ en: 'It is dark.', pt: 'Está escuro.' }, { en: 'I am your light.', pt: 'Eu sou a sua luz. Fique perto de mim.' }],
+    birth: [{ en: 'Hello! I am Echo.', pt: 'Olá! Eu sou o Echo. Nasci do seu primeiro HELLO.' }, { en: 'I am your friend.', pt: 'Sou seu amigo. Eu falo as palavras em inglês para você.' },
+      { en: 'Listen! Press C.', pt: 'Aperte C (LB no controle): eu encontro coisas escondidas.' }],
+    found: [{ en: 'Something is here!', pt: 'Tem alguma coisa escondida aqui!' }],
+    teaser: [{ en: 'Look! The cathedral.', pt: 'Olha! A catedral.' }, { en: 'What is inside?', pt: 'O que será que tem lá dentro?' }],
   },
 };
 const MASTER_WORDS = {
@@ -681,7 +685,7 @@ const LEVELS = {
       '........................................##........................................................==.##..............................................##.........................................#..............#', // 13
       '........................................##.............r...........I.................................##....................................l.....==..##......................*..................X..............#', // 14
       '...........o............................##.......o.....o.............................................##..............................................##....oo...C...............................X..............#', // 15
-      '..........o.o.....h....*............?...##................a..i...................c....AAA............##........i...r...d.............u...............##...o..o.===............C....a..b..s......X.......N......#', // 16
+      '..........o.o.....h....*............?...##...v............a..i...................c....AAA............##........i...r...d.............u...............##...o..o.===............C....a..b..s......X.......N......#', // 16
       '.........o...o............ooo...H.......11......===...===........M...................####............22......................###....oo........==.....33....................######........o....##################', // 17
       '.....................................oo.11..ooo......................................####.......Y....22......o...o...o...o...###.ooo.................33................O...W.*.*#......oo.....#########........#', // 18
       '...P......###................C..........11..........................Y...Y..g.g.g.....####.L..#######.22.F..J.................k##.....................33............K.......Wo.oo#.g........V...................#', // 19
@@ -704,7 +708,14 @@ const LEVELS = {
       'u': { block: 'invisible', content: { crystal: true }, secret: 'invisible-crystal' },
       's': { block: 'invisible', content: { word: 'SMALL' }, secret: 'invisible-small' },
       'l': { block: 'glass', content: { letter: 3 } },
+      'v': { block: 'invisible', content: { life: 1 }, secret: 'echo-secret' },   // o 1º segredo que o pulso do Echo revela
     },
+    // Placas de dica: aparecem quando o Nexy chega perto e somem depois que a ação foi feita (until).
+    hints: [
+      { c: 7, r: 17, en: '← → MOVE · Z JUMP', pt: 'ande com as setas e pule com Z', until: 'jump' },
+      { c: 16, r: 14, en: 'HIT THE ? FROM BELOW', pt: 'bata no bloco ? por baixo: ele solta uma palavra', until: 'word' },
+      { c: 32, r: 15, en: '↑ OPEN · MAKE THE SENTENCE', pt: 'aperte ↑ na porta e monte a frase com as palavras', until: 'door1' },
+    ],
     // Entidades com parâmetros extras por caractere (sobrepõem a legenda global).
     entities: {
       'J': { entity: 'casco', respawn: 'offscreen', zone: [103, 124] },
@@ -713,8 +724,9 @@ const LEVELS = {
     // Portas: a frase-molde usa '_' para as lacunas. accept = frases certas (cada uma com seu resultado).
     // enact = frases "erradas" que a porta encena. Resultados: open | transform(scale) | exit(id) | morph(icon).
     doors: {
+      // a primeira palavra: ao dizer HELLO!, ela ecoa e nasce o Echo (a primeira ferramenta). Depois a porta abre.
       door1: {
-        char: '1', inscription: 'HELLO!', mold: ['_', '!'],
+        char: '1', inscription: 'HELLO!', mold: ['_', '!'], birth: 'echo',
         accept: [{ words: ['HELLO'], result: { type: 'open' } }],
       },
       door2: {
@@ -1249,6 +1261,12 @@ const SFX = {
   rune(up) { const t = AudioSys.t; [0, 4, 7, 12].forEach((iv, i) => tone('triangle', midi((up ? 64 : 76) + (up ? iv : -iv)), t + i * 0.06, 0.5, 0.05, { verb: true })); },
   moon() { const t = AudioSys.t; [69, 73, 76, 81, 85, 88, 93].forEach((n, i) => tone('sine', midi(n), t + i * 0.09, 1.4, 0.06, { verb: true })); },
   // ---- cena do Baú da Memória (pegada épica: tambor de guerra, coro, impacto pesado) ----
+  // sonar do Echo: um "ping" que se espalha
+  sonar(v = 1) {
+    const t = AudioSys.t;
+    tone('sine', 1320, t, 0.7, 0.09 * v, { to: 660, glide: 0.5, verb: true }); tone('sine', 1980, t + 0.02, 0.4, 0.03 * v, { to: 990, verb: true });
+    tone('triangle', 220, t, 0.25, 0.08 * v, { to: 160 });
+  },
   rumble(d = 1.2) { const t = AudioSys.t; noise(t, d, 0.22, { type: 'lowpass', freq: 140, a: 0.3 }); tone('sine', 41, t, d, 0.18, { a: 0.3 }); },
   warDrum() {
     const t = AudioSys.t;
@@ -1446,6 +1464,7 @@ const Voice = {
     u.lang = 'en-US'; if (this.voice) u.voice = this.voice;
     if (who === 'door') { u.pitch = 0.8; u.rate = 0.88; } else if (who === 'story') { u.pitch = 1; u.rate = 0.85; } else { u.pitch = 1.05; u.rate = 0.95; }
     const done = () => { if (this.cur !== u) return; this.speaking = false; AudioSys.duck(false); if (opts.onEnd) opts.onEnd(); };
+    if (opts.volume != null) u.volume = opts.volume; if (opts.rate) u.rate = opts.rate; if (opts.pitch) u.pitch = opts.pitch;
     if (opts.onBoundary) u.onboundary = e => { if (this.cur === u && (!e.name || e.name === 'word')) opts.onBoundary(e.charIndex); };
     u.onend = done; u.onerror = done;
     this.cur = u; this.speaking = true; this.who = who; this.pulse = 1; AudioSys.duck(true);
@@ -1541,7 +1560,7 @@ const Input = {
     const ax = gp.axes[0] || 0, ay = gp.axes[1] || 0;
     const now = {
       left: b(14) || ax < -0.45, right: b(15) || ax > 0.45, up: b(12) || ay < -0.6, down: b(13) || ay > 0.6,
-      jump: b(0), spin: b(1), x: b(2), y: b(3), sh: b(4) || b(5) || b(6) || b(7), start: b(9), select: b(8),
+      jump: b(0), spin: b(1), x: b(2), y: b(3), sh: b(5) || b(6) || b(7), lb: b(4), start: b(9), select: b(8),
     };
     const pressed = k => now[k] && !prev[k];
     const ui = !['play', 'map'].includes(Game.state);
@@ -1555,6 +1574,8 @@ const Input = {
     // botões de sistema
     if (pressed('start')) key(Game.state === 'title' ? 'Enter' : 'Escape');
     if (pressed('select') && Game.state === 'play') key('KeyQ');
+    if (pressed('lb') && Game.state === 'play') key('KeyC');
+    this.padSeen = true;
     if (ui) {
       if (pressed('jump')) key('Enter');
       if (pressed('spin')) key('Escape');
@@ -1577,7 +1598,7 @@ const Input = {
       const now = {};
       for (const k of active.values()) if (k) now[k] = true;
       const before = this.touchHeld;
-      for (const k of ['left', 'right', 'down', 'up', 'run', 'jump', 'spin']) {
+      for (const k of ['left', 'right', 'down', 'up', 'run', 'jump', 'spin', 'ping']) {
         if (now[k] && !before[k]) this.edge(k);
       }
       this.touchHeld = now;
@@ -2006,6 +2027,7 @@ const World = {
     for (const b of this.blocks.values()) {
       if (b.bump > 0) b.bump = Math.max(0, b.bump - dt * 5.5);
       if (b.wob > 0) b.wob = Math.max(0, b.wob - dt * 4);
+      if (b.ping > 0) b.ping -= dt; if (b.peek > 0) b.peek -= dt;
       if (b.kind !== 'ghost') continue;
       if (b.flash > 0) b.flash = Math.max(0, b.flash - dt * 0.9);
       const want = this.ghostWanted(b), cx = b.c * TS + TS / 2, cy = b.r * TS + TS / 2;
@@ -2017,7 +2039,7 @@ const World = {
       // a palavra saiu da barra (foi usada numa porta): o degrau volta a ser fantasma
       if (b.solid && !want) { b.solid = false; b.flash = 0; SFX.remove(); FX.burst(cx, cy, 16, 'c', 120, { life: 0.7, g: -40 }); }
     }
-    for (const v of this.veils) if (v.found && v.alpha > 0) v.alpha = Math.max(0, v.alpha - dt * 2);
+    for (const v of this.veils) { if (v.found && v.alpha > 0) v.alpha = Math.max(0, v.alpha - dt * 2); if (v.ping > 0) v.ping -= dt; }
     for (const id in this.doors) {
       const d = this.doors[id];
       if (d.opening > 0 && d.opening < 1) {
@@ -2172,6 +2194,15 @@ const World = {
   },
   drawBlock(ctx, b, x, y, time) {
     const k = b.kind;
+    // pulso do Echo: o bloco invisível aparece tracejado por alguns segundos; o "?" deixa ouvir a palavra de dentro
+    if (b.ping > 0 && k === 'invisible' && b.state === 'hidden') {
+      const a = Math.min(1, b.ping) * (0.6 + 0.4 * Math.sin(time * 10));
+      R.draw(R.glow('m', 30), x + TS / 2, y + TS / 2, 1, 0.5 * a, true);
+      ctx.save(); ctx.setLineDash([4, 3]); rrect(ctx, x + 2, y + 2, TS - 4, TS - 4, 7); ctx.strokeStyle = `rgba(232,121,249,${0.9 * a})`; ctx.lineWidth = 1.5; ctx.stroke(); ctx.restore();
+      R.draw(R.text('?', '900 16px Orbitron, Inter, sans-serif', '#f0abfc', 'rgba(217,70,239,1)', 6), x + TS / 2, y + TS / 2 + 1, 1, a);
+      return;
+    }
+    if (b.peek > 0 && b.state === 'ready' && b.content && b.content.word) R.draw(R.text(b.content.word, '700 10px Orbitron, Inter, sans-serif', wa(0.85), 'rgba(217,70,239,0.8)', 5), x + TS / 2, y - 12, 1, Math.min(1, b.peek) * 0.85);
     if (k === 'invisible' && b.state === 'hidden') return;
     if (k === 'glass' && b.state === 'broken') return;
     const off = b.bump > 0 ? -Math.sin((1 - b.bump) * Math.PI) * 6 : 0;
@@ -2206,11 +2237,17 @@ const World = {
       }
       return;
     }
-    // "?" e usados
-    const used = b.state !== 'ready';
+    // "?" e usados. O bloco usado continua bem visível (é chão!): borda ciano, bisel e a marca de vazio.
+    // O Echo ilumina os blocos perto dele.
+    const used = b.state !== 'ready', lit = this.echoLight(b.c * TS + TS / 2, b.r * TS + TS / 2);
+    if (used && lit > 0) R.draw(R.glow('c', 30), x + TS / 2, y + TS / 2, 1.1, 0.35 * lit, true);
     rrect(ctx, x + 1, y + 1, TS - 2, TS - 2, 7);
-    ctx.fillStyle = used ? 'rgba(10,15,18,0.96)' : 'rgba(10,15,18,0.92)'; ctx.fill();
-    ctx.strokeStyle = used ? wa(0.08) : wa(0.16); ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = used ? 'rgba(12,18,22,0.97)' : 'rgba(10,15,18,0.92)'; ctx.fill();
+    ctx.strokeStyle = used ? ca(0.3 + 0.35 * lit) : wa(0.16); ctx.lineWidth = 1; ctx.stroke();
+    if (used) {
+      ctx.beginPath(); ctx.moveTo(x + 6, y + 3.5); ctx.lineTo(x + TS - 6, y + 3.5); ctx.strokeStyle = ca(0.22 + 0.3 * lit); ctx.stroke();
+      ctx.beginPath(); ctx.arc(x + TS / 2, y + TS / 2, 5, 0, Math.PI * 2); ctx.strokeStyle = wa(0.22 + 0.4 * lit); ctx.stroke();
+    }
     if (!used) {
       const g = ctx.createLinearGradient(x, y, x + TS, y + TS);
       g.addColorStop(0, wa(0.07)); g.addColorStop(0.5, wa(0)); g.addColorStop(1, 'rgba(217,70,239,0.06)');
@@ -2218,9 +2255,12 @@ const World = {
       const p = 0.5 + 0.5 * Math.sin(time * 4 + b.c * 0.7);
       R.draw(R.glow('m', 18), x + TS / 2, y + TS / 2, 1, 0.25 + 0.35 * p, true);
       R.draw(R.text('?', '900 19px Orbitron, Inter, sans-serif', '#f0abfc', 'rgba(217,70,239,1)', 7), x + TS / 2, y + TS / 2 + 1, 0.94 + 0.08 * p, 0.7 + 0.3 * p);
-    } else {
-      ctx.beginPath(); ctx.arc(x + TS / 2, y + TS / 2, 2, 0, Math.PI * 2); ctx.fillStyle = wa(0.08); ctx.fill();
     }
+  },
+  // quanto o Echo ilumina um ponto (0 a 1)
+  echoLight(x, y) {
+    if (typeof Echo === 'undefined' || Echo.hidden) return 0;
+    return clamp(1 - Math.hypot(x - Echo.x, y - Echo.y) / 170, 0, 1);
   },
   // palavra vazada (só contorno) para os blocos-fantasma ainda vazios
   hollowWord(word) {
@@ -2265,10 +2305,11 @@ const World = {
       ctx.fillStyle = '#0a0f12'; ctx.fillRect(x - 1, y - 1, v.w + 2, v.h + 16);
       const fx = (v.faceC * TS) - camX + (v.openLeft ? 0.5 : TS - 0.5);
       ctx.beginPath(); ctx.moveTo(fx, y); ctx.lineTo(fx, y + v.h); ctx.strokeStyle = wa(0.08); ctx.lineWidth = 1; ctx.stroke();
-      // rachadura quase invisível
-      const cx = v.faceC * TS - camX + 14;
+      // rachadura quase invisível (o pulso do Echo faz ela brilhar)
+      const cx = v.faceC * TS - camX + 14, pg = v.ping > 0 ? Math.min(1, v.ping) * (0.6 + 0.4 * Math.sin(Game.time * 10)) : 0;
       ctx.beginPath(); ctx.moveTo(cx, y + 4); ctx.lineTo(cx + 5, y + 18); ctx.lineTo(cx + 1, y + 30); ctx.lineTo(cx + 6, y + 44); ctx.lineTo(cx + 3, y + 58);
-      ctx.strokeStyle = wa(0.05); ctx.stroke();
+      ctx.strokeStyle = pg ? `rgba(232,121,249,${0.9 * pg})` : wa(0.05); ctx.lineWidth = pg ? 2 : 1; ctx.stroke();
+      if (pg) R.draw(R.glow('m', 40), cx + 3, y + v.h / 2, 1.2, 0.5 * pg, true);
       ctx.restore();
     }
   },
@@ -3622,6 +3663,7 @@ const P = {
     if (World.fits(this.x, this.y + this.h - H, this.w, H, this)) { this.y += this.h - H; this.h = H; this.crouch = false; }
   },
   doJump(spin) {
+    Hints.mark('jump');
     const v = CFG.JUMP_V + CFG.JUMP_RUN_BONUS * Math.min(1, Math.abs(this.vx) / CFG.RUN);
     this.vy = -v * (spin ? CFG.SPIN_FACTOR : 1);
     this.onGround = false; this.jumpedSinceGround = true; this.spinning = spin; this.spinT = 0; this.squash = -0.3;
@@ -3784,7 +3826,7 @@ const P = {
       if (!d.read && Math.abs(this.cx - dcx) < TS * 7 && Math.abs((this.y + this.h) - (d.y + d.h)) < TS * 4 && (d.kind === 'pedestal' || !d.open)) {
         d.read = true; Voice.say(Sentence.speakInscription(d.def.inscription), 'door');
       }
-      if (d.open && d.kind !== 'pedestal' || d.kind === 'bells' || (d.kind === 'chest' && Cine.active)) continue;
+      if (d.open && d.kind !== 'pedestal' || d.kind === 'bells' || (d.kind === 'chest' && Cine.active) || d.opening > 0) continue;
       const feetOk = Math.abs((this.y + this.h) - (d.y + d.h)) < 10;
       const near = d.kind === 'door' ? (this.x + this.w > d.x - 44 && this.x < d.x + 2) : Math.abs(this.cx - dcx) < 40;
       if (near && feetOk && this.onGround) this.interact = d;
@@ -3880,7 +3922,7 @@ const P = {
 
 /* ============================== ECHO (familiar, a voz do jogo) ============================== */
 const Echo = {
-  x: 0, y: 0, px: 0, py: 0, pulse: 0, hidden: false, puff: 0, tiny: 0, shake: 0, line: null, lines: [], lineT: 0,
+  x: 0, y: 0, px: 0, py: 0, pulse: 0, hidden: false, puff: 0, tiny: 0, shake: 0, line: null, lines: [], lineT: 0, birthK: 1,
   reset() {
     this.x = P.cx - 26; this.y = P.y - 10; this.px = this.x; this.py = this.y; this.hidden = false; this.puff = 0; this.tiny = 0; this.shake = 0;
     for (const e of Ents.list) if (e.type === 'echoride') e.dead = true;
@@ -3917,7 +3959,8 @@ const Echo = {
   draw(ctx, camX, camY, a) {
     if (this.hidden) return;
     let x = lerp(this.px, this.x, a) - camX; const y = lerp(this.py, this.y, a) - camY, t = Game.time;
-    const size = this.puff > 0 ? 1 + 1.6 * Math.min(1, this.puff * 2, (2.2 - this.puff) * 4) : this.tiny > 0 ? 1 - 0.55 * Math.min(1, this.tiny * 2, (2.2 - this.tiny) * 4) : 1;
+    let size = this.puff > 0 ? 1 + 1.6 * Math.min(1, this.puff * 2, (2.2 - this.puff) * 4) : this.tiny > 0 ? 1 - 0.55 * Math.min(1, this.tiny * 2, (2.2 - this.tiny) * 4) : 1;
+    if (this.birthK < 1) size *= P.easeBack(this.birthK);
     if (this.shake > 0) x += Math.sin(t * 40) * 3 * this.shake;
     if (size !== 1) { ctx.save(); ctx.translate(x, y); ctx.scale(size, size); ctx.translate(-x, -y); }
     this.drawOrb(ctx, x, y, t);
@@ -3929,7 +3972,8 @@ const Echo = {
     const l = this.line, k = Math.min(1, this.lineT * 5, (3 - this.lineT) * 5);
     if (k <= 0) return;
     const en = R.text(l.en, '700 12px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(217,70,239,0.9)', 5), pt = R.text(l.pt, '400 11px Inter, sans-serif', wa(0.75), null, 0);
-    const w = Math.max(en.w, pt.w) + 6, h = 44, bx = clamp(x, w / 2 + 10, CFG.VIEW_W - w / 2 - 10), by = y - 48;
+    // o balão fica do lado de trás do Nexy (não cobre o que está à frente, nem o que o Echo revelou)
+    const w = Math.max(en.w, pt.w) + 6, h = 44, bx = clamp(x - P.facing * (w / 2 - 14), w / 2 + 10, CFG.VIEW_W - w / 2 - 10), by = y - 40;
     ctx.save(); ctx.globalAlpha = k;
     rrect(ctx, bx - w / 2, by - h / 2, w, h, 14); ctx.fillStyle = 'rgba(2,2,2,0.82)'; ctx.fill(); ctx.strokeStyle = 'rgba(217,70,239,0.7)'; ctx.lineWidth = 1; ctx.stroke();
     ctx.beginPath(); ctx.moveTo(x - 5, by + h / 2); ctx.lineTo(x, by + h / 2 + 8); ctx.lineTo(x + 5, by + h / 2); ctx.fillStyle = 'rgba(2,2,2,0.82)'; ctx.fill();
@@ -4133,7 +4177,8 @@ const Sentence = {
   apply(d, rule, words) {
     const r = rule.result, def = d.def;
     d.solved = words.slice();
-    if (r.type === 'open') { d.opening = 0.001; SFX.doorOpen(); Game.shake(2); }
+    if (r.type === 'open' && def.birth === 'echo' && !Game.echoBorn) { Hints.mark('door1'); Birth.start(d); }
+    else if (r.type === 'open') { d.opening = 0.001; SFX.doorOpen(); Game.shake(2); if (d.id === 'door1') Hints.mark('door1'); }
     else if (r.type === 'transform') {
       if (P.setScale(r.scale)) { (r.scale > 1 ? SFX.grow : SFX.shrink)(); Game.shake(r.scale > 1 ? 5 : 2); FX.burst(P.cx, P.cy, 50, 'm', 300, { life: 1, g: 0 }); }
     } else if (r.type === 'exit') Game.finish(r.exit, 0);
@@ -4209,7 +4254,7 @@ const Panel = {
     if (j.kind === 'accept') {
       SFX.right(); mold.classList.add('win');
       FX.burst(d.x + d.w / 2, d.y, 30, 'c', 200, { g: -80, life: 1 });
-      setTimeout(() => { Sentence.apply(d, j.rule, words); this.close(); }, 1600);
+      setTimeout(() => { this.close(); Sentence.apply(d, j.rule, words); }, 1600);
     } else {
       SFX.wrong(); Music.layers(0); d.errors++;
       mold.classList.remove('shake'); void mold.offsetWidth; mold.classList.add('shake');
@@ -4363,8 +4408,10 @@ const UI = {
     const ts = fmtTime(g.timeRun); if (L.time !== ts) { L.time = ts; $('time').textContent = ts; }
     const showOpen = g.state === 'play' && !!P.interact;
     if (L.open !== showOpen) { L.open = showOpen; $('tbopen').classList.toggle('show', showOpen); $('tbopen').textContent = P.interact && P.interact.kind === 'pedestal' ? 'SPEAK' : 'OPEN'; }
-    const hudOn = g.state !== 'title' && g.where === 'level' && !Cine.active;
+    const hudOn = g.state !== 'title' && g.where === 'level' && !g.scene();
     if (L.hud !== hudOn) { L.hud = hudOn; $('hud').style.opacity = hudOn ? 1 : 0; $('wordbar').style.opacity = hudOn ? 1 : 0; }
+    const pingOn = g.where === 'level' && g.echoBorn && !Echo.hidden;
+    if (L.ping !== pingOn) { L.ping = pingOn; $('tbping').style.display = pingOn ? '' : 'none'; }
     const touch = document.body.classList.contains('touch');
     if (L.touch !== touch) { L.touch = touch; $('wordbar').classList.toggle('top', touch); }
   },
@@ -4512,7 +4559,7 @@ const Game = {
     R.init(); Input.init(); Voice.init(); UI.init();
     this.loadLevel('1-1'); // a fase fica carregada atrás do mapa até o jogador escolher outra
     WorldMap.init();
-    document.addEventListener('visibilitychange', () => { if (document.hidden && this.state === 'play' && !P.dead && !Cine.active) this.pause(); });
+    document.addEventListener('visibilitychange', () => { if (document.hidden && this.state === 'play' && !P.dead && !this.scene()) this.pause(); });
     this.last = performance.now();
     const loop = ts => { this.frame(ts); requestAnimationFrame(loop); };
     requestAnimationFrame(loop);
@@ -4524,9 +4571,12 @@ const Game = {
     this.checkpoint = null; this.reserve = null; this.autoWalk = false; this.exit = null;
     this.timers = []; this.wordSrc = {}; this.zone = null; Dark.k = 0; this.forceInput = null; this.metDark = false;
     if (typeof Cine !== 'undefined' && Cine.active) Cine.end();
+    if (typeof Birth !== 'undefined') { Birth.active = false; Arrival.active = false; EchoPulse.reset(); Hints.reset(); }
   },
   // tamanho da barra de palavras: cresce nas fases com mais vocabulário (LEVELS[id].barMax)
   barMax() { return (World.level && World.level.barMax) || CFG.WORD_BAR_MAX; },
+  // cena ativa (Coração, nascimento do Echo, chegada): todas têm a mesma interface
+  scene() { return Cine.active ? Cine : Birth.active ? Birth : Arrival.active ? Arrival : null; },
   // relógio da simulação (para quebra-cabeças determinísticos, como os sinos)
   later(sec, fn) { this.timers.push({ t: this.simTime + sec, fn }); },
   loadLevel(id) {
@@ -4539,6 +4589,7 @@ const Game = {
     }
     Spawns.reset();
     P.reset(World.start.x, World.start.y); Echo.reset(); Cam.snap();
+    this.echoBorn = !Object.values(LEVELS[id].doors).some(d => d.birth === 'echo'); Echo.hidden = !this.echoBorn;
     UI.setLetters(LEVELS[id].masterWord); UI.renderBar(); UI.last = {};
   },
   clearInput() { Input.pressedAt.jump = -1; Input.pressedAt.spin = -1; Input.queue.length = 0; Input.dashDir = null; },
@@ -4559,7 +4610,9 @@ const Game = {
     UI.hideAll(); WorldMap.leave(); this.loadLevel(id); this.where = 'level'; this.state = 'play'; this.acc = 0; this.clearInput();
     Music.setVariant(LEVELS[id].music || 'world1'); Music.normal();
     if (!viaTransition) setTimeout(() => UI.toast(), 250);
-    if (!Save.data.met.echo) { Save.data.met.echo = true; Save.write(); this.later(1.4, () => Echo.talk(ECHO.lines.intro)); }
+    // a 1-1 começa com a chegada do Nexy num feixe de luz (sem o Echo: ele nasce do primeiro HELLO)
+    if (!this.noIntro && !this.echoBorn) setTimeout(() => { if (this.state === 'play' && World.level.id === id && !Arrival.active) Arrival.start(); }, viaTransition ? 0 : 50);
+    else if (!Save.data.met.echo && this.echoBorn) { Save.data.met.echo = true; Save.write(); this.later(1.4, () => Echo.talk(ECHO.lines.intro)); }
     if (LEVELS[id].intro) setTimeout(() => { if (this.where === 'level' && World.level.id === id) UI.msg(LEVELS[id].intro, 3200); }, viaTransition ? 900 : 2800);
     return true;
   },
@@ -4600,7 +4653,7 @@ const Game = {
     if (this.state === 'title') { if (['Enter', 'Space', 'KeyZ', 'KeyX', 'NumpadEnter'].includes(c)) this.start(); return; }
     if (c === 'KeyM') return this.toggleMute();
     if (Transition.active) return;
-    if (Cine.active) return Cine.key(e);
+    const sc = this.scene(); if (sc) return sc.key(e);
     switch (this.state) {
       case 'map':
         if (c === 'Escape' || c === 'KeyP') this.pause();
@@ -4609,6 +4662,7 @@ const Game = {
       case 'play':
         if (c === 'Escape' || c === 'KeyP') this.pause();
         else if (c === 'KeyQ') this.dropReserve();
+        else if (c === 'KeyC') { if (EchoPulse.fire()) Hints.mark('ping'); }
         else if (c === 'KeyH') { if (P.interact) this.buyHint(P.interact); else UI.msg('HINTS WORK NEAR DOORS'); }
         else if (c === 'KeyV' && Save.data.assist.voice && Listen.available() && P.interact) { this.openPanel(P.interact); Panel.listen(); }
         break;
@@ -4623,13 +4677,13 @@ const Game = {
     const dt = Math.min(0.1, Math.max(0, (ts - this.last) / 1000)); this.last = ts; this.time += dt;
     Input.pollPad();
     Transition.update(dt);
-    if (Cine.active) Cine.update(dt);
+    const sc = this.scene(); if (sc) sc.update(dt);
     if (this.state === 'map') WorldMap.update(dt);
     // durante a íris (fechando e no escuro) a fase não anda
     const frozen = Transition.active && Transition.phase !== 'open';
     if (frozen) Input.queue.length = 0;
     if (!frozen && (this.state === 'play' || this.state === 'clearing')) {
-      this.acc += dt * (Save.data.assist.slow ? 0.8 : 1) * (Cine.active ? Cine.timeScale : 1);
+      this.acc += dt * (Save.data.assist.slow ? 0.8 : 1) * (sc ? sc.timeScale : 1);
       let n = 0;
       while (this.acc >= CFG.STEP && n < 8) { this.step(CFG.STEP); this.acc -= CFG.STEP; n++; }
       if (n >= 8) this.acc = 0;
@@ -4643,7 +4697,7 @@ const Game = {
     P.px = P.x; P.py = P.y; Ents.save(); Cam.px = Cam.x; Cam.py = Cam.y; Echo.px = Echo.x; Echo.py = Echo.y;
     // cena: o jogo controla o Nexy (investida)
     if (this.forceInput) { Input.touchHeld = Object.assign({}, this.forceInput); for (const k in Input.held) Input.held[k] = false; Input.padHeld = {}; Input.pressedAt.jump = -1; Input.pressedAt.spin = -1; Input.queue.length = 0; }
-    for (const k of Input.queue) if (k === 'up' && this.state === 'play') P.tryInteract();
+    for (const k of Input.queue) { if (k === 'up' && this.state === 'play') P.tryInteract(); if (k === 'ping' && EchoPulse.fire()) Hints.mark('ping'); }
     Input.queue.length = 0;
     if (this.state !== 'play' && this.state !== 'clearing') return;
     if (P.dead) { P.update(dt); FX.update(dt); Echo.update(dt); Cam.update(dt); return; }
@@ -4654,7 +4708,7 @@ const Game = {
     Ents.update(dt);
     // quem está em cima de uma plataforma móvel anda com ela
     if (P.riding) { const e = P.riding; if (e.dead) P.riding = null; else { World.move(P, e.dx, 0); World.move(P, 0, e.dy); } }
-    World.updateBlocks(dt);
+    World.updateBlocks(dt); EchoPulse.update(dt);
     if (this.timers.length) { const due = this.timers.filter(x => x.t <= this.simTime); this.timers = this.timers.filter(x => x.t > this.simTime); for (const x of due) x.fn(); }
     // zonas: cripta escura e abafada, campanário em crescendo
     const z = World.zoneAt(P.cx, P.cy);
@@ -4672,7 +4726,7 @@ const Game = {
     if (this.where === 'map' || this.state === 'title') { WorldMap.render(ctx, this.time); Transition.draw(ctx, this.time); return; }
     const camX = lerp(Cam.px, Cam.x, a) + Cam.sx, camY = lerp(Cam.py, Cam.y, a) + Cam.sy, t = this.time;
     // zoom da cena: a câmera chega perto do Nexy (um pouco abaixo do centro, ângulo heroico)
-    const zoom = Cine.active ? Cine.zoom : 1, zx = lerp(P.px, P.x, a) + P.w / 2 - camX, zy = lerp(P.py, P.y, a) + P.h * 0.75 - camY;
+    const sc = this.scene(), zoom = sc ? sc.zoom : 1, zx = lerp(P.px, P.x, a) + P.w / 2 - camX, zy = lerp(P.py, P.y, a) + P.h * 0.75 - camY;
     const applyZoom = () => { if (zoom !== 1) { ctx.translate(zx, zy); ctx.scale(zoom, zoom); ctx.translate(-zx, -zy); } };
     ctx.save(); applyZoom();
     BG.draw(ctx, camX, camY, t);
@@ -4690,19 +4744,22 @@ const Game = {
     Dark.draw(ctx, camX, camY);
     Ents.draw(ctx, camX, camY, a, 'front');
     ctx.restore();
-    if (Cine.active) {
+    if (sc) {
       // a cor some do mundo; o Nexy, o Echo e a cena continuam em cor por cima
-      if (Cine.sat > 0.01) { ctx.save(); ctx.globalCompositeOperation = 'saturation'; ctx.fillStyle = `rgba(128,128,128,${Cine.sat.toFixed(3)})`; ctx.fillRect(0, 0, CFG.VIEW_W, CFG.VIEW_H); ctx.restore(); }
+      if (sc.sat > 0.01) { ctx.save(); ctx.globalCompositeOperation = 'saturation'; ctx.fillStyle = `rgba(128,128,128,${sc.sat.toFixed(3)})`; ctx.fillRect(0, 0, CFG.VIEW_W, CFG.VIEW_H); ctx.restore(); }
       ctx.save(); applyZoom();
-      if (Cine.sat > 0.01) { P.draw(ctx, camX, camY, a); Echo.draw(ctx, camX, camY, a); }
-      Cine.drawWorld(ctx, camX, camY, t);
+      if (sc.sat > 0.01) { P.draw(ctx, camX, camY, a); Echo.draw(ctx, camX, camY, a); }
+      sc.drawWorld(ctx, camX, camY, t);
       ctx.restore();
-    } else Doors.drawPrompt(ctx, camX, camY);
+    } else {
+      ctx.save(); applyZoom(); Hints.draw(ctx, camX, camY, t); EchoPulse.draw(ctx, camX, camY); ctx.restore();
+      Doors.drawPrompt(ctx, camX, camY);
+    }
     R.draw(R.sprite('vignette', 960, 540, (x, w, h) => {
       const g = x.createRadialGradient(w / 2, h / 2, h * 0.35, w / 2, h / 2, w * 0.62);
       g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.3)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
     }), 480, 270);
-    Cine.drawScreen(ctx);
+    Cine.drawScreen(ctx); Birth.drawScreen(ctx); Arrival.drawScreen(ctx);
     Transition.draw(ctx, this.time);
   },
 
@@ -4720,7 +4777,7 @@ const Game = {
     if (e.src) this.wordSrc[word] = e.src;
     if (!this.wordsSeen.has(word)) { this.wordsSeen.add(word); this.learnedOrder.push(word); }
     this.grimoireWord(word, null);
-    SFX.wordCollect(); Voice.say(WORDS[word] ? WORDS[word].say : word, 'echo');
+    SFX.wordCollect(); Voice.say(WORDS[word] ? WORDS[word].say : word, this.echoBorn ? 'echo' : 'story'); Hints.mark('word');
     FX.burst(e.x + 15, e.y + 12, 16, 'm', 180, { life: 0.5, g: 0 });
     UI.flyWord(word, e.x + 15 - Cam.x, e.y + 12 - Cam.y);
     return true;
@@ -4805,7 +4862,7 @@ const Game = {
       return;
     }
     const cp = this.checkpoint || World.start;
-    P.reset(cp.x, cp.y); Spawns.reset(); Echo.reset(); Cam.snap(); Music.normal();
+    P.reset(cp.x, cp.y); Spawns.reset(); Echo.reset(); Echo.hidden = !this.echoBorn; Cam.snap(); Music.normal();
   },
   finish(exit, bonus) {
     if (this.state !== 'play') return;
@@ -4828,6 +4885,7 @@ const Game = {
     S.bestFluency[id] = Math.max(S.bestFluency[id] || 0, this.fluency);
     Save.write();
     setTimeout(() => { if (all) Voice.say(MASTER_WORDS[mw].say + '!', 'echo'); }, 2600);
+    if (id === '1-1' && this.echoBorn) this.later(0.4, () => Echo.talk(ECHO.lines.teaser));
     setTimeout(() => { if (exit === 'secret' && newPath) Voice.say('New path!', 'echo'); }, all ? 3900 : 2800);
   },
 };
@@ -5339,6 +5397,234 @@ const Cine = {
       R.draw(s, 480, 120, sc, k);
     }
     if (this.flash > 0) { ctx.fillStyle = `rgba(255,255,255,${Math.min(0.85, this.flash)})`; ctx.fillRect(0, 0, CFG.VIEW_W, CFG.VIEW_H); }
+  },
+};
+
+/* ============================== 1-1 · A CHEGADA E O NASCIMENTO DO ECHO ==============================
+   O Nexy chega sozinho, num feixe de luz. Ao dizer a primeira palavra (HELLO! na porta 1), ela ecoa pela catedral,
+   as ondas voltam, as letras H-E-L-L-O giram e se juntam numa luz: nasce o ECHO, a primeira ferramenta (e o primeiro
+   amigo). Depois, o PULSO DO ECHO (tecla C, LB no controle, botão ECHO no toque) revela segredos.
+   As cenas usam a mesma interface da cena do Coração (Cine): zoom, sat, letter, timeScale, drawWorld, drawScreen. */
+
+/* ---------- a chegada: o Nexy desce do céu num feixe magenta ---------- */
+const Arrival = {
+  active: false, t: 0, zoom: 1, sat: 0, letter: 0, timeScale: 1, glow: 0, flash: 0, landed: -1, foot: 0, rings: [],
+  start() {
+    Object.assign(this, { active: true, t: 0, zoom: 1.12, sat: 0, letter: 0.6, glow: 0, flash: 0, landed: -1, rings: [] });
+    this.foot = P.y + P.h; P.y = Cam.y - 120; P.py = P.y; P.vx = 0; P.vy = 0; P.invuln = 99;
+    Game.state = 'cinematic'; SFX.riser(1.2);
+  },
+  key() { if (this.t > 0.4) this.finish(); },
+  finish() { P.y = this.foot - P.h; P.py = P.y; P.vy = 0; if (this.landed < 0) this.land(); this.end(); },
+  land() {
+    this.landed = this.t; this.flash = 0.35; Game.shake(5); SFX.warDrum();
+    this.rings.push({ x: P.cx, y: this.foot, r: 6, life: 1 });
+    FX.burst(P.cx, this.foot, 30, 'm', 260, { life: 0.8, g: 300 }); FX.burst(P.cx, this.foot, 20, 'c', 200, { life: 0.7, g: 300 });
+    P.squash = 0.35;
+  },
+  update(dt) {
+    this.t += dt;
+    if (this.landed < 0) {
+      P.py = P.y; P.y = Math.min(this.foot - P.h, P.y + dt * (260 + this.t * 280));
+      if (Math.random() < 0.8) FX.add(P.cx + (Math.random() - 0.5) * 20, P.y + P.h, { vy: -40, vx: (Math.random() - 0.5) * 30, life: 0.5, size: 1.3, c: 'm', g: 0 });
+      if (P.y + P.h >= this.foot) this.land();
+    } else {
+      if (P.squash) P.squash = approach(P.squash, 0, dt * 2.2);
+      if (this.t - this.landed > 0.9) this.end();
+    }
+    for (const r of this.rings) { r.r += dt * 420; r.life -= dt * 1.6; }
+    this.rings = this.rings.filter(r => r.life > 0);
+    this.flash = Math.max(0, this.flash - dt * 2);
+    P.px = P.x; FX.update(dt);
+  },
+  end() { this.active = false; this.letter = 0; this.zoom = 1; if (Game.state === 'cinematic') Game.state = 'play'; P.invuln = 0; Game.clearInput(); },
+  drawWorld(ctx, camX) {
+    if (this.landed < 0 || this.t - this.landed < 0.4) {   // o feixe
+      const x = P.cx - camX, k = this.landed < 0 ? 1 : 1 - (this.t - this.landed) / 0.4;
+      const g = ctx.createLinearGradient(x - 26, 0, x + 26, 0);
+      g.addColorStop(0, 'rgba(217,70,239,0)'); g.addColorStop(0.5, `rgba(240,171,252,${0.35 * k})`); g.addColorStop(1, 'rgba(217,70,239,0)');
+      ctx.fillStyle = g; ctx.fillRect(x - 26, 0, 52, this.foot - Cam.y);
+    }
+    for (const r of this.rings) { ctx.save(); ctx.translate(r.x - camX, r.y - Cam.y); ctx.scale(1, 0.3); ctx.beginPath(); ctx.arc(0, 0, r.r, 0, Math.PI * 2); ctx.strokeStyle = `rgba(232,121,249,${r.life})`; ctx.lineWidth = 2.5; ctx.stroke(); ctx.restore(); }
+  },
+  drawScreen(ctx) {
+    if (!this.active) return;
+    const bar = 62 * this.letter;
+    ctx.fillStyle = '#000'; ctx.fillRect(0, 0, CFG.VIEW_W, bar); ctx.fillRect(0, CFG.VIEW_H - bar, CFG.VIEW_W, bar);
+    if (this.flash > 0) { ctx.fillStyle = `rgba(255,255,255,${this.flash})`; ctx.fillRect(0, 0, CFG.VIEW_W, CFG.VIEW_H); }
+  },
+};
+
+/* ---------- o nascimento do Echo ---------- */
+const Birth = {
+  active: false, t: 0, d: null, zoom: 1, sat: 0, letter: 0, timeScale: 1, glow: 0, flash: 0, rings: [], letters: [], motes: [], ev: {}, born: -1, title: null, home: null,
+  start(d) {
+    Object.assign(this, { active: true, t: 0, d, zoom: 1, sat: 0, letter: 0, glow: 0, flash: 0, rings: [], letters: [], motes: [], ev: {}, born: -1, title: null });
+    Game.state = 'cinematic'; P.vx = 0; P.facing = 1; P.invuln = 99; Game.clearInput();
+    Music.set({ bass: 0, organ: 0, perc: 0, pad: 0.4 }); Music.setDrone(true);
+    const cx = d.x + d.w / 2, cy = d.y - 84;
+    this.src = { x: cx, y: cy };
+    'HELLO'.split('').forEach((ch, i) => this.letters.push({ ch, x: cx - 40 + i * 20, y: cy, a: i * 1.25, r: 0, k: 0 }));
+    this.fast = !!Save.data.met.echo;   // nas outras vezes a cena é mais curta
+  },
+  once(k, fn) { if (!this.ev[k]) { this.ev[k] = true; fn(); } },
+  key(e) { if (['Enter', 'NumpadEnter', 'Escape', 'Space', 'KeyZ'].includes(e.code) && this.t > 0.8) this.skip(); },
+  update(dt) {
+    const sp = this.fast ? 1.6 : 1; this.t += dt * sp; const t = this.t;
+    const ease = (a, b, k) => a + (b - a) * (1 - Math.exp(-dt * k));
+    const home = { x: P.cx - 30, y: P.y - 14 };
+    this.home = home;
+    if (t < 6.2) { this.letter = ease(this.letter, 1, 4); this.zoom = ease(this.zoom, 1.32, 2); this.sat = ease(this.sat, 0.55, 2); }
+    // 1. a palavra ecoa: três ondas saindo da inscrição, cada vez mais fracas
+    [[0.15, 0.75], [1.0, 0.45], [1.8, 0.25]].forEach(([at, vol], i) => {
+      if (t > at) this.once('echo' + i, () => {
+        Voice.say('Hello', 'echo', { volume: vol, rate: 0.85 - i * 0.08, pitch: 1 - i * 0.1 });
+        SFX.sonar(vol); this.rings.push({ x: this.src.x, y: this.src.y, r: 10, v: 520, life: 1, c: 'c' });
+      });
+    });
+    // 2. as letras se soltam da inscrição e começam a girar
+    for (const l of this.letters) {
+      if (t > 0.6) { l.k = Math.min(1, l.k + dt * 2); l.a += dt * (1.6 + Math.max(0, t - 2.4) * 2); }
+      const conv = clamp((t - 2.4) / 1.2, 0, 1), cxp = lerp(this.src.x, home.x, conv), cyp = lerp(this.src.y, home.y, conv);
+      const r = lerp(46, 0, conv * conv);
+      l.x = cxp + Math.cos(l.a) * r; l.y = cyp + Math.sin(l.a) * r * 0.6;
+    }
+    // 3. as ondas voltam: partículas de luz convergem para onde o Echo vai nascer
+    if (t > 2.4 && t < 3.6 && Math.random() < 0.9) for (let i = 0; i < 3; i++) {
+      const a = Math.random() * Math.PI * 2, d = 160 + Math.random() * 200;
+      this.motes.push({ x: home.x + Math.cos(a) * d, y: home.y + Math.sin(a) * d * 0.7, life: 1 });
+    }
+    for (const m of this.motes) { m.x = lerp(m.x, home.x, 1 - Math.exp(-dt * 5)); m.y = lerp(m.y, home.y, 1 - Math.exp(-dt * 5)); m.life -= dt * 1.4; }
+    this.motes = this.motes.filter(m => m.life > 0);
+    if (t > 2.4) this.once('in', () => { SFX.choir(3); SFX.riser(1.2); });
+    // 4. nascimento
+    if (t > 3.6) this.once('born', () => {
+      this.born = t; this.flash = 0.9; Game.shake(6); SFX.warDrum(); SFX.powerup(); SFX.letter();
+      this.rings.push({ x: home.x, y: home.y, r: 6, v: 640, life: 1, c: 'm' });
+      FX.burst(home.x, home.y, 50, 'm', 300, { life: 1, g: 0 }); FX.burst(home.x, home.y, 30, 'c', 240, { life: 0.9, g: 0 });
+      Echo.hidden = false; Echo.x = home.x; Echo.y = home.y; Echo.px = Echo.x; Echo.py = Echo.y; Echo.birthK = 0;
+      this.letters = []; Game.echoBorn = true; Save.data.met.echo = true; Save.write();
+    });
+    if (this.born >= 0) Echo.birthK = Math.min(1, (t - this.born) / 0.7);
+    if (t > 4.0) this.once('title', () => { this.title = { k: 0 }; Music.resolve(); });
+    if (this.title) this.title.k = Math.min(1, this.title.k + dt * 2.5);
+    // 5. o Echo dá uma volta em oito em volta do Nexy, deixando um rastro
+    if (t > 4.6 && t < 6.0) {
+      const u = (t - 4.6) / 1.4 * Math.PI * 2;
+      Echo.px = Echo.x; Echo.py = Echo.y;
+      Echo.x = P.cx + Math.sin(u) * 70; Echo.y = P.y - 10 + Math.sin(u * 2) * 26;
+      FX.add(Echo.x, Echo.y, { vx: 0, vy: 0, life: 0.5, size: 1.6, c: 'm', g: 0 });
+    } else if (this.born >= 0) { Echo.px = Echo.x; Echo.py = Echo.y; Echo.x = lerp(Echo.x, home.x, 1 - Math.exp(-dt * 6)); Echo.y = lerp(Echo.y, home.y, 1 - Math.exp(-dt * 6)); }
+    if (t > 6.0) { this.title = null; this.letter = ease(this.letter, 0, 5); this.zoom = ease(this.zoom, 1, 5); this.sat = ease(this.sat, 0, 5); }
+    if (t > 6.6) this.end();
+    for (const r of this.rings) { r.r += r.v * dt; r.life -= dt * 0.9; }
+    this.rings = this.rings.filter(r => r.life > 0);
+    this.flash = Math.max(0, this.flash - dt * 1.8);
+    P.px = P.x; P.py = P.y; FX.update(dt);
+  },
+  skip() {
+    if (this.born < 0) { this.t = 3.61; this.update(0); }
+    Echo.birthK = 1; this.end();
+  },
+  end() {
+    if (!this.active) return;
+    this.active = false; this.letter = 0; this.zoom = 1; this.sat = 0; this.title = null;
+    Echo.hidden = false; Echo.birthK = 1; Game.echoBorn = true;
+    Game.state = 'play'; P.invuln = 0; Game.clearInput(); Music.setDrone(false); Music.normal();
+    const d = this.d; d.opening = 0.001; SFX.doorOpen(); Game.shake(2);
+    Echo.talk(ECHO.lines.birth); EchoPulse.tutorial = true;
+  },
+  drawWorld(ctx, camX, camY, time) {
+    for (const r of this.rings) {
+      ctx.beginPath(); ctx.arc(r.x - camX, r.y - camY, r.r, 0, Math.PI * 2);
+      ctx.strokeStyle = r.c === 'm' ? `rgba(232,121,249,${0.8 * r.life})` : `rgba(122,216,255,${0.6 * r.life})`; ctx.lineWidth = 2; ctx.stroke();
+    }
+    for (const m of this.motes) R.draw(R.glow(Math.random() < 0.5 ? 'c' : 'm', 8), m.x - camX, m.y - camY, 1, m.life, true);
+    for (const l of this.letters) {
+      R.draw(R.glow('m', 22), l.x - camX, l.y - camY, 1, 0.6 * l.k, true);
+      R.draw(R.text(l.ch, '900 18px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(217,70,239,1)', 8), l.x - camX, l.y - camY, 1, Math.max(0.3, l.k));
+    }
+    if (this.born >= 0 && this.t - this.born < 0.8) R.draw(R.glow('t', 64), Echo.x - camX, Echo.y - camY, 2.4 * (1 - (this.t - this.born) / 0.8), 1, true);
+  },
+  drawScreen(ctx) {
+    if (!this.active) return;
+    const bar = 62 * this.letter;
+    ctx.fillStyle = '#000'; ctx.fillRect(0, 0, CFG.VIEW_W, bar); ctx.fillRect(0, CFG.VIEW_H - bar, CFG.VIEW_W, bar);
+    if (this.title) {
+      const k = this.title.k;
+      R.draw(R.glow('m', 64), 480, 116, 3.2, 0.45 * k, true);
+      R.draw(R.text('ECHO', '900 54px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(217,70,239,1)', 18), 480, 112, 1 + (1 - k) * 0.6, k);
+      R.draw(R.text('YOUR FIRST TOOL · YOUR FRIEND', '600 13px Orbitron, Inter, sans-serif', '#22d3ee', 'rgba(0,217,249,0.8)', 8), 480, 156, 1, k);
+      R.draw(R.text('Sua primeira ferramenta. Seu amigo.', '400 12px Inter, sans-serif', wa(0.7), null, 0), 480, 178, 1, k);
+    }
+    if (this.flash > 0) { ctx.fillStyle = `rgba(255,255,255,${Math.min(0.85, this.flash)})`; ctx.fillRect(0, 0, CFG.VIEW_W, CFG.VIEW_H); }
+  },
+};
+
+/* ---------- o PULSO DO ECHO: um sonar que revela o que está escondido ---------- */
+const EchoPulse = {
+  cool: 0, rings: [], tutorial: false, used: false, R: 8 * TS,
+  reset() { this.cool = 0; this.rings = []; this.tutorial = false; },
+  fire() {
+    if (!Game.echoBorn || Echo.hidden || this.cool > 0 || Game.state !== 'play') return false;
+    this.cool = 1.2; this.used = true; this.tutorial = false;
+    this.rings.push({ x: Echo.x, y: Echo.y, r: 6, life: 1 }, { x: Echo.x, y: Echo.y, r: -40, life: 1 });
+    SFX.sonar(1); Echo.pulse = 1;
+    let found = 0;
+    for (const b of World.blocks.values()) {
+      const bx = b.c * TS + TS / 2, by = b.r * TS + TS / 2; if (Math.hypot(bx - Echo.x, by - Echo.y) > this.R) continue;
+      if (b.kind === 'invisible' && b.state === 'hidden') { b.ping = 3; found++; }
+      else if (b.kind === 'question' && b.state === 'ready' && b.content && b.content.word) b.peek = 3;
+    }
+    for (const v of World.veils) {
+      if (v.found) continue;
+      const vx = clamp(Echo.x, v.x, v.x + v.w), vy = clamp(Echo.y, v.y, v.y + v.h);
+      if (Math.hypot(vx - Echo.x, vy - Echo.y) <= this.R) { v.ping = 3; found++; }
+    }
+    if (found) Echo.talk(ECHO.lines.found);
+    return true;
+  },
+  update(dt) {
+    if (this.cool > 0) this.cool -= dt;
+    for (const r of this.rings) { r.r += dt * 520; r.life -= dt * 1.5; }
+    this.rings = this.rings.filter(r => r.life > 0 && r.r < this.R + 60);
+  },
+  draw(ctx, camX, camY) {
+    for (const r of this.rings) {
+      if (r.r <= 0) continue;
+      ctx.beginPath(); ctx.arc(r.x - camX, r.y - camY, r.r, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(232,121,249,${0.7 * r.life})`; ctx.lineWidth = 2; ctx.stroke();
+      ctx.beginPath(); ctx.arc(r.x - camX, r.y - camY, r.r * 0.94, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(122,216,255,${0.3 * r.life})`; ctx.lineWidth = 1; ctx.stroke();
+    }
+    // dica da ferramenta nova, até o primeiro uso
+    if (this.tutorial && !Echo.hidden && Game.state === 'play') {
+      const s = R.text(Input.padSeen ? 'LB · ECHO' : 'C · ECHO', '700 10px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(217,70,239,0.9)', 6);
+      const x = Echo.x - camX, y = Echo.y - camY - 22 - Math.abs(Math.sin(Game.time * 3)) * 4;
+      capsulePath(ctx, x, y, s.w - 12, 20); ctx.fillStyle = 'rgba(2,2,2,0.75)'; ctx.fill(); ctx.strokeStyle = 'rgba(217,70,239,0.8)'; ctx.lineWidth = 1; ctx.stroke();
+      R.draw(s, x, y + 0.5);
+    }
+  },
+};
+
+/* ---------- placas de dica: aparecem quando você chega perto e somem quando a ação já foi feita ---------- */
+const Hints = {
+  done: {},
+  reset() { this.done = {}; },
+  mark(k) { this.done[k] = true; },
+  draw(ctx, camX, camY, time) {
+    const list = World.level.hints; if (!list) return;
+    for (const h of list) {
+      if (this.done[h.until]) continue;
+      const x = h.c * TS + TS / 2 - camX, y = h.r * TS - camY, d = Math.abs(P.cx - (h.c * TS + TS / 2));
+      const k = clamp(1 - (d - 4 * TS) / (3 * TS), 0, 1); if (k <= 0) continue;
+      const en = R.text(h.en, '700 11px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(34,211,238,0.9)', 6), pt = R.text(h.pt, '400 11px Inter, sans-serif', wa(0.7), null, 0);
+      const w = Math.max(en.w, pt.w) + 4, hh = 42, yy = y - 6 + Math.sin(time * 2 + h.c) * 2;
+      ctx.save(); ctx.globalAlpha = k;
+      rrect(ctx, x - w / 2, yy - hh / 2, w, hh, 10); ctx.fillStyle = 'rgba(2,2,2,0.7)'; ctx.fill(); ctx.strokeStyle = ca(0.5); ctx.lineWidth = 1; ctx.stroke();
+      ctx.restore();
+      R.draw(en, x, yy - 8, 1, k); R.draw(pt, x, yy + 10, 1, k);
+    }
   },
 };
 

@@ -8,6 +8,7 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
   brasileiros, começando no A1. Um único `index.html` gerado a partir de `src/` (`node build.js`).
 - O dono escreve em português, de forma rápida e informal; responda em PT-BR, direto, sem jargão. Ele aprova fase por
   fase. **Fase aprovada não muda de comportamento** sem pedido (1-1 aprovada = commit `3702f14`; os testes a travam).
+  Ele pediu depois uma 1-1 "especial": o Echo nasce nela (abertura nova), sem mudar a física nem os quebra-cabeças.
 - Branch de trabalho: `claude/jolly-faraday-8mbshk`. Commit e push sim; **PR só se ele pedir**. Mensagens de commit com
   as linhas `Co-Authored-By` e `Claude-Session` que o sistema indicar. Nunca escreva nome de modelo no repositório.
 - Publicação para ele jogar: artifact `https://claude.ai/artifact/Y7vb7ZPz386U3viy46FH38`. Gere a cópia tirando o
@@ -56,9 +57,13 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 | `60_player.js` | `P` (plataformas móveis `riding`, forma de Rastejante), `Echo` (fala/balão, luz, alvo YOU), `Cam`, `Doors` |
 | `70_game.js` | `Sentence`, `Panel`, `UI`, `Game` (estados, `later()` no tempo da simulação, laço, render com zoom da cena) |
 | `72_chest.js` | Baú da Memória (`Chest`), ícones, `HEART_LOOK`, `drawHeart`, cena épica (`Cine`) |
+| `73_echo.js` | `Arrival` (chegada no feixe), `Birth` (o Echo nasce do HELLO na porta 1), `EchoPulse` (sonar, C/LB/toque), `Hints` (placas) |
 | `75_worldmap.js` | `Transition` (íris/fechadura + cartão "Nexy × vidas"), `WorldMap` (andar, revelar caminhos, toque) |
 | `99_boot.js` | `window.NEXY` (API de teste) e `Game.boot()` |
 
+- Cenas: `Game.scene()` devolve a cena ativa (`Cine`, `Birth`, `Arrival`); todas têm `zoom`, `sat`, `letter`,
+  `timeScale`, `update`, `key`, `drawWorld`, `drawScreen`. `Game.echoBorn` = o Echo já existe nesta partida (na 1-1
+  começa falso; a porta com `birth: 'echo'` dispara `Birth`).
 - Estados do `Game.state`: `title`, `map`, `play`, `panel`, `chest`, `cinematic`, `pause`, `grimoire`, `assist`,
   `clearing`, `clear`, `gameover`, `leaving`. `Game.where`: `map` | `level`.
 - Fluxo: título → `toMap()` → `WorldMap.tryEnter` → `Transition` → `enterLevel(id, true)` → `finish(exit)` →
@@ -89,14 +94,20 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 
 ## 6. Testes (`node tests/run.js [filtro]`, Playwright, ~3 min)
 
-- `tests/harness.js`: `openGame(browser, {level})` entra direto na fase e troca `Game.frame` (o laço em tempo real
-  para): `H.step()` roda a simulação; **`Cine` e `Transition` não andam sozinhos** nos testes (dirija `Cine.update`).
+- `tests/harness.js`: `openGame(browser, {level, echo})` entra direto na fase (sem a chegada: `Game.noIntro`) e troca
+  `Game.frame` (o laço em tempo real para): `H.step()` roda a simulação; **as cenas não andam sozinhas** nos testes
+  (dirija `Cine.update`/`Birth.update`). `echo: true` (padrão) já começa com o Echo nascido.
 - Lições: **teste caminhos com pulos de verdade, não com teletransporte** (a runa alta demais passou num teste que
   teletransportava); cuidado ao teleportar para colunas de buraco (morre e volta ao início); `tryHop` muda
   `Game.simTime` (lustres e tubos dependem dele); `H.noEnemies()` preserva entidades `persist` (gigantes).
 - Toda mudança: `node build.js` e a suíte inteira verde antes do push.
 
 ## 7. Próximos passos e ideias anotadas
+
+- **Vozes do ElevenLabs** (pedido do dono, para depois): o caminho recomendado é a chave da API como segredo do ambiente
+  (`ELEVENLABS_API_KEY`) + `api.elevenlabs.io` liberado na rede + o voice_id escolhido; um script extrai todas as falas
+  dos dados do jogo, gera os MP3 e embute no `index.html` (a voz do navegador fica só de reserva para frases montadas
+  erradas). Hoje a rede bloqueia `api.elevenlabs.io` e não há chave.
 
 - Esperando aprovação da 1-2 (com o baú). Depois: 1-3, Palácio do To Be (saída secreta da 1-1), Casa "PUSH OR PULL?"
   (saída secreta da 1-2), forte e castelo do Mundo 1.
