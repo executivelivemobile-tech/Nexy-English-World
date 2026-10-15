@@ -1358,7 +1358,8 @@ const Input = {
      X apaga a última palavra, Y pede dica, direcional navega (com repetição ao segurar). */
   pad: { prev: {}, rep: { k: null, t: 0 } },
   pollPad() {
-    const list = navigator.getGamepads ? navigator.getGamepads() : null;
+    let list = null;
+    try { list = navigator.getGamepads ? navigator.getGamepads() : null; } catch (e) { list = null; }
     let gp = null;
     if (list) for (const p of list) if (p && p.connected && p.buttons && p.buttons.length) { gp = p; break; }
     const prev = this.pad.prev;
