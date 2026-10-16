@@ -139,7 +139,7 @@ altar da 1-2, e as dicas da Echo na cripta lembram o começo.
 Existe uma máquina estranha no corredor depois da porta 2: a **TO BE ENGINE** ("TO BE OR NOT TO BE?"). Sem cartão, ela
 não liga. Onde está o cartão é segredo (dica: nem tudo o que parece defeito é defeito). Com ele, a máquina ensina o
 verbo TO BE inteiro (I AM, YOU ARE, **HE** IS = o Nexy, **SHE** IS = a Echo, IT IS, WE ARE, THEY ARE), pede as 7
-ligações certas seguidas e oferece uma escalada de frases acima do A1. Ligada, ela leva o Nexy ao fim da fase com
+ligações (errar não zera: a errada volta no fim) e oferece uma escalada de frases acima do A1. Ligada, ela leva o Nexy ao fim da fase com
 as vidas cheias e dá à Echo um poder que fica salvo:
 
 - **Tiro da Echo** (F · Y no controle · SHOT no toque): o 1º tiro **paralisa** o inimigo (vira cristal, não machuca e

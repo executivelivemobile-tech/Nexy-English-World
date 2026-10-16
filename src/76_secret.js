@@ -1,10 +1,12 @@
 
 /* ============================== 1-1 · O SEGREDO (pedido do dono, "como no Donkey Kong") ==============================
-   1. Um tijolo INVISÍVEL no alto da torre da porta 2 (c103, linha 12), acima do checkpoint. A cabeça não alcança e o
-      pulso da Echo só o faz piscar de leve, como um pixel com defeito. Só um casco jogado para cima (↑ ao soltar) acerta.
-   2. O casco trava no tijolo, a tela "dá pau" (falso erro: TO BE NOT FOUND) e o mundo reinicia: cai o WARP CARD.
+   1. Um tijolo INVISÍVEL colado na torre da porta 2 (c103, linha 15), na altura do pulo, logo depois da porta. De vez em
+      quando (e no pulso da Echo) ele pisca como um pixel com defeito. Pular embaixo dele (a cabeça bate) ou jogar um
+      casco para cima (↑ ao soltar) acorda o tijolo. Antes ele ficava na linha 12 e só o casco alcançava: o dono achou
+      impossível (e no toque não há ↑), então pediu para simplificar.
+   2. O tijolo trava, a tela "dá pau" (falso erro: TO BE NOT FOUND) e o mundo reinicia: cai o WARP CARD.
    3. A TO BE ENGINE, no fim do corredor 2, todo mundo vê e ninguém liga sem o cartão. Com ele: a tabela inteira do TO BE
-      (HE = o Nexy, SHE = a Echo), 7 ligações certas SEGUIDAS e a escalada acima do A1.
+      (HE = o Nexy, SHE = a Echo), as 7 ligações (errar não zera: a errada volta no fim da fila) e a escalada acima do A1.
    4. Ligada, ela teletransporta o Nexy para a praça final com as vidas cheias, e a Echo ganha o TIRO (fica salvo).
    O caminho normal continua inteiro: o segredo é um atalho e um poder, nunca a única saída. */
 
@@ -234,7 +236,7 @@ const Engine = {
         <div class="c-actions">${this.btn('▶ LISTEN', 'hear', 'small')}${this.btn('WIRE IT →', 'wire', 'primary')}</div>`;
     } else if (st.step === 'wire') {
       const r = ENGINE.table[st.order[st.streak]];
-      h = `<div class="c-title">WIRE THE ENGINE</div><div class="c-sub">7 in a row. One wrong wire and the engine starts again.</div>${this.pt('As 7 seguidas. Uma ligação errada e a máquina recomeça.')}
+      h = `<div class="c-title">WIRE THE ENGINE</div><div class="c-sub">Wire all 7. A wrong wire only sparks: that one comes back later.</div>${this.pt('Ligue as 7. Errou? Só solta faísca: aquela ligação volta no fim para você tentar de novo.')}
         ${this.sockets()}
         <div class="e-card">${PRONOUN_ICONS[r.icon]}<span class="e-p">${r.p}</span><span class="e-slot" id="eslot"></span><span class="e-n">${NAME_OF[r.icon]}</span></div>
         <div class="c-row">${['AM', 'IS', 'ARE'].map(v => `<button class="btn copt e-plug" data-a="plug" data-v="${v}">${v}</button>`).join('')}</div>
@@ -292,10 +294,11 @@ const Engine = {
       st.streak++; d.wired = st.streak; this.busy = true;
       this.later(650, () => { this.busy = false; if (st.streak >= 7) this.online(); else this.render(); });
     } else {
-      el.classList.add('wrong'); SFX.wrong(); this.busy = true; d.wired = 0;
+      el.classList.add('wrong'); SFX.wrong(); this.busy = true;
       $('cev').innerHTML = `<b>${r.p} ${r.v}</b> · ${this.sayRow(r)}${this.showPt ? '<br><span style="color:var(--txt-3)">' + r.pt + '</span>' : ''}`;
       this.later(500, () => Voice.say(this.sayRow(r), 'story', { cut: true }));
-      this.later(2000, () => { this.busy = false; st.streak = 0; st.order = this.shuffle(); st.msg = 'Again: 7 in a row.'; this.render(); });
+      // errar não zera: a ligação errada vai para o fim da fila (volta depois, já com a resposta ouvida)
+      this.later(2000, () => { this.busy = false; st.order.push(st.order.splice(st.streak, 1)[0]); st.msg = 'Try again later.'; this.render(); });
     }
   },
   online() {

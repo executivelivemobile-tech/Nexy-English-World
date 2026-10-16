@@ -240,11 +240,14 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   rascunho que evolui, `726c683`) "até decidirmos melhor". Para retomar: `git show 280a8da:src/62_nexy_look.js`.
   O rastro da corrida é a sombra do próprio Nexy. Blender: o dono seguiu o conselho de manter o desenho em código.
 - **Segredo da 1-1** (pedido do dono, "como no Donkey Kong"; só ele e quem ele contar devem saber, por isso o README
-  não explica): tijolo `j` (kind `glitch`) INVISÍVEL em c103 L12, colado na torre da porta 2, acima do checkpoint c104.
-  Só casco subindo bate (`solidFor`; a cabeça passa reto; o pulso só faz piscar). Casco-guarda J (c107) → segurar
-  corrida, encostar na torre, ↑ e soltar → `Glitch` (falso erro TO BE NOT FOUND) → WARP CARD (`Game.card`, por partida).
+  não explica): tijolo `j` (kind `glitch`) INVISÍVEL em c103 **L15** (na altura do pulo), colado na torre da porta 2,
+  logo depois da porta (checkpoint c104). Pular embaixo dele (a cabeça bate, como os blocos escondidos do Mario) ou
+  jogar o casco para cima acorda (`solidFor` para `player` e `shell`; pisca sozinho a cada ~6,5 s e no pulso da Echo)
+  → `Glitch` (falso erro TO BE NOT FOUND) → WARP CARD (`Game.card`, por partida). Antes ficava em L12 e só o
+  casco-guarda J (segurar corrida, encostar na torre, ↑ e soltar) alcançava: o dono achou impossível (no toque nem há ↑)
+  e pediu para simplificar; o caminho do casco continua valendo.
   TO BE ENGINE `T` em c136 (corredor 2): sem cartão a Echo diz "It is a machine. It needs a card."; com cartão:
-  tabela (HE = Nexy, SHE = Echo, palavras novas), 7 ligações certas SEGUIDAS (errar embaralha e recomeça), escalada de
+  tabela (HE = Nexy, SHE = Echo, palavras novas), as 7 ligações (errar não zera mais: a errada vai para o fim da fila), escalada de
   4 frases (A2 → B1) que sobe o nível do tiro. Teletransporte (`Warp`): IS/ARE da barra viram combustível, praça
   final c181 (`LEVELS['1-1'].warp`), vidas = max(vidas, 5), checkpoint ali. Conta 1 segredo a mais na Fluência da 1-1.
 - **Tiro da Echo** (`EchoShot`, `SHOT` em `10_data.js`, `Save.data.shot.best`; -1 = não tem): F / Y no controle

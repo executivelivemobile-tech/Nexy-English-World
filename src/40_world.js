@@ -128,8 +128,8 @@ const World = {
         const b = this.blockAt(c, r);
         if (b.kind === 'invisible' && b.state === 'hidden')
           return axis === 'y' && dir < 0 && (body.kind === 'player' || body.kind === 'shell') && prevEdge >= (r + 1) * TS - 0.5;
-        // o tijolo do bug: invisível, só um casco subindo bate nele (a cabeça do Nexy passa reto)
-        if (b.kind === 'glitch' && b.state === 'hidden') return axis === 'y' && dir < 0 && body.kind === 'shell' && prevEdge >= (r + 1) * TS - 0.5;
+        // o tijolo do bug: invisível; a cabeça do Nexy (ou um casco jogado para cima) bate nele por baixo
+        if (b.kind === 'glitch' && b.state === 'hidden') return axis === 'y' && dir < 0 && (body.kind === 'player' || body.kind === 'shell') && prevEdge >= (r + 1) * TS - 0.5;
         return this.blockSolid(b);
       }
       case T.DOOR: { const d = this.doorAt(c, r); return !d || !d.open; }
@@ -220,7 +220,7 @@ const World = {
       if (b.secret) Game.foundSecret(b.secret);
       this.release(b, by === 'player');
     } else if (b.kind === 'glass') { if (by === 'shell') this.breakGlass(b, 'shell'); else { b.wob = 1; SFX.thud(); } }
-    else if (b.kind === 'glitch' && b.state === 'hidden') { if (by === 'shell') Glitch.start(b, ent); }
+    else if (b.kind === 'glitch' && b.state === 'hidden') { if (by === 'shell' || by === 'player') Glitch.start(b, by === 'shell' ? ent : null); }
     else { b.bump = 0.6; SFX.thud(); }
     Ents.bumpFrom(c, r);
   },

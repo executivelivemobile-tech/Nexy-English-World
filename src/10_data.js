@@ -202,9 +202,9 @@ const PROLOGUE = {
     { en: 'WHAT YOU SAY IS TRUE', pt: 'o que você diz vira verdade' },
   ],
 };
-// O SEGREDO DA 1-1 (76_secret.js): um tijolo invisível no alto da torre da porta 2 só acorda com um casco jogado para
-// cima; a tela "trava" (falso erro) e cai o WARP CARD. Com ele, a TO BE ENGINE do corredor 2 liga: tabela completa do
-// verbo TO BE, 7 ligações certas SEGUIDAS e a escalada acima do A1. O teletransporte leva à praça final com as vidas
+// O SEGREDO DA 1-1 (76_secret.js): um tijolo invisível colado na torre da porta 2, na altura do pulo, acorda com a cabeça
+// (ou um casco jogado para cima); a tela "trava" (falso erro) e cai o WARP CARD. Com ele, a TO BE ENGINE do corredor 2
+// liga: tabela completa do verbo TO BE, as 7 ligações (a errada volta no fim) e a escalada acima do A1. O teletransporte leva à praça final com as vidas
 // cheias, e a escalada decide a força do TIRO DA ECHO (fica salvo e vale nas outras fases).
 const ENGINE = {
   intro: { en: 'The verb to be. All of it.', pt: 'A máquina funciona com o verbo TO BE. Inteiro.' },
@@ -392,7 +392,7 @@ const LEVELS = {
       's': { block: 'invisible', content: { word: 'SMALL' }, secret: 'invisible-small' },
       'l': { block: 'glass', content: { letter: 3 } },
       'v': { block: 'invisible', content: { life: 1 }, secret: 'echo-secret' },   // o 1º segredo que o pulso do Echo revela
-      'j': { block: 'glitch', content: { card: true }, secret: 'glitch' },          // o "bug" de propósito: só um casco jogado para cima acorda
+      'j': { block: 'glitch', content: { card: true }, secret: 'glitch' },          // o "bug" de propósito: invisível, acorda com a cabeça (pulo embaixo) ou um casco
     },
     // Placas de dica: aparecem quando o Nexy chega perto e somem depois que a ação foi feita (until).
     hints: [
