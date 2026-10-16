@@ -16,6 +16,11 @@ Plataforma 2D neon-noir para ensinar inglês (nível A1) a brasileiros. Tudo est
 
 Tela inicial → **mapa do Mundo 1** → fase → tela de fim → volta ao mapa. Como no Super Mario World:
 
+- O mapa é uma **ilha flutuante** no céu da noite (com o penhasco embaixo), com bairros de cara própria (o bairro
+  gótico, o palácio, a cidade neon com o trem, os rochedos e a montanha do castelo), um rio de luz que corre e cai em
+  cascata, estradas com uma faísca que passa e pontes. Cada fase tem um marco grande; o que ainda não foi descoberto
+  fica sob névoa, com "?". Estrela cadente, nuvens e raios atrás do castelo. As palavras-mestras viram constelações.
+
 - No mapa, o Nexy anda pelos caminhos abertos (setas, alavanca do controle ou toque numa fase) e entra com Enter ou pulo.
 - Cada saída abre um caminho novo, que se desenha ponto a ponto. A saída normal da 1-1 abre a 1-2; a secreta abre o
   Palácio do To Be. A normal da 1-2 abre a 1-3; a secreta abre a Casa dos Falsos Amigos "PUSH OR PULL?".
