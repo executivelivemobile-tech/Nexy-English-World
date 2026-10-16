@@ -71,7 +71,7 @@ section p { margin: 0; color: var(--muted); max-width: 70ch; }
   <div class="grid" id="grid"></div>
   <section class="strip">
     <h2>NO TAMANHO DO JOGO</h2>
-    <p>Assim ele aparece jogando: a mesma caixa de colisão de hoje, então pulos e fases não mudam. Orelhas, cauda e asas são só desenho.</p>
+    <p>Assim ele aparece jogando: a mesma caixa de colisão de hoje, então pulos e fases não mudam. Orelhas, cauda, cachecol e asas são só desenho.</p>
     <div class="scale" role="group" aria-label="Escala">
       <div class="poses"><button id="z1" data-zoom="1" aria-pressed="true">1× · CELULAR</button><button id="z2" data-zoom="2" aria-pressed="false">2× · TELA CHEIA</button></div>
     </div>
@@ -80,7 +80,7 @@ section p { margin: 0; color: var(--muted); max-width: 70ch; }
   <section>
     <h2>COMO É FEITO SEM PESAR O JOGO</h2>
     <div class="how">
-      <div><b>Um boneco articulado</b><span>Quadril, tronco, cabeça, braços, pernas e cauda se movem por código, fiéis à arte de referência (armadura roxa, elmo de gato, asas de fênix). A armadura são camadas novas presas ao mesmo esqueleto.</span></div>
+      <div><b>Um boneco articulado</b><span>Quadril, tronco, cabeça, braços, pernas, cauda e cachecol se movem por código. A armadura são camadas novas presas ao mesmo esqueleto.</span></div>
       <div><b>Cada quadro é pintado uma vez</b><span>O brilho de neon é calculado na primeira vez e a imagem fica guardada. Depois o jogo só carimba, como nos sprites antigos.</span></div>
       <div><b>Mais detalhe onde aparece</b><span>Nas cenas épicas a câmera chega perto e o mesmo desenho sai em tamanho grande, com todos os detalhes.</span></div>
       <div><b>Paleta preservada</b><span>Magenta e ciano do começo ao fim. O fogo laranja das asas só existe na forma final, como prêmio.</span></div>

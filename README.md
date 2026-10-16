@@ -142,8 +142,7 @@ as vidas cheias e dá à Echo um poder que fica salvo:
 
 ## O visual do Nexy evolui
 
-O Nexy é um boneco articulado desenhado em código, fiel à arte de referência do dono (armadura roxa estilo robô,
-elmo com orelhas de gato, núcleo no peito, garras, cauda de placas e asas de fênix). Ele começa como um
+O Nexy é um boneco articulado desenhado em código (capuz de gato, cachecol, cauda de cabo). Ele começa como um
 **rascunho de neon** na primeira partida e ganha camadas a cada fase concluída, até a forma final com asas de fênix:
 
 | Estágio | Aparece | O que muda |
