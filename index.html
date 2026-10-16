@@ -1282,8 +1282,8 @@ LEVELS['1-2'] = {
    ───────────── LEGENDA DESTA FASE (além da legenda global) ─────────────
      t O b e   letras T O B E               !  altar da memória (WHAT WAS HERE?)      @  altar da galeria
      % & $     relógios (ontem, hoje, ontem)  ^  o INTERRUPTOR DO SER                   k  cavaleiro (KNIGHT)
-     V U       Alados (pequeno e alto)        |  tubo-pistão do relógio               m  poço de palavras
-     blocos: 1 WAS · 2 WERE · 3 IS · 4 ARE · 5 AM · 6 BIG · 7 BRIDGE · l vida
+     V U u     Alados (pequeno, alto, e o da galeria)        |  tubo-pistão do relógio               m  poço de palavras
+     blocos: 1 WAS · 2 WERE · 3 IS · 4 ARE · 5 AM · 6 BIG · 7 BRIDGE · l vida · m n poços de palavras
    Os alvos (ponte, estátuas, degraus, portão) ficam em targets, por coluna/linha de base. */
 LEVELS.palace = {
   id: 'palace', world: 1, name: 'TO BE PALACE', masterWord: 'TOBE', music: 'palace', bg: 'palace', mirror: true,
@@ -1305,7 +1305,7 @@ LEVELS.palace = {
       '........................................*...................................##.............&............##..................................*.........', // 13
       '....................................oo......................................##.........=======..........##............................................', // 14
       '........oo..............................................o.o.................##..........................##.............oo.oo..........................', // 15
-      '.......o..?1?....7............................2?..4..6.....................U##...........m..............##.....5?l...................U................', // 16
+      '.......o..?1?....7............................2?..4..6.....................u##...........m..............##.....5?l.............n.....U................', // 16
       '......o........................V...V........................................##..........................##.................................ooo........', // 17
       '....................ooo.....................................................##..........................##............................................', // 18
       '...P.....................!...............F...............k....k.@...........##.F.%............|.........##..F........k......k......^............N.....', // 19
@@ -1323,6 +1323,8 @@ LEVELS.palace = {
     '7': { block: 'question', content: { word: 'BRIDGE' } },
     // poço de palavras da torre: cada batida dá a próxima palavra que falta (ninguém fica preso no relógio)
     'm': { block: 'question', content: { reserve: ['WAS', 'IS', 'WERE', 'ARE'] } },
+    // e antes do interruptor: quem chegou pelos caminhos alternativos sem o WAS (ou sem o AM) não fica sem a frase
+    'n': { block: 'question', content: { reserve: ['WAS', 'AM'] } },
     'l': { block: 'question', content: { life: 1 } },
   },
   entities: {
@@ -1336,6 +1338,8 @@ LEVELS.palace = {
     'k': { entity: 'knight', respawn: 'offscreen' },
     'V': { entity: 'flyer', path: 'v', amp: 0.35, period: 2, respawn: 'summon' },
     'U': { entity: 'flyer', path: 'v', amp: 1.2, period: 2.4, respawn: 'summon' },
+    // o Alado ao lado da parede da galeria some quando a última estátua volta a ser grande (ela ocupa o lugar dele)
+    'u': { entity: 'flyer', path: 'v', amp: 1.2, period: 2.4, respawn: 'summon', unless: 'knight3' },
     '|': { entity: 'pipe', rise: 6, beats: 4, phase: 0 },
   },
   // a mesma lei, agora no tempo: o que você diz que EXISTIA volta a existir
@@ -1345,15 +1349,16 @@ LEVELS.palace = {
     { c: 79, r: 10, en: 'YESTERDAY → WAS · TODAY → IS', pt: 'ontem pede o passado; hoje, o presente', until: 'clock1' },
     { c: 118, r: 9, en: 'YESTERDAY I … · TODAY I …', pt: 'fale de você: como você era e como você é', until: 'switch' },
   ],
+  // as estátuas ficam encostadas umas nas outras e na parede: crescidas, não sobra vão de 1 bloco onde o Nexy fique preso
   // alvos. look: memory (pedra de luz que volta), knight (estátua), gate (portão). ghost: contorno do que existia
   // ('ping' = só com o pulso da Echo; 'always' = sempre, bem fraco). past = o que a Echo diz ao ver o passado.
   targets: {
     bridge1: { kind: 'rune', look: 'memory', ghost: 'ping', c: 29, r: 20, anchor: 'left', small: { w: 0, h: 0 }, big: { w: 10, h: 1 }, state: 'small',
       past: { en: 'It was a bridge!', pt: 'Aqui EXISTIA uma ponte!' } },
-    knight1: { kind: 'rune', look: 'knight', ghost: 'always', c: 67, r: 19, anchor: 'left', small: { w: 1, h: 1 }, big: { w: 2, h: 3 }, state: 'small',
+    knight1: { kind: 'rune', look: 'knight', ghost: 'always', c: 70, r: 19, anchor: 'left', small: { w: 1, h: 1 }, big: { w: 2, h: 3 }, state: 'small',
       past: { en: 'They were knights!', pt: 'Eram cavaleiros… e olha o tamanho das sombras!' } },
-    knight2: { kind: 'rune', look: 'knight', ghost: 'always', c: 70, r: 19, anchor: 'left', small: { w: 1, h: 1 }, big: { w: 2, h: 5 }, state: 'small' },
-    knight3: { kind: 'rune', look: 'knight', ghost: 'always', c: 73, r: 19, anchor: 'left', small: { w: 1, h: 1 }, big: { w: 2, h: 7 }, state: 'small' },
+    knight2: { kind: 'rune', look: 'knight', ghost: 'always', c: 72, r: 19, anchor: 'left', small: { w: 1, h: 1 }, big: { w: 2, h: 5 }, state: 'small' },
+    knight3: { kind: 'rune', look: 'knight', ghost: 'always', c: 74, r: 19, anchor: 'left', small: { w: 1, h: 1 }, big: { w: 2, h: 7 }, state: 'small' },
     step1: { kind: 'rune', look: 'memory', ghost: 'always', c: 84, r: 17, anchor: 'left', small: { w: 0, h: 0 }, big: { w: 3, h: 1 }, state: 'small' },
     step2: { kind: 'rune', look: 'memory', ghost: 'always', c: 84, r: 11, anchor: 'left', small: { w: 0, h: 0 }, big: { w: 3, h: 1 }, state: 'small' },
     bridge2: { kind: 'rune', look: 'memory', ghost: 'always', c: 84, r: 8, anchor: 'left', small: { w: 0, h: 0 }, big: { w: 15, h: 1 }, state: 'small' },
@@ -3124,6 +3129,12 @@ const Spawns = {
     for (const s of World.spawns) {
       // visível na horizontal e (nas fases altas) perto da câmera na vertical
       const sx = s.c * TS + TS / 2, sy = (s.r + 1) * TS, vis = sx > L - 40 && sx < Rr + 40 && sy > Cam.y - 200 && sy < Cam.y + CFG.VIEW_H + 200;
+      // um alvo cresceu no lugar deste spawn (palácio: a estátua grande ocupa o lugar do Alado): ele some de vez
+      const blocker = s.opts.unless && World.targets[s.opts.unless];
+      if (blocker && blocker.state !== 'small') {
+        if (s.ent && !s.ent.dead) { FX.burst(s.ent.x + s.ent.w / 2, s.ent.y + s.ent.h / 2, 14, 'c', 140, { life: 0.5, g: 0 }); s.ent.noRespawn = true; s.ent.dead = true; }
+        s.state = 'consumed'; continue;
+      }
       if (s.state === 'waiting') { if (vis && !s.wasVis) this.make(s); }
       else if (s.state === 'summon') {
         s.timer -= dt;

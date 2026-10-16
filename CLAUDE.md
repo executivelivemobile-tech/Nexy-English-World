@@ -118,14 +118,16 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   `bridge1` (c29-38 L20, `ghost: 'ping'`: o pulso mostra o contorno e a Echo diz "It was a bridge!"). Outro caminho:
   Alados `V` c31 e c35 (quique, quique). Letra T c33 L10. Checkpoint c41.
 - B Galeria (44-77): WERE c46, ARE c50, BIG c53; cavaleiros `k` c57/c62; letra O c60 L11; altar2 `@` c64 "WERE THEY
-  BIG OR SMALL?" → THEY WERE BIG → estátuas `knight1-3` (c67/70/73, alturas 3/5/7, sombras sempre visíveis) em escada
-  até o topo da parede c76-77 (L11). Outro caminho: Alado `U` c75 L16.
+  BIG OR SMALL?" → THEY WERE BIG → estátuas `knight1-3` (c70/72/74, alturas 3/5/7, sombras sempre visíveis) em escada
+  até o topo da parede c76-77 (L11). **Encostadas umas nas outras e na parede**: antes havia vãos de 1 bloco entre elas
+  e o dono ficou preso num (5 de um lado, 7 do outro). Outro caminho: Alado `u` c75 L16 (`unless: 'knight3'`: some
+  quando a estátua cresce no lugar dele; `Spawns.update` trata o `unless`).
 - C Torre do Relógio (78-105): relógio1 `%` c81 (WAS → `step1` c84-86 L17), sacada1 `=` c87-93 L14 (encostada no
   degrau), IS c92 L10, poço `m` c89 L16 (WAS/IS/WERE/ARE), relógio2 `&` c91 L13 (IS → `step2` c84-86 L11), sacada2
   c78-83 L8, relógio3 `$` c80 L7 (WERE → `bridge2` c84-98 L8), saída `=` c99-103 L8 e topo da parede c104-105.
   Letra B c101 L5. Outro caminho: tubo-pistão `|` c94 → sacada3 c97-100 L12 → Alado `V` c102 L10 → saída.
 - D Salão do Interruptor (106-149): checkpoint c108, AM c111, vida c113, cavaleiros c117/c124, letra E c121 L11,
-  INTERRUPTOR `^` c131 (YESTERDAY, I _ SMALL. TODAY, I _ STRONG. → WAS, AM) → `PalaceSwitch`: no impacto
+  poço `n` c127 L16 (WAS e AM que faltarem), INTERRUPTOR `^` c131 (YESTERDAY, I _ SMALL. TODAY, I _ STRONG. → WAS, AM) → `PalaceSwitch`: no impacto
   `Flags.set('palaces.toBe', true, true)` + `Save.data.heart.ring = true` (o acréscimo ao Coração: ANEL DO TO BE,
   `Palace.drawRing`, aparece no mapa e no Grimório); no fim o portão `gate` (c135-136 L8-19) afunda. Saída `N` c144.
   Outro caminho: Alados `U` c133 L16 + `V` c134 L11 (quique e quique por cima do portão, saindo de c130-131).
@@ -140,7 +142,8 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 - `tests/harness.js`: `openGame(browser, {level, echo})` entra direto na fase (sem a chegada: `Game.noIntro`) e troca
   `Game.frame` (o laço em tempo real para): `H.step()` roda a simulação; **as cenas não andam sozinhas** nos testes
   (dirija `Cine.update`/`Birth.update`). `echo: true` (padrão) já começa com o Echo nascido.
-- Lições: **teste caminhos com pulos de verdade, não com teletransporte** (a runa alta demais passou num teste que
+- Lições: **nada de vão de 1 bloco entre paredes mais altas que o pulo (≈ 4 tiles)**: vira beco sem saída;
+  **teste caminhos com pulos de verdade, não com teletransporte** (a runa alta demais passou num teste que
   teletransportava); cuidado ao teleportar para colunas de buraco (morre e volta ao início); `tryHop` muda
   `Game.simTime` (lustres e tubos dependem dele); `H.noEnemies()` preserva entidades `persist` (gigantes).
 - Palácio: `HELPP` (em `tests/run.js`) limpa a apresentação da Echo e tem `HP.attempt` (Alados em várias fases do voo).

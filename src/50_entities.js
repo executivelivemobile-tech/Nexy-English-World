@@ -64,6 +64,12 @@ const Spawns = {
     for (const s of World.spawns) {
       // visível na horizontal e (nas fases altas) perto da câmera na vertical
       const sx = s.c * TS + TS / 2, sy = (s.r + 1) * TS, vis = sx > L - 40 && sx < Rr + 40 && sy > Cam.y - 200 && sy < Cam.y + CFG.VIEW_H + 200;
+      // um alvo cresceu no lugar deste spawn (palácio: a estátua grande ocupa o lugar do Alado): ele some de vez
+      const blocker = s.opts.unless && World.targets[s.opts.unless];
+      if (blocker && blocker.state !== 'small') {
+        if (s.ent && !s.ent.dead) { FX.burst(s.ent.x + s.ent.w / 2, s.ent.y + s.ent.h / 2, 14, 'c', 140, { life: 0.5, g: 0 }); s.ent.noRespawn = true; s.ent.dead = true; }
+        s.state = 'consumed'; continue;
+      }
       if (s.state === 'waiting') { if (vis && !s.wasVis) this.make(s); }
       else if (s.state === 'summon') {
         s.timer -= dt;

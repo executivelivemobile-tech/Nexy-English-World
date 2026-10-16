@@ -1208,7 +1208,7 @@ test('palácio: o pulso da Echo vê a ponte que existia; IT IS A BRIDGE só conf
   expect(r.bridge === 10 && r.solid && r.across, `a ponte volta inteira e se atravessa (${JSON.stringify(r)})`);
 }, LP);
 
-test('palácio: THEY WERE BIG ergue as estátuas em escada (THEY WAS e THEY ARE só confundem, com dica); do chão ao topo da parede com pulos de verdade', async ({ page }) => {
+test('palácio: THEY WERE BIG ergue as estátuas em escada (THEY WAS e THEY ARE só confundem, com dica); sem vão para ficar preso; do chão ao topo da parede com pulos de verdade', async ({ page }) => {
   await page.evaluate(HELP12); await page.evaluate(HELPP);
   const r = await page.evaluate(async () => {
     const P = NEXY.P, W = NEXY.World, out = {};
@@ -1216,19 +1216,28 @@ test('palácio: THEY WERE BIG ergue as estátuas em escada (THEY WAS e THEY ARE 
     const say = async words => { Echo.line = null; Echo.lines = []; await H12.panel(64, 19, words); H.step(40); return Echo.line ? Echo.line.en : '-'; };
     out.tips = [await say(['WAS', 'BIG']), await say(['ARE', 'BIG'])];
     out.small = ['knight1', 'knight2', 'knight3'].every(id => W.targets[id].state === 'small');
-    await say(['WERE', 'BIG']); H.step(240);
+    // o Alado ao lado da parede existe enquanto as estátuas são pequenas
+    H.wakeSpawns(); H.tp(70, 19, 999); H.step(30); out.flyerBefore = NEXY.Ents.list.some(e => e.type === 'flyer' && !e.dead && e.x > 74 * 32);
+    // o Nexy parado num dos vãos entre as estátuas pequenas: quando elas crescem, ele vai junto para cima
+    H.tp(73, 19, 999); H.step(2);
+    Sentence.apply(W.doors.altar2, W.level.doors.altar2.accept[0], ['WERE', 'BIG']); H.step(240);
+    out.lifted = !P.dead && P.onGround && Math.round(P.y + P.h) <= 15 * 32;
     out.h = ['knight1', 'knight2', 'knight3'].map(id => W.targets[id].cur.h).join();
+    out.noGap = [70, 71, 72, 73, 74, 75].every(c => W.type(c, 19) === 7);
+    out.flyerAfter = NEXY.Ents.list.some(e => e.type === 'flyer' && !e.dead && e.x > 74 * 32);
     out.hops = [
-      H12.tryHop([0], () => NEXY.teleport(65, 19), ['right'], HP.top(17, 67, 68)),
-      H12.tryHop([0], () => NEXY.teleport(67, 16), ['right'], HP.top(15, 70, 71)),
-      H12.tryHop([0], () => NEXY.teleport(70, 14), ['right'], HP.top(13, 73, 74)),
-      H12.tryHop([0], () => NEXY.teleport(73, 12), ['right'], HP.top(11, 76, 77)),
+      H12.tryHop([0], () => NEXY.teleport(68, 19), ['right'], HP.top(17, 70, 71)),
+      H12.tryHop([0], () => NEXY.teleport(70, 16), ['right'], HP.top(15, 72, 73)),
+      H12.tryHop([0], () => NEXY.teleport(72, 14), ['right'], HP.top(13, 74, 75)),
+      H12.tryHop([0], () => NEXY.teleport(74, 12), ['right'], HP.top(11, 76, 77)),
     ].join();
     return out;
   });
   expect(r.tips.join(' | ') === 'They? Not was! | Not today. Yesterday!', `dicas (${r.tips.join(' | ')})`);
   expect(r.small, 'as estátuas continuam pequenas');
   expect(r.h === '3,5,7', `estátuas do tamanho de antes (${r.h})`);
+  expect(r.noGap && r.lifted, `crescidas, as estátuas não deixam vão de 1 bloco (o dono ficou preso num deles); quem estava no vão sobe junto (${r.lifted})`);
+  expect(r.flyerBefore && !r.flyerAfter, `o Alado da parede some quando a estátua ocupa o lugar dele (${r.flyerBefore}/${r.flyerAfter})`);
   expect(r.hops === '1,1,1,1', `escada de estátuas até a parede (${r.hops})`);
 }, LP);
 
@@ -1267,7 +1276,7 @@ test('palácio: outro caminho em cada desafio — Alados no abismo, na parede e 
   const r = await page.evaluate(() => {
     const P = NEXY.P, W = HP.waits(), out = {};
     out.pit = HP.attempt(28, 19, ['right'], () => P.onGround && P.x > 39 * 32 && Math.round(P.y + P.h) === 640, W);
-    out.wall = HP.attempt(74, 19, ['right'], () => P.onGround && P.x > 76 * 32, W);
+    out.wall = HP.attempt(73, 19, ['right'], () => P.onGround && P.x > 76 * 32, W);
     out.gate = HP.attempt(130, 19, ['right'], () => P.onGround && P.x > 137 * 32, W);
     const pipe = NEXY.Ents.list.find(e => e.type === 'pipe'), T = H12.range(0, 3, 0.1);
     out.floorToPipe = H12.tryHop(T, () => NEXY.teleport(92, 19), ['right'], () => P.riding === pipe);
@@ -1304,7 +1313,9 @@ test('palácio: INTERRUPTOR DO SER — I WAS / I AM; frase trocada só confunde;
   await page.evaluate(HELP12); await page.evaluate(HELPP);
   const r = await page.evaluate(async () => {
     const P = NEXY.P, G = NEXY.Game, W = NEXY.World, out = {};
-    H.noEnemies(); NEXY.give('WAS', 'AM', 'IS');
+    H.noEnemies();
+    // chegou sem as palavras (caminhos alternativos): o poço antes do interruptor dá WAS e AM
+    H12.hit(127, 19); H12.hit(127, 19); out.well = G.bar.join(); NEXY.give('IS');
     Echo.line = null; Echo.lines = []; await H12.panel(131, 19, ['AM', 'WAS']); H.step(40);
     out.tip = Echo.line && Echo.line.en; out.closed = W.targets.gate.state === 'big' && !NEXY.Flags.get('palaces.toBe');
     G.openPanel(P.interact); Panel.place(G.bar.indexOf('WAS')); Panel.place(G.bar.indexOf('AM')); Panel.confirm(); await H.wait(1800);
@@ -1322,6 +1333,7 @@ test('palácio: INTERRUPTOR DO SER — I WAS / I AM; frase trocada só confunde;
     out.ghosts = [[65, 17], [67, 14], [69, 11]].every(([c, r]) => W.blockAt(c, r).solid);
     return out;
   });
+  expect(r.well === 'WAS,AM', `o poço de palavras dá o que falta (${r.well})`);
   expect(r.tip === 'Yesterday is the past!' && r.closed, `trocar as palavras só confunde, com dica (${r.tip})`);
   expect(r.scene, 'a cena começa');
   expect(r.saved, 'o palácio aceso e o anel ficam salvos já no impacto');

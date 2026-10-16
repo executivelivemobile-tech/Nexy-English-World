@@ -38,9 +38,9 @@ put(57, 19, 'k'); put(62, 19, 'k')                           # cavaleiros (patru
 put(60, 11, 'O')                                             # letra O (quique no elmo do cavaleiro)
 row_orbs(15, [56, 58])
 put(64, 19, '@')                                             # altar da galeria: WERE THEY BIG OR SMALL?
-# as estátuas (alvos knight1-3) ficam em c67, c70 e c73; a parede alta logo depois
+# as estátuas (alvos knight1-3) ficam em c70, c72 e c74, encostadas umas nas outras e na parede (sem vão para ficar preso)
 fill(76, 77, 11, 19, '#')
-put(75, 16, 'U')                                             # outra saída: Alado entre a última estátua e a parede
+put(75, 16, 'u')                                             # outra saída: Alado ao lado da parede (some quando a estátua cresce)
 put(72, 8, '*')
 
 # ---------------- C · A TORRE DO RELÓGIO (78-105): WAS · IS · WERE ----------------
@@ -68,6 +68,7 @@ put(111, 16, '5'); put(112, 16, '?'); put(113, 16, 'l')      # AM, orbe, vida
 put(110, 12, '*')
 put(117, 19, 'k'); put(124, 19, 'k')                         # cavaleiros (patrulha 114-128)
 put(121, 11, 'e')                                            # letra E
+put(127, 16, 'n')                                            # poço de palavras do interruptor: WAS e AM que faltarem
 row_orbs(15, [119, 120, 122, 123])
 put(131, 19, '^')                                            # o INTERRUPTOR DO SER (BE SWITCH)
 # o portão (alvo gate) fica em c135-136, linhas 8-19; outra saída: dois Alados para quicar por cima
