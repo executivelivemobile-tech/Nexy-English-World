@@ -47,6 +47,8 @@ function drawHeart(ctx, x, y, s, tier, t, alpha = 1) {
   ctx.fillStyle = g; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = 1; ctx.stroke();
   heartPath(ctx, s * 0.55); ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.stroke();
   ctx.restore();
+  // o acréscimo do TO BE PALACE: o anel em volta do Coração
+  if (Save.data.heart.ring && !PalaceSwitch.active) Palace.drawRing(ctx, x, y, s, t, alpha);
 }
 
 /* ---------- o baú (entidade) ---------- */

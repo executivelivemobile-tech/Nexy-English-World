@@ -445,9 +445,10 @@ body.touch #touch { display: block; }
       <div class="controls">
         <div><b>← →</b>move · <b>→→</b>run</div><div><b>Z</b><b>SPACE</b>jump</div><div><b>X</b>spin jump</div>
         <div><b>SHIFT</b>run · carry</div><div><b>↓</b>crouch</div><div><b>↑</b>open door</div>
-        <div><b>Q</b>drop item</div><div><b>H</b>hint</div><div><b>C</b>echo · <b>M</b>sound · <b>P</b>pause</div>
+        <div><b>Q</b>drop item</div><div><b>H</b>hint</div><div><b>C</b>echo pulse</div>
+        <div><b>F</b>echo shot</div><div><b>V</b>say it out loud</div><div><b>M</b>sound · <b>P</b>pause</div>
       </div>
-      <div id="padline">GAMEPAD · A JUMP · B SPIN · X / Y RUN · LB ECHO · START PAUSE</div>
+      <div id="padline">GAMEPAD · A JUMP · B SPIN · X RUN · Y RUN (SHOT, IF YOU HAVE IT) · LB ECHO · START PAUSE</div>
       <div class="best" id="titlebest"></div>
     </div>
 
@@ -465,7 +466,7 @@ body.touch #touch { display: block; }
 
     <div id="grimoire" class="overlay screen">
       <h2 class="h-title">GRIMOIRE</h2>
-      <div class="tabs"><button class="btn small cur" data-tab="words">WORDS</button><button class="btn small" data-tab="creatures">CREATURES</button></div>
+      <div class="tabs"><button class="btn small cur" data-tab="words">WORDS</button><button class="btn small" data-tab="creatures">CREATURES</button><button class="btn small" data-tab="powers">POWERS</button></div>
       <div id="glist"></div>
       <button class="btn small" data-act="back">BACK</button>
     </div>
@@ -480,7 +481,7 @@ body.touch #touch { display: block; }
         <div class="grp"><h3>ENGLISH</h3>
           <button class="tgl" data-opt="freeHints"><span><span class="tn">FREE HINTS</span><span class="td">Dicas sem custo de orbes.</span></span><span class="sw"></span></button>
           <button class="tgl" data-opt="subtitles"><span><span class="tn">SUBTITLES</span><span class="td">Tradução sempre visível sob as inscrições.</span></span><span class="sw"></span></button>
-          <button class="tgl" data-opt="voice" id="tglvoice"><span><span class="tn">VOICE MODE</span><span class="td">Diga a frase em voz alta na porta (V).</span></span><span class="sw"></span></button>
+          <button class="tgl" data-opt="voice" id="tglvoice"><span><span class="tn">VOICE MODE</span><span class="td">Diga a frase em voz alta na porta (V). Com o tiro da Echo: segure V longe das portas e diga STOP!</span></span><span class="sw"></span></button>
           <button class="tgl" id="tglvname"><span><span class="tn">ECHO'S VOICE</span><span class="td" id="vname">Toque para ouvir a próxima voz.</span></span><span style="font:700 16px var(--f-display);color:var(--cy);text-shadow:var(--glow-text-cy);padding:0 8px">▸</span></button>
         </div>
       </div>

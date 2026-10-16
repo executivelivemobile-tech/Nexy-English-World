@@ -226,6 +226,7 @@ const P = {
     if (spin) Enemy.kill(e, 'pop', this.facing);
     else if (e.type === 'flyer') Ents.types.flyer.clip(e);
     else if (e.type === 'crawler' || e.type === 'thief') Enemy.kill(e, 'flat');
+    else if (e.type === 'knight') Ents.types.knight.clang(e);   // o elmo só tine: com giro a armadura se desfaz
     else if (e.state === 'walk') { Ents.types.casco.toShell(e); e.immune = 0.15; Game.registerCreature('SHELL'); }
     else if (e.state === 'slide') { e.state = 'shell'; e.vx = 0; e.immune = 0.15; }
     this.y = topY - this.h;
@@ -464,7 +465,7 @@ const Echo = {
     this.drawOrb(ctx, x, y, t);
     if (size !== 1) ctx.restore();
     if (this.shake > 0) R.draw(R.text('?', '900 14px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(217,70,239,1)', 6), x, y - 18, 1, this.shake);
-    if (this.line) this.drawBubble(ctx, x, y);
+    if (this.line && !this.mirroring) this.drawBubble(ctx, x, y);   // o reflexo no chão do palácio não leva o balão
   },
   drawBubble(ctx, x, y) {
     const l = this.line, k = Math.min(1, this.lineT * 5, this.outT != null ? this.outT * 5 : 1);
@@ -564,6 +565,7 @@ const Doors = {
     for (const id in World.doors) {
       const d = World.doors[id], x = d.x - camX, y = d.y - camY;
       if (x > CFG.VIEW_W + 200 || x + d.w < -200 || d.kind === 'chest' || d.kind === 'engine') continue;
+      if (d.ent && d.ent.type === 'beswitch' && PalaceSwitch.active) continue;   // na cena do interruptor, só a cena
       if (d.kind === 'door' || d.kind === 'bells') this.drawArch(ctx, d, x, y, t);
       const cx = x + d.w / 2, top = d.kind === 'door' ? y - 40 : y - 92;
       const dim = d.kind === 'door' && d.open ? 0.4 : 1;

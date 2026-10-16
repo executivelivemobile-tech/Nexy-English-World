@@ -112,12 +112,19 @@ const WORDS = {
   HE:     { cls: 'pronoun', pt: 'ele (o Nexy)', say: 'he', lore: 'Quando falam do Nexy sem dizer o nome dele. HE pede IS.' },
   SHE:    { cls: 'pronoun', pt: 'ela (a Echo)', say: 'she', lore: 'A Echo, quando alguém fala dela. SHE pede IS, como HE e IT.' },
   CARD:   { cls: 'noun', pt: 'cartão', say: 'card', lore: 'Caiu de dentro de uma parede que parecia defeito. Liga a máquina do TO BE.' },
+  // TO BE PALACE: o passado do verbo TO BE
+  WAS:       { cls: 'verb', pt: 'era / estava (passado de AM e IS)', say: 'was', lore: 'O IS de ontem. Diga o que algo ERA e o palácio lembra.' },
+  WERE:      { cls: 'verb', pt: 'eram / estavam (passado de ARE)', say: 'were', lore: 'O ARE de ontem: para YOU, WE e THEY. Os cavaleiros respondem a ela.' },
+  BRIDGE:    { cls: 'noun', pt: 'ponte', say: 'bridge', lore: 'Caiu há muito tempo. Basta alguém lembrar que ela existia.' },
+  YESTERDAY: { cls: 'adverb', pt: 'ontem', say: 'yesterday', lore: 'Quando ela aparece, o verbo volta no tempo: IS vira WAS, ARE vira WERE.' },
+  TODAY:     { cls: 'adverb', pt: 'hoje', say: 'today', lore: 'Agora. O verbo fica no presente: AM, IS, ARE.' },
 };
 const CREATURES = {
   CRAWLER: { pt: 'rastejante', say: 'Crawler', lore: 'Rasteja porque nunca aprendeu a falar.' },
   SHELL:   { pt: 'casco', say: 'Shell', lore: 'Uma casa de vidro escuro. Vazia, ela vira arma.' },
   FLYER:   { pt: 'alado', say: 'Flyer', lore: 'Um Rastejante que um dia ouviu a palavra UP. Sem as asas, volta a rastejar.' },
   THIEF:   { pt: 'ladrão de palavras', say: 'Word thief', lore: 'Não sabe falar, então rouba. Sempre a última palavra que você aprendeu.' },
+  KNIGHT:  { pt: 'cavaleiro', say: 'Knight', lore: 'Era um guarda do palácio. Hoje é só armadura que ainda anda: pisão comum só faz o elmo tinir; com giro, ela se desfaz.' },
 };
 // O ECHO, o companheiro do Nexy: se apresenta na primeira partida e fala nas horas certas (frases A1 com legenda)
 const ECHO = {
@@ -136,6 +143,10 @@ const ECHO = {
     warp: [{ en: 'We are here!', pt: 'Chegamos! Vidas cheias. O pedestal está logo ali.' }],
     shot: [{ en: 'I am strong now!', pt: 'Ganhei um poder: aperte F (Y no controle) e eu atiro luz.' }, { en: 'Stop, crawler!', pt: 'O 1º tiro paralisa o Rastejante: dá para pisar nele. O 2º quebra.' }],
     shotVoice: [{ en: 'Say stop!', pt: 'No VOICE MODE: segure V e diga STOP! que eu atiro.' }],
+    // TO BE PALACE
+    past: [{ en: 'I can see the past!', pt: 'Aqui eu enxergo o passado: aperte C (LB no controle) e eu mostro o que existia.' }],
+    knight: [{ en: 'It is a knight!', pt: 'Um cavaleiro! Pisão comum só bate no elmo; pule girando (X) para quebrar a armadura.' }],
+    gate: [{ en: 'The gate is open!', pt: 'O portão abriu. A saída do palácio está logo ali.' }],
   },
 };
 // A LEI DAS PALAVRAS: o prólogo da primeira partida (73_echo.js → Prologue). Quem fala é o narrador (a voz antiga);
@@ -176,6 +187,27 @@ const ENGINE = {
     { level: 'B1', q: '___ not afraid. I am Nexy.', options: ["I'm", "I's", "I're"], answer: 0, say: "I'm not afraid. I am Nexy.", tip: "I AM encurta para I'M (YOU ARE: YOU'RE, HE IS: HE'S)." },
   ],
 };
+// O TO BE PALACE (14_level_palace.js, 78_palace.js): a lembrança do palácio na primeira visita e o INTERRUPTOR DO SER.
+// Quem fala é o narrador; a tabela é o pré-ensino das palavras-chave (som + texto + imagem) antes do primeiro altar.
+const PALACE = {
+  intro: [
+    { en: 'Yesterday, this palace was full of light.', pt: 'Ontem, este palácio era cheio de luz.' },
+    { en: 'Today, it is dark.', pt: 'Hoje, ele está escuro.' },
+    { en: 'Say what was here, and it comes back.', pt: 'Diga o que existia aqui, e isso volta.' },
+  ],
+  tableLine: { en: 'Today is. Yesterday was.', pt: 'Hoje: AM, IS, ARE. Ontem: WAS e WERE.' },
+  table: [
+    { now: 'I AM', past: 'I WAS' },
+    { now: 'HE · SHE · IT IS', past: 'HE · SHE · IT WAS' },
+    { now: 'YOU · WE · THEY ARE', past: 'YOU · WE · THEY WERE' },
+  ],
+  switch: [
+    { en: 'The verb to be is awake!', pt: 'O verbo TO BE acordou! O palácio inteiro voltou a brilhar.' },
+    { en: 'The ghost steps are the floor now.', pt: 'Os degraus-fantasma (AM, IS, ARE) agora são chão para sempre, mesmo sem as palavras na barra.' },
+  ],
+  ring: { name: 'TO BE RING', pt: 'Anel do TO BE', reward: 'Os degraus-fantasma ficam sólidos para sempre. O Coração ganha um anel.' },
+  cheer: { en: 'We were small. Now we are strong!', pt: 'Nós éramos pequenos. Agora somos fortes!' },
+};
 // o tiro da Echo, nível por nível (o 1º tiro paralisa, o 2º quebra; recarrega com o tempo e nos checkpoints)
 const SHOT = [
   { name: 'STUN SHOT', pt: 'Tiro Paralisante', max: 3, every: 8, stun: 4, info: '3 tiros. O 1º paralisa o Rastejante (dá para pisar nele); o 2º quebra.' },
@@ -187,12 +219,16 @@ const SHOT = [
 const MASTER_WORDS = {
   HELLO: { pt: 'olá', say: 'Hello', lore: 'Cinco letras espalhadas pelo escuro. Juntas, são a primeira coisa que o mundo responde.' },
   WORLD: { pt: 'mundo', say: 'World', lore: 'Depois do olá, o mundo inteiro. A catedral guardava cada letra num lugar mais alto.' },
+  TOBE:  { pt: 'ser / estar (to be)', say: 'To be', lore: 'Quatro letras, um verbo inteiro: AM, IS, ARE, WAS, WERE. O palácio dele acendeu quando você disse quem era e quem é.' },
 };
 const PHRASES_PT = {
   'HELLO!': 'Olá!', 'HOW ARE YOU?': 'Como você está?', 'WHAT IS THIS?': 'O que é isso?',
   'ARE YOU BIG OR SMALL?': 'Você é grande ou pequeno?',
   'WHO ARE YOU?': 'Quem é você?', 'WHAT IS BIG?': 'O que é grande?', 'ARE YOU A CRAWLER?': 'Você é um rastejante?',
   'BIG OR SMALL?': 'Grande ou pequeno?', 'IS IT A DOOR?': 'Isso é uma porta?', 'WHO IS BIG?': 'Quem é grande?',
+  'WHAT WAS HERE?': 'O que existia aqui?', 'WERE THEY BIG OR SMALL?': 'Eles eram grandes ou pequenos?',
+  'HOW WAS NEXY YESTERDAY?': 'Como o Nexy estava ontem?', 'HOW IS NEXY TODAY?': 'Como o Nexy está hoje?',
+  'HOW WERE THEY YESTERDAY?': 'Como eles eram ontem?', 'WHO WERE YOU? WHO ARE YOU?': 'Quem você era? Quem você é?',
 };
 
 /* ============================== LEGENDA GLOBAL ============================== */
@@ -355,7 +391,7 @@ const Save = {
   defaults() {
     return {
       grimoire: { words: {}, creatures: {}, master: {} },
-      exits: {}, bestFluency: {}, letters: {}, cleared: {}, heart: { best: -1, by: {} }, met: {}, shot: { best: -1 },
+      exits: {}, bestFluency: {}, letters: {}, cleared: {}, heart: { best: -1, by: {}, ring: false }, met: {}, shot: { best: -1 },
       map: { at: '1-1', revealed: {} },
       flags: { palaces: { toBe: false } },
       assist: { slow: false, safeFall: false, freeHints: false, subtitles: false, voice: false },
@@ -375,7 +411,7 @@ const Save = {
           Object.assign(d.exits, s.exits); Object.assign(d.bestFluency, s.bestFluency);
           Object.assign(d.letters, s.letters); Object.assign(d.cleared, s.cleared);
           Object.assign(d.met, s.met);
-          if (s.heart) { d.heart.best = s.heart.best != null ? s.heart.best : -1; Object.assign(d.heart.by, s.heart.by); }
+          if (s.heart) { d.heart.best = s.heart.best != null ? s.heart.best : -1; Object.assign(d.heart.by, s.heart.by); d.heart.ring = !!s.heart.ring; }
           if (s.shot && s.shot.best != null) d.shot.best = s.shot.best;
           if (s.map) { if (s.map.at) d.map.at = s.map.at; Object.assign(d.map.revealed, s.map.revealed); }
           // saves da versão só com a 1-1: quem já saiu da 1-1 já tem os caminhos abertos
@@ -435,3 +471,5 @@ const normalizeSentence = s => String(s).toLowerCase()
   .replace(/\bi'm\b/g, 'i am').replace(/\bit's\b/g, 'it is').replace(/\bwhat's\b/g, 'what is')
   .replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ').trim();
 const $ = id => document.getElementById(id);
+// rótulo da fase: 'WORLD 1-2'; fases com nome (o palácio) ficam só com o número do mundo
+const levelTag = L => 'WORLD ' + (/^\d/.test(L.id) ? L.id : L.world);

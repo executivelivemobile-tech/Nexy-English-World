@@ -41,6 +41,8 @@ const Sentence = {
     else if (r.type === 'mirror') { d.mirror = 1.8; SFX.summon(); }
     else if (r.type === 'crawler') P.crawlerForm(r.duration || 3.5);
     else if (r.type === 'confused') { if (r.target === 'echo') Echo.act('confused'); else World.confuse(r.target); }
+    // retorno imediato: a Echo aponta o porquê do erro (tempo verbal, concordância), sem dar a frase pronta
+    if (r.tip && Game.echoBorn) Game.later(0.5, () => Echo.talk([r.tip]));
   },
   // aplica o resultado de uma frase aceita
   apply(d, rule, words) {
@@ -53,6 +55,8 @@ const Sentence = {
     } else if (r.type === 'exit') Game.finish(r.exit, 0);
     // o pronome decide o alvo: IT → a runa, THEY → o grupo, YOU → o Echo, WE → os dois
     else if (r.type === 'target') World.setTarget(r.target, r.act);
+    else if (r.type === 'targets') r.targets.forEach((id, i) => Game.later(i * 0.45, () => World.setTarget(id, r.act)));   // um de cada vez
+    else if (r.type === 'beswitch') PalaceSwitch.start(d);
     else if (r.type === 'echo') Echo.act(r.act, r.act === 'big' ? def.ride : null);
     else if (r.type === 'we') { Echo.act(r.act); if (r.act === 'big') { P.squash = -0.5; FX.burst(P.cx, P.cy, 30, 'm', 220, { life: 0.7, g: 0 }); } }
     // Grimório: palavras usadas + palavras fixas do molde
@@ -245,6 +249,8 @@ const UI = {
     // no mapa, tocar/clicar numa fase anda até ela; tocar na fase atual entra
     $('game').addEventListener('pointerdown', e => {
       if (Prologue.active) { const st = $('stage').getBoundingClientRect(), k = st.width / CFG.VIEW_W; Prologue.tap((e.clientX - st.left) / k, (e.clientY - st.top) / k); return; }
+      if (PalaceIntro.active) return PalaceIntro.tap();
+      if (PalaceSwitch.active) return PalaceSwitch.tap();
       if (Game.state !== 'map') return;
       const st = $('stage').getBoundingClientRect(), k = st.width / CFG.VIEW_W;
       WorldMap.tap((e.clientX - st.left) / k, (e.clientY - st.top) / k);
@@ -346,7 +352,7 @@ const UI = {
     clearTimeout(this.msgT); this.msgT = setTimeout(() => m.classList.remove('show'), t);
   },
   toast() {
-    const t = $('toast'); t.querySelector('.t1').textContent = 'WORLD ' + World.level.id; t.querySelector('.t2').textContent = World.level.name;
+    const t = $('toast'); t.querySelector('.t1').textContent = levelTag(World.level); t.querySelector('.t2').textContent = World.level.name;
     t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2600);
   },
   hideAll() { ['pause', 'grimoire', 'assist', 'clear', 'gameover'].forEach(id => $(id).classList.remove('on')); },
@@ -359,14 +365,14 @@ const UI = {
     Game.menuFrom = Game.state === 'grimoire' ? Game.menuFrom : Game.state; Game.state = 'grimoire'; this.show('grimoire');
     $('grimoire').querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('cur', b.dataset.tab === tab));
     const list = $('glist'); list.innerHTML = ''; const G = Save.data.grimoire;
-    const card = (name, pt, meta, lore, say, locked, master) => {
+    const card = (name, pt, meta, lore, say, locked, master, o = {}) => {
       const c = document.createElement('div'); c.className = 'gcard' + (locked ? ' locked' : '') + (master ? ' master' : '');
       const btn = document.createElement('button'); btn.className = 'listen'; btn.setAttribute('aria-label', 'Listen');
       if (locked) btn.disabled = true; else btn.addEventListener('click', ev => { ev.stopPropagation(); Voice.say(say, 'echo', { cut: true }); });
-      const w = document.createElement('div'); w.className = 'gw'; w.textContent = locked ? '· · ·' : name;
+      const w = document.createElement('div'); w.className = 'gw'; w.textContent = locked && !o.name ? '· · ·' : name;
       const p = document.createElement('span'); p.className = 'gpt'; p.textContent = locked ? '' : pt; w.appendChild(p);
       const m = document.createElement('div'); m.className = 'gmeta'; m.textContent = meta;
-      const l = document.createElement('div'); l.className = 'glore'; l.textContent = locked ? 'Ainda não foi ouvida neste mundo.' : '“' + lore + '”';
+      const l = document.createElement('div'); l.className = 'glore'; l.textContent = locked ? (o.locked || 'Ainda não foi ouvida neste mundo.') : o.plain ? lore : '“' + lore + '”';
       c.append(btn, w, m, l); list.appendChild(c);
     };
     if (tab === 'words') {
@@ -375,6 +381,21 @@ const UI = {
         const e = G.words[w], info = WORDS[w];
         card(w, info.pt, e ? (e.door ? 'USED AT · ' + e.door : 'COLLECTED · ' + info.cls.toUpperCase()) : 'UNKNOWN', info.lore, info.say, !e);
       }
+    } else if (tab === 'powers') {
+      // PODERES: o que o Nexy e a Echo já sabem fazer (e como usar). O que ainda não foi conquistado fica fechado.
+      const S = Save.data, pad = Input.padSeen, sh = S.shot.best, hb = S.heart.best, P0 = { name: true, plain: true, locked: 'Ainda não foi conquistado.' };
+      card('ECHO PULSE', 'pulso da Echo · ' + (pad ? 'LB' : 'C') + ' (ou ECHO no toque)', 'POWER · ALWAYS WITH YOU',
+        'A Echo encontra o que está escondido: blocos invisíveis, paredes falsas e a palavra dentro do bloco ?. No TO BE PALACE ela enxerga o passado: mostra o contorno do que existia.', 'Echo pulse', false, true, P0);
+      card(sh >= 0 ? SHOT[sh].name : 'ECHO SHOT', sh >= 0 ? SHOT[sh].pt + ' · ' + (pad ? 'Y' : 'F') + ' (ou SHOT no toque)' : '', sh >= 0 ? 'POWER · LEVEL ' + (sh + 1) + ' OF ' + SHOT.length : 'LOCKED · A SECRET IN WORLD 1-1',
+        sh >= 0 ? 'O 1º tiro paralisa o inimigo (ele para, não machuca e vira plataforma); o 2º quebra. ' + SHOT[sh].info + ' No VOICE MODE: segure V e diga STOP!' : '', 'Echo shot', sh < 0, false, P0);
+      card('VOICE MODE', 'modo de voz · V', 'POWER · ASSIST › VOICE MODE',
+        'Nas portas e altares, aperte V e diga a frase inteira em voz alta: se a porta entender, ela abre. Longe das portas, com o tiro da Echo, segure V e diga STOP! (ou FREEZE, FIRE, SHOOT).', 'Voice mode', false, false, P0);
+      card(hb >= 0 ? HEART[hb].name : 'HEART OF WORDS', hb >= 0 ? HEART[hb].pt : '', hb >= 0 ? 'POWER · LEVEL ' + (hb + 1) + ' OF ' + HEART.length : 'LOCKED · WORLD 1-2',
+        hb >= 0 ? 'Nasce no Baú da Memória. Cada pergunta difícil que você acerta muda a cor dele e aumenta o poder: ' + HEART[hb].reward : '', 'Heart of words', hb < 0, false, P0);
+      card(PALACE.ring.name, S.heart.ring ? PALACE.ring.pt : '', S.heart.ring ? 'POWER · TO BE PALACE' : 'LOCKED · A FORGOTTEN PALACE',
+        S.heart.ring ? 'Você disse quem era e quem é (I WAS · I AM) e o palácio acordou. ' + PALACE.ring.reward : '', 'To be ring', !S.heart.ring, false, P0);
+      card('WARP CARD', G.words.CARD ? 'cartão de teletransporte' : '', G.words.CARD ? 'ITEM · ONE RUN' : 'LOCKED · ???',
+        G.words.CARD ? 'Liga a TO BE ENGINE: quem sabe o verbo TO BE inteiro viaja até o fim da fase com as vidas cheias. Vale só na partida em que você o encontrou.' : '', 'Warp card', !G.words.CARD, false, { plain: true, locked: 'Dizem que existe. Ninguém sabe onde.' });
     } else {
       card('ECHO', ECHO.pt, 'COMPANION · ALWAYS WITH YOU', ECHO.lore, ECHO.say, false, true);
       for (const k of Object.keys(CREATURES)) { const c = CREATURES[k]; card(k, c.pt, G.creatures[k] ? 'CREATURE · WORLD 1' : 'UNKNOWN', c.lore, c.say, !G.creatures[k]); }
@@ -471,12 +492,13 @@ const Game = {
     if (typeof Cine !== 'undefined' && Cine.active) Cine.end();
     if (typeof Birth !== 'undefined') { Birth.active = false; Arrival.active = false; Prologue.active = false; EchoPulse.reset(); Hints.reset(); }
     if (typeof Glitch !== 'undefined') { Glitch.active = false; Warp.active = false; EchoShot.reset(); }
+    if (typeof Palace !== 'undefined') { PalaceIntro.active = false; PalaceSwitch.active = false; Palace.reset(); }
     this.card = false;
   },
   // tamanho da barra de palavras: cresce nas fases com mais vocabulário (LEVELS[id].barMax)
   barMax() { return (World.level && World.level.barMax) || CFG.WORD_BAR_MAX; },
   // cena ativa (Coração, nascimento do Echo, chegada): todas têm a mesma interface
-  scene() { return Cine.active ? Cine : Birth.active ? Birth : Prologue.active ? Prologue : Glitch.active ? Glitch : Warp.active ? Warp : Arrival.active ? Arrival : null; },
+  scene() { return Cine.active ? Cine : Birth.active ? Birth : Prologue.active ? Prologue : Glitch.active ? Glitch : Warp.active ? Warp : PalaceSwitch.active ? PalaceSwitch : PalaceIntro.active ? PalaceIntro : Arrival.active ? Arrival : null; },
   // relógio da simulação (para quebra-cabeças determinísticos, como os sinos)
   later(sec, fn) { this.timers.push({ t: this.simTime + sec, fn }); },
   loadLevel(id) {
@@ -516,6 +538,7 @@ const Game = {
       if (this.state === 'play' && World.level.id === id && !Arrival.active && !Prologue.active) (Save.data.met.prologue ? Arrival : Prologue).start();
     }, viaTransition ? 0 : 50);
     else if (!Save.data.met.echo && this.echoBorn) { Save.data.met.echo = true; Save.write(); this.later(1.4, () => Echo.talk(ECHO.lines.intro)); }
+    if (id === 'palace') Palace.enter(viaTransition);
     if (LEVELS[id].intro) setTimeout(() => { if (this.where === 'level' && World.level.id === id) UI.msg(LEVELS[id].intro, 3200); }, viaTransition ? 900 : 2800);
     return true;
   },
@@ -539,7 +562,7 @@ const Game = {
     if (this.state !== 'play' && this.state !== 'map') return;
     this.state = 'pause'; UI.show('pause'); Music.set({ organ: 0, perc: 0 }); Voice.stop();
     $('pause').querySelectorAll('[data-act="restart"], [data-act="map"]').forEach(b => { b.style.display = this.where === 'map' ? 'none' : ''; });
-    $('pause').querySelector('.h-sub').textContent = this.where === 'map' ? 'WORLD 1 · ' + WORLDS[1].name : 'WORLD ' + World.level.id + ' · ' + World.level.name;
+    $('pause').querySelector('.h-sub').textContent = this.where === 'map' ? 'WORLD 1 · ' + WORLDS[1].name : levelTag(World.level) + ' · ' + World.level.name;
     UI.show('pause');
   },
   resume() { UI.hideAll(); this.state = this.where === 'map' ? 'map' : 'play'; this.last = performance.now(); Music.normal(); this.clearInput(); },
@@ -639,6 +662,7 @@ const Game = {
     ctx.save(); applyZoom();
     BG.draw(ctx, camX, camY, t);
     World.drawTerrain(ctx, camX, camY);
+    if (World.level.mirror) Palace.drawMirror(ctx, camX, camY, a);
     Doors.draw(ctx, camX, camY, t);
     World.drawDynamic(ctx, camX, camY, t);
     World.drawTargets(ctx, camX, camY, t);
@@ -669,6 +693,7 @@ const Game = {
       g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.3)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
     }), 480, 270);
     Cine.drawScreen(ctx); Birth.drawScreen(ctx); Arrival.drawScreen(ctx); Prologue.drawScreen(ctx); Glitch.drawScreen(ctx); Warp.drawScreen(ctx);
+    PalaceIntro.drawScreen(ctx); PalaceSwitch.drawScreen(ctx);
     Transition.draw(ctx, this.time);
   },
 

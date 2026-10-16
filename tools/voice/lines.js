@@ -13,18 +13,18 @@ const ROOT = path.join(__dirname, '..', '..');
 const norm = s => String(s).toLowerCase().replace(/[^a-z0-9']+/g, ' ').trim();
 
 function loadData() {
-  const src = ['src/10_data.js', 'src/12_level_1-2.js']
+  const src = ['src/10_data.js', 'src/12_level_1-2.js', 'src/14_level_palace.js']
     .map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n')
     .replace(/<\/?script>/g, '').replace(/\/\*MAP:[^*]*\*\//g, '""');
   const store = {};
   const ctx = { document: { getElementById: () => null }, localStorage: { getItem: () => null, setItem() {} }, window: {}, console };
   vm.createContext(ctx);
-  vm.runInContext(src + '\n;this.__ = { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE, ENGINE };', ctx);
+  vm.runInContext(src + '\n;this.__ = { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE, ENGINE, PALACE };', ctx);
   return ctx.__;
 }
 
 function build() {
-  const { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE, ENGINE } = loadData();
+  const { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE, ENGINE, PALACE } = loadData();
   const out = [], seen = new Set();
   const add = (who, text, prompt) => {
     if (!text || !/[A-Za-z]/.test(text)) return;
@@ -74,6 +74,14 @@ function build() {
   for (const r of ENGINE.table) add('story', (r.p === 'I' ? 'I' : r.p.charAt(0) + r.p.slice(1).toLowerCase()) + ' ' + r.v.toLowerCase() + '.');
   for (const r of ENGINE.climb) add('story', r.say);
 
+  /* ---------------- TO BE PALACE: a lembrança, a tabela e a cena do interruptor (narrador); a Echo comemora ---------------- */
+  for (const l of PALACE.intro) add('story', l.en);
+  add('story', PALACE.tableLine.en);
+  for (const l of PALACE.switch) add('story', l.en);
+  add('echo', PALACE.cheer.en, '[excited] ' + PALACE.cheer.en);
+  // Grimório → PODERES: o botão de ouvir
+  for (const p of ['Echo pulse', 'Echo shot', 'Voice mode', 'Heart of words', 'To be ring', 'Warp card']) add('echo', p, alone(p));
+
   /* ---------------- portas, altares, baú ---------------- */
   for (const id in LEVELS) {
     const L = LEVELS[id];
@@ -97,23 +105,29 @@ function build() {
       }
       if (def.nudge) for (const n of def.nudge) for (const l of n.lines) add('echo', l.en);   // dicas da Echo no altar
       if (def.nudgeMissing) add('echo', def.nudgeMissing.en);
+      for (const r of def.enact || []) if (r.result.tip) add('echo', r.result.tip.en);   // retorno da Echo no erro (palácio)
       if (!def.mold) continue;
       // as frases que o jogador monta: as certas, as encenações e os erros de concordância mais prováveis
       const slots = def.mold.filter(t => t === '_').length;
       const cand = Array.from({ length: slots }, () => new Set());
       const rules = (def.accept || []).concat(def.enact || []);
       for (const r of rules) r.words.forEach((w, i) => { if (w !== '*') cand[i].add(w); });
-      const verbs = ['AM', 'IS', 'ARE'];
-      cand.forEach(s => { if ([...s].some(w => verbs.includes(w))) verbs.forEach(v => s.add(v)); });
+      // erros de concordância (e de tempo, nas fases com WAS/WERE) mais prováveis
+      const verbs = ['AM', 'IS', 'ARE'], past = ['AM', 'IS', 'ARE', 'WAS', 'WERE'];
+      cand.forEach(s => { const all = [...s]; if (all.some(w => w === 'WAS' || w === 'WERE')) past.forEach(v => s.add(v)); else if (all.some(w => verbs.includes(w))) verbs.forEach(v => s.add(v)); });
       // posições só com '*' (YES, *): as palavras que as regras certas usam ali
       cand.forEach((s, i) => { if (!s.size) for (const r of def.accept || []) if (r.words[i]) s.add(r.words[i]); });
       const combos = cand.reduce((acc, s) => acc.flatMap(a => [...s].map(w => a.concat(w))), [[]]);
-      if (combos.length <= 60) for (const c of combos) add('door', speakable(fill(def.mold, c)));
+      // frases longas (o interruptor do palácio, 2 frases numa só): só as regras escritas; o resto a porta repete palavra por palavra
+      if (combos.length <= 60 && def.mold.length <= 6) for (const c of combos) add('door', speakable(fill(def.mold, c)));
+      else for (const r of def.enact || []) if (!r.words.includes('*')) add('door', speakable(fill(def.mold, r.words)));
       for (const r of rules) if (r.say) add('door', r.say);
       for (const a of def.accept || []) add('door', speakable(fill(def.mold, a.words)));
       // palavras soltas da porta (para frases que não estão na lista: a porta repete palavra por palavra)
       for (const t of def.mold) if (t !== '_' && /[A-Z]/.test(t)) add('door', word(t), alone(word(t)));
     }
+    // o que a Echo diz ao ver o passado com o pulso (palácio)
+    for (const tid in L.targets || {}) if (L.targets[tid].past) add('echo', L.targets[tid].past.en);
     // narrador antes do Echo nascer (1-1): as palavras coletadas
     for (const w of Object.keys(WORDS)) add('story', WORDS[w].say, alone(WORDS[w].say));
   }

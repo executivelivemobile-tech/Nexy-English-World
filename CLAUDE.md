@@ -36,7 +36,7 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 - Futuro: depois do jogo inteiro, app Android (Google Play). Mantenha tudo pensado para toque e offline.
 - Preferências já dadas: sem voz em combos e nomes de criaturas; correr com toque duplo na seta (janela medida da
   soltura); quique alto com janela antes/depois (só no ar); blocos-fantasma dependem da barra, não do Grimório.
-- **Vozes gravadas (ElevenLabs)**: 250 falas em `src/voice/` (MP3 + `manifest.json`), embutidas pelo build.
+- **Vozes gravadas (ElevenLabs)**: 326 falas em `src/voice/` (MP3 + `manifest.json`), embutidas pelo build.
   Elenco: **Echo = Lulu** (feminina e sensual, escolhida pelo dono), **narrador do Baú = Elder Rowan** (a voz antiga
   das portas, pedida pelo dono no lugar do Lawrence; `[warmly]`, 1,08×), **portas e altares = Elder Rowan** (`[slowly]`,
   acelerada 1,15× no corte). Não imitar vozes de pessoas reais (ele citou Morgan Freeman: só a referência de idoso e grave). A Echo agora é **ela** nos textos em português ("a Echo", "sua amiga").
@@ -53,7 +53,8 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 | `00_head.html` | CSS/HTML: HUD, HUD do mapa (`#maphud`), painel das portas, baú (`#chest`), telas, toque |
 | `10_data.js` | legenda global, `CFG` (física), `LOOK` (brilho), `WORDS`, `CREATURES`, `ECHO`, `MASTER_WORDS`, `PHRASES_PT`, `LEVELS['1-1']`, `WORLDS` (mapa), `HEART`, `Save`, `Flags`, utilitários |
 | `12_level_1-2.js` | `LEVELS['1-2']`: legenda extra, blocos, entidades, zonas, alvos (runas), portas/altares/sinos/baú (com a história) |
-| `20_audio.js` | `SFX`, `Music` (variantes `world1`/`map`/`nave`, zonas muffle/boost), `VoiceClips` (vozes gravadas, `/*VOICE_PACK*/`), `Voice.say(text, who, {onBoundary,onEnd})`, `Listen` |
+| `14_level_palace.js` | `LEVELS.palace` (TO BE PALACE): legenda, alvos do passado (`look`: memory/knight/gate, `ghost`, `past`), altares, relógios, interruptor |
+| `20_audio.js` | `SFX`, `Music` (variantes `world1`/`map`/`nave`/`palace` com `chords` e `tick` próprios, zonas muffle/boost), `VoiceClips` (vozes gravadas, `/*VOICE_PACK*/`), `Voice.say(text, who, {onBoundary,onEnd})`, `Listen` |
 | `30_input_render.js` | `Input` (teclado, toque, **gamepad** em `pollPad`), `R` (escala, sprites, glow, texto) |
 | `40_world.js` | `World` (tiles, blocos, runas `setTarget`, zonas, veils, colisão `move`), `BG` (cidade e nave), `Dark`, `FX` |
 | `50_entities.js` | `Ents`, `Spawns`, `Enemy`, crawler, casco, orb, letter, capsule, crystal, lantern, checkpoint, goal, pedestal |
@@ -65,9 +66,10 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 | `74_prologue.js` | `Prologue`: A Lei das Palavras (1ª partida; `Save.data.met.prologue`), entidade `floorword` |
 | `76_secret.js` | segredo da 1-1: `Glitch` (falso erro), entidades `card` e `engine`, `Engine` (tela da TO BE ENGINE no painel do baú, estado `engine`), `Warp` (teletransporte), `EchoShot` (tiro da Echo) |
 | `75_worldmap.js` | `Transition` (íris/fechadura + cartão "Nexy × vidas"), `WorldMap` (andar, revelar caminhos, toque) |
+| `78_palace.js` | TO BE PALACE: entidades `knight` e `beswitch`, `Palace` (pulso vê o passado `ping`, `drawGhost`/`drawTarget`/`statue`/`drawClock`, chão-espelho `drawMirror`, `drawRing`), `PalaceIntro` (lembrança + tabela, `Save.data.met.palace`), `PalaceSwitch` (cena do interruptor), `BG.drawPalace` |
 | `99_boot.js` | `window.NEXY` (API de teste) e `Game.boot()` |
 
-- Cenas: `Game.scene()` devolve a cena ativa (`Cine`, `Birth`, `Arrival`); todas têm `zoom`, `sat`, `letter`,
+- Cenas: `Game.scene()` devolve a cena ativa (`Cine`, `Birth`, `Prologue`, `Glitch`, `Warp`, `PalaceSwitch`, `PalaceIntro`, `Arrival`); todas têm `zoom`, `sat`, `letter`,
   `timeScale`, `update`, `key`, `drawWorld`, `drawScreen`. `Game.echoBorn` = o Echo já existe nesta partida (na 1-1
   começa falso; a porta com `birth: 'echo'` dispara `Birth`).
 - Estados do `Game.state`: `title`, `map`, `play`, `panel`, `chest`, `cinematic`, `pause`, `grimoire`, `assist`,
@@ -75,7 +77,12 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 - Fluxo: título → `toMap()` → `WorldMap.tryEnter` → `Transition` → `enterLevel(id, true)` → `finish(exit)` →
   `showClear` → `continueToMap()`.
 - Mapas ASCII em `src/levels/*.map` (o build troca `/*MAP:id*/`). A 1-2 é gerada por `tools/gen_map_1-2.py`
-  (edite o gerador e rode `python3 tools/gen_map_1-2.py src/levels/1-2.map`).
+  (edite o gerador e rode `python3 tools/gen_map_1-2.py src/levels/1-2.map`); o palácio por `tools/gen_map_palace.py`.
+- Frases: `accept` → `Sentence.apply` (tipos `open`, `transform`, `exit`, `target`, `targets` (vários, um de cada vez),
+  `echo`, `we`, `beswitch`); `enact` → `Sentence.enact` (`morph`, `mirror`, `crawler`, `confused` com alvo único ou
+  lista); qualquer `enact` pode ter `tip: {en, pt}` = a Echo explica o erro 0,5 s depois (sem dar a frase pronta).
+- Runas/alvos: `hFirst` encolhe a altura primeiro (o portão afunda); `small: {w:0,h:0}` = não existe (ponte que caiu).
+- `levelTag(L)`: 'WORLD 1-2' ou, para fases com nome (palácio), 'WORLD 1'.
 
 ## 4. Números que importam (física)
 
@@ -104,6 +111,30 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   empurra os gigantes (`Sentence.bumped`, a cada 6 s), a Echo diz o que ainda bloqueia (1ª vez "They are big.", depois "Make them small!", ou "Something is here!" apontando o poço se faltar palavra;
   idem para a pedra). O dono achou que tinha travado ali.
 
+## 5b. TO BE PALACE (150 × 23, chão na linha 20, teto nas linhas 0-1; saída secreta da 1-1)
+
+- Mecânica nova: o PASSADO (WAS/WERE) traz de volta o que existia. Palavra-mestra TOBE (letras `t O b e`).
+- A Salão dos Espelhos (0-43): WAS c11 L16, BRIDGE c17 L16; altar1 `!` c25 "WHAT WAS HERE?" → IT WAS A BRIDGE →
+  `bridge1` (c29-38 L20, `ghost: 'ping'`: o pulso mostra o contorno e a Echo diz "It was a bridge!"). Outro caminho:
+  Alados `V` c31 e c35 (quique, quique). Letra T c33 L10. Checkpoint c41.
+- B Galeria (44-77): WERE c46, ARE c50, BIG c53; cavaleiros `k` c57/c62; letra O c60 L11; altar2 `@` c64 "WERE THEY
+  BIG OR SMALL?" → THEY WERE BIG → estátuas `knight1-3` (c67/70/73, alturas 3/5/7, sombras sempre visíveis) em escada
+  até o topo da parede c76-77 (L11). Outro caminho: Alado `U` c75 L16.
+- C Torre do Relógio (78-105): relógio1 `%` c81 (WAS → `step1` c84-86 L17), sacada1 `=` c87-93 L14 (encostada no
+  degrau), IS c92 L10, poço `m` c89 L16 (WAS/IS/WERE/ARE), relógio2 `&` c91 L13 (IS → `step2` c84-86 L11), sacada2
+  c78-83 L8, relógio3 `$` c80 L7 (WERE → `bridge2` c84-98 L8), saída `=` c99-103 L8 e topo da parede c104-105.
+  Letra B c101 L5. Outro caminho: tubo-pistão `|` c94 → sacada3 c97-100 L12 → Alado `V` c102 L10 → saída.
+- D Salão do Interruptor (106-149): checkpoint c108, AM c111, vida c113, cavaleiros c117/c124, letra E c121 L11,
+  INTERRUPTOR `^` c131 (YESTERDAY, I _ SMALL. TODAY, I _ STRONG. → WAS, AM) → `PalaceSwitch`: no impacto
+  `Flags.set('palaces.toBe', true, true)` + `Save.data.heart.ring = true` (o acréscimo ao Coração: ANEL DO TO BE,
+  `Palace.drawRing`, aparece no mapa e no Grimório); no fim o portão `gate` (c135-136 L8-19) afunda. Saída `N` c144.
+  Outro caminho: Alados `U` c133 L16 + `V` c134 L11 (quique e quique por cima do portão, saindo de c130-131).
+- Erros têm `tip` da Echo ("Not today. Yesterday!", "They? Not was!", "Nexy is he!", "Yesterday is the past!").
+- 1ª visita: `PalaceIntro` (ontem cheio de luz, hoje escuro, tabela TODAY/YESTERDAY; Esc pula). Depois a Echo lembra
+  do pulso (`ECHO.lines.past`). Cavaleiro: pisão comum só tine (`clang`, quica), giro/casco/tiro duplo quebram.
+- Visual novo: chão-espelho (`level.mirror`), fundo do palácio com relógio gigante (ponteiros para trás até o
+  interruptor), música `palace` (Ré menor, 84 BPM, tique-taque).
+
 ## 6. Testes (`node tests/run.js [filtro]`, Playwright, ~3 min)
 
 - `tests/harness.js`: `openGame(browser, {level, echo})` entra direto na fase (sem a chegada: `Game.noIntro`) e troca
@@ -112,6 +143,7 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 - Lições: **teste caminhos com pulos de verdade, não com teletransporte** (a runa alta demais passou num teste que
   teletransportava); cuidado ao teleportar para colunas de buraco (morre e volta ao início); `tryHop` muda
   `Game.simTime` (lustres e tubos dependem dele); `H.noEnemies()` preserva entidades `persist` (gigantes).
+- Palácio: `HELPP` (em `tests/run.js`) limpa a apresentação da Echo e tem `HP.attempt` (Alados em várias fases do voo).
 - Toda mudança: `node build.js` e a suíte inteira verde antes do push.
 
 ## 7. Próximos passos e ideias anotadas
@@ -119,7 +151,8 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 - **Vozes do ElevenLabs: feito.** Conector ElevenLabs na conta do dono (plano Creator, ~226 mil créditos; o
   fluxo `COwNUEJ4BcLtDt0Uju1O` guarda todas as gerações). A conta gratuita que conectou sozinha antes (de outra pessoa)
   foi bloqueada pela ElevenLabs e não deve ser usada. Fala nova no jogo = rodar `tools/voice/` (lines → chunks --only-missing → gerar e
-  transcrever cada bloco pelo conector → split → build). Gastou ~8 mil créditos (213 falas + testes de voz).
+  transcrever cada bloco pelo conector → split → build). Gastou ~13 mil créditos até agora (326 falas + testes de voz).
+  Frases longas de molde grande (o interruptor) só gravam as regras escritas; o resto a porta repete palavra por palavra.
   Testes de vozes que o dono ouviu: Sloane, Saira, Zoey, Rosie, **Lulu (escolhida)**, Viktoria, Serafina, Briony.
 
 - **Prólogo A Lei das Palavras** (pedido do dono: ensinar logo no início, sem chamar ninguém de burro): mostra, não
@@ -141,8 +174,10 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   1º tiro paralisa (`e.frozen`: parado, não machuca, vira plataforma `plat`), 2º quebra (+2 orbes); gigantes imunes.
   Cargas por nível, recarga com o tempo, checkpoint e renascer. VOICE MODE: V sem porta perto = escuta (tempo a 30%)
   e STOP/FREEZE/FIRE/SHOOT atira.
-- Esperando aprovação da 1-2 (com o baú). Depois: 1-3, Palácio do To Be (saída secreta da 1-1), Casa "PUSH OR PULL?"
-  (saída secreta da 1-2), forte e castelo do Mundo 1.
+- **Tutoriais atualizados** (pedido do dono): tela inicial (C pulso, F tiro, V voz), linha do controle, Grimório com a
+  aba **POWERS** (pulso, tiro, voz, Coração, Anel do TO BE, cartão; fechados até conquistar), texto do VOICE MODE.
+- Esperando aprovação da 1-2 (com o baú) e do TO BE PALACE. Depois: 1-3, Casa "PUSH OR PULL?" (saída secreta da 1-2),
+  forte e castelo do Mundo 1. O visual novo do Nexy pode entrar quando o dono aprovar a folha.
 - Cada fase nova: algo inédito + acréscimo ao Coração + desafio crescente acima do A1 + caminho alternativo + um passo
   a mais no visual rumo à cidade Castlevania cyberpunk.
 - Controle de verdade (gamepad) ainda não testado com aparelho físico.

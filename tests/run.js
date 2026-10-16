@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Testes de regressão: a fase 1-1 (aprovada), a 1-2 e o mapa. Rode com: node tests/run.js  [filtro opcional pelo nome]
+// Testes de regressão: a fase 1-1 (aprovada), a 1-2, o TO BE PALACE e o mapa. Rode com: node tests/run.js  [filtro opcional pelo nome]
 // Cada teste abre uma página nova, então um não contamina o outro.
 'use strict';
 const { execFileSync } = require('child_process');
@@ -1128,6 +1128,208 @@ test('mapa: sair da 1-1 abre o caminho da 1-2, e a íris leva para dentro da fas
   expect(mid.active && mid.where === 'map', 'a íris fecha sobre o mapa');
   expect(end.where === 'level' && end.lvl === '1-2' && end.state === 'play' && !end.active, `dentro da 1-2 (${JSON.stringify(end)})`);
 }, { ownPages: true });
+
+/* ================================ TO BE PALACE (a saída secreta da 1-1) ================================ */
+const LP = { level: 'palace' };
+// Alado em várias fases do voo: acorda os spawns, espera n quadros e pula segurando (quique alto)
+const HELPP = () => {
+  const P = NEXY.P, G = NEXY.Game;
+  G.timers = []; NEXY.Save.data.met.echo = true; Echo.line = null; Echo.lines = [];   // sem a apresentação da Echo no meio das dicas
+  window.HP = {
+    attempt(c, r, keys, success, waits, frames = 220) {
+      let ok = 0;
+      for (const n of waits) {
+        H.wakeSpawns(); P.dead = false; P.pitDeath = false; G.state = 'play'; NEXY.teleport(c, r); P.invuln = 999; H.set([]); H.step(n);
+        P.vx = keys.length ? (keys.includes('left') ? -1 : 1) * (keys.includes('run') ? 230 : 140) : 0;
+        H.set(keys.concat(['jump'])); H.press('jump');
+        for (let i = 0; i < frames; i++) { H.step(1); if (success()) { ok++; break; } if (P.dead) break; }
+        H.set([]);
+      }
+      return ok;
+    },
+    waits() { const w = []; for (let n = 10; n < 130; n += 6) w.push(n); return w; },
+    top(rr, c0, c1) { return () => P.onGround && Math.round(P.y + P.h) === rr * 32 && P.x + P.w / 2 >= c0 * 32 && P.x + P.w / 2 <= (c1 + 1) * 32; },
+  };
+};
+
+test('palácio: carrega com TOBE, 7 palavras, 4 letras, 1 saída, cavaleiro e Alado, música e fundo próprios', async ({ page }) => {
+  const r = await page.evaluate(() => ({ T: NEXY.World.totals, word: NEXY.World.level.masterWord, music: Music.variant, bg: NEXY.World.level.bg,
+    doors: Object.keys(NEXY.World.doors).sort().join(), bar: NEXY.Game.barMax(), node: WorldMap.playable('palace') }));
+  expect(r.word === 'TOBE' && r.T.letters === 4 && r.T.exits === 1, `palavra-mestra e totais ${JSON.stringify(r.T)}`);
+  expect(r.T.words === 7 && r.T.wordList.sort().join() === 'AM,ARE,BIG,BRIDGE,IS,WAS,WERE', `palavras ${r.T.wordList}`);
+  expect(r.T.creatureList.sort().join() === 'FLYER,KNIGHT', `criaturas ${r.T.creatureList}`);
+  expect(r.music === 'palace' && r.bg === 'palace', 'música e fundo do palácio');
+  expect(r.doors === 'altar1,altar2,clock1,clock2,clock3,switch', `altares, relógios e interruptor (${r.doors})`);
+  expect(r.node, 'o nó do palácio no mapa agora é jogável');
+}, LP);
+
+test('mapa: a saída secreta da 1-1 abre o palácio; na 1ª visita a lembrança ensina WAS/WERE (Esc pula) e não volta mais', async ({ browser }) => {
+  const { ctx, page, errors } = await openGame(browser, { realtime: true });
+  await page.evaluate(() => { NEXY.Save.data.exits = { '1-1': { normal: true, secret: true } }; NEXY.Save.data.cleared = { '1-1': true }; NEXY.Save.data.map = { at: '1-1', revealed: {} }; });
+  await page.keyboard.press('Enter');
+  for (let i = 0; i < 40; i++) { await page.waitForTimeout(150); if (await page.evaluate(() => !!NEXY.Save.data.map.revealed['1-1>palace'] && !WorldMap.reveal.length)) break; }
+  await page.keyboard.down('ArrowDown'); await page.waitForTimeout(150); await page.keyboard.up('ArrowDown'); await page.waitForTimeout(1600);
+  const at = await page.evaluate(() => WorldMap.at);
+  await page.keyboard.press('Enter'); await page.waitForTimeout(2800);
+  const inside = await page.evaluate(() => ({ lvl: NEXY.World.level.id, intro: PalaceIntro.active, state: NEXY.Game.state, music: Music.variant }));
+  await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+  const after = await page.evaluate(() => ({ intro: PalaceIntro.active, state: NEXY.Game.state, met: !!NEXY.Save.data.met.palace }));
+  await page.evaluate(() => NEXY.Game.enterLevel('palace', true)); await page.waitForTimeout(400);
+  const again = await page.evaluate(() => PalaceIntro.active);
+  await ctx.close();
+  expect(!errors.length, errors.join('; '));
+  expect(at === 'palace', `andou até o palácio (${at})`);
+  expect(inside.lvl === 'palace' && inside.intro && inside.state === 'cinematic' && inside.music === 'palace', `dentro, com a lembrança (${JSON.stringify(inside)})`);
+  expect(!after.intro && after.state === 'play' && after.met, `Esc pula e entrega o controle (${JSON.stringify(after)})`);
+  expect(!again, 'na 2ª visita não repete');
+}, { ownPages: true });
+
+test('palácio: o pulso da Echo vê a ponte que existia; IT IS A BRIDGE só confunde (com dica); IT WAS A BRIDGE refaz a ponte e ela se atravessa andando', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELPP);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, G = NEXY.Game, W = NEXY.World, out = {};
+    H.noEnemies();
+    H12.hit(11, 19); H12.hit(17, 19); out.bar = G.bar.join();
+    H.tp(27, 19, 999); Echo.reset(); H.step(20); Echo.line = null; Echo.lines = []; EchoPulse.cool = 0;
+    EchoPulse.fire(); H.step(2);
+    out.ping = W.targets.bridge1.ping > 0; out.echo = Echo.line && Echo.line.en; out.hint = !!Hints.done.pastping;
+    NEXY.give('IS'); H.step(200);
+    Echo.line = null; Echo.lines = []; await H12.panel(25, 19, ['IS', 'BRIDGE']); H.step(40);
+    out.tip = Echo.line && Echo.line.en; out.stillGone = W.targets.bridge1.cur.w === 0;
+    await H12.panel(25, 19, ['WAS', 'BRIDGE']); H.step(120);
+    out.bridge = W.targets.bridge1.cur.w; out.solid = [29, 33, 38].every(c => W.type(c, 20) === 7);
+    H.tp(27, 19, 999); H.set(['right']); H.step(240); H.set([]); H.step(5);
+    out.across = P.onGround && !P.dead && P.x > 39 * 32;
+    return out;
+  });
+  expect(r.bar === 'WAS,BRIDGE', `palavras dos blocos (${r.bar})`);
+  expect(r.ping && r.echo === 'It was a bridge!' && r.hint, `o pulso mostra o passado (${JSON.stringify(r)})`);
+  expect(r.tip === 'Not today. Yesterday!' && r.stillGone, `IS só confunde, com dica (${r.tip})`);
+  expect(r.bridge === 10 && r.solid && r.across, `a ponte volta inteira e se atravessa (${JSON.stringify(r)})`);
+}, LP);
+
+test('palácio: THEY WERE BIG ergue as estátuas em escada (THEY WAS e THEY ARE só confundem, com dica); do chão ao topo da parede com pulos de verdade', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELPP);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, W = NEXY.World, out = {};
+    H.noEnemies(); NEXY.give('WAS', 'WERE', 'ARE', 'BIG');
+    const say = async words => { Echo.line = null; Echo.lines = []; await H12.panel(64, 19, words); H.step(40); return Echo.line ? Echo.line.en : '-'; };
+    out.tips = [await say(['WAS', 'BIG']), await say(['ARE', 'BIG'])];
+    out.small = ['knight1', 'knight2', 'knight3'].every(id => W.targets[id].state === 'small');
+    await say(['WERE', 'BIG']); H.step(240);
+    out.h = ['knight1', 'knight2', 'knight3'].map(id => W.targets[id].cur.h).join();
+    out.hops = [
+      H12.tryHop([0], () => NEXY.teleport(65, 19), ['right'], HP.top(17, 67, 68)),
+      H12.tryHop([0], () => NEXY.teleport(67, 16), ['right'], HP.top(15, 70, 71)),
+      H12.tryHop([0], () => NEXY.teleport(70, 14), ['right'], HP.top(13, 73, 74)),
+      H12.tryHop([0], () => NEXY.teleport(73, 12), ['right'], HP.top(11, 76, 77)),
+    ].join();
+    return out;
+  });
+  expect(r.tips.join(' | ') === 'They? Not was! | Not today. Yesterday!', `dicas (${r.tips.join(' | ')})`);
+  expect(r.small, 'as estátuas continuam pequenas');
+  expect(r.h === '3,5,7', `estátuas do tamanho de antes (${r.h})`);
+  expect(r.hops === '1,1,1,1', `escada de estátuas até a parede (${r.hops})`);
+}, LP);
+
+test('palácio: torre do relógio — WAS (ontem), IS (hoje), WERE (ontem) fazem degraus e ponte; subida com pulos de verdade até o salão do interruptor', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELPP);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, G = NEXY.Game, W = NEXY.World, out = {};
+    H.noEnemies(); NEXY.give('WAS', 'WERE', 'ARE');
+    const say = async (c, r, words) => { Echo.line = null; Echo.lines = []; await H12.panel(c, r, words); H.step(40); return Echo.line ? Echo.line.en : '-'; };
+    out.tip1 = await say(81, 19, ['ARE']);
+    await say(81, 19, ['WAS']); H.step(60); out.step1 = W.targets.step1.cur.w;
+    out.hop1 = H12.tryHop([0], () => NEXY.teleport(82, 19), ['right'], HP.top(17, 84, 86));
+    out.hop2 = H12.tryHop([0], () => NEXY.teleport(85, 16), ['right'], HP.top(14, 87, 93));
+    H12.hit(92, 13); out.is = G.bar.includes('IS');
+    out.tip2 = await say(91, 13, ['WAS']);
+    await say(91, 13, ['IS']); H.step(60); out.step2 = W.targets.step2.cur.w;
+    out.hop3 = H12.tryHop([0], () => NEXY.teleport(88, 13), ['left'], HP.top(11, 84, 86));
+    out.hop4 = H12.tryHop([0], () => NEXY.teleport(85, 10), ['left'], HP.top(8, 78, 83));
+    out.tip3 = await say(80, 7, ['WAS']);
+    await say(80, 7, ['WERE']); H.step(120); out.bridge = W.targets.bridge2.cur.w;
+    NEXY.teleport(81, 7); H.set(['right']); let top = false;
+    for (let i = 0; i < 600; i++) { H.step(1); if (Math.round(P.y + P.h) === 8 * 32 && P.x > 104 * 32) top = true; if (top && P.onGround && P.x > 106 * 32) break; }
+    H.set([]); H.step(20);
+    out.walk = top && P.onGround && Math.round(P.y + P.h) === 640 && P.x > 106 * 32;
+    return out;
+  });
+  expect(r.tip1 === 'Nexy is he!' && r.tip2 === 'Not yesterday. Today!' && r.tip3 === 'They? Not was!', `dicas (${r.tip1} | ${r.tip2} | ${r.tip3})`);
+  expect(r.step1 === 3 && r.step2 === 3 && r.bridge === 15, `degraus e ponte (${JSON.stringify(r)})`);
+  expect(r.is, 'o IS sai do bloco em cima da sacada');
+  expect([r.hop1, r.hop2, r.hop3, r.hop4].join() === '1,1,1,1', `subida (${[r.hop1, r.hop2, r.hop3, r.hop4]})`);
+  expect(r.walk, 'pela ponte e pelo topo da parede até o salão do interruptor');
+}, LP);
+
+test('palácio: outro caminho em cada desafio — Alados no abismo, na parede e no portão; tubo-pistão e Alado na torre', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELPP);
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, W = HP.waits(), out = {};
+    out.pit = HP.attempt(28, 19, ['right'], () => P.onGround && P.x > 39 * 32 && Math.round(P.y + P.h) === 640, W);
+    out.wall = HP.attempt(74, 19, ['right'], () => P.onGround && P.x > 76 * 32, W);
+    out.gate = HP.attempt(130, 19, ['right'], () => P.onGround && P.x > 137 * 32, W);
+    const pipe = NEXY.Ents.list.find(e => e.type === 'pipe'), T = H12.range(0, 3, 0.1);
+    out.floorToPipe = H12.tryHop(T, () => NEXY.teleport(92, 19), ['right'], () => P.riding === pipe);
+    out.pipeToL3 = H12.tryHop(T, H12.on(pipe), ['right'], () => P.onGround && Math.round(P.y + P.h) === 12 * 32 && P.x > 96 * 32);
+    out.L3toExit = HP.attempt(99, 11, ['right'], () => P.onGround && Math.round(P.y + P.h) === 8 * 32 && P.x > 98 * 32, W);
+    return out;
+  });
+  for (const k in r) expect(r[k] > 0, `caminho ${k} (${JSON.stringify(r)})`);
+}, LP);
+
+test('palácio: cavaleiro — pisão comum só faz o elmo tinir (o Nexy quica), com giro a armadura se desfaz; de lado machuca', async ({ page }) => {
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, out = {};
+    H.noEnemies(); H.tp(50, 19);
+    const drop = (k, spin) => { P.x = k.x + 2; P.y = k.y - P.h - 30; P.px = P.x; P.py = P.y; P.vx = 0; P.vy = 150; P.onGround = false; P.spinning = spin; P.invuln = 0; H.set([]); };
+    const k = NEXY.Ents.spawn('knight', { x: 52 * 32, y: 20 * 32 - 40, opts: {} }); H.step(3);
+    drop(k, false); for (let i = 0; i < 40 && !(k.stagger > 0); i++) H.step(1);
+    out.clang = k.stagger > 0 && !k.dead && k.state === 'walk' && P.vy < 0 && !P.dead; out.grimoire = !!NEXY.Save.data.grimoire.creatures.KNIGHT;
+    H.step(90);
+    drop(k, true); for (let i = 0; i < 40 && k.state !== 'dying'; i++) H.step(1);
+    out.spin = k.state === 'dying';
+    const k2 = NEXY.Ents.spawn('knight', { x: 56 * 32, y: 20 * 32 - 40, opts: {} }); H.step(3);
+    P.dead = false; P.invuln = 0; P.aura = true; P.spinning = false; NEXY.teleport(54, 19); H.set(['right']);
+    for (let i = 0; i < 120 && P.aura; i++) H.step(1);
+    H.set([]); out.side = !P.aura;
+    return out;
+  });
+  expect(r.clang && r.grimoire, `pisão comum só tine e o Nexy quica (${JSON.stringify(r)})`);
+  expect(r.spin, 'com giro a armadura se desfaz');
+  expect(r.side, 'encostar de lado machuca');
+}, LP);
+
+test('palácio: INTERRUPTOR DO SER — I WAS / I AM; frase trocada só confunde; a cena salva palaces.toBe e o anel, abre o portão; a 1-1 fica com os degraus-fantasma sólidos', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELPP);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, G = NEXY.Game, W = NEXY.World, out = {};
+    H.noEnemies(); NEXY.give('WAS', 'AM', 'IS');
+    Echo.line = null; Echo.lines = []; await H12.panel(131, 19, ['AM', 'WAS']); H.step(40);
+    out.tip = Echo.line && Echo.line.en; out.closed = W.targets.gate.state === 'big' && !NEXY.Flags.get('palaces.toBe');
+    G.openPanel(P.interact); Panel.place(G.bar.indexOf('WAS')); Panel.place(G.bar.indexOf('AM')); Panel.confirm(); await H.wait(1800);
+    out.scene = PalaceSwitch.active && G.state === 'cinematic';
+    while (PalaceSwitch.active && PalaceSwitch.t < 1.2) PalaceSwitch.update(1 / 60);
+    const saved = JSON.parse(localStorage.getItem(NEXY.Save.KEY));
+    out.saved = saved.flags.palaces.toBe === true && saved.heart.ring === true && NEXY.Flags.get('palaces.toBe');
+    let n = 0; while (PalaceSwitch.active && n++ < 2400) PalaceSwitch.update(1 / 60);
+    out.ended = !PalaceSwitch.active && G.state === 'play';
+    H.step(200); out.gate = W.targets.gate.cur.h;
+    H.set(['right']); for (let i = 0; i < 500 && G.state === 'play'; i++) H.step(1); H.set([]);
+    out.finish = G.state === 'clearing' && NEXY.Save.data.exits.palace && NEXY.Save.data.exits.palace.normal;
+    G.toMap(); out.hud = $('mhHeart').style.boxShadow.replace(/\s/g, '').includes('122,216,255');
+    G.enterLevel('1-1'); H.noEnemies(); G.bar = [];
+    out.ghosts = [[65, 17], [67, 14], [69, 11]].every(([c, r]) => W.blockAt(c, r).solid);
+    return out;
+  });
+  expect(r.tip === 'Yesterday is the past!' && r.closed, `trocar as palavras só confunde, com dica (${r.tip})`);
+  expect(r.scene, 'a cena começa');
+  expect(r.saved, 'o palácio aceso e o anel ficam salvos já no impacto');
+  expect(r.ended && r.gate === 0, `a cena termina e o portão afunda (${JSON.stringify(r)})`);
+  expect(r.finish, 'a saída do palácio termina a fase');
+  expect(r.hud, 'o anel aparece no Coração do mapa');
+  expect(r.ghosts, 'na 1-1 os degraus-fantasma ficam sólidos sem as palavras');
+}, LP);
 
 /* ---------------- vozes gravadas (ElevenLabs) ---------------- */
 test('vozes: todas as falas gravadas tocam; a porta repete palavra por palavra; a voz do aparelho fica de reserva', async ({ page }) => {

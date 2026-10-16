@@ -525,7 +525,8 @@ Ents.reg('pedestal', {
   },
   draw(ctx, e, x, y) {
     const t = e.t;
-    if (e.opts.look === 'altar') return drawAltar(ctx, x, y, t);
+    if (e.opts.look === 'altar') return drawAltar(ctx, x, y, t, e.opts.runes);
+    if (e.opts.look === 'clock') return Palace.drawClock(ctx, x, y, t, e.opts.face);
     R.draw(R.glow('c', 40), x + 16, y - 8, 1, 0.4 + 0.15 * Math.sin(t * 2), true);
     rrect(ctx, x + 6, y + 6, 20, 26, [4, 4, 0, 0]); ctx.fillStyle = 'rgba(10,15,18,0.9)'; ctx.fill(); ctx.strokeStyle = wa(0.14); ctx.lineWidth = 1; ctx.stroke();
     rrect(ctx, x + 1, y + 2, 30, 6, 3); ctx.fillStyle = 'rgba(10,15,18,0.95)'; ctx.fill(); ctx.strokeStyle = ca(0.55); ctx.stroke();

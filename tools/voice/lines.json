@@ -76,6 +76,21 @@
  },
  {
   "who": "echo",
+  "text": "I can see the past!",
+  "prompt": "I can see the past!"
+ },
+ {
+  "who": "echo",
+  "text": "It is a knight!",
+  "prompt": "It is a knight!"
+ },
+ {
+  "who": "echo",
+  "text": "The gate is open!",
+  "prompt": "The gate is open!"
+ },
+ {
+  "who": "echo",
   "text": "Hello! I am Echo. I am your friend.",
   "prompt": "Hello! I am Echo. I am your friend."
  },
@@ -221,6 +236,31 @@
  },
  {
   "who": "echo",
+  "text": "was",
+  "prompt": "was."
+ },
+ {
+  "who": "echo",
+  "text": "were",
+  "prompt": "were."
+ },
+ {
+  "who": "echo",
+  "text": "bridge",
+  "prompt": "bridge."
+ },
+ {
+  "who": "echo",
+  "text": "yesterday",
+  "prompt": "yesterday."
+ },
+ {
+  "who": "echo",
+  "text": "today",
+  "prompt": "today."
+ },
+ {
+  "who": "echo",
   "text": "Crawler",
   "prompt": "Crawler."
  },
@@ -238,6 +278,11 @@
   "who": "echo",
   "text": "Word thief",
   "prompt": "Word thief."
+ },
+ {
+  "who": "echo",
+  "text": "Knight",
+  "prompt": "Knight."
  },
  {
   "who": "echo",
@@ -278,6 +323,21 @@
   "who": "echo",
   "text": "D",
   "prompt": "D."
+ },
+ {
+  "who": "echo",
+  "text": "To be",
+  "prompt": "To be."
+ },
+ {
+  "who": "echo",
+  "text": "T",
+  "prompt": "T."
+ },
+ {
+  "who": "echo",
+  "text": "B",
+  "prompt": "B."
  },
  {
   "who": "echo",
@@ -378,6 +438,71 @@
   "who": "story",
   "text": "I'm not afraid. I am Nexy.",
   "prompt": "I'm not afraid. I am Nexy."
+ },
+ {
+  "who": "story",
+  "text": "Yesterday, this palace was full of light.",
+  "prompt": "Yesterday, this palace was full of light."
+ },
+ {
+  "who": "story",
+  "text": "Today, it is dark.",
+  "prompt": "Today, it is dark."
+ },
+ {
+  "who": "story",
+  "text": "Say what was here, and it comes back.",
+  "prompt": "Say what was here, and it comes back."
+ },
+ {
+  "who": "story",
+  "text": "Today is. Yesterday was.",
+  "prompt": "Today is. Yesterday was."
+ },
+ {
+  "who": "story",
+  "text": "The verb to be is awake!",
+  "prompt": "The verb to be is awake!"
+ },
+ {
+  "who": "story",
+  "text": "The ghost steps are the floor now.",
+  "prompt": "The ghost steps are the floor now."
+ },
+ {
+  "who": "echo",
+  "text": "We were small. Now we are strong!",
+  "prompt": "[excited] We were small. Now we are strong!"
+ },
+ {
+  "who": "echo",
+  "text": "Echo pulse",
+  "prompt": "Echo pulse."
+ },
+ {
+  "who": "echo",
+  "text": "Echo shot",
+  "prompt": "Echo shot."
+ },
+ {
+  "who": "echo",
+  "text": "Voice mode",
+  "prompt": "Voice mode."
+ },
+ {
+  "who": "echo",
+  "text": "Heart of words",
+  "prompt": "Heart of words."
+ },
+ {
+  "who": "echo",
+  "text": "To be ring",
+  "prompt": "To be ring."
+ },
+ {
+  "who": "echo",
+  "text": "Warp card",
+  "prompt": "Warp card."
  },
  {
   "who": "door",
@@ -630,6 +755,31 @@
   "prompt": "card."
  },
  {
+  "who": "story",
+  "text": "was",
+  "prompt": "was."
+ },
+ {
+  "who": "story",
+  "text": "were",
+  "prompt": "were."
+ },
+ {
+  "who": "story",
+  "text": "bridge",
+  "prompt": "bridge."
+ },
+ {
+  "who": "story",
+  "text": "yesterday",
+  "prompt": "yesterday."
+ },
+ {
+  "who": "story",
+  "text": "today",
+  "prompt": "today."
+ },
+ {
   "who": "door",
   "text": "Memory chest",
   "prompt": "Memory chest"
@@ -678,16 +828,6 @@
   "who": "story",
   "text": "When is Nexy stronger?",
   "prompt": "When is Nexy stronger?"
- },
- {
-  "who": "echo",
-  "text": "Today.",
-  "prompt": "Today."
- },
- {
-  "who": "echo",
-  "text": "Yesterday.",
-  "prompt": "Yesterday."
  },
  {
   "who": "story",
@@ -853,11 +993,6 @@
   "who": "echo",
   "text": "make",
   "prompt": "make."
- },
- {
-  "who": "echo",
-  "text": "was",
-  "prompt": "was."
  },
  {
   "who": "echo",
@@ -1151,6 +1286,261 @@
  },
  {
   "who": "door",
+  "text": "What was here?",
+  "prompt": "What was here?"
+ },
+ {
+  "who": "echo",
+  "text": "Not today. Yesterday!",
+  "prompt": "Not today. Yesterday!"
+ },
+ {
+  "who": "echo",
+  "text": "It? Not were!",
+  "prompt": "It? Not were!"
+ },
+ {
+  "who": "echo",
+  "text": "It? Not are!",
+  "prompt": "It? Not are!"
+ },
+ {
+  "who": "door",
+  "text": "It was a bridge.",
+  "prompt": "It was a bridge."
+ },
+ {
+  "who": "door",
+  "text": "It is a bridge.",
+  "prompt": "It is a bridge."
+ },
+ {
+  "who": "door",
+  "text": "It were a bridge.",
+  "prompt": "It were a bridge."
+ },
+ {
+  "who": "door",
+  "text": "It are a bridge.",
+  "prompt": "It are a bridge."
+ },
+ {
+  "who": "door",
+  "text": "It am a bridge.",
+  "prompt": "It am a bridge."
+ },
+ {
+  "who": "door",
+  "text": "Were they big or small?",
+  "prompt": "Were they big or small?"
+ },
+ {
+  "who": "echo",
+  "text": "Look at the shadows!",
+  "prompt": "Look at the shadows!"
+ },
+ {
+  "who": "echo",
+  "text": "They? Not was!",
+  "prompt": "They? Not was!"
+ },
+ {
+  "who": "echo",
+  "text": "They? Not is!",
+  "prompt": "They? Not is!"
+ },
+ {
+  "who": "door",
+  "text": "They were big.",
+  "prompt": "They were big."
+ },
+ {
+  "who": "door",
+  "text": "They were small.",
+  "prompt": "They were small."
+ },
+ {
+  "who": "door",
+  "text": "They was big.",
+  "prompt": "They was big."
+ },
+ {
+  "who": "door",
+  "text": "They was small.",
+  "prompt": "They was small."
+ },
+ {
+  "who": "door",
+  "text": "they",
+  "prompt": "they."
+ },
+ {
+  "who": "door",
+  "text": "How was nexy yesterday?",
+  "prompt": "How was nexy yesterday?"
+ },
+ {
+  "who": "echo",
+  "text": "Nexy? Not were!",
+  "prompt": "Nexy? Not were!"
+ },
+ {
+  "who": "echo",
+  "text": "Nexy is he!",
+  "prompt": "Nexy is he!"
+ },
+ {
+  "who": "door",
+  "text": "Nexy was afraid.",
+  "prompt": "Nexy was afraid."
+ },
+ {
+  "who": "door",
+  "text": "Nexy is afraid.",
+  "prompt": "Nexy is afraid."
+ },
+ {
+  "who": "door",
+  "text": "Nexy were afraid.",
+  "prompt": "Nexy were afraid."
+ },
+ {
+  "who": "door",
+  "text": "Nexy am afraid.",
+  "prompt": "Nexy am afraid."
+ },
+ {
+  "who": "door",
+  "text": "Nexy are afraid.",
+  "prompt": "Nexy are afraid."
+ },
+ {
+  "who": "door",
+  "text": "Nexy",
+  "prompt": "Nexy."
+ },
+ {
+  "who": "door",
+  "text": "afraid",
+  "prompt": "afraid."
+ },
+ {
+  "who": "door",
+  "text": "How is nexy today?",
+  "prompt": "How is nexy today?"
+ },
+ {
+  "who": "echo",
+  "text": "Not yesterday. Today!",
+  "prompt": "Not yesterday. Today!"
+ },
+ {
+  "who": "door",
+  "text": "Nexy is strong.",
+  "prompt": "Nexy is strong."
+ },
+ {
+  "who": "door",
+  "text": "Nexy was strong.",
+  "prompt": "Nexy was strong."
+ },
+ {
+  "who": "door",
+  "text": "Nexy am strong.",
+  "prompt": "Nexy am strong."
+ },
+ {
+  "who": "door",
+  "text": "Nexy are strong.",
+  "prompt": "Nexy are strong."
+ },
+ {
+  "who": "door",
+  "text": "Nexy were strong.",
+  "prompt": "Nexy were strong."
+ },
+ {
+  "who": "door",
+  "text": "strong",
+  "prompt": "strong."
+ },
+ {
+  "who": "door",
+  "text": "How were they yesterday?",
+  "prompt": "How were they yesterday?"
+ },
+ {
+  "who": "door",
+  "text": "Who were you? who are you?",
+  "prompt": "Who were you? who are you?"
+ },
+ {
+  "who": "echo",
+  "text": "Today is now!",
+  "prompt": "Today is now!"
+ },
+ {
+  "who": "echo",
+  "text": "Yesterday is the past!",
+  "prompt": "Yesterday is the past!"
+ },
+ {
+  "who": "echo",
+  "text": "I? Not were!",
+  "prompt": "I? Not were!"
+ },
+ {
+  "who": "echo",
+  "text": "I am. I was.",
+  "prompt": "I am. I was."
+ },
+ {
+  "who": "door",
+  "text": "Yesterday, I was small. today, I was strong.",
+  "prompt": "Yesterday, I was small. today, I was strong."
+ },
+ {
+  "who": "door",
+  "text": "Yesterday, I am small. today, I was strong.",
+  "prompt": "Yesterday, I am small. today, I was strong."
+ },
+ {
+  "who": "door",
+  "text": "Yesterday, I am small. today, I am strong.",
+  "prompt": "Yesterday, I am small. today, I am strong."
+ },
+ {
+  "who": "door",
+  "text": "Yesterday, I was small. today, I am strong.",
+  "prompt": "Yesterday, I was small. today, I am strong."
+ },
+ {
+  "who": "door",
+  "text": "yesterday",
+  "prompt": "yesterday."
+ },
+ {
+  "who": "door",
+  "text": "small",
+  "prompt": "small."
+ },
+ {
+  "who": "door",
+  "text": "today",
+  "prompt": "today."
+ },
+ {
+  "who": "echo",
+  "text": "It was a bridge!",
+  "prompt": "It was a bridge!"
+ },
+ {
+  "who": "echo",
+  "text": "They were knights!",
+  "prompt": "They were knights!"
+ },
+ {
+  "who": "door",
   "text": "are",
   "prompt": "are."
  },
@@ -1171,23 +1561,8 @@
  },
  {
   "who": "door",
-  "text": "small",
-  "prompt": "small."
- },
- {
-  "who": "door",
-  "text": "Nexy",
-  "prompt": "Nexy."
- },
- {
-  "who": "door",
   "text": "you",
   "prompt": "you."
- },
- {
-  "who": "door",
-  "text": "they",
-  "prompt": "they."
  },
  {
   "who": "door",
@@ -1226,16 +1601,6 @@
  },
  {
   "who": "door",
-  "text": "afraid",
-  "prompt": "afraid."
- },
- {
-  "who": "door",
-  "text": "strong",
-  "prompt": "strong."
- },
- {
-  "who": "door",
   "text": "he",
   "prompt": "he."
  },
@@ -1248,5 +1613,20 @@
   "who": "door",
   "text": "card",
   "prompt": "card."
+ },
+ {
+  "who": "door",
+  "text": "was",
+  "prompt": "was."
+ },
+ {
+  "who": "door",
+  "text": "were",
+  "prompt": "were."
+ },
+ {
+  "who": "door",
+  "text": "bridge",
+  "prompt": "bridge."
  }
 ]

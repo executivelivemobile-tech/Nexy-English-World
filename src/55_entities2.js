@@ -402,13 +402,13 @@ Ents.reg('echoride', {
 });
 
 /* ---------- ALTAR DAS RUNAS (o pedestal com alvo) ---------- */
-function drawAltar(ctx, x, y, t) {
+function drawAltar(ctx, x, y, t, runes = ['I', 'IT', 'THEY']) {
   R.draw(R.glow('c', 44), x + 16, y - 6, 1.1, 0.4 + 0.15 * Math.sin(t * 2), true);
   ctx.beginPath(); ctx.moveTo(x - 2, y + 32); ctx.lineTo(x + 4, y + 10); ctx.lineTo(x + 28, y + 10); ctx.lineTo(x + 34, y + 32); ctx.closePath();
   ctx.fillStyle = 'rgba(10,15,18,0.95)'; ctx.fill(); ctx.strokeStyle = wa(0.16); ctx.lineWidth = 1; ctx.stroke();
   rrect(ctx, x - 4, y + 4, 40, 7, 3); ctx.fillStyle = 'rgba(10,15,18,0.98)'; ctx.fill(); ctx.strokeStyle = ca(0.6); ctx.stroke();
   // três runas orbitando: I · IT · THEY (quem a frase atinge)
-  ['I', 'IT', 'THEY'].forEach((g, i) => {
+  runes.forEach((g, i) => {
     const a = t * 0.9 + i * Math.PI * 2 / 3, rx = x + 16 + Math.cos(a) * 20, ry = y - 14 + Math.sin(a) * 6;
     R.draw(R.text(g, '700 8px Orbitron, Inter, sans-serif', wa(0.85), ca(0.9), 4), rx, ry, 1, 0.55 + 0.45 * (Math.sin(a) * 0.5 + 0.5));
   });

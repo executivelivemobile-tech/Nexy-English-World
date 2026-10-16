@@ -77,6 +77,9 @@ function noise(when, dur, vol, opts = {}) {
 const midi = n => 440 * Math.pow(2, (n - 69) / 12);
 
 const SFX = {
+  // TO BE PALACE: o elmo do cavaleiro e a alavanca do interruptor do ser
+  clang() { const t = AudioSys.t; for (const [f, a] of [[1240, 0.06], [1870, 0.04], [2630, 0.025]]) tone('triangle', f, t, 0.5, a, { verb: true }); noise(t, 0.05, 0.08, { freq: 5000 }); },
+  lever() { const t = AudioSys.t; tone('sawtooth', 70, t, 0.5, 0.25, { to: 35, filter: { freq: 500 } }); noise(t, 0.4, 0.25, { type: 'lowpass', freq: 900 }); tone('sine', 55, t, 1.2, 0.4, { to: 30 }); },
   // o "bug" de propósito: estalos digitais e chiado
   glitch() { const t = AudioSys.t; for (let i = 0; i < 7; i++) tone('square', 80 + Math.random() * 900, t + i * 0.045, 0.04, 0.05, { filter: { freq: 2600 } }); noise(t, 0.35, 0.12, { type: 'bandpass', freq: 3200, q: 0.8 }); },
   // o tiro da Echo e o cristal que paralisa
@@ -198,6 +201,17 @@ const Music = {
         7: [[0, 76, 4], [4, 80, 4], [8, 83, 8]],
       },
     },
+    // TO BE PALACE: Ré menor, 84 BPM, o tique-taque do relógio e um cravo gótico por cima
+    palace: {
+      bpm: 84, bell: true, choir: true, tick: true,
+      chords: [[38, 0], [46, 1], [41, 1], [48, 1], [38, 0], [46, 1], [43, 0], [45, 1]],
+      melody: {
+        4: [[0, 74, 4], [4, 77, 4], [8, 81, 4], [12, 77, 4]],
+        5: [[0, 82, 6], [6, 81, 2], [8, 77, 8]],
+        6: [[0, 79, 4], [4, 77, 4], [8, 74, 4], [12, 72, 4]],
+        7: [[0, 73, 4], [4, 76, 4], [8, 81, 8]],
+      },
+    },
   },
   setVariant(name) {
     const v = this.VARIANTS[name] || this.VARIANTS.world1;
@@ -260,7 +274,7 @@ const Music = {
     while (this.next < c.currentTime + 0.15) { this.play(this.step, this.next, sp); this.next += sp; this.step = (this.step + 1) % 128; }
   },
   play(step, t, sp) {
-    const bar = Math.floor(step / 16), s = step % 16, [root, maj] = this.chords[bar], third = maj ? 4 : 3;
+    const bar = Math.floor(step / 16), s = step % 16, [root, maj] = ((this.cur && this.cur.chords) || this.chords)[bar], third = maj ? 4 : 3;
     const B = this.bus;
     // baixo em arpejo (colcheias)
     if (s % 2 === 0) {
@@ -287,6 +301,8 @@ const Music = {
       tone('sine', midi(n + 12), t, d, 0.022, { a: 0.02, hold: d * 0.7, dest: B.organ });
       tone('sine', midi(n + 19), t, d, 0.011, { a: 0.02, hold: d * 0.7, dest: B.organ });
     }
+    // o relógio do palácio: tique-taque em semínimas
+    if (V.tick && s % 4 === 0) tone('square', s % 8 === 0 ? 2400 : 1800, t, 0.025, 0.02, { filter: { freq: 3000 }, dest: B.perc });
     // percussão
     if (s === 0 || s === 8 || (s === 10 && bar % 2 === 1)) tone('sine', 130, t, 0.22, 0.5, { to: 38, glide: 0.12, dest: B.perc });
     if (s === 4 || s === 12) { noise(t, 0.14, 0.16, { type: 'bandpass', freq: 1700, q: 0.9, dest: B.perc }); tone('triangle', 190, t, 0.06, 0.1, { to: 120, dest: B.perc }); }

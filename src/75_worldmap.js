@@ -171,7 +171,7 @@ const WorldMap = {
     this.hop = 1; SFX.jump();
     Transition.start({
       x: this.x, y: this.y - 18, shape: 'circle',
-      card: { label: 'WORLD ' + id, name: L.name, word: L.masterWord, found, lives: Game.lives },
+      card: { label: levelTag(L), name: L.name, word: L.masterWord, found, lives: Game.lives },
       mid: () => { this.leave(); Game.enterLevel(id, true); },
       openAt: () => ({ x: P.cx - Cam.x, y: P.cy - Cam.y }),
     });
@@ -180,8 +180,12 @@ const WorldMap = {
     const S = Save.data, n = this.node(this.at), id = this.at;
     $('mhWorld').textContent = 'WORLD ' + this.world + ' · ' + this.W.name;
     $('mhLives').textContent = '×' + Game.lives; $('mhOrbs').textContent = String(Game.orbs).padStart(3, '0');
-    const hb = S.heart && S.heart.best != null ? S.heart.best : -1; $('mhHeartBox').style.display = hb >= 0 ? '' : 'none';
-    if (hb >= 0) { $('mhHeart').style.background = HEART_LOOK[hb].css; $('mhHeartBox').title = HEART[hb].name; }
+    const hb = S.heart && S.heart.best != null ? S.heart.best : -1, ring = !!(S.heart && S.heart.ring);
+    $('mhHeartBox').style.display = hb >= 0 || ring ? '' : 'none';
+    $('mhHeart').style.background = hb >= 0 ? HEART_LOOK[hb].css : 'transparent';
+    // o Anel do TO BE (TO BE PALACE): um aro ciano em volta do Coração
+    $('mhHeart').style.boxShadow = (ring ? '0 0 0 2px rgba(122,216,255,.85), ' : '') + '0 0 10px rgba(217,70,239,.6)';
+    $('mhHeartBox').title = (hb >= 0 ? HEART[hb].name : '') + (ring ? (hb >= 0 ? ' + ' : '') + PALACE.ring.name : '');
     const bf = Object.values(S.bestFluency); $('mhFlu').textContent = (bf.length ? Math.round(bf.reduce((a, b) => a + b, 0) / bf.length) : 0) + '%';
     $('mhNode').textContent = moving ? '' : (n.label.startsWith('1-') ? 'WORLD ' + n.label + ' · ' : '') + n.name;
     const L = LEVELS[id], box = $('mhLetters'); box.innerHTML = '';

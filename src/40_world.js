@@ -3,7 +3,7 @@
 const T = { AIR: 0, SOLID: 1, PLATFORM: 2, FAKE: 3, CRACKED: 4, BLOCK: 5, DOOR: 6, RUNE: 7 };
 const TS = CFG.TILE;
 // inimigos que nascem dos spawns (e o nome no Grimório)
-const CREATURE_OF = { crawler: 'CRAWLER', casco: 'SHELL', flyer: 'FLYER', thief: 'THIEF', giant: 'CRAWLER' };
+const CREATURE_OF = { crawler: 'CRAWLER', casco: 'SHELL', flyer: 'FLYER', thief: 'THIEF', giant: 'CRAWLER', knight: 'KNIGHT' };
 
 const World = {
   level: null, w: 0, h: 0, pxW: 0, pxH: 0, tiles: null, blocks: new Map(), doorTiles: new Map(), doors: {},
@@ -330,6 +330,7 @@ const World = {
     return false;
   },
   confuse(id) {
+    if (Array.isArray(id)) { for (const k of id) if (this.targets[k]) this.targets[k].shake = 1; SFX.thud(); return; }
     const t = this.targets[id];
     if (t && t.kind === 'giants') { for (const e of Ents.list) if (e.type === 'giant' && !e.dead) e.shake = 1; }
     else if (t) t.shake = 1;
@@ -340,12 +341,14 @@ const World = {
       const t = this.targets[id];
       if (t.shake > 0) t.shake = Math.max(0, t.shake - dt * 1.2);
       if (t.glow > 0) t.glow = Math.max(0, t.glow - dt * 0.6);
+      if (t.ping > 0) t.ping -= dt;
       if (t.kind !== 'rune' || (t.cur.w === t.goal.w && t.cur.h === t.goal.h)) continue;
       t.stepT -= dt; if (t.stepT > 0) continue;
       t.stepT = 0.07;
       // um passo por vez: primeiro a altura, depois a largura (ou o contrário ao encolher)
       const sh = Object.assign({}, t.cur), grow = t.goal.w * t.goal.h >= t.cur.w * t.cur.h;
       if (grow) { if (sh.h !== t.goal.h) sh.h += sign(t.goal.h - sh.h); else sh.w += sign(t.goal.w - sh.w); }
+      else if (t.hFirst) { if (sh.h !== t.goal.h) sh.h += sign(t.goal.h - sh.h); else sh.w += sign(t.goal.w - sh.w); }   // portão: afunda no chão
       else { if (sh.w !== t.goal.w) sh.w += sign(t.goal.w - sh.w); else sh.h += sign(t.goal.h - sh.h); }
       this.applyRune(t, sh);
       const rc = this.runeRect(t, sh);
@@ -355,10 +358,13 @@ const World = {
   },
   drawTargets(ctx, camX, camY, time) {
     for (const id in this.targets) {
-      const t = this.targets[id]; if (t.kind !== 'rune' || !t.cur.w) continue;
+      const t = this.targets[id]; if (t.kind !== 'rune') continue;
+      if (t.look) Palace.drawGhost(ctx, t, camX, camY, time);   // o contorno do que existia (TO BE PALACE)
+      if (!t.cur.w || !t.cur.h) continue;
       const rc = this.runeRect(t, t.cur), sx = t.shake > 0 ? Math.sin(time * 60) * 2.5 * t.shake : 0;
       const x = rc.c0 * TS - camX + sx, y = rc.r0 * TS - camY, w = t.cur.w * TS, h = t.cur.h * TS;
       if (x > CFG.VIEW_W + 40 || x + w < -40 || y > CFG.VIEW_H + 40 || y + h < -40) continue;
+      if (t.look && Palace.drawTarget(ctx, t, x, y, w, h, time)) continue;
       const p = 0.5 + 0.5 * Math.sin(time * 2 + t.c);
       R.draw(R.glow('c', 48), x + w / 2, y + Math.min(h, 40) / 2, Math.max(1, w / 64), 0.18 + 0.12 * p + t.glow * 0.6, true);
       rrect(ctx, x + 1, y + 1, w - 2, h - 2, 8); ctx.fillStyle = 'rgba(10,15,18,0.94)'; ctx.fill();
@@ -740,6 +746,7 @@ const BG = {
   draw(ctx, camX, camY, time) {
     if (!this.built) this.build();
     if (World.level.bg === 'nave') return this.drawNave(ctx, camX, camY, time);
+    if (World.level.bg === 'palace') return this.drawPalace(ctx, camX, camY, time);
     // camada 1: grade e partículas ciano bem apagadas
     ctx.save();
     ctx.strokeStyle = cb(0.05); ctx.lineWidth = 1;

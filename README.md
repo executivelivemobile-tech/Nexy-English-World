@@ -9,6 +9,7 @@ Plataforma 2D neon-noir para ensinar inglês (nível A1) a brasileiros. Tudo est
 | --- | --- | --- |
 | 1-1 · Hello World | aprovada em `3702f14`; nova abertura com o nascimento da Echo aguardando aprovação | branch |
 | 1-2 · Who are you? | aguardando aprovação | branch `claude/jolly-faraday-8mbshk` |
+| TO BE PALACE (saída secreta da 1-1) | aguardando aprovação | branch `claude/jolly-faraday-8mbshk` |
 
 ## Como o jogo flui
 
@@ -36,14 +37,20 @@ Tela inicial → **mapa do Mundo 1** → fase → tela de fim → volta ao mapa.
 | ↑ ou W | ↑ | abrir porta / falar no pedestal ou altar |
 | Q | SELECT / BACK | soltar o item da reserva |
 | H | Y (no painel) | dica (tradução da inscrição) |
-| V | | falar a frase (só com VOICE MODE ligado) |
+| C | LB | pulso da Echo (revela o escondido; no palácio, o passado) |
+| F | Y (depois de ganhar o tiro; antes disso Y corre) | tiro da Echo: o 1º paralisa, o 2º quebra |
+| V | | falar a frase na porta (VOICE MODE ligado); longe das portas, com o tiro: segure V e diga STOP! |
 | M | | som liga/desliga |
 | Esc ou P | START | pausa |
+
+Tudo o que o Nexy e a Echo já sabem fazer fica no **Grimório → aba POWERS** (pulso, tiro, voz, Coração, Anel do TO
+BE, cartão), com o botão e o que cada poder faz. O que ainda não foi conquistado aparece fechado.
 
 No painel das portas, com o controle: A coloca/confirma, B volta, X apaga a última palavra, Y pede dica e o
 direcional escolhe a palavra. Nos menus, o direcional navega (segurar repete).
 
-No celular aparecem botões de toque (◀ ▼ ▶, RUN, JUMP, SPIN e OPEN perto das portas). O toque duplo em ◀ ou ▶ também
+No celular aparecem botões de toque (◀ ▼ ▶, RUN, JUMP, SPIN, OPEN perto das portas, ECHO depois que a Echo nasce e
+SHOT depois que o tiro é conquistado). O toque duplo em ◀ ou ▶ também
 faz correr. No mapa, basta tocar numa fase para o Nexy andar até ela; tocar na fase onde ele está entra nela.
 
 ## Fase 1-2 · WHO ARE YOU? (a Nave dos Ecos)
@@ -133,6 +140,34 @@ as vidas cheias e dá à Echo um poder que fica salvo:
   mais longa, luz que atravessa, luz que persegue). Com o VOICE MODE: segure **V**, o tempo desacelera, e diga
   **"STOP!"**.
 
+## TO BE PALACE (a saída secreta da 1-1)
+
+O palácio do verbo TO BE. Ontem ele era cheio de luz; hoje está escuro. **A mecânica nova é o passado**: dizer o que
+EXISTIA (WAS, WERE) traz de volta o que existia. Na primeira visita, uma lembrança mostra o palácio aceso ("Yesterday,
+this palace was full of light.") e ensina a tabela antes do primeiro desafio (TODAY: I AM · IT IS · THEY ARE →
+YESTERDAY: I WAS · IT WAS · THEY WERE). O chão do salão é um espelho: o Nexy e a Echo aparecem refletidos.
+
+| Lugar | Frase | O que acontece | Outro caminho (sem o inglês) |
+| --- | --- | --- | --- |
+| Salão dos Espelhos | WHAT WAS HERE? → **IT WAS A BRIDGE.** | a ponte de luz volta sobre o abismo | quicar em dois Alados |
+| Galeria dos Cavaleiros | WERE THEY BIG OR SMALL? → **THEY WERE BIG.** | as estátuas voltam ao tamanho de antes, em escada até o alto da parede | quique alto num Alado ao lado da parede |
+| Torre do Relógio | HOW WAS NEXY YESTERDAY? (**WAS**) · HOW IS NEXY TODAY? (**IS**) · HOW WERE THEY YESTERDAY? (**WERE**) | degraus e uma ponte de luz até o topo da torre | tubo-pistão do relógio, sacada e um Alado |
+| Interruptor do Ser | WHO WERE YOU? WHO ARE YOU? → **YESTERDAY, I WAS SMALL. TODAY, I AM STRONG.** | a cena do interruptor; o portão afunda | dois Alados, um quique seguido do outro, por cima do portão |
+
+- **O pulso da Echo vê o passado** (C): perto da ponte que caiu ele mostra o contorno do que existia e a Echo diz
+  "It was a bridge!". As estátuas deixam a sombra do tamanho antigo na parede.
+- **Erro com retorno, sem castigo**: frase errada só faz o alvo tremer, e a Echo aponta o porquê sem dar a frase
+  pronta ("Not today. Yesterday!", "They? Not was!", "Nexy is he!").
+- **Cavaleiro (KNIGHT)**, criatura nova: pisão comum só faz o elmo tinir (o Nexy quica e ele cambaleia); com giro a
+  armadura se desfaz. O tiro da Echo também funciona nele.
+- **O INTERRUPTOR DO SER**: a frase final é em 1ª pessoa, passado e presente juntos. A cena tem pausa pesada, dois
+  tambores, a alavanca descendo com impacto congelado, uma onda de luz e as cinco formas do verbo (AM, IS, ARE, WAS,
+  WERE). Os **degraus-fantasma da 1-1 viram chão para sempre** e o Coração das Palavras ganha o **ANEL DO TO BE**
+  (aparece no Coração do mapa e no Grimório).
+- Palavras novas: WAS, WERE, BRIDGE, YESTERDAY, TODAY. Letras da palavra-mestra: **T O B E**. Trilha própria em Ré
+  menor, a 84 BPM, com o tique-taque do relógio; no fundo, um relógio enorme cujos ponteiros andam para trás (até o
+  palácio acordar).
+
 ## A Echo: a primeira ferramenta (nasce na 1-1)
 
 A 1-1 começa com o Nexy **sozinho**, descendo do céu num feixe de luz. Placas de dica aparecem nos lugares certos
@@ -150,9 +185,9 @@ Echo os ilumina quando passa perto. No fim da 1-1 a Echo olha a catedral: "Look!
 A Echo também fala as palavras em inglês, ilumina o escuro e é o alvo de YOU na 1-2. Tem ficha no Grimório (aba
 CREATURES).
 
-As vozes são gravadas em estúdio (ElevenLabs): **a Echo** fala com a voz da Lulu, aveludada; o **narrador** do Baú da
-Memória é o Lawrence; as **portas e altares** falam com a Elder Rowan, grave e antiga, com o eco da catedral. São 213
-falas (palavras, frases das portas, a história do Baú, as perguntas). Se você montar numa porta uma frase que não foi
+As vozes são gravadas em estúdio (ElevenLabs): **a Echo** fala com a voz da Lulu, aveludada; o **narrador** (Baú da
+Memória, prólogo, palácio) e as **portas e altares** falam com a Elder Rowan, grave e antiga, com o eco da catedral.
+São 326 falas (palavras, frases das portas, a história do Baú, as perguntas, o prólogo e o palácio). Se você montar numa porta uma frase que não foi
 gravada, a porta repete palavra por palavra. Para usar a voz do aparelho no lugar: pausa → ASSIST → **ECHO'S VOICE**
 (cada toque passa para a próxima voz; a escolha fica salva). Como gravar falas novas: `tools/voice/README.md`.
 
@@ -168,6 +203,7 @@ O jogo que vai para o jogador é só o `index.html`, autocontido. Ele é **gerad
 | `src/00_head.html` | HTML, CSS, HUD, HUD do mapa, painel das portas e telas |
 | `src/10_data.js` | legenda do mapa, `CFG` (física), `LOOK` (brilho), palavras, fase 1-1, mapa do mundo (`WORLDS`), save e flags |
 | `src/12_level_1-2.js` | dados da fase 1-2 (legenda extra, blocos, alvos, portas, altares, sinos) |
+| `src/14_level_palace.js` | dados do TO BE PALACE (legenda, alvos do passado, altares, relógios, interruptor) |
 | `src/20_audio.js` | efeitos sintetizados, música em camadas com variações por fase, vozes gravadas (com a do aparelho de reserva) e reconhecimento de fala |
 | `src/30_input_render.js` | teclado, toque, controle (gamepad), escala da tela e cache dos brilhos |
 | `src/40_world.js` | tiles, blocos, runas, colisão, zonas, fundos em parallax (cidade e nave), escuridão e partículas |
@@ -179,17 +215,19 @@ O jogo que vai para o jogador é só o `index.html`, autocontido. Ele é **gerad
 | `src/73_echo.js` | 1-1: a chegada, o nascimento da Echo, o pulso da Echo e as placas de dica |
 | `src/74_prologue.js` | 1-1: A Lei das Palavras (o prólogo da primeira partida) |
 | `src/76_secret.js` | 1-1: o segredo, a TO BE ENGINE, o teletransporte e o tiro da Echo |
+| `src/78_palace.js` | TO BE PALACE: cavaleiro, interruptor, desenho dos alvos do passado, chão-espelho, fundo e as duas cenas |
 | `src/62_nexy_look.js` | o visual novo do Nexy em 6 estágios (proposta, ainda fora do build; folha: `tools/look_sheet.js`) |
 | `src/75_worldmap.js` | transições (íris e fechadura) e o mapa-múndi |
 | `src/99_boot.js` | API de teste no console (`NEXY`) e partida |
 | `src/levels/1-1.map` | mapa ASCII da 1-1 (23 linhas × 208 colunas) |
 | `src/levels/1-2.map` | mapa ASCII da 1-2 (40 linhas × 312 colunas) |
+| `src/levels/palace.map` | mapa ASCII do palácio (23 linhas × 150 colunas), gerado por `tools/gen_map_palace.py` |
 | `build.js` | junta tudo em `index.html` |
 | `tools/gen_map_1-2.py` | gerador do mapa da 1-2 (edite e rode para regenerar `src/levels/1-2.map`) |
 | `src/voice/` | as falas gravadas (MP3) e o `manifest.json`; o build embute tudo no `index.html` |
 | `tools/voice/` | lista as falas do jogo, agrupa para a ElevenLabs e corta o áudio em uma fala por arquivo |
 | `CLAUDE.md` | contexto de trabalho (decisões, arquitetura, regras) para continuar o projeto |
-| `tests/` | testes de regressão da 1-1, da 1-2 e do mapa (Playwright + Chromium) |
+| `tests/` | testes de regressão da 1-1, da 1-2, do palácio e do mapa (Playwright + Chromium) |
 
 ```
 node build.js          # gera index.html a partir de src/
@@ -199,7 +237,8 @@ npm test               # confere o build e roda os testes (precisa de: npm i && 
 
 Edite sempre em `src/` e rode `node build.js`. Mudanças feitas direto no `index.html` são apagadas no próximo build.
 
-Para testar uma fase direto, sem passar pelo mapa: no console do navegador, `NEXY.Game.enterLevel('1-2')`.
+Para testar uma fase direto, sem passar pelo mapa: no console do navegador, `NEXY.Game.enterLevel('1-2')` (ou
+`'palace'`).
 
 ## Como editar as fases
 
@@ -228,7 +267,7 @@ palavras estão antes da escada (ARE fica no bloco acima da segunda plataforma f
 subir até os orbes e a lanterna lá no alto antes de gastar o AM na porta "HOW ARE YOU?". Na 1-2, IS e ARE formam um
 atalho no campanário.
 
-A flag `palaces.toBe` continua existindo para o futuro Palácio do To Be: com ela verdadeira, todos os
+A flag `palaces.toBe` é ligada no TO BE PALACE (o Interruptor do Ser) e fica salva: com ela verdadeira, todos os
 blocos-fantasma ficam sólidos, mesmo sem as palavras. Para testar, abra o jogo com `#tobe` no fim do
 endereço (ou `?toBe=1`), ou rode no console `NEXY.setFlag('palaces.toBe', true)`.
 
