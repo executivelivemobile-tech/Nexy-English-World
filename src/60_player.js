@@ -184,7 +184,7 @@ const P = {
   },
   enemyContacts() {
     for (const e of Ents.enemies()) {
-      if (e.state === 'held' || this.dead || !overlap(this, e)) continue;
+      if (e.state === 'held' || e.frozen > 0 || this.dead || !overlap(this, e)) continue;
       const falling = this.y - this.py > 0.01 || this.vy > 0;
       const above = this.py + this.h <= e.y + e.h * 0.5 + 3;
       // gigantes: fecham a passagem (empurram, não machucam)
@@ -276,7 +276,13 @@ const P = {
     if (!e || e.dead) return;
     if (!World.fits(e.x, e.y, e.w, e.h, e)) e.x = this.cx - e.w / 2;
     if (!World.fits(e.x, e.y, e.w, e.h, e)) e.y = this.y + this.h - e.h;
-    if (Input.get('up')) { e.state = 'shell'; e.vx = this.vx * 0.4; e.vy = -CFG.SHELL_THROW_UP; e.immune = 0.45; e.x = this.cx - e.w / 2; e.y = this.y - e.h + 6; if (!World.fits(e.x, e.y, e.w, e.h, e)) e.y = this.y; SFX.kick(); }
+    if (Input.get('up')) {
+      e.state = 'shell'; e.vx = this.vx * 0.4; e.vy = -CFG.SHELL_THROW_UP; e.immune = 0.45; e.x = this.cx - e.w / 2; e.y = this.y - e.h + 6;
+      // encostado numa parede: o casco desliza uns pixels para fora dela em vez de nascer dentro
+      if (!World.fits(e.x, e.y, e.w, e.h, e)) for (const dx of [2, -2, 4, -4, 6, -6, 8, -8]) if (World.fits(e.x + dx, e.y, e.w, e.h, e)) { e.x += dx; break; }
+      if (!World.fits(e.x, e.y, e.w, e.h, e)) e.y = this.y;
+      SFX.kick();
+    }
     else if (Input.get('down')) {
       e.state = 'shell'; e.vx = 0; e.vy = 0; e.immune = 0.4; e.y = this.y + this.h - e.h;
       e.x = this.facing > 0 ? this.x + this.w + 1 : this.x - e.w - 1;
@@ -557,7 +563,7 @@ const Doors = {
     const sub = Save.data.assist.subtitles;
     for (const id in World.doors) {
       const d = World.doors[id], x = d.x - camX, y = d.y - camY;
-      if (x > CFG.VIEW_W + 200 || x + d.w < -200 || d.kind === 'chest') continue;
+      if (x > CFG.VIEW_W + 200 || x + d.w < -200 || d.kind === 'chest' || d.kind === 'engine') continue;
       if (d.kind === 'door' || d.kind === 'bells') this.drawArch(ctx, d, x, y, t);
       const cx = x + d.w / 2, top = d.kind === 'door' ? y - 40 : y - 92;
       const dim = d.kind === 'door' && d.open ? 0.4 : 1;
@@ -614,7 +620,7 @@ const Doors = {
   },
   drawPrompt(ctx, camX, camY) {
     const d = P.interact; if (!d || Game.state !== 'play') return;
-    const label = d.kind === 'pedestal' ? '↑ SPEAK' : '↑ OPEN';
+    const label = d.kind === 'pedestal' ? '↑ SPEAK' : d.kind === 'engine' ? '↑ USE' : '↑ OPEN';
     const s = R.text(label, '600 10px Orbitron, Inter, sans-serif', '#22d3ee', 'rgba(0,217,249,0.7)', 6);
     const x = P.cx - camX, y = P.y - camY - 30 - Math.sin(Game.time * 4) * 2;
     capsulePath(ctx, x, y, s.w - 14, 20); ctx.fillStyle = 'rgba(2,2,2,0.7)'; ctx.fill(); ctx.strokeStyle = ca(0.6); ctx.lineWidth = 1; ctx.stroke();

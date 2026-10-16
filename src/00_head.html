@@ -339,6 +339,33 @@ body.touch #touch { display: block; }
 #chest .c-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
 #chest .c-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 #chest .c-keys { position: absolute; bottom: 16px; left: 0; right: 0; text-align: center; font: 400 9px var(--f-mono); letter-spacing: .18em; color: var(--txt-3); }
+/* ---------- TO BE ENGINE (usa o painel do baú) ---------- */
+#chest .e-sockets { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+#chest .e-sockets i { font: 700 10px var(--f-display); font-style: normal; letter-spacing: .1em; color: var(--txt-3); padding: 6px 9px; border-radius: 12px; border: 1px solid var(--line-2); transition: all .3s; }
+#chest .e-sockets i.on { color: #fff; border-color: var(--mag-glow); box-shadow: 0 0 12px rgba(217,70,239,.6); background: rgba(217,70,239,.18); }
+#chest .e-table { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 14px; max-width: 780px; width: 100%; }
+#chest .e-row { display: grid; grid-template-columns: 46px 70px 56px 1fr; align-items: center; gap: 8px; padding: 6px 14px; text-transform: none; letter-spacing: normal; border-radius: 16px; text-align: left; }
+#chest .e-row svg, #chest .e-card svg { width: 44px; height: 44px; overflow: visible; }
+#chest .e-row .e-p, #chest .e-card .e-p { font: 700 18px var(--f-display); letter-spacing: .12em; color: #fff; }
+#chest .e-row .e-v { font: 700 16px var(--f-display); letter-spacing: .1em; color: var(--mag-hi); }
+#chest .e-row .e-n, #chest .e-card .e-n { font: 400 12px var(--f-body); color: var(--txt-2); }
+#chest .e-row.say { border-color: var(--mag-glow); box-shadow: var(--neon-mag); }
+#chest .e-new { color: #22d3ee; font: 700 10px var(--f-display); letter-spacing: .14em; }
+#chest .e-card { display: flex; align-items: center; gap: 14px; padding: 10px 22px; border: 1px solid var(--line-2); border-radius: 22px; }
+#chest .e-card svg { width: 64px; height: 64px; }
+#chest .e-card .e-p { font-size: 26px; }
+#chest .e-slot { min-width: 96px; height: 40px; border-radius: 20px; border: 1px dashed rgba(217,70,239,.7); display: grid; place-items: center; font: 700 18px var(--f-display); letter-spacing: .12em; color: #fff; }
+#chest .e-plug { min-width: 110px; font-family: var(--f-display); letter-spacing: .14em; text-align: center; }
+#chest .e-tier { display: flex; flex-direction: column; align-items: center; gap: 5px; width: 140px; opacity: .55; }
+#chest .e-tier.on { opacity: 1; }
+#chest .e-tier i { width: 14px; height: 14px; transform: rotate(45deg); border: 1px solid var(--line-3); }
+#chest .e-tier.on i { background: var(--mag-glow); border-color: #fff; box-shadow: 0 0 12px var(--mag); }
+#chest .e-tier .n { font: 600 9px var(--f-display); letter-spacing: .14em; color: #fff; text-align: center; }
+#chest .e-tier .d { font: 400 10px var(--f-body); color: var(--txt-3); text-align: center; }
+#chest .e-keys { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+#chest .e-keys span { font: 500 10px var(--f-display); letter-spacing: .14em; color: var(--txt-2); border: 1px solid var(--line-2); border-radius: 14px; padding: 7px 12px; }
+#chest .e-keys b { color: #fff; margin-right: 6px; }
+#cardicon { display: block; width: 18px; height: 12px; border-radius: 3px; border: 1px solid #f0abfc; background: linear-gradient(180deg, #12091a 40%, #22d3ee 40%, #22d3ee 58%, #12091a 58%); box-shadow: 0 0 10px rgba(217,70,239,.6); }
 #cineskip { position: absolute; right: 22px; bottom: 18px; font: 500 9px var(--f-display); letter-spacing: .3em; color: var(--txt-3); opacity: 0; transition: opacity .4s; pointer-events: none; z-index: 6; }
 #cineskip.on { opacity: 1; }
 /* ---------- GRAIN (over everything) ---------- */
@@ -365,6 +392,7 @@ body.touch #touch { display: block; }
           <svg viewBox="0 0 16 16"><path d="M8 1 L13 6 L8 15 L3 6 Z" fill="#22d3ee" stroke="#ffffff" stroke-opacity=".6" stroke-width=".6"/><path d="M3 6 H13 M8 1 L6 6 L8 15 L10 6 Z" fill="none" stroke="#ffffff" stroke-opacity=".45" stroke-width=".5"/></svg>
         </button>
       </div>
+      <div class="hg" id="cardbox" style="display:none"><span class="hl">Card</span><i id="cardicon"></i></div>
       <div class="hg"><span class="hl">Time</span><span class="mono" id="time">00:00</span></div>
       <div class="hg"><button id="mutebtn" aria-label="Sound">SND</button><button id="pausebtn" aria-label="Pause"><i></i></button></div>
     </div>
@@ -486,7 +514,7 @@ body.touch #touch { display: block; }
   </div>
   <div class="tc" id="tcr">
     <div class="tb wide" data-k="run">RUN</div>
-    <div class="col"><div class="tb wide" data-k="ping" id="tbping" style="display:none">ECHO</div><div class="tb wide" data-k="spin">SPIN</div><div class="tb wide" data-k="jump">JUMP</div></div>
+    <div class="col"><div class="tb wide" data-k="shot" id="tbshot" style="display:none">SHOT</div><div class="tb wide" data-k="ping" id="tbping" style="display:none">ECHO</div><div class="tb wide" data-k="spin">SPIN</div><div class="tb wide" data-k="jump">JUMP</div></div>
   </div>
   <div class="tb wide" id="tbopen" data-k="up">OPEN</div>
 </div>

@@ -120,6 +120,19 @@ No fim, o quadro THE LAW OF WORDS. Esc pula, Enter avança, e HELLO fica gravado
 tarde, na hora em que vale: placa WORDS ARE THE FLOOR na escada-fantasma da 1-1, WHAT YOU SAY IS TRUE no primeiro
 altar da 1-2, e as dicas da Echo na cripta lembram o começo.
 
+## Um segredo na 1-1 e o tiro da Echo
+
+Existe uma máquina estranha no corredor depois da porta 2: a **TO BE ENGINE** ("TO BE OR NOT TO BE?"). Sem cartão, ela
+não liga. Onde está o cartão é segredo (dica: nem tudo o que parece defeito é defeito). Com ele, a máquina ensina o
+verbo TO BE inteiro (I AM, YOU ARE, **HE** IS = o Nexy, **SHE** IS = a Echo, IT IS, WE ARE, THEY ARE), pede as 7
+ligações certas seguidas e oferece uma escalada de frases acima do A1. Ligada, ela leva o Nexy ao fim da fase com
+as vidas cheias e dá à Echo um poder que fica salvo:
+
+- **Tiro da Echo** (F · Y no controle · SHOT no toque): o 1º tiro **paralisa** o inimigo (vira cristal, não machuca e
+  dá para pisar em cima), o 2º **quebra**. Cada degrau da escalada deixa o tiro mais forte (mais cargas, paralisia
+  mais longa, luz que atravessa, luz que persegue). Com o VOICE MODE: segure **V**, o tempo desacelera, e diga
+  **"STOP!"**.
+
 ## A Echo: a primeira ferramenta (nasce na 1-1)
 
 A 1-1 começa com o Nexy **sozinho**, descendo do céu num feixe de luz. Placas de dica aparecem nos lugares certos
@@ -165,6 +178,7 @@ O jogo que vai para o jogador é só o `index.html`, autocontido. Ele é **gerad
 | `src/72_chest.js` | Baú da Memória (leitura, perguntas, escalada) e a cena do Coração |
 | `src/73_echo.js` | 1-1: a chegada, o nascimento da Echo, o pulso da Echo e as placas de dica |
 | `src/74_prologue.js` | 1-1: A Lei das Palavras (o prólogo da primeira partida) |
+| `src/76_secret.js` | 1-1: o segredo, a TO BE ENGINE, o teletransporte e o tiro da Echo |
 | `src/62_nexy_look.js` | o visual novo do Nexy em 6 estágios (proposta, ainda fora do build; folha: `tools/look_sheet.js`) |
 | `src/75_worldmap.js` | transições (íris e fechadura) e o mapa-múndi |
 | `src/99_boot.js` | API de teste no console (`NEXY`) e partida |

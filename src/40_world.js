@@ -36,7 +36,7 @@ const World = {
         else if (def.block) {
           this.tiles[i] = T.BLOCK;
           const b = { c, r, kind: def.block, content: def.content || null, secret: def.secret || null, word: def.word, flag: def.flag,
-            state: def.block === 'invisible' ? 'hidden' : 'ready', bump: 0, wob: 0, flash: 0 };
+            state: def.block === 'invisible' || def.block === 'glitch' ? 'hidden' : 'ready', bump: 0, wob: 0, flash: 0 };
           if (b.kind === 'ghost') b.solid = this.ghostWanted(b);
           this.blocks.set(i, b);
           if (b.secret) secrets++;
@@ -111,6 +111,7 @@ const World = {
       case 'glass': return b.state !== 'broken';
       case 'invisible': return b.state === 'revealed';
       case 'ghost': return !!b.solid;
+      case 'glitch': return b.state === 'used';
       default: return false;
     }
   },
@@ -124,6 +125,8 @@ const World = {
         const b = this.blockAt(c, r);
         if (b.kind === 'invisible' && b.state === 'hidden')
           return axis === 'y' && dir < 0 && (body.kind === 'player' || body.kind === 'shell') && prevEdge >= (r + 1) * TS - 0.5;
+        // o tijolo do bug: invisível, só um casco subindo bate nele (a cabeça do Nexy passa reto)
+        if (b.kind === 'glitch' && b.state === 'hidden') return axis === 'y' && dir < 0 && body.kind === 'shell' && prevEdge >= (r + 1) * TS - 0.5;
         return this.blockSolid(b);
       }
       case T.DOOR: { const d = this.doorAt(c, r); return !d || !d.open; }
@@ -200,7 +203,7 @@ const World = {
   },
 
   /* ---------- blocos ---------- */
-  hitFromBelow(c, r, by) {
+  hitFromBelow(c, r, by, ent) {
     const b = this.blockAt(c, r);
     if (!b) return;
     const cx = c * TS + TS / 2, cy = r * TS + TS / 2;
@@ -214,6 +217,7 @@ const World = {
       if (b.secret) Game.foundSecret(b.secret);
       this.release(b, by === 'player');
     } else if (b.kind === 'glass') { if (by === 'shell') this.breakGlass(b, 'shell'); else { b.wob = 1; SFX.thud(); } }
+    else if (b.kind === 'glitch' && b.state === 'hidden') { if (by === 'shell') Glitch.start(b, ent); }
     else { b.bump = 0.6; SFX.thud(); }
     Ents.bumpFrom(c, r);
   },
@@ -265,7 +269,7 @@ const World = {
     for (const b of this.blocks.values()) {
       if (b.bump > 0) b.bump = Math.max(0, b.bump - dt * 5.5);
       if (b.wob > 0) b.wob = Math.max(0, b.wob - dt * 4);
-      if (b.ping > 0) b.ping -= dt; if (b.peek > 0) b.peek -= dt;
+      if (b.ping > 0) b.ping -= dt; if (b.peek > 0) b.peek -= dt; if (b.flick > 0) b.flick -= dt;
       if (b.kind !== 'ghost') continue;
       if (b.flash > 0) b.flash = Math.max(0, b.flash - dt * 0.9);
       const want = this.ghostWanted(b), cx = b.c * TS + TS / 2, cy = b.r * TS + TS / 2;
@@ -446,6 +450,15 @@ const World = {
     }
     if (b.peek > 0 && b.state === 'ready' && b.content && b.content.word) R.draw(R.text(b.content.word, '700 10px Orbitron, Inter, sans-serif', wa(0.85), 'rgba(217,70,239,0.8)', 5), x + TS / 2, y - 12, 1, Math.min(1, b.peek) * 0.85);
     if (k === 'invisible' && b.state === 'hidden') return;
+    // o tijolo do bug: invisível, mas de vez em quando (e no pulso da Echo) pisca como um pixel com defeito
+    if (k === 'glitch' && b.state === 'hidden') {
+      if (b.flick > 0 || (time + b.c * 0.37) % 6.5 < 0.08) {
+        ctx.fillStyle = 'rgba(217,70,239,0.55)'; ctx.fillRect(x + 3 + Math.random() * 4, y + 9, 22, 2);
+        ctx.fillStyle = 'rgba(34,211,238,0.5)'; ctx.fillRect(x + 1, y + 15 + Math.random() * 4, 26, 1.5);
+        ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.strokeRect(x + 2.5 + Math.random() * 3, y + 2.5, TS - 5, TS - 5);
+      }
+      return;
+    }
     if (k === 'glass' && b.state === 'broken') return;
     const off = b.bump > 0 ? -Math.sin((1 - b.bump) * Math.PI) * 6 : 0;
     const wob = b.wob > 0 ? Math.sin(b.wob * 30) * 1.5 * b.wob : 0;
@@ -486,6 +499,7 @@ const World = {
     rrect(ctx, x + 1, y + 1, TS - 2, TS - 2, 7);
     ctx.fillStyle = used ? 'rgba(12,18,22,0.97)' : 'rgba(10,15,18,0.92)'; ctx.fill();
     ctx.strokeStyle = used ? ca(0.3 + 0.35 * lit) : wa(0.16); ctx.lineWidth = 1; ctx.stroke();
+    if (used && k === 'glitch') { ctx.fillStyle = 'rgba(217,70,239,0.5)'; ctx.fillRect(x + 4, y + 14, 24, 1.5); ctx.fillStyle = 'rgba(34,211,238,0.4)'; ctx.fillRect(x + 7, y + 19, 18, 1); }
     if (used) {
       ctx.beginPath(); ctx.moveTo(x + 6, y + 3.5); ctx.lineTo(x + TS - 6, y + 3.5); ctx.strokeStyle = ca(0.22 + 0.3 * lit); ctx.stroke();
       ctx.beginPath(); ctx.arc(x + TS / 2, y + TS / 2, 5, 0, Math.PI * 2); ctx.strokeStyle = wa(0.22 + 0.4 * lit); ctx.stroke();

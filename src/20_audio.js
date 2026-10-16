@@ -77,6 +77,11 @@ function noise(when, dur, vol, opts = {}) {
 const midi = n => 440 * Math.pow(2, (n - 69) / 12);
 
 const SFX = {
+  // o "bug" de propósito: estalos digitais e chiado
+  glitch() { const t = AudioSys.t; for (let i = 0; i < 7; i++) tone('square', 80 + Math.random() * 900, t + i * 0.045, 0.04, 0.05, { filter: { freq: 2600 } }); noise(t, 0.35, 0.12, { type: 'bandpass', freq: 3200, q: 0.8 }); },
+  // o tiro da Echo e o cristal que paralisa
+  zap() { const t = AudioSys.t; tone('sawtooth', 1500, t, 0.12, 0.05, { to: 320, filter: { freq: 3200 } }); tone('sine', 900, t, 0.1, 0.06, { to: 1800 }); },
+  freeze() { const t = AudioSys.t; tone('triangle', 1700, t, 0.28, 0.05, { to: 2700 }); tone('sine', 2600, t + 0.05, 0.22, 0.03, { to: 3400 }); noise(t, 0.18, 0.04, { type: 'highpass', freq: 5200 }); },
   jump() { const t = AudioSys.t; tone('square', 210, t, 0.16, 0.07, { to: 540, glide: 0.12, filter: { freq: 1800 } }); tone('sine', 420, t, 0.14, 0.08, { to: 900 }); },
   spin() { const t = AudioSys.t; noise(t, 0.28, 0.12, { type: 'bandpass', freq: 700, to: 3800, q: 2.5 }); tone('sawtooth', 280, t, 0.2, 0.04, { to: 760, filter: { freq: 1500 } }); },
   stomp(n = 0) {

@@ -14,7 +14,11 @@ const Ents = {
   clear() { this.list = []; },
   save() { for (const e of this.list) { e.px = e.x; e.py = e.y; } },
   update(dt) {
-    for (const e of this.list) if (!e.dead) { e.t += dt; const d = this.types[e.type]; if (d.update) d.update(e, dt); }
+    for (const e of this.list) if (!e.dead) {
+      // paralisado pelo tiro da Echo: parado no ar, sem machucar, servindo de plataforma até o cristal derreter
+      if (e.frozen > 0) { e.frozen -= dt; if (e.frozen <= 0) { e.frozen = 0; e.plat = false; } continue; }
+      e.t += dt; const d = this.types[e.type]; if (d.update) d.update(e, dt);
+    }
     this.interactions();
     for (let i = this.list.length - 1; i >= 0; i--) if (this.list[i].dead) { const e = this.list[i]; this.list.splice(i, 1); if (e.spawn) Spawns.onGone(e); }
   },
@@ -27,6 +31,7 @@ const Ents = {
       if (hidden >= 1) continue;
       if (hidden > 0) { ctx.save(); ctx.globalAlpha = 1 - hidden; }
       this.types[e.type].draw(ctx, e, x, y, camX, camY);
+      if (e.frozen > 0) EchoShot.drawFrozen(ctx, e, x, y);
       if (hidden > 0) ctx.restore();
     }
   },
@@ -204,7 +209,7 @@ Ents.reg('casco', {
       if (goingUp && e.res.ceil) {
         let best = null, bd = 1e9;
         for (const [c, r] of e.res.ceilTiles) { const d = Math.abs(c * TS + 16 - (e.x + e.w / 2)); if (d < bd) { bd = d; best = [c, r]; } }
-        if (best) World.hitFromBelow(best[0], best[1], 'shell');
+        if (best) World.hitFromBelow(best[0], best[1], 'shell', e);
         e.vy = 80;
       }
       if (e.res.wall) e.vx = 0;

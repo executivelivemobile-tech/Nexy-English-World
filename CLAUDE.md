@@ -36,7 +36,7 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 - Futuro: depois do jogo inteiro, app Android (Google Play). Mantenha tudo pensado para toque e offline.
 - Preferências já dadas: sem voz em combos e nomes de criaturas; correr com toque duplo na seta (janela medida da
   soltura); quique alto com janela antes/depois (só no ar); blocos-fantasma dependem da barra, não do Grimório.
-- **Vozes gravadas (ElevenLabs)**: 222 falas em `src/voice/` (MP3 + `manifest.json`), embutidas pelo build.
+- **Vozes gravadas (ElevenLabs)**: 250 falas em `src/voice/` (MP3 + `manifest.json`), embutidas pelo build.
   Elenco: **Echo = Lulu** (feminina e sensual, escolhida pelo dono), **narrador do Baú = Elder Rowan** (a voz antiga
   das portas, pedida pelo dono no lugar do Lawrence; `[warmly]`, 1,08×), **portas e altares = Elder Rowan** (`[slowly]`,
   acelerada 1,15× no corte). Não imitar vozes de pessoas reais (ele citou Morgan Freeman: só a referência de idoso e grave). A Echo agora é **ela** nos textos em português ("a Echo", "sua amiga").
@@ -63,6 +63,7 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 | `72_chest.js` | Baú da Memória (`Chest`), ícones, `HEART_LOOK`, `drawHeart`, cena épica (`Cine`) |
 | `73_echo.js` | `Arrival` (chegada no feixe), `Birth` (o Echo nasce do HELLO na porta 1), `EchoPulse` (sonar, C/LB/toque), `Hints` (placas) |
 | `74_prologue.js` | `Prologue`: A Lei das Palavras (1ª partida; `Save.data.met.prologue`), entidade `floorword` |
+| `76_secret.js` | segredo da 1-1: `Glitch` (falso erro), entidades `card` e `engine`, `Engine` (tela da TO BE ENGINE no painel do baú, estado `engine`), `Warp` (teletransporte), `EchoShot` (tiro da Echo) |
 | `75_worldmap.js` | `Transition` (íris/fechadura + cartão "Nexy × vidas"), `WorldMap` (andar, revelar caminhos, toque) |
 | `99_boot.js` | `window.NEXY` (API de teste) e `Game.boot()` |
 
@@ -127,10 +128,19 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 - **Visual novo do Nexy** (pedido do dono, com uma arte de referência: armadura de gato, asas de fênix): proposta em
   `src/62_nexy_look.js` + folha https://claude.ai/artifact/9GzkEvZ2PrXqBoJZHtc7qR. Começa rascunho de neon sem
   armadura e ganha peças fase a fase. Esperando aprovação antes de entrar no build.
-- **Pedidos na fila**: segredo da 1-1 (casco jogado para cima num tijolo invisível acima do checkpoint c104 → falso
-  erro → WARP CARD → TO BE ENGINE no corredor 2: tabela completa do TO BE com HE = Nexy e SHE = Echo, 7 seguidas,
-  escalada → teletransporte para a praça final com as vidas cheias) e o **Tiro da Echo** (1º tiro paralisa o
-  Rastejante, 2º quebra; tecla F / Y; VOICE MODE: segurar V e dizer STOP!).
+- **Segredo da 1-1** (pedido do dono, "como no Donkey Kong"; só ele e quem ele contar devem saber, por isso o README
+  não explica): tijolo `j` (kind `glitch`) INVISÍVEL em c103 L12, colado na torre da porta 2, acima do checkpoint c104.
+  Só casco subindo bate (`solidFor`; a cabeça passa reto; o pulso só faz piscar). Casco-guarda J (c107) → segurar
+  corrida, encostar na torre, ↑ e soltar → `Glitch` (falso erro TO BE NOT FOUND) → WARP CARD (`Game.card`, por partida).
+  TO BE ENGINE `T` em c136 (corredor 2): sem cartão a Echo diz "It is a machine. It needs a card."; com cartão:
+  tabela (HE = Nexy, SHE = Echo, palavras novas), 7 ligações certas SEGUIDAS (errar embaralha e recomeça), escalada de
+  4 frases (A2 → B1) que sobe o nível do tiro. Teletransporte (`Warp`): IS/ARE da barra viram combustível, praça
+  final c181 (`LEVELS['1-1'].warp`), vidas = max(vidas, 5), checkpoint ali. Conta 1 segredo a mais na Fluência da 1-1.
+- **Tiro da Echo** (`EchoShot`, `SHOT` em `10_data.js`, `Save.data.shot.best`; -1 = não tem): F / Y no controle
+  (Y deixa de correr quando o tiro existe) / botão SHOT no toque; mira automática no inimigo mais perto à frente.
+  1º tiro paralisa (`e.frozen`: parado, não machuca, vira plataforma `plat`), 2º quebra (+2 orbes); gigantes imunes.
+  Cargas por nível, recarga com o tempo, checkpoint e renascer. VOICE MODE: V sem porta perto = escuta (tempo a 30%)
+  e STOP/FREEZE/FIRE/SHOOT atira.
 - Esperando aprovação da 1-2 (com o baú). Depois: 1-3, Palácio do To Be (saída secreta da 1-1), Casa "PUSH OR PULL?"
   (saída secreta da 1-2), forte e castelo do Mundo 1.
 - Cada fase nova: algo inédito + acréscimo ao Coração + desafio crescente acima do A1 + caminho alternativo + um passo

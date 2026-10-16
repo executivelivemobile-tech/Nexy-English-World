@@ -146,6 +146,18 @@
    ],
    "from": "door-2"
   },
+  "door:card": {
+   "file": "door/card.mp3",
+   "text": "card",
+   "dur": 0.88,
+   "b": [
+    [
+     0,
+     0.07
+    ]
+   ],
+   "from": "door-1"
+  },
   "door:dark": {
    "file": "door/dark.mp3",
    "text": "dark",
@@ -193,6 +205,18 @@
     ]
    ],
    "from": "door-4"
+  },
+  "door:he": {
+   "file": "door/he.mp3",
+   "text": "he",
+   "dur": 0.8,
+   "b": [
+    [
+     0,
+     0.03
+    ]
+   ],
+   "from": "door-1"
   },
   "door:hello": {
    "file": "door/hello.mp3",
@@ -938,6 +962,18 @@
    ],
    "from": "door-4"
   },
+  "door:she": {
+   "file": "door/she.mp3",
+   "text": "she",
+   "dur": 0.97,
+   "b": [
+    [
+     0,
+     0.14
+    ]
+   ],
+   "from": "door-1"
+  },
   "door:small": {
    "file": "door/small.mp3",
    "text": "small",
@@ -1093,6 +1129,38 @@
     ]
    ],
    "from": "door-3"
+  },
+  "door:to be or not to be": {
+   "file": "door/to-be-or-not-to-be.mp3",
+   "text": "To be or not to be?",
+   "dur": 3.2,
+   "b": [
+    [
+     0,
+     0.14
+    ],
+    [
+     3,
+     0.42
+    ],
+    [
+     6,
+     1.74
+    ],
+    [
+     9,
+     2.02
+    ],
+    [
+     13,
+     2.43
+    ],
+    [
+     16,
+     2.64
+    ]
+   ],
+   "from": "door-1"
   },
   "door:we": {
    "file": "door/we.mp3",
@@ -1758,6 +1826,18 @@
    ],
    "from": "echo-3"
   },
+  "echo:card": {
+   "file": "echo/card.mp3",
+   "text": "card",
+   "dur": 0.82,
+   "b": [
+    [
+     0,
+     0.13
+    ]
+   ],
+   "from": "echo-1"
+  },
   "echo:city": {
    "file": "echo/city.mp3",
    "text": "city",
@@ -2190,6 +2270,30 @@
    ],
    "from": "echo-2"
   },
+  "echo:i am strong now": {
+   "file": "echo/i-am-strong-now.mp3",
+   "text": "I am strong now!",
+   "dur": 1.57,
+   "b": [
+    [
+     0,
+     0.08
+    ],
+    [
+     2,
+     0.24
+    ],
+    [
+     5,
+     0.48
+    ],
+    [
+     12,
+     1.04
+    ]
+   ],
+   "from": "echo-1"
+  },
   "echo:i am your friend": {
    "file": "echo/i-am-your-friend.mp3",
    "text": "I am your friend.",
@@ -2261,6 +2365,70 @@
     ]
    ],
    "from": "echo-3"
+  },
+  "echo:it is a card": {
+   "file": "echo/it-is-a-card.mp3",
+   "text": "It is a card!",
+   "dur": 1.08,
+   "b": [
+    [
+     0,
+     0.13
+    ],
+    [
+     3,
+     0.24
+    ],
+    [
+     6,
+     0.36
+    ],
+    [
+     8,
+     0.48
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:it is a machine it needs a card": {
+   "file": "echo/it-is-a-machine-it-needs-a-card.mp3",
+   "text": "It is a machine. It needs a card.",
+   "dur": 2.55,
+   "b": [
+    [
+     0,
+     0.04
+    ],
+    [
+     3,
+     0.2
+    ],
+    [
+     6,
+     0.32
+    ],
+    [
+     8,
+     0.68
+    ],
+    [
+     17,
+     1.48
+    ],
+    [
+     20,
+     1.68
+    ],
+    [
+     26,
+     1.84
+    ],
+    [
+     28,
+     1.96
+    ]
+   ],
+   "from": "echo-1"
   },
   "echo:it is big": {
    "file": "echo/it-is-big.mp3",
@@ -2662,6 +2830,22 @@
    ],
    "from": "echo-4"
   },
+  "echo:say stop": {
+   "file": "echo/say-stop.mp3",
+   "text": "Say stop!",
+   "dur": 1.13,
+   "b": [
+    [
+     0,
+     0.15
+    ],
+    [
+     4,
+     0.47
+    ]
+   ],
+   "from": "echo-1"
+  },
   "echo:says": {
    "file": "echo/says.mp3",
    "text": "says",
@@ -2673,6 +2857,18 @@
     ]
    ],
    "from": "echo-4"
+  },
+  "echo:she": {
+   "file": "echo/she.mp3",
+   "text": "she",
+   "dur": 0.77,
+   "b": [
+    [
+     0,
+     0.16
+    ]
+   ],
+   "from": "echo-1"
   },
   "echo:shell": {
    "file": "echo/shell.mp3",
@@ -2714,6 +2910,22 @@
     [
      13,
      0.95
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:stop crawler": {
+   "file": "echo/stop-crawler.mp3",
+   "text": "Stop, crawler!",
+   "dur": 1.37,
+   "b": [
+    [
+     0,
+     0.17
+    ],
+    [
+     6,
+     0.73
     ]
    ],
    "from": "echo-1"
@@ -2882,6 +3094,26 @@
    ],
    "from": "echo-3"
   },
+  "echo:we are here": {
+   "file": "echo/we-are-here.mp3",
+   "text": "We are here!",
+   "dur": 1.05,
+   "b": [
+    [
+     0,
+     0.08
+    ],
+    [
+     3,
+     0.24
+    ],
+    [
+     7,
+     0.64
+    ]
+   ],
+   "from": "echo-1"
+  },
   "echo:what is inside": {
    "file": "echo/what-is-inside.mp3",
    "text": "What is inside?",
@@ -2898,6 +3130,26 @@
     [
      8,
      0.38
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:what is it": {
+   "file": "echo/what-is-it.mp3",
+   "text": "What is it?",
+   "dur": 1.15,
+   "b": [
+    [
+     0,
+     0.16
+    ],
+    [
+     5,
+     0.4
+    ],
+    [
+     8,
+     0.64
     ]
    ],
    "from": "echo-1"
@@ -3078,6 +3330,30 @@
    ],
    "from": "story-2"
   },
+  "story:are the crawlers big": {
+   "file": "story/are-the-crawlers-big.mp3",
+   "text": "Are the crawlers big?",
+   "dur": 1.6,
+   "b": [
+    [
+     0,
+     0.08
+    ],
+    [
+     4,
+     0.31
+    ],
+    [
+     8,
+     0.45
+    ],
+    [
+     17,
+     1.12
+    ]
+   ],
+   "from": "story-1"
+  },
   "story:big": {
    "file": "story/big.mp3",
    "text": "big",
@@ -3089,6 +3365,18 @@
     ]
    ],
    "from": "story-2"
+  },
+  "story:card": {
+   "file": "story/card.mp3",
+   "text": "card",
+   "dur": 0.85,
+   "b": [
+    [
+     0,
+     0.07
+    ]
+   ],
+   "from": "story-1"
   },
   "story:dark": {
    "file": "story/dark.mp3",
@@ -3166,6 +3454,34 @@
    ],
    "from": "story-2"
   },
+  "story:he": {
+   "file": "story/he.mp3",
+   "text": "he",
+   "dur": 0.68,
+   "b": [
+    [
+     0,
+     0.05
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:he is": {
+   "file": "story/he-is.mp3",
+   "text": "He is.",
+   "dur": 0.95,
+   "b": [
+    [
+     0,
+     0.05
+    ],
+    [
+     3,
+     0.35
+    ]
+   ],
+   "from": "story-1"
+  },
   "story:hello": {
    "file": "story/hello.mp3",
    "text": "Hello",
@@ -3213,6 +3529,54 @@
     ]
    ],
    "from": "story-2"
+  },
+  "story:i am": {
+   "file": "story/i-am.mp3",
+   "text": "I am.",
+   "dur": 0.99,
+   "b": [
+    [
+     0,
+     0.17
+    ],
+    [
+     2,
+     0.4
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:i'm not afraid i am nexy": {
+   "file": "story/im-not-afraid-i-am-nexy.mp3",
+   "text": "I'm not afraid. I am Nexy.",
+   "dur": 3.04,
+   "b": [
+    [
+     0,
+     0.07
+    ],
+    [
+     4,
+     0.3
+    ],
+    [
+     8,
+     0.52
+    ],
+    [
+     16,
+     2
+    ],
+    [
+     18,
+     2.15
+    ],
+    [
+     21,
+     2.3
+    ]
+   ],
+   "from": "story-1"
   },
   "story:in this world words are magic": {
    "file": "story/in-this-world-words-are-magic.mp3",
@@ -3318,6 +3682,22 @@
    ],
    "from": "story-2"
   },
+  "story:it is": {
+   "file": "story/it-is.mp3",
+   "text": "It is.",
+   "dur": 1.09,
+   "b": [
+    [
+     0,
+     0.13
+    ],
+    [
+     3,
+     0.57
+    ]
+   ],
+   "from": "story-1"
+  },
   "story:key": {
    "file": "story/key.mp3",
    "text": "key",
@@ -3353,6 +3733,34 @@
     ]
    ],
    "from": "story-2"
+  },
+  "story:nexy and echo are friends": {
+   "file": "story/nexy-and-echo-are-friends.mp3",
+   "text": "Nexy and Echo are friends.",
+   "dur": 2.44,
+   "b": [
+    [
+     0,
+     0.11
+    ],
+    [
+     5,
+     0.7
+    ],
+    [
+     9,
+     0.92
+    ],
+    [
+     14,
+     1.44
+    ],
+    [
+     18,
+     1.74
+    ]
+   ],
+   "from": "story-1"
   },
   "story:nexy finds a word then another word every word is a light": {
    "file": "story/nexy-finds-a-word-then-another-word-every-word-i.mp3",
@@ -3602,6 +4010,34 @@
    ],
    "from": "story-1"
   },
+  "story:she": {
+   "file": "story/she.mp3",
+   "text": "she",
+   "dur": 0.89,
+   "b": [
+    [
+     0,
+     0.19
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:she is": {
+   "file": "story/she-is.mp3",
+   "text": "She is.",
+   "dur": 1.15,
+   "b": [
+    [
+     0,
+     0.12
+    ],
+    [
+     4,
+     0.56
+    ]
+   ],
+   "from": "story-1"
+  },
   "story:small": {
    "file": "story/small.mp3",
    "text": "small",
@@ -3650,6 +4086,70 @@
    ],
    "from": "story-1"
   },
+  "story:the door is not open": {
+   "file": "story/the-door-is-not-open.mp3",
+   "text": "The door is not open.",
+   "dur": 1.94,
+   "b": [
+    [
+     0,
+     0.12
+    ],
+    [
+     4,
+     0.49
+    ],
+    [
+     9,
+     0.86
+    ],
+    [
+     12,
+     1.09
+    ],
+    [
+     16,
+     1.38
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:the verb to be all of it": {
+   "file": "story/the-verb-to-be-all-of-it.mp3",
+   "text": "The verb to be. All of it.",
+   "dur": 2.96,
+   "b": [
+    [
+     0,
+     0.19
+    ],
+    [
+     4,
+     0.3
+    ],
+    [
+     9,
+     0.74
+    ],
+    [
+     12,
+     1.04
+    ],
+    [
+     16,
+     2.07
+    ],
+    [
+     20,
+     2.37
+    ],
+    [
+     23,
+     2.59
+    ]
+   ],
+   "from": "story-1"
+  },
   "story:they": {
    "file": "story/they.mp3",
    "text": "they",
@@ -3662,6 +4162,22 @@
    ],
    "from": "story-2"
   },
+  "story:they are": {
+   "file": "story/they-are.mp3",
+   "text": "They are.",
+   "dur": 1.07,
+   "b": [
+    [
+     0,
+     0.14
+    ],
+    [
+     5,
+     0.59
+    ]
+   ],
+   "from": "story-1"
+  },
   "story:we": {
    "file": "story/we.mp3",
    "text": "we",
@@ -3673,6 +4189,22 @@
     ]
    ],
    "from": "story-2"
+  },
+  "story:we are": {
+   "file": "story/we-are.mp3",
+   "text": "We are.",
+   "dur": 1.05,
+   "b": [
+    [
+     0,
+     0.2
+    ],
+    [
+     3,
+     0.57
+    ]
+   ],
+   "from": "story-1"
   },
   "story:what does the story teach": {
    "file": "story/what-does-the-story-teach.mp3",
@@ -3949,6 +4481,22 @@
     ]
    ],
    "from": "story-2"
+  },
+  "story:you are": {
+   "file": "story/you-are.mp3",
+   "text": "You are.",
+   "dur": 0.86,
+   "b": [
+    [
+     0,
+     0.16
+    ],
+    [
+     4,
+     0.46
+    ]
+   ],
+   "from": "story-1"
   },
   "story:your turn": {
    "file": "story/your-turn.mp3",

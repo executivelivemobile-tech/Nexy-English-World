@@ -19,12 +19,12 @@ function loadData() {
   const store = {};
   const ctx = { document: { getElementById: () => null }, localStorage: { getItem: () => null, setItem() {} }, window: {}, console };
   vm.createContext(ctx);
-  vm.runInContext(src + '\n;this.__ = { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE };', ctx);
+  vm.runInContext(src + '\n;this.__ = { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE, ENGINE };', ctx);
   return ctx.__;
 }
 
 function build() {
-  const { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE } = loadData();
+  const { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE, ENGINE } = loadData();
   const out = [], seen = new Set();
   const add = (who, text, prompt) => {
     if (!text || !/[A-Za-z]/.test(text)) return;
@@ -68,6 +68,11 @@ function build() {
 
   /* ---------------- prólogo: A Lei das Palavras (o narrador; IT IS BIG/SMALL saem na voz das portas) ---------------- */
   for (const k of ['magic', 'floor', 'truth', 'turn', 'rule']) add('story', PROLOGUE[k].en);
+
+  /* ---------------- o segredo da 1-1: a TO BE ENGINE (o narrador lê a tabela e as frases da escalada) ---------------- */
+  add('story', ENGINE.intro.en);
+  for (const r of ENGINE.table) add('story', (r.p === 'I' ? 'I' : r.p.charAt(0) + r.p.slice(1).toLowerCase()) + ' ' + r.v.toLowerCase() + '.');
+  for (const r of ENGINE.climb) add('story', r.say);
 
   /* ---------------- portas, altares, baú ---------------- */
   for (const id in LEVELS) {

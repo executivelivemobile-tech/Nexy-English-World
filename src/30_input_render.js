@@ -65,7 +65,9 @@ const Input = {
     const ui = !['play', 'map'].includes(Game.state);
     const key = code => Game.onKey({ code, repeat: false, preventDefault() { } });
     // teclas do jogo (seguradas)
-    const game = { left: now.left, right: now.right, up: now.up, down: now.down, jump: now.jump, spin: now.spin, run: now.x || now.y || now.sh };
+    // com o tiro da Echo, Y atira (sem ele, Y corre como X)
+    const shotOn = typeof EchoShot !== 'undefined' && EchoShot.tier() >= 0;
+    const game = { left: now.left, right: now.right, up: now.up, down: now.down, jump: now.jump, spin: now.spin, run: now.x || (now.y && !shotOn) || now.sh };
     for (const k in game) {
       if (game[k] && !this.padHeld[k]) { this.padHeld[k] = true; if (!this.held[k] && !this.touchHeld[k]) this.edge(k); }
       else if (!game[k] && this.padHeld[k]) { this.padHeld[k] = false; this.release(k); }
@@ -74,6 +76,7 @@ const Input = {
     if (pressed('start')) key(Game.state === 'title' ? 'Enter' : 'Escape');
     if (pressed('select') && Game.state === 'play') key('KeyQ');
     if (pressed('lb') && Game.state === 'play') key('KeyC');
+    if (pressed('y') && Game.state === 'play' && shotOn) key('KeyF');
     this.padSeen = true;
     if (ui) {
       if (pressed('jump')) key('Enter');
@@ -97,7 +100,7 @@ const Input = {
       const now = {};
       for (const k of active.values()) if (k) now[k] = true;
       const before = this.touchHeld;
-      for (const k of ['left', 'right', 'down', 'up', 'run', 'jump', 'spin', 'ping']) {
+      for (const k of ['left', 'right', 'down', 'up', 'run', 'jump', 'spin', 'ping', 'shot']) {
         if (now[k] && !before[k]) this.edge(k);
       }
       this.touchHeld = now;

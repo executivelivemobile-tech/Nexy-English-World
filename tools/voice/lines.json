@@ -41,6 +41,41 @@
  },
  {
   "who": "echo",
+  "text": "What is it?",
+  "prompt": "What is it?"
+ },
+ {
+  "who": "echo",
+  "text": "It is a machine. It needs a card.",
+  "prompt": "It is a machine. It needs a card."
+ },
+ {
+  "who": "echo",
+  "text": "It is a card!",
+  "prompt": "It is a card!"
+ },
+ {
+  "who": "echo",
+  "text": "We are here!",
+  "prompt": "We are here!"
+ },
+ {
+  "who": "echo",
+  "text": "I am strong now!",
+  "prompt": "I am strong now!"
+ },
+ {
+  "who": "echo",
+  "text": "Stop, crawler!",
+  "prompt": "Stop, crawler!"
+ },
+ {
+  "who": "echo",
+  "text": "Say stop!",
+  "prompt": "Say stop!"
+ },
+ {
+  "who": "echo",
   "text": "Hello! I am Echo. I am your friend.",
   "prompt": "Hello! I am Echo. I am your friend."
  },
@@ -171,6 +206,21 @@
  },
  {
   "who": "echo",
+  "text": "he",
+  "prompt": "he."
+ },
+ {
+  "who": "echo",
+  "text": "she",
+  "prompt": "she."
+ },
+ {
+  "who": "echo",
+  "text": "card",
+  "prompt": "card."
+ },
+ {
+  "who": "echo",
   "text": "Crawler",
   "prompt": "Crawler."
  },
@@ -270,6 +320,66 @@
   "prompt": "Say it, and it is true."
  },
  {
+  "who": "story",
+  "text": "The verb to be. All of it.",
+  "prompt": "The verb to be. All of it."
+ },
+ {
+  "who": "story",
+  "text": "I am.",
+  "prompt": "I am."
+ },
+ {
+  "who": "story",
+  "text": "You are.",
+  "prompt": "You are."
+ },
+ {
+  "who": "story",
+  "text": "He is.",
+  "prompt": "He is."
+ },
+ {
+  "who": "story",
+  "text": "She is.",
+  "prompt": "She is."
+ },
+ {
+  "who": "story",
+  "text": "It is.",
+  "prompt": "It is."
+ },
+ {
+  "who": "story",
+  "text": "We are.",
+  "prompt": "We are."
+ },
+ {
+  "who": "story",
+  "text": "They are.",
+  "prompt": "They are."
+ },
+ {
+  "who": "story",
+  "text": "Nexy and Echo are friends.",
+  "prompt": "Nexy and Echo are friends."
+ },
+ {
+  "who": "story",
+  "text": "Are the crawlers big?",
+  "prompt": "Are the crawlers big?"
+ },
+ {
+  "who": "story",
+  "text": "The door is not open.",
+  "prompt": "The door is not open."
+ },
+ {
+  "who": "story",
+  "text": "I'm not afraid. I am Nexy.",
+  "prompt": "I'm not afraid. I am Nexy."
+ },
+ {
   "who": "door",
   "text": "Hello!",
   "prompt": "Hello!"
@@ -343,6 +453,11 @@
   "who": "door",
   "text": "a",
   "prompt": "a."
+ },
+ {
+  "who": "door",
+  "text": "To be or not to be?",
+  "prompt": "To be or not to be?"
  },
  {
   "who": "door",
@@ -498,6 +613,21 @@
   "who": "story",
   "text": "strong",
   "prompt": "strong."
+ },
+ {
+  "who": "story",
+  "text": "he",
+  "prompt": "he."
+ },
+ {
+  "who": "story",
+  "text": "she",
+  "prompt": "she."
+ },
+ {
+  "who": "story",
+  "text": "card",
+  "prompt": "card."
  },
  {
   "who": "door",
@@ -733,11 +863,6 @@
   "who": "echo",
   "text": "of",
   "prompt": "of."
- },
- {
-  "who": "echo",
-  "text": "he",
-  "prompt": "he."
  },
  {
   "who": "echo",
@@ -1108,5 +1233,20 @@
   "who": "door",
   "text": "strong",
   "prompt": "strong."
+ },
+ {
+  "who": "door",
+  "text": "he",
+  "prompt": "he."
+ },
+ {
+  "who": "door",
+  "text": "she",
+  "prompt": "she."
+ },
+ {
+  "who": "door",
+  "text": "card",
+  "prompt": "card."
  }
 ]

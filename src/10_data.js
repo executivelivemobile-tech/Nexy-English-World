@@ -108,6 +108,10 @@ const WORDS = {
   LIGHT:  { cls: 'noun', pt: 'luz', say: 'light', lore: 'Cada palavra aprendida acende uma. Junte muitas e a noite vira dia.' },
   AFRAID: { cls: 'adjective', pt: 'com medo', say: 'afraid', lore: 'Dizer que está com medo também é coragem. O Nexy disse, e depois deixou de estar.' },
   STRONG: { cls: 'adjective', pt: 'forte', say: 'strong', lore: 'Não é o tamanho. É tudo o que você já aprendeu, de pé dentro de você.' },
+  // aprendidas na TO BE ENGINE (o segredo da 1-1): HE é o Nexy, SHE é a Echo
+  HE:     { cls: 'pronoun', pt: 'ele (o Nexy)', say: 'he', lore: 'Quando falam do Nexy sem dizer o nome dele. HE pede IS.' },
+  SHE:    { cls: 'pronoun', pt: 'ela (a Echo)', say: 'she', lore: 'A Echo, quando alguém fala dela. SHE pede IS, como HE e IT.' },
+  CARD:   { cls: 'noun', pt: 'cartão', say: 'card', lore: 'Caiu de dentro de uma parede que parecia defeito. Liga a máquina do TO BE.' },
 };
 const CREATURES = {
   CRAWLER: { pt: 'rastejante', say: 'Crawler', lore: 'Rasteja porque nunca aprendeu a falar.' },
@@ -126,6 +130,12 @@ const ECHO = {
       { en: 'Listen! Press C.', pt: 'Aperte C (LB no controle): eu encontro coisas escondidas.' }],
     found: [{ en: 'Something is here!', pt: 'Tem alguma coisa escondida aqui!' }],
     teaser: [{ en: 'Look! The cathedral.', pt: 'Olha! A catedral.' }, { en: 'What is inside?', pt: 'O que será que tem lá dentro?' }],
+    // o segredo da 1-1: a máquina, o cartão, o teletransporte e o poder novo
+    machine: [{ en: 'What is it?', pt: 'O que é isso?' }, { en: 'It is a machine. It needs a card.', pt: 'É uma máquina. Precisa de um cartão… mas onde ele está?' }],
+    card: [{ en: 'What is it?', pt: 'O que é isso? Caiu de dentro da parede!' }, { en: 'It is a card!', pt: 'É um cartão! Ele deve ligar alguma máquina.' }],
+    warp: [{ en: 'We are here!', pt: 'Chegamos! Vidas cheias. O pedestal está logo ali.' }],
+    shot: [{ en: 'I am strong now!', pt: 'Ganhei um poder: aperte F (Y no controle) e eu atiro luz.' }, { en: 'Stop, crawler!', pt: 'O 1º tiro paralisa o Rastejante: dá para pisar nele. O 2º quebra.' }],
+    shotVoice: [{ en: 'Say stop!', pt: 'No VOICE MODE: segure V e diga STOP! que eu atiro.' }],
   },
 };
 // A LEI DAS PALAVRAS: o prólogo da primeira partida (73_echo.js → Prologue). Quem fala é o narrador (a voz antiga);
@@ -143,6 +153,37 @@ const PROLOGUE = {
     { en: 'WHAT YOU SAY IS TRUE', pt: 'o que você diz vira verdade' },
   ],
 };
+// O SEGREDO DA 1-1 (76_secret.js): um tijolo invisível no alto da torre da porta 2 só acorda com um casco jogado para
+// cima; a tela "trava" (falso erro) e cai o WARP CARD. Com ele, a TO BE ENGINE do corredor 2 liga: tabela completa do
+// verbo TO BE, 7 ligações certas SEGUIDAS e a escalada acima do A1. O teletransporte leva à praça final com as vidas
+// cheias, e a escalada decide a força do TIRO DA ECHO (fica salvo e vale nas outras fases).
+const ENGINE = {
+  intro: { en: 'The verb to be. All of it.', pt: 'A máquina funciona com o verbo TO BE. Inteiro.' },
+  table: [
+    { p: 'I', v: 'AM', pt: 'eu sou / estou', icon: 'i' },
+    { p: 'YOU', v: 'ARE', pt: 'você é / está', icon: 'you' },
+    { p: 'HE', v: 'IS', pt: 'ele é / está · o Nexy', icon: 'he', fresh: true },
+    { p: 'SHE', v: 'IS', pt: 'ela é / está · a Echo', icon: 'she', fresh: true },
+    { p: 'IT', v: 'IS', pt: 'é / está · as coisas: a chave, a porta', icon: 'it' },
+    { p: 'WE', v: 'ARE', pt: 'nós somos / estamos · o Nexy e a Echo', icon: 'we' },
+    { p: 'THEY', v: 'ARE', pt: 'eles são / estão · os Rastejantes', icon: 'they' },
+  ],
+  // escalada: uma tentativa por degrau; cada acerto deixa o tiro da Echo mais forte (SHOT[nível])
+  climb: [
+    { level: 'A2', q: 'Nexy and Echo ___ friends.', options: ['is', 'are', 'am'], answer: 1, say: 'Nexy and Echo are friends.', tip: 'Dois nomes juntos (Nexy and Echo) valem THEY: ARE.' },
+    { level: 'A2', q: '___ the crawlers big?', options: ['Is', 'Am', 'Are'], answer: 2, say: 'Are the crawlers big?', tip: 'Na pergunta o verbo vem primeiro: THEY ARE vira ARE THEY?' },
+    { level: 'A2+', q: 'The door ___ not open.', options: ['is', 'are', 'am'], answer: 0, say: 'The door is not open.', tip: 'A porta é IT: IS. O NOT vem depois do verbo.' },
+    { level: 'B1', q: '___ not afraid. I am Nexy.', options: ["I'm", "I's", "I're"], answer: 0, say: "I'm not afraid. I am Nexy.", tip: "I AM encurta para I'M (YOU ARE: YOU'RE, HE IS: HE'S)." },
+  ],
+};
+// o tiro da Echo, nível por nível (o 1º tiro paralisa, o 2º quebra; recarrega com o tempo e nos checkpoints)
+const SHOT = [
+  { name: 'STUN SHOT', pt: 'Tiro Paralisante', max: 3, every: 8, stun: 4, info: '3 tiros. O 1º paralisa o Rastejante (dá para pisar nele); o 2º quebra.' },
+  { name: 'STUN SHOT II', pt: 'Tiro Paralisante II', max: 5, every: 7, stun: 4.5, info: '+2 tiros.' },
+  { name: 'LONG STUN', pt: 'Paralisia Longa', max: 5, every: 6, stun: 7, info: 'A paralisia dura mais: dá tempo de subir neles.' },
+  { name: 'PIERCING LIGHT', pt: 'Luz que Atravessa', max: 6, every: 5, stun: 7, pierce: true, info: 'O tiro atravessa e pega vários de uma vez.' },
+  { name: 'HUNTER LIGHT', pt: 'Luz Caçadora', max: 8, every: 4, stun: 7, pierce: true, homing: true, info: 'O tiro persegue o Rastejante mais perto.' },
+];
 const MASTER_WORDS = {
   HELLO: { pt: 'olá', say: 'Hello', lore: 'Cinco letras espalhadas pelo escuro. Juntas, são a primeira coisa que o mundo responde.' },
   WORLD: { pt: 'mundo', say: 'World', lore: 'Depois do olá, o mundo inteiro. A catedral guardava cada letra num lugar mais alto.' },
@@ -208,6 +249,7 @@ const LEVELS = {
       's': { block: 'invisible', content: { word: 'SMALL' }, secret: 'invisible-small' },
       'l': { block: 'glass', content: { letter: 3 } },
       'v': { block: 'invisible', content: { life: 1 }, secret: 'echo-secret' },   // o 1º segredo que o pulso do Echo revela
+      'j': { block: 'glitch', content: { card: true }, secret: 'glitch' },          // o "bug" de propósito: só um casco jogado para cima acorda
     },
     // Placas de dica: aparecem quando o Nexy chega perto e somem depois que a ação foi feita (until).
     hints: [
@@ -221,7 +263,10 @@ const LEVELS = {
     entities: {
       'J': { entity: 'casco', respawn: 'offscreen', zone: [103, 124] },
       'V': { entity: 'pedestal', door: 'pedestal' },
+      'T': { entity: 'engine', door: 'engine' },
     },
+    // o teletransporte da TO BE ENGINE deixa o Nexy aqui: a praça final, antes do AM, do BIG e do pedestal
+    warp: { c: 181, r: 19 },
     // Portas: a frase-molde usa '_' para as lacunas. accept = frases certas (cada uma com seu resultado).
     // enact = frases "erradas" que a porta encena. Resultados: open | transform(scale) | exit(id) | morph(icon).
     doors: {
@@ -239,6 +284,7 @@ const LEVELS = {
         accept: [{ words: ['IS', 'KEY'], result: { type: 'open' } }],
         enact: [{ words: ['IS', 'DOOR'], result: { type: 'morph', to: 'door', duration: 1 } }],
       },
+      engine: { kind: 'engine', title: 'TO BE ENGINE', inscription: 'TO BE OR NOT TO BE?' },
       pedestal: {
         kind: 'pedestal', inscription: 'ARE YOU BIG OR SMALL?', mold: ['I', '_', '_', '.'], consume: false, reusable: true,
         accept: [
@@ -309,7 +355,7 @@ const Save = {
   defaults() {
     return {
       grimoire: { words: {}, creatures: {}, master: {} },
-      exits: {}, bestFluency: {}, letters: {}, cleared: {}, heart: { best: -1, by: {} }, met: {},
+      exits: {}, bestFluency: {}, letters: {}, cleared: {}, heart: { best: -1, by: {} }, met: {}, shot: { best: -1 },
       map: { at: '1-1', revealed: {} },
       flags: { palaces: { toBe: false } },
       assist: { slow: false, safeFall: false, freeHints: false, subtitles: false, voice: false },
@@ -330,6 +376,7 @@ const Save = {
           Object.assign(d.letters, s.letters); Object.assign(d.cleared, s.cleared);
           Object.assign(d.met, s.met);
           if (s.heart) { d.heart.best = s.heart.best != null ? s.heart.best : -1; Object.assign(d.heart.by, s.heart.by); }
+          if (s.shot && s.shot.best != null) d.shot.best = s.shot.best;
           if (s.map) { if (s.map.at) d.map.at = s.map.at; Object.assign(d.map.revealed, s.map.revealed); }
           // saves da versão só com a 1-1: quem já saiu da 1-1 já tem os caminhos abertos
           for (const id in d.exits) if (d.exits[id].normal || d.exits[id].secret) d.cleared[id] = true;

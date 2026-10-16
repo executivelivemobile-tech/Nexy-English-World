@@ -416,6 +416,113 @@ test('lembranças da lei: placa na escada-fantasma (1-1) e no primeiro altar (1-
   expect(r.h12 && r.altarDone, `1-2: placa WHAT YOU SAY IS TRUE some com IT IS BIG (${JSON.stringify(r)})`);
 });
 
+test('1-1 segredo: só o casco jogado para cima acorda o tijolo invisível (mesmo encostado na torre); o "erro" solta o WARP CARD', async ({ page }) => {
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, G = NEXY.Game, W = NEXY.World, E = NEXY.Ents, out = {};
+    H.noEnemies();
+    const b = W.blockAt(103, 12); out.hidden = b && b.kind === 'glitch' && b.state === 'hidden';
+    // a cabeça passa reto: pular embaixo não acorda nem bate
+    H.tp(103, 19, 999); H.set(['jump']); H.press('jump'); H.step(40); H.set([]); H.step(40); out.head = b.state;
+    // o pulso da Echo só faz piscar (nenhuma fala: ela não o vê)
+    Echo.line = null; EchoPulse.cool = 0; EchoPulse.fire(); out.flick = b.flick > 0 && !Echo.line && b.state === 'hidden';
+    // o casco-guarda: pega, leva até encostar na torre e joga para cima
+    H.wakeSpawns(); H.tp(105, 19, 999); H.step(10);
+    const ca = E.list.find(e => e.type === 'casco'); Ents.types.casco.toShell(ca); H.step(5);
+    P.x = ca.x - 24; P.y = ca.y + ca.h - P.h; P.facing = 1; H.set(['run', 'right']); for (let i = 0; i < 40; i++) { H.step(1); if (ca.state === 'held') break; }
+    H.set(['run', 'left']); for (let i = 0; i < 160; i++) { H.step(1); if (P.x <= 101 * 32 + 66) break; }
+    H.set(['run']); H.step(20); out.flush = Math.round(P.x) === 103 * 32;
+    H.set(['run', 'up']); H.step(2); H.set(['up']); H.step(1);
+    for (let i = 0; i < 90; i++) { H.step(1); if (Glitch.active) break; }
+    out.glitch = Glitch.active && G.state === 'cinematic';
+    let n = 0; while (Glitch.active && n++ < 300) Glitch.update(1 / 60);
+    out.used = b.state === 'used' && G.secrets.has('glitch') && G.state === 'play';
+    H.set([]); H.step(100);
+    out.card = G.card && !E.list.some(e => e.type === 'card');
+    out.line = Echo.line && Echo.line.en;
+    return out;
+  });
+  expect(r.hidden && r.head === 'hidden' && r.flick, `tijolo invisível: a cabeça não acorda e o pulso só pisca (${JSON.stringify(r)})`);
+  expect(r.flush && r.glitch, `encostado na torre, o casco jogado para cima trava no tijolo e a tela "dá erro" (${JSON.stringify(r)})`);
+  expect(r.used && r.card && r.line === 'What is it?', `o tijolo vira bloco, conta como segredo e o cartão cai na mão (${JSON.stringify(r)})`);
+});
+
+test('1-1 TO BE ENGINE: sem cartão não liga; 7 ligações seguidas (errar recomeça); escalada dá o tiro; teletransporte com vidas cheias', async ({ page }) => {
+  const s1 = await page.evaluate(() => {
+    const P = NEXY.P, G = NEXY.Game; H.noEnemies(); NEXY.Save.data.shot.best = -1; EchoShot.reset();
+    NEXY.give('IS', 'ARE', 'IS', 'KEY'); H.tp(136, 19, 999); H.step(5);
+    const d = P.interact; G.openPanel(d); H.step(2);
+    const out = { kind: d && d.kind, noCard: G.state === 'play', line: Echo.line && Echo.line.en };
+    G.card = true; G.openPanel(P.interact); out.open = G.state === 'engine' && $('chest').classList.contains('on');
+    Engine.act('wire');
+    return out;
+  });
+  const plug = right => page.evaluate(right => { const r = ENGINE.table[Engine.st.order[Engine.st.streak]]; const v = right ? r.v : ['AM', 'IS', 'ARE'].find(x => x !== r.v); Engine.plug(v, document.querySelector(`#chest [data-v="${v}"]`)); }, right);
+  await plug(true); await page.waitForTimeout(800); await plug(true); await page.waitForTimeout(800);
+  const before = await page.evaluate(() => Engine.st.streak);
+  await plug(false); await page.waitForTimeout(2300);
+  const after = await page.evaluate(() => ({ streak: Engine.st.streak, wired: Engine.d.wired, step: Engine.st.step }));
+  for (let i = 0; i < 7; i++) { await plug(true); await page.waitForTimeout(800); }
+  const online = await page.evaluate(() => ({ step: Engine.st.step, online: Engine.d.online, best: NEXY.Save.data.shot.best }));
+  await page.evaluate(() => { Engine.act('climb'); const r = ENGINE.climb[0]; Engine.answer(r.answer, document.querySelectorAll('#chest .copt')[r.answer]); });
+  await page.waitForTimeout(200);
+  await page.evaluate(() => { Engine.act('up'); const r = ENGINE.climb[1], w = (r.answer + 1) % 3; Engine.answer(w, document.querySelectorAll('#chest .copt')[w]); });
+  await page.waitForTimeout(200);
+  const done = await page.evaluate(() => { Engine.act('up'); return { step: Engine.st.step, tier: Engine.st.tier, best: NEXY.Save.data.shot.best }; });
+  const warp = await page.evaluate(() => {
+    const G = NEXY.Game, P = NEXY.P; G.lives = 2;
+    Engine.act('warp'); const a = Warp.active, fuel = G.bar.join(' ');
+    let n = 0; while (Warp.active && n++ < 400) Warp.update(1 / 60);
+    H.step(30);
+    return { a, fuel, col: Math.floor(P.cx / 32), lives: G.lives, state: G.state, cp: G.checkpoint && Math.floor(G.checkpoint.x / 32), charges: EchoShot.charges };
+  });
+  expect(s1.kind === 'engine' && s1.noCard && s1.line === 'What is it?', `sem cartão: não abre e a Echo comenta (${JSON.stringify(s1)})`);
+  expect(s1.open, 'com cartão: abre a tela da máquina');
+  expect(before === 2 && after.streak === 0 && after.wired === 0 && after.step === 'wire', `uma errada zera a sequência (${before} → ${JSON.stringify(after)})`);
+  expect(online.step === 'online' && online.online && online.best === 0, `7 seguidas: ligada e o tiro básico salvo (${JSON.stringify(online)})`);
+  expect(done.step === 'done' && done.tier === 1 && done.best === 1, `escalada: 1 acerto e 1 erro = nível 1 (${JSON.stringify(done)})`);
+  expect(warp.a && warp.fuel === 'KEY' && warp.col === 181 && warp.lives === 5 && warp.state === 'play' && warp.cp === 181 && warp.charges === 5,
+    `teletransporte: IS/ARE viram combustível, praça final, vidas cheias, checkpoint e cargas (${JSON.stringify(warp)})`);
+});
+
+test('tiro da Echo: o 1º paralisa (não machuca e vira plataforma), o 2º quebra; recarrega; F, toque e voz (STOP!)', async ({ page }) => {
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, G = NEXY.Game, E = NEXY.Ents, out = {};
+    out.locked = !EchoShot.fire();
+    NEXY.Save.data.shot.best = 0; EchoShot.reset(); out.charges0 = EchoShot.charges;
+    H.noEnemies();
+    // um Rastejante de verdade, na frente do Nexy
+    const cr = E.spawn('crawler', { x: 30 * 32, y: 19 * 32 + 8, opts: {} }); cr.dir = 0; H.step(10);
+    H.tp(25, 19, 0); P.facing = 1; Echo.reset(); H.step(30);
+    out.fired = EchoShot.fire(); for (let i = 0; i < 40; i++) { H.step(1); if (cr.frozen > 0) break; }
+    out.frozen = cr.frozen > 0 && cr.plat;
+    // encostar no paralisado não machuca
+    const lives = G.lives; P.x = cr.x - 4; P.y = cr.y + cr.h - P.h; P.invuln = 0; H.step(5); out.safe = !P.dead && G.lives === lives;
+    // pousar em cima: plataforma
+    P.x = cr.x + 2; P.y = cr.y - P.h - 30; P.vy = 0; H.step(40); out.stand = P.onGround && Math.abs(P.y + P.h - cr.y) < 1.5;
+    // 2º tiro quebra
+    H.tp(25, 19, 0); P.facing = 1; Echo.reset(); H.step(30); EchoShot.fire(); for (let i = 0; i < 40; i++) { H.step(1); if (cr.state === 'dying' || cr.dead) break; }
+    out.broke = cr.state === 'dying' || cr.dead; out.charges1 = EchoShot.charges;
+    // recarga com o tempo
+    H.step(Math.round(SHOT[0].every * 60) + 5); out.recharge = EchoShot.charges;
+    // F no teclado, botão SHOT no toque
+    const c0 = EchoShot.charges; G.onKey({ code: 'KeyF', preventDefault() { } }); out.keyF = EchoShot.charges === c0 - 1;
+    const c1 = EchoShot.charges; Input.edge('shot'); H.step(1); out.touch = EchoShot.charges === c1 - 1;
+    // voz: segurar V e dizer STOP! (reconhecimento simulado)
+    NEXY.Save.data.assist.voice = true; Listen.SR = function () { }; const ls = Listen.start;
+    Listen.start = (onResult, onDone) => { onResult(['stop']); onDone(true); return true; };
+    EchoShot.refill(); const c2 = EchoShot.charges; G.onKey({ code: 'KeyV', preventDefault() { } }); out.voice = EchoShot.charges === c2 - 1;
+    Listen.start = (onResult, onDone) => { onResult(['hello']); onDone(true); return true; };
+    G.onKey({ code: 'KeyV', preventDefault() { } }); out.voiceOther = EchoShot.charges === c2 - 1;
+    Listen.start = ls;
+    return out;
+  });
+  expect(r.locked, 'sem o poder, F não faz nada');
+  expect(r.charges0 === 3 && r.fired && r.frozen, `1º tiro paralisa (${JSON.stringify(r)})`);
+  expect(r.safe && r.stand, `paralisado: não machuca e dá para pisar em cima (${JSON.stringify(r)})`);
+  expect(r.broke && r.charges1 === 1 && r.recharge === 2, `2º tiro quebra; recarrega com o tempo (${JSON.stringify(r)})`);
+  expect(r.keyF && r.touch && r.voice && r.voiceOther, `F, toque e STOP! atiram; outra palavra não (${JSON.stringify(r)})`);
+});
+
 /* ================================ FASE 1-2 · WHO ARE YOU? ================================ */
 const L12 = { level: '1-2' };
 // funções de apoio dentro da página: bater em bloco, usar porta/altar, tentar pulos em vários tempos

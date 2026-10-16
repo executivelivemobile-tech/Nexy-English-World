@@ -174,6 +174,7 @@ const EchoPulse = {
       const bx = b.c * TS + TS / 2, by = b.r * TS + TS / 2; if (Math.hypot(bx - Echo.x, by - Echo.y) > this.R) continue;
       if (b.kind === 'invisible' && b.state === 'hidden') { b.ping = 3; found++; }
       else if (b.kind === 'question' && b.state === 'ready' && b.content && b.content.word) b.peek = 3;
+      else if (b.kind === 'glitch' && b.state === 'hidden') b.flick = 0.5;   // o tijolo do bug só pisca: a Echo não o vê
     }
     for (const v of World.veils) {
       if (v.found) continue;

@@ -26,6 +26,7 @@ const PARTS = [
   '73_echo.js',         // 1-1: a chegada, o nascimento do Echo, o pulso do Echo e as placas de dica
   '74_prologue.js',     // 1-1: A Lei das Palavras (o prólogo da primeira partida)
   '75_worldmap.js',     // transições (íris) e mapa-múndi
+  '76_secret.js',       // 1-1: o segredo (tijolo do bug, WARP CARD, TO BE ENGINE, teletransporte) e o tiro da Echo
   '99_boot.js',         // API de teste no console e partida
 ];
 

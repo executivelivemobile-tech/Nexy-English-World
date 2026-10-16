@@ -302,11 +302,14 @@ const UI = {
     if (L.item !== g.reserve) { L.item = g.reserve; $('itemslot').classList.toggle('full', !!g.reserve); }
     const ts = fmtTime(g.timeRun); if (L.time !== ts) { L.time = ts; $('time').textContent = ts; }
     const showOpen = g.state === 'play' && !!P.interact;
-    if (L.open !== showOpen) { L.open = showOpen; $('tbopen').classList.toggle('show', showOpen); $('tbopen').textContent = P.interact && P.interact.kind === 'pedestal' ? 'SPEAK' : 'OPEN'; }
-    const hudOn = g.state !== 'title' && g.where === 'level' && !g.scene();
+    if (L.open !== showOpen) { L.open = showOpen; $('tbopen').classList.toggle('show', showOpen); $('tbopen').textContent = P.interact && P.interact.kind === 'pedestal' ? 'SPEAK' : P.interact && P.interact.kind === 'engine' ? 'USE' : 'OPEN'; }
+    const hudOn = g.state !== 'title' && g.where === 'level' && (!g.scene() || g.scene() === Glitch);
     if (L.hud !== hudOn) { L.hud = hudOn; $('hud').style.opacity = hudOn ? 1 : 0; $('wordbar').style.opacity = hudOn ? 1 : 0; }
     const pingOn = g.where === 'level' && g.echoBorn && !Echo.hidden;
     if (L.ping !== pingOn) { L.ping = pingOn; $('tbping').style.display = pingOn ? '' : 'none'; }
+    const shotOn = pingOn && EchoShot.tier() >= 0;
+    if (L.shot !== shotOn) { L.shot = shotOn; $('tbshot').style.display = shotOn ? '' : 'none'; }
+    if (L.card !== g.card) { L.card = g.card; $('cardbox').style.display = g.card ? '' : 'none'; }
     const touch = document.body.classList.contains('touch');
     if (L.touch !== touch) { L.touch = touch; $('wordbar').classList.toggle('top', touch); }
   },
@@ -386,7 +389,7 @@ const UI = {
   menuKey(e) {
     const c = e.code;
     if (c === 'Escape' || c === 'KeyP') { if (Game.state === 'pause') Game.resume(); else this.back(); return; }
-    const scr = $(Game.state); if (!scr) return;
+    const scr = $(Game.state === 'engine' ? 'chest' : Game.state); if (!scr) return;
     const items = [...scr.querySelectorAll('.btn, .tgl')].filter(b => b.offsetParent !== null && !b.disabled);
     if (!items.length) return;
     let i = items.indexOf(document.activeElement);
@@ -467,11 +470,13 @@ const Game = {
     this.timers = []; this.wordSrc = {}; this.zone = null; Dark.k = 0; this.forceInput = null; this.metDark = false;
     if (typeof Cine !== 'undefined' && Cine.active) Cine.end();
     if (typeof Birth !== 'undefined') { Birth.active = false; Arrival.active = false; Prologue.active = false; EchoPulse.reset(); Hints.reset(); }
+    if (typeof Glitch !== 'undefined') { Glitch.active = false; Warp.active = false; EchoShot.reset(); }
+    this.card = false;
   },
   // tamanho da barra de palavras: cresce nas fases com mais vocabulário (LEVELS[id].barMax)
   barMax() { return (World.level && World.level.barMax) || CFG.WORD_BAR_MAX; },
   // cena ativa (Coração, nascimento do Echo, chegada): todas têm a mesma interface
-  scene() { return Cine.active ? Cine : Birth.active ? Birth : Prologue.active ? Prologue : Arrival.active ? Arrival : null; },
+  scene() { return Cine.active ? Cine : Birth.active ? Birth : Prologue.active ? Prologue : Glitch.active ? Glitch : Warp.active ? Warp : Arrival.active ? Arrival : null; },
   // relógio da simulação (para quebra-cabeças determinísticos, como os sinos)
   later(sec, fn) { this.timers.push({ t: this.simTime + sec, fn }); },
   loadLevel(id) {
@@ -563,9 +568,12 @@ const Game = {
         else if (c === 'KeyC') { if (EchoPulse.fire()) Hints.mark('ping'); }
         else if (c === 'KeyH') { if (P.interact) this.buyHint(P.interact); else UI.msg('HINTS WORK NEAR DOORS'); }
         else if (c === 'KeyV' && Save.data.assist.voice && Listen.available() && P.interact) { this.openPanel(P.interact); Panel.listen(); }
+        else if (c === 'KeyV') EchoShot.listen();
+        else if (c === 'KeyF') EchoShot.fire();
         break;
       case 'panel': Panel.key(e); break;
       case 'chest': Chest.key(e); break;
+      case 'engine': Engine.key(e); break;
       case 'pause': case 'grimoire': case 'assist': UI.menuKey(e); break;
       case 'clear': UI.menuKey(e); break;
     }
@@ -581,7 +589,9 @@ const Game = {
     const frozen = Transition.active && Transition.phase !== 'open';
     if (frozen) Input.queue.length = 0;
     if (!frozen && (this.state === 'play' || this.state === 'clearing')) {
-      this.acc += dt * (Save.data.assist.slow ? 0.8 : 1) * (sc ? sc.timeScale : 1);
+      // segurando V para o comando de voz, o tempo fica lento enquanto a Echo escuta (no máximo 5 s)
+      if (EchoShot.listening) { EchoShot.listenT += dt; if (EchoShot.listenT > 5) { Listen.stop(); EchoShot.listening = false; } }
+      this.acc += dt * (Save.data.assist.slow ? 0.8 : 1) * (sc ? sc.timeScale : 1) * (EchoShot.listening ? 0.3 : 1);
       let n = 0;
       while (this.acc >= CFG.STEP && n < 8) { this.step(CFG.STEP); this.acc -= CFG.STEP; n++; }
       if (n >= 8) this.acc = 0;
@@ -595,7 +605,7 @@ const Game = {
     P.px = P.x; P.py = P.y; Ents.save(); Cam.px = Cam.x; Cam.py = Cam.y; Echo.px = Echo.x; Echo.py = Echo.y;
     // cena: o jogo controla o Nexy (investida)
     if (this.forceInput) { Input.touchHeld = Object.assign({}, this.forceInput); for (const k in Input.held) Input.held[k] = false; Input.padHeld = {}; Input.pressedAt.jump = -1; Input.pressedAt.spin = -1; Input.queue.length = 0; }
-    for (const k of Input.queue) { if (k === 'up' && this.state === 'play') P.tryInteract(); if (k === 'ping' && EchoPulse.fire()) Hints.mark('ping'); }
+    for (const k of Input.queue) { if (k === 'up' && this.state === 'play') P.tryInteract(); if (k === 'ping' && EchoPulse.fire()) Hints.mark('ping'); if (k === 'shot') EchoShot.fire(); }
     Input.queue.length = 0;
     if (this.state !== 'play' && this.state !== 'clearing') return;
     if (P.dead) { P.update(dt); FX.update(dt); Echo.update(dt); Cam.update(dt); return; }
@@ -606,7 +616,7 @@ const Game = {
     Ents.update(dt);
     // quem está em cima de uma plataforma móvel anda com ela
     if (P.riding) { const e = P.riding; if (e.dead) P.riding = null; else { World.move(P, e.dx, 0); World.move(P, 0, e.dy); } }
-    World.updateBlocks(dt); EchoPulse.update(dt);
+    World.updateBlocks(dt); EchoPulse.update(dt); EchoShot.update(dt);
     if (this.timers.length) { const due = this.timers.filter(x => x.t <= this.simTime); this.timers = this.timers.filter(x => x.t > this.simTime); for (const x of due) x.fn(); }
     // zonas: cripta escura e abafada, campanário em crescendo
     const z = World.zoneAt(P.cx, P.cy);
@@ -638,6 +648,7 @@ const Game = {
     World.drawVeils(ctx, camX, camY);
     P.draw(ctx, camX, camY, a);
     Echo.draw(ctx, camX, camY, a);
+    EchoShot.draw(ctx, camX, camY);
     FX.draw(ctx, camX, camY);
     Dark.draw(ctx, camX, camY);
     Ents.draw(ctx, camX, camY, a, 'front');
@@ -657,7 +668,7 @@ const Game = {
       const g = x.createRadialGradient(w / 2, h / 2, h * 0.35, w / 2, h / 2, w * 0.62);
       g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.3)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
     }), 480, 270);
-    Cine.drawScreen(ctx); Birth.drawScreen(ctx); Arrival.drawScreen(ctx); Prologue.drawScreen(ctx);
+    Cine.drawScreen(ctx); Birth.drawScreen(ctx); Arrival.drawScreen(ctx); Prologue.drawScreen(ctx); Glitch.drawScreen(ctx); Warp.drawScreen(ctx);
     Transition.draw(ctx, this.time);
   },
 
@@ -742,9 +753,10 @@ const Game = {
   comboReward(n) {
     if (n >= 8) { this.lives++; SFX.oneUp(); UI.msg('1 UP'); }
   },
-  setCheckpoint(e) { this.checkpoint = { x: e.x + e.w / 2, y: e.y + e.h }; },
+  setCheckpoint(e) { this.checkpoint = { x: e.x + e.w / 2, y: e.y + e.h }; EchoShot.refill(); },
   openPanel(d) {
     if (!d || this.state !== 'play') return;
+    if (d.kind === 'engine') { Engine.use(d); return; }
     if (d.kind === 'chest') { this.state = 'chest'; P.vx *= 0.3; Chest.open(d); return; }
     this.state = 'panel'; P.vx *= 0.3; Panel.open(d);
   },
@@ -760,7 +772,7 @@ const Game = {
       return;
     }
     const cp = this.checkpoint || World.start;
-    P.reset(cp.x, cp.y); Spawns.reset(); Echo.reset(); Echo.hidden = !this.echoBorn; Cam.snap(); Music.normal();
+    P.reset(cp.x, cp.y); Spawns.reset(); Echo.reset(); Echo.hidden = !this.echoBorn; Cam.snap(); Music.normal(); EchoShot.refill(); EchoShot.bolts = [];
   },
   finish(exit, bonus) {
     if (this.state !== 'play') return;
