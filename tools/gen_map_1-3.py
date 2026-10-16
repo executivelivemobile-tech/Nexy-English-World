@@ -4,7 +4,7 @@
 # Os desafios de altura são sempre de 5 linhas (160 px): o pulo (123 px, correndo 154) não alcança;
 # a CAIXA no lugar certo (ou uma GÁRGULA parada no ar, olhando para ela) vira o degrau que falta.
 import sys
-W, H = 200, 26
+W, H = 400, 26
 m = [['.' for _ in range(W)] for _ in range(H)]
 def put(x, y, c):
     assert m[y][x] == '.', f'overlap at {x},{y}: {m[y][x]} -> {c}'
@@ -65,14 +65,55 @@ put(148, 11, 'q')                                            # gárgula do trilh
 put(154, 11, 'y')                                            # letra Y (pulo de cima do trem)
 orbs(13, [144, 145, 150, 151, 158, 159])
 
-# ---------------- E · A PRAÇA DO MAPA (163-199) ----------------
-roof(163, 199, 16)
+# ---------------- E · O MERCADO NEON (163-212): o LASER do Nexy ----------------
+roof(163, 262, 16)                                           # um telhado só, do mercado ao fim do beco
 put(165, 15, 'F')
-put(172, 15, 'Q')                                            # o MAPA DA CIDADE (o desafio que dá a BÚSSOLA)
-put(180, 12, 'w')                                            # cristal escondido
-put(184, 15, 'C')
-orbs(13, [177, 178, 186, 187, 188])
-put(195, 15, 'N')
+put(169, 12, '8')                                            # bloco do LASER (power-up; volta a encher)
+put(180, 11, 'd'); put(184, 15, 'C'); put(193, 9, 'd')      # drones e um Rastejante para treinar o tiro
+put(200, 15, 'Q')                                            # o MAPA DA CIDADE (BETWEEN e a Bússola)
+put(207, 12, 'w')                                            # cristal escondido
+orbs(13, [175, 176, 177, 187, 188])
+
+# ---------------- F · O BECO DOS LASERS (213-262): THE BOX IS IN FRONT OF THE LASER ----------------
+put(216, 12, '9'); put(219, 12, '0')                         # IN FRONT OF, LASER
+put(222, 15, '(')                                            # altar 4
+put(226, 15, '#')                                            # o poste onde o feixe termina (dá para subir nele)
+fill(228, 236, 11, 13, '#')                                  # a marquise: embaixo dela o corredor tem 2 linhas (não se pula o feixe)
+put(241, 15, '<')                                            # o EMISSOR (atira para a esquerda, na altura do Nexy; o tiro quebra)
+put(233, 8, 'd')                                             # drone em cima da marquise
+put(246, 15, 'F')
+put(248, 12, 's')                                            # STAR escondida (o pulso mostra)
+put(251, 9, '/'); put(257, 9, 'u')                           # portões de laser que ligam e desligam (passe quando apagam)
+put(255, 5, 'd')
+orbs(10, [230, 231, 233, 234]); orbs(13, [244, 245])
+
+# ---------------- G · O ABISMO E A ANTENA (263-330): BETWEEN THE SIGN AND THE WALL ----------------
+roof(263, 284, 16)
+put(266, 12, '~')                                            # bloco das WINGS (planar; volta a encher)
+put(270, 12, '+'); put(273, 12, '-')                         # NEXT TO, BETWEEN
+put(278, 15, ')')                                            # altar 5
+put(284, 15, '^')                                            # ventilador na beirada: com WINGS, o vento te levanta
+# o abismo c285-291 (7 colunas: 224 px, nem correndo); o prédio da antena começa em c292, 5 linhas mais alto.
+# Com a caixa ENTRE a placa e o muro (c287-289, topo L13), os dois pulos têm 2 colunas de vão: dá andando.
+roof(292, 330, 11)
+put(296, 10, 'F')
+fill(300, 302, 8, 8, '='); fill(306, 308, 5, 5, '='); fill(300, 302, 2, 2, '=')   # a antena: sacadas até o topo
+put(307, 1, 'l')                                             # vida no alto da antena
+put(297, 4, 'd'); put(312, 7, 'd')
+fill(317, 320, 6, 6, '=')                                    # sacada solta no céu: só planando do topo da antena
+orbs(5, [317, 318, 319, 320]); put(318, 2, 'l')
+orbs(10, [314, 315, 316, 323, 324, 325])
+
+# ---------------- H · A ARENA DO SENTINELA (331-372) e a saída (373-399) ----------------
+roof(331, 399, 16)
+put(333, 15, 'F')
+put(335, 15, 'K')                                            # o terminal: WHERE IS THE CORE?
+put(342, 12, 'm')                                            # poço de palavras (UNDER, BEHIND, NEXT TO que faltarem)
+put(345, 12, '8')                                            # LASER de reserva (volta a encher)
+put(353, 7, 'S')                                             # o SENTINELA (paira sobre a arena)
+# o portão do fim (alvo bossgate, c372-373 L9-15) só afunda quando o Sentinela cai
+orbs(13, [378, 379, 380, 384, 385, 386])
+put(392, 15, 'N')
 
 rows = [''.join(r) for r in m]
 out = sys.argv[1] if len(sys.argv) > 1 else 'src/levels/1-3.map'

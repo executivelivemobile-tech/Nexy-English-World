@@ -19,12 +19,12 @@ function loadData() {
   const store = {};
   const ctx = { document: { getElementById: () => null }, localStorage: { getItem: () => null, setItem() {} }, window: {}, console };
   vm.createContext(ctx);
-  vm.runInContext(src + '\n;this.__ = { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE, ENGINE, PALACE, CITY };', ctx);
+  vm.runInContext(src + '\n;this.__ = { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE, ENGINE, PALACE, CITY, POWERS, SENTINEL };', ctx);
   return ctx.__;
 }
 
 function build() {
-  const { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE, ENGINE, PALACE, CITY } = loadData();
+  const { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE, ENGINE, PALACE, CITY, POWERS, SENTINEL } = loadData();
   const out = [], seen = new Set();
   const add = (who, text, prompt) => {
     if (!text || !/[A-Za-z]/.test(text)) return;
@@ -86,6 +86,12 @@ function build() {
   for (const l of CITY.map.lines) add('story', l.en);
   for (const r of CITY.map.climb) add('echo', r.options[r.answer]);
   for (const l of CITY.scene) add('story', l.en);
+  /* ---------------- 1-3, a segunda metade: o nome dos poderes, o "olhe de novo" do terminal, a queda do Sentinela ---------------- */
+  for (const k in POWERS) add('echo', POWERS[k].say, '[excited] ' + POWERS[k].say);
+  for (const k in SENTINEL.tips) add('echo', SENTINEL.tips[k].en);
+  for (const l of SENTINEL.scene) add('story', l.en);
+  // a porta repete palavra por palavra as frases que não foram gravadas: as partes de IN FRONT OF e NEXT TO
+  for (const w of ['front', 'of', 'next', 'to']) add('door', w, w + '.');
   // Grimório → PODERES: o botão de ouvir
   for (const p of ['Echo pulse', 'Echo shot', 'Voice mode', 'Heart of words', 'To be ring', 'Warp card', 'Compass of words']) add('echo', p, alone(p));
 
@@ -131,7 +137,7 @@ function build() {
       for (const r of rules) if (r.say) add('door', r.say);
       for (const a of def.accept || []) add('door', speakable(fill(def.mold, a.words)));
       // palavras soltas da porta (para frases que não estão na lista: a porta repete palavra por palavra)
-      for (const t of def.mold) if (t !== '_' && /[A-Z]/.test(t)) add('door', word(t), alone(word(t)));
+      for (const t of def.mold) if (t !== '_' && /[A-Z]/.test(t)) add('door', word(t), alone(WORDS[t] ? word(t) : t.toLowerCase()));
     }
     // o que a Echo diz ao ver o passado com o pulso (palácio) e ao achar ou ver chegar a caixa (1-3)
     for (const tid in L.targets || {}) {

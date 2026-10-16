@@ -248,6 +248,12 @@ const City = {
       ctx.strokeStyle = wa(0.2); ctx.lineWidth = 1.2; ctx.stroke();
       const on = Math.sin(t * 3 + e.c) > 0.6 ? 1 : 0.2;
       R.draw(R.glow('m', 14), x + 16, by - 72, 0.8, 0.7 * on, true);
+    } else if (k === 'rail') {
+      // o cano de ferro do beco: os portões de laser pendem dele
+      const yy = y + 22;
+      ctx.beginPath(); ctx.moveTo(x - 8, yy); ctx.lineTo(x + w + 8, yy); ctx.strokeStyle = wa(0.22); ctx.lineWidth = 3; ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x - 8, yy - 2); ctx.lineTo(x + w + 8, yy - 2); ctx.strokeStyle = ca(0.25); ctx.lineWidth = 1; ctx.stroke();
+      ctx.beginPath(); for (const lx of [x, x + w]) { ctx.moveTo(lx, yy); ctx.lineTo(lx - 10, yy - 40); } ctx.strokeStyle = wa(0.16); ctx.lineWidth = 1.5; ctx.stroke();
     } else if (k === 'vent') {
       const by = y + TS;
       rrect(ctx, x + 2, by - 22, 28, 22, 3); ctx.fillStyle = 'rgba(8,10,13,0.96)'; ctx.fill(); ctx.strokeStyle = wa(0.18); ctx.lineWidth = 1; ctx.stroke();

@@ -1371,19 +1371,32 @@ const HELP13 = () => {
     stand(rr, c0, c1) { return () => P.onGround && Math.round(P.y + P.h) === rr * 32 && P.x + P.w / 2 >= c0 * 32 && P.x + P.w / 2 <= (c1 + 1) * 32; },
     onIt(e) { return () => P.onGround && P.riding === e && Math.abs(P.cx - (e.x + e.w / 2)) < 12; },
     async say(c, r, words) { Echo.line = null; Echo.lines = []; await H12.panel(c, r, words); H.step(40); return Echo.line ? Echo.line.en : '-'; },
+    // anda segurando a seta; parou numa parede ou chegou na beirada: pula (segurando o pulo um tempo), como o jogador
+    walk(dir, frames, stop, run) {
+      let jt = 0; const d = dir === 'right' ? 1 : -1;
+      for (let i = 0; i < frames; i++) {
+        const keys = [dir].concat(run ? ['run'] : []), fx = d > 0 ? P.x + P.w + 2 : P.x - 2;
+        const edge = P.onGround && !NEXY.World.isFloor(Math.floor(fx / 32), Math.floor((P.y + P.h + 2) / 32));
+        if (jt > 0) { keys.push('jump'); jt--; } else if (P.onGround && ((Math.abs(P.vx) < 5 && i > 3) || edge)) { H.press('jump'); keys.push('jump'); jt = 22; }
+        H.set(keys); H.step(1); if (P.dead || (stop && stop())) break;
+      }
+      H.set([]);
+    },
+    // espera um portão de laser acabar de apagar
+    off(g) { let prev = g.on; for (let i = 0; i < 400; i++) { H.step(1); if (prev && !g.on) return true; prev = g.on; } return false; },
   };
 };
 
-test('1-3: carrega com CITY, 8 palavras (BETWEEN no mapa), 4 letras, 1 saída, gárgula e Rastejante, música e fundo da cidade', async ({ page }) => {
+test('1-3: carrega com CITY, 14 palavras, 4 letras, 1 saída, 3 segredos, 4 criaturas (drone e Sentinela), barra de 12, música e fundo da cidade', async ({ page }) => {
   const r = await page.evaluate(() => ({ T: NEXY.World.totals, word: NEXY.World.level.masterWord, music: Music.variant, bg: NEXY.World.level.bg,
-    doors: Object.keys(NEXY.World.doors).sort().join(), bar: NEXY.Game.barMax(), node: WorldMap.playable('1-3'),
-    boxes: ['box1', 'box2', 'box3'].map(id => NEXY.World.targets[id].state).join() }));
-  expect(r.word === 'CITY' && r.T.letters === 4 && r.T.exits === 1 && r.T.secrets === 2, `palavra-mestra e totais ${JSON.stringify(r.T)}`);
-  expect(r.T.wordList.sort().join() === 'BEHIND,BETWEEN,HOLE,IN,ON,SIGN,UNDER,WALL', `palavras ${r.T.wordList}`);
-  expect(r.T.creatureList.sort().join() === 'CRAWLER,GARGOYLE', `criaturas ${r.T.creatureList}`);
-  expect(r.music === 'city' && r.bg === 'city' && r.bar === 10, 'música, fundo e barra');
-  expect(r.doors === 'altar1,altar2,altar3,altar3b,citymap', `altares e mapa (${r.doors})`);
-  expect(r.boxes === 'on,behind,on-wall', `caixas no começo (${r.boxes})`);
+    doors: Object.keys(NEXY.World.doors).sort().join(), bar: NEXY.Game.barMax(), node: WorldMap.playable('1-3'), w: NEXY.World.w,
+    boxes: ['box1', 'box2', 'box3', 'box4', 'box5'].map(id => NEXY.World.targets[id].state).join(), gate: NEXY.World.targets.bossgate.state }));
+  expect(r.word === 'CITY' && r.T.letters === 4 && r.T.exits === 1 && r.T.secrets === 3 && r.w === 400, `palavra-mestra e totais ${JSON.stringify(r.T)}`);
+  expect(r.T.wordList.sort().join() === 'BEHIND,BETWEEN,CORE,HOLE,IN,IN FRONT OF,LASER,NEXT TO,ON,SHIELD,SIGN,UNDER,WALL,WINGS', `palavras ${r.T.wordList}`);
+  expect(r.T.creatureList.sort().join() === 'CRAWLER,DRONE,GARGOYLE,SENTINEL', `criaturas ${r.T.creatureList}`);
+  expect(r.music === 'city' && r.bg === 'city' && r.bar === 12, 'música, fundo e barra');
+  expect(r.doors === 'altar1,altar2,altar3,altar3b,altar4,altar5,citymap,core', `altares, mapa e terminal (${r.doors})`);
+  expect(r.boxes === 'on,behind,on-wall,on,on-wall' && r.gate === 'big', `caixas no começo e o portão do fim fechado (${r.boxes}/${r.gate})`);
   expect(r.node, 'o nó da 1-3 no mapa agora é jogável');
 }, L13);
 
@@ -1574,7 +1587,7 @@ test('1-3 letras e segredos: C do alto da placa, I em cima do outdoor, T da gár
     const tr = NEXY.Ents.list.find(x => x.type === 'train');
     out.Y = H12.tryHop(H12.range(0, tr.period, 0.25), () => { Ents.types.train.place(tr); P.x = 154 * 32 + 16 - P.w / 2; P.y = tr.y - P.h; P.px = P.x; P.py = P.y; P.vx = 0; P.vy = 0; H.step(1); },
       [], () => G.letters[3]);
-    H12.hit(35, 11); H12.hit(180, 15);
+    H12.hit(35, 11); H12.hit(207, 15);
     out.secrets = [...G.secrets].sort().join();
     return out;
   });
@@ -1606,7 +1619,7 @@ test('1-3 mapa da cidade: leitura (BETWEEN), a bússola nasce; escalada sobe a b
   const r = await page.evaluate(async () => {
     const P = NEXY.P, G = NEXY.Game, S = NEXY.Save.data, out = {};
     H.noEnemies(); S.heart.compass = 0; S.met.compass = false;
-    H.tp(172, 15, 999); H.step(5); out.near = P.interact && P.interact.kind;
+    H.tp(200, 15, 999); H.step(5); out.near = P.interact && P.interact.kind;
     G.openPanel(P.interact); out.state = G.state;
     const click = sel => { const b = document.querySelector('#chest ' + sel); if (b) b.click(); return !!b; };
     click('[data-a="learn"]'); await H.wait(50);
@@ -1623,7 +1636,7 @@ test('1-3 mapa da cidade: leitura (BETWEEN), a bússola nasce; escalada sobe a b
     for (let i = 0; i < 60 * 16 && CompassScene.active; i++) CompassScene.update(1 / 60);
     out.after = !CompassScene.active && G.state === 'play' && !City.freeze && S.met.compass;
     // a seta: aponta a letra que falta mais perto; no nível 2, também o bloco invisível
-    H.tp(176, 15, 999); H.step(2);
+    H.tp(204, 15, 999); H.step(2);
     S.heart.compass = 1; const t1 = City.compassTarget(); out.t1 = t1 && t1.k;
     S.heart.compass = 2; const t2 = City.compassTarget(); out.t2 = t2 && t2.k;
     return out;
@@ -1634,6 +1647,208 @@ test('1-3 mapa da cidade: leitura (BETWEEN), a bússola nasce; escalada sobe a b
   expect(/climb ends/.test(r.ev) && r.done, `errar encerra a escalada (${r.ev})`);
   expect(r.scene && r.after, `a cena da bússola (chuva parada) e o fim (${r.scene}/${r.after})`);
   expect(r.t1 === 'letter' && r.t2 === 'secret', `a seta (${r.t1}/${r.t2})`);
+}, L13);
+
+/* ---------------- 1-3, a segunda metade: poderes, lasers, drones, o abismo e o Sentinela ---------------- */
+test('1-3 poderes: o LASER sai do bloco e vem até o Nexy; F atira, segurar carrega o tiro forte; machucado perde o poder e não a vida; o bloco volta a encher; sem laser, F é o tiro da Echo', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13);
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, G = NEXY.Game, S = NEXY.Save.data, out = {};
+    H.noEnemies(); S.met.laser = false;
+    H12.hit(169, 15); out.block = H.block(169, 12); H.step(90); UI.frame();
+    out.got = P.power; out.hud = document.getElementById('powername').textContent;
+    out.word = !!S.grimoire.words.LASER && G.wordsSeen.has('LASER') && S.met.laser;
+    H.step(60 * 6); out.refill = H.block(169, 12);
+    // o tiro comum derruba o Rastejante
+    H.tp(176, 15, 999); const cr = NEXY.Ents.spawn('crawler', { x: 181 * 32, y: 15 * 32 + 8, opts: {} });
+    P.facing = 1; G.onKey({ code: 'KeyF' }); out.bolt = Power.bolts.length === 1; H.step(40); out.crawler = cr.state;
+    // segurar carrega; soltar dispara o tiro forte
+    H.set(['shoot']); H.step(50); out.charged = Power.charged; H.set([]); H.step(1); out.big = Power.bolts.some(b => b.big);
+    // machucado: perde o poder, não a vida
+    H.step(30); P.invuln = 0; P.hurt(); out.hurt = [P.power, P.dead, P.invuln > 0].join();
+    // sem o laser, F é o tiro da Echo (quando ela tem o tiro)
+    S.shot.best = 0; EchoShot.refill(); const n0 = EchoShot.bolts.length; G.onKey({ code: 'KeyF' }); out.echo = EchoShot.bolts.length === n0 + 1; S.shot.best = -1;
+    return out;
+  });
+  expect(r.block === 'used' && r.got === 'laser' && r.hud === 'LASER' && r.word, `o LASER vem até o Nexy, no HUD e no Grimório (${JSON.stringify(r)})`);
+  expect(r.refill === 'ready', `o bloco volta a encher (${r.refill})`);
+  expect(r.bolt && r.crawler === 'dying', `F atira e o Rastejante cai (${r.crawler})`);
+  expect(r.charged && r.big, 'segurar carrega e soltar dispara o tiro forte');
+  expect(r.hurt === ',false,true', `o golpe leva o poder, não a vida (${r.hurt})`);
+  expect(r.echo, 'sem o laser, F continua sendo o tiro da Echo');
+}, L13);
+
+test('1-3 beco dos lasers: o feixe fecha o corredor (pega até pulando); UNDER THE LASER só confunde (com dica); IN FRONT OF THE LASER: a caixa leva o tiro e o corredor se atravessa andando', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, W = NEXY.World, out = {};
+    H.noEnemies();
+    const bm = NEXY.Ents.list.find(e => e.type === 'beam' && e.dir === 'left');
+    // pulando embaixo da marquise o feixe pega em todo quadro
+    H.tp(232, 15, 999); H.step(3); let always = true; H.set(['jump']); H.press('jump');
+    for (let i = 0; i < 40; i++) { H.step(1); if (!overlap(Ents.types.beam.rect(bm), P)) always = false; } H.set([]); out.always = always;
+    H.tp(230, 15, 0); P.invuln = 0; H.step(5); out.hurt = P.dead || P.invuln > 0;
+    NEXY.give('IN FRONT OF', 'LASER', 'UNDER');
+    out.tip = await H13.say(222, 15, ['UNDER', 'LASER']);
+    await H12.panel(222, 15, ['IN FRONT OF', 'LASER']); H.step(120);
+    out.box = W.targets.box4.state; out.off = !Ents.types.beam.rect(bm);
+    H.tp(224, 15, 0); P.invuln = 0; H13.walk('right', 600, () => P.x > 244 * 32);
+    out.crossed = !P.dead && P.invuln <= 0 && P.x > 244 * 32;
+    return out;
+  });
+  expect(r.always && r.hurt, `o feixe pega pulando e machuca (${JSON.stringify(r)})`);
+  expect(/floor/.test(r.tip), `UNDER THE LASER: a Echo explica (${r.tip})`);
+  expect(r.box === 'front' && r.off && r.crossed, `a caixa na frente do laser e o corredor atravessado andando (${JSON.stringify(r)})`);
+}, L13);
+
+test('1-3 beco, outro caminho: de cima do poste o feixe não pega e o LASER quebra o emissor; depois o corredor fica livre', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13);
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, out = {};
+    H.noEnemies(); H.tp(225, 15, 0); Power.give('laser'); P.invuln = 0; P.x = 226 * 32 - P.w - 1; P.px = P.x; H.step(2);
+    H13.hop('right', 10, () => P.onGround && Math.round(P.y + P.h) === 480); H.set([]); H.step(10);
+    out.onPost = P.onGround && Math.round(P.y + P.h) === 480 && P.invuln <= 0;
+    const bm = NEXY.Ents.list.find(e => e.type === 'beam' && e.dir === 'left');
+    P.facing = 1; for (let i = 0; i < 900 && !bm.broken; i++) { if (i % 12 === 0) Power.press(); H.step(1); }
+    out.broken = !!bm.broken && !Ents.types.beam.rect(bm); out.safe = P.invuln <= 0 && P.power === 'laser';
+    H13.walk('right', 600, () => P.x > 244 * 32);
+    out.crossed = !P.dead && P.invuln <= 0 && P.x > 244 * 32;
+    return out;
+  });
+  expect(r.onPost && r.broken && r.safe, `do poste, sem se machucar, o emissor quebra (${JSON.stringify(r)})`);
+  expect(r.crossed, 'o corredor fica livre');
+}, L13);
+
+test('1-3 portões de laser: ligam e desligam (pisca antes); esperando, passa sem se machucar; a STAR escondida (segredo) deixa passar direto', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13);
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, G = NEXY.Game, out = {};
+    H.noEnemies(); H.tp(248, 15, 0);
+    const gs = NEXY.Ents.list.filter(e => e.type === 'beam' && e.dir === 'down').sort((a, b) => a.x - b.x);
+    let warned = false; for (let i = 0; i < 400; i++) { H.step(1); if (gs[0].warn) warned = true; if (warned && gs[0].on) break; } out.warn = warned;
+    H13.off(gs[0]); H13.walk('right', 120, () => P.x > 252 * 32 + 6); H13.walk('right', 120, () => P.x + P.w > 256 * 32 + 20);
+    H13.off(gs[1]); H13.walk('right', 120, () => P.x > 258 * 32 + 6);
+    out.wait = !P.dead && P.invuln <= 0 && P.x > 258 * 32 && !!Hints.done.gates;
+    // a estrela: bloco invisível (segredo) antes dos portões
+    H12.hit(248, 15); H.step(90); out.star = P.starT > 0 && G.secrets.has('city-star');
+    H.tp(249, 15, 0); P.starT = 9; P.invuln = 0; let hit = false; H.set(['right']);
+    for (let i = 0; i < 200 && P.x < 259 * 32; i++) { H.step(1); if (gs.some(g => Ents.types.beam.rect(g) && overlap(Ents.types.beam.rect(g), P))) hit = true; }
+    H.set([]); out.through = hit && !P.dead && P.invuln <= 0;
+    return out;
+  });
+  expect(r.warn, 'o portão pisca antes de ligar');
+  expect(r.wait, `esperando o portão apagar, passa sem dano (${JSON.stringify(r)})`);
+  expect(r.star && r.through, `a STAR escondida: atravessa o laser ligado sem dano (${JSON.stringify(r)})`);
+}, L13);
+
+test('1-3 drone: mira (linha) e atira; o tiro machuca (leva o poder); pisão derruba; o LASER derruba; entra no Grimório', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13);
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, G = NEXY.Game, out = {};
+    H.wakeSpawns(); H.tp(177, 15, 0); P.power = 'laser'; P.invuln = 0;
+    const d = () => NEXY.Ents.list.find(e => e.type === 'drone' && !e.dead && Math.abs(e.x - 180 * 32) < 6 * 32);
+    let aimed = false, fired = false;
+    for (let i = 0; i < 400 && P.power; i++) { H.set([]); H.step(1); const e = d(); if (e && e.state === 'aim') aimed = true; if (EnemyFire.list.length) fired = true; }
+    out.aimed = aimed; out.fired = fired; out.cost = P.power === null && !P.dead;
+    // pisão
+    const e = d(); P.invuln = 999; P.x = e.x + e.w / 2 - P.w / 2; P.y = e.y - P.h - 16; P.px = P.x; P.py = P.y; P.vy = 300; P.vx = 0;
+    for (let i = 0; i < 20 && e.state !== 'dying'; i++) H.step(1); out.stomp = e.state;
+    // o laser (um drone na altura do tiro)
+    H.tp(186, 15, 999); Power.give('laser'); P.facing = 1;
+    const e2 = NEXY.Ents.spawn('drone', { x: P.cx + 150, y: P.y + 10, opts: {} }); H.step(1); Power.press(); H.step(30); out.laser = e2.state;
+    out.grim = G.creatures.has('DRONE');
+    return out;
+  });
+  expect(r.aimed && r.fired && r.cost, `mira, atira e o tiro leva o poder (${JSON.stringify(r)})`);
+  expect(r.stomp === 'dying' && r.laser === 'dying' && r.grim, `pisão e laser derrubam; Grimório (${JSON.stringify(r)})`);
+}, L13);
+
+test('1-3 abismo: sem caixa nem asas não se passa; NEXT TO dá dica; BETWEEN THE SIGN AND THE WALL põe a caixa no meio e se passa andando; outro caminho: WINGS + ventilador; planando se chega na sacada solta da antena', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, W = NEXY.World, out = {};
+    H.noEnemies();
+    const top = () => P.onGround && !P.dead && Math.round(P.y + P.h) === 352;
+    // pulo correndo da beirada: cai
+    H.tp(278, 15, 0); P.invuln = 0; H.set(['right', 'run']); for (let i = 0; i < 200 && !P.dead && P.x < 284 * 32 + 8; i++) H.step(1);
+    H.set(['right', 'run', 'jump']); H.press('jump'); for (let i = 0; i < 200 && !P.dead; i++) H.step(1); H.set([]); out.noWay = P.dead;
+    NEXY.give('BETWEEN', 'SIGN', 'WALL', 'NEXT TO');
+    out.tipNext = await H13.say(278, 15, ['NEXT TO', 'SIGN', 'WALL']);
+    out.tipTwo = await H13.say(278, 15, ['BETWEEN', 'SIGN', 'NEXT TO']);
+    await H12.panel(278, 15, ['BETWEEN', 'WALL', 'SIGN']); H.step(120); out.box = W.targets.box5.state;
+    H.tp(283, 15, 0); P.invuln = 0; H13.walk('right', 400, top); out.between = top();
+    // outro caminho: asas + ventilador (a caixa de volta no muro)
+    W.targets.box5.state = 'between'; City.moveBox('box5', 'on-wall'); H.step(120);
+    H.tp(283, 15, 999); Power.give('wings'); H13.walk('right', 20, () => P.x > 284 * 32 - 4); H.set([]); H.step(30);
+    H.set(['jump']); H.press('jump'); let minY = 1e9; for (let i = 0; i < 160; i++) { H.step(1); minY = Math.min(minY, P.y); }
+    out.lift = minY < 6 * 32;
+    H.set(['jump', 'right']); for (let i = 0; i < 400 && !P.onGround && !P.dead; i++) H.step(1); H.set([]); out.vent = top() && !!Hints.done.vent;
+    // sem asas o vento não levanta
+    H.tp(284, 15, 999); P.power = null; H.set(['jump']); H.press('jump'); let min2 = 1e9; for (let i = 0; i < 80; i++) { H.step(1); min2 = Math.min(min2, P.y); } H.set([]); out.noLift = min2 > 10 * 32;
+    // a antena: do alto (sacada L2), planando até a sacada solta (L6)
+    const ledge = () => P.onGround && Math.round(P.y + P.h) === 192 && P.x > 316 * 32;
+    H.tp(301, 1, 999); Power.give('wings'); H.set(['right', 'jump']); H.press('jump'); for (let i = 0; i < 600 && !P.onGround || i < 5; i++) H.step(1); H.set([]); out.glide = ledge();
+    H.tp(301, 1, 999); P.power = null; H.set(['right', 'run']); H.step(6); H.set(['right', 'run', 'jump']); H.press('jump'); for (let i = 0; i < 300 && (!P.onGround || i < 5); i++) H.step(1); H.set([]); out.noGlide = !ledge();
+    return out;
+  });
+  expect(r.noWay, 'sem caixa nem asas, o pulo correndo cai no abismo');
+  expect(/one thing/.test(r.tipNext) && /sign and the wall/.test(r.tipTwo), `as dicas (${r.tipNext} / ${r.tipTwo})`);
+  expect(r.box === 'between' && r.between, `a caixa entre a placa e o muro: passa andando (${JSON.stringify(r)})`);
+  expect(r.lift && r.vent && r.noLift, `asas + ventilador levam ao prédio da antena; sem asas o vento não levanta (${JSON.stringify(r)})`);
+  expect(r.glide && r.noGlide, `a sacada solta: planando sim, pulando não (${JSON.stringify(r)})`);
+}, L13);
+
+test('1-3 Sentinela: acorda quando o Nexy entra; o terminal só aceita o lugar desta rodada (erro com dica); UNDER, BEHIND, NEXT TO abrem o núcleo; a cena da queda; o portão afunda e a saída fecha a fase', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, G = NEXY.Game, W = NEXY.World, out = { log: [] };
+    H.noEnemies(); NEXY.give('UNDER', 'BEHIND', 'NEXT TO');
+    const S = NEXY.Ents.list.find(e => e.type === 'sentinel');
+    H.tp(334, 15, 999); H.step(30); out.sleep = S.state;
+    H.tp(341, 15, 999); for (let i = 0; i < 200 && S.state !== 'fight'; i++) H.step(1); out.awake = S.state === 'fight' && G.creatures.has('SENTINEL') && G.wordsSeen.has('SHIELD');
+    // o Nexy atira do lado do núcleo (do lado direito quando ele está NEXT TO)
+    const shoot = () => { Power.give('laser'); for (let i = 0; i < 60 * 8; i++) { const c = Sentinel.corePos(S), right = S.core.x > 40; if (Sentinel.exposed(S) && i % 3 === 0) { P.x = (right ? c.x + 128 : c.x - 160) - P.w / 2; P.y = 16 * 32 - P.h; P.vx = 0; P.vy = 0; P.facing = right ? -1 : 1; P.px = P.x; P.py = P.y; } if (i % 10 === 0) Power.press(); H.step(1); P.invuln = 999; if (SentinelScene.active || S.state === 'rise') return true; } return false; };
+    for (let round = 0; round < 3; round++) {
+      const where = Sentinel.where(S), wrong = where === 'UNDER' ? 'BEHIND' : 'UNDER';
+      const tip = await H13.say(335, 15, [wrong]); const st = S.state;
+      await H12.panel(335, 15, [where]); out.log.push(`${where}: erro ${wrong}→${st}/${tip}; certo→${S.state}`);
+      out.log.push('rodada ' + round + ' ' + shoot());
+      for (let i = 0; i < 120 && S.state === 'rise'; i++) H.step(1);
+    }
+    out.scene = SentinelScene.active && G.state === 'cinematic';
+    for (let i = 0; i < 60 * 16 && SentinelScene.active; i++) SentinelScene.update(1 / 60);
+    out.after = !SentinelScene.active && G.state === 'play' && S.state === 'dead' && NEXY.Save.data.met.sentinel;
+    H.step(120); out.gate = W.targets.bossgate.state === 'small' && !W.targets.bossgate.cur.h;
+    H.tp(368, 15, 0); H.set(['right']); for (let i = 0; i < 900 && G.state === 'play'; i++) H.step(1); H.set([]);
+    out.finish = G.state === 'clearing' && G.exit === 'normal';
+    return out;
+  });
+  expect(r.sleep === 'sleep' && r.awake, `dorme até o Nexy entrar; acorda e entra no Grimório (${JSON.stringify(r)})`);
+  expect(r.log.filter(l => /certo→open/.test(l) && /erro \w+( TO)?→fight\/Look again!/.test(l)).length === 3, `cada rodada: erro com dica, certo abre (${r.log.join(' | ')})`);
+  expect(r.log.filter(l => /rodada \d true/.test(l)).length === 3, `3 rodadas vencidas (${r.log.join(' | ')})`);
+  expect(r.scene && r.after && r.gate && r.finish, `a cena, o portão e a saída (${JSON.stringify(r)})`);
+}, L13);
+
+test('1-3 Sentinela sem inglês: ele superaquece e abre sozinho; a rodada fica guardada se o Nexy morrer; dá para vencer só atirando', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13);
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, G = NEXY.Game, out = {};
+    H.noEnemies();
+    const S = NEXY.Ents.list.find(e => e.type === 'sentinel');
+    H.tp(341, 15, 999); for (let i = 0; i < 200 && S.state !== 'fight'; i++) H.step(1);
+    const shoot = (frames, until) => { Power.give('laser'); for (let i = 0; i < frames; i++) { const c = Sentinel.corePos(S), right = S.core.x > 40; if (Sentinel.exposed(S) && i % 3 === 0) { P.x = (right ? c.x + 128 : c.x - 160) - P.w / 2; P.y = 16 * 32 - P.h; P.vx = 0; P.vy = 0; P.facing = right ? -1 : 1; P.px = P.x; P.py = P.y; } if (i % 10 === 0) Power.press(); H.step(1); P.invuln = 999; if (until()) return true; } return false; };
+    const t0 = G.simTime; let heated = false;
+    shoot(60 * 60, () => { if (S.state === 'heat') heated = true; return S.round >= 1; });
+    out.heated = heated; out.round1 = S.round === 1;
+    // morreu: o Sentinela volta a dormir, mas a rodada fica
+    Power.respawn(); out.kept = S.state === 'sleep' && S.round === 1;
+    H.tp(341, 15, 999); for (let i = 0; i < 200 && S.state !== 'fight'; i++) H.step(1);
+    out.won = shoot(60 * 150, () => SentinelScene.active); out.time = Math.round(G.simTime - t0);
+    return out;
+  });
+  expect(r.heated && r.round1, `superaquece e abre; dá para tirar a vida só atirando (${JSON.stringify(r)})`);
+  expect(r.kept, 'morrer não apaga a rodada');
+  expect(r.won, `vence sem o terminal (${r.time} s)`);
 }, L13);
 
 test('visual novo do Nexy: rascunho na 1ª partida, evolui com as fases (aviso no mapa uma vez), CLASSIC NEXY volta ao antigo; a física não muda', async ({ page }) => {

@@ -1,14 +1,14 @@
 
 /* ============================== ENTRADA (teclado + toque + controle) ============================== */
 const Input = {
-  held: { left: false, right: false, down: false, up: false, run: false, jump: false, spin: false },
+  held: { left: false, right: false, down: false, up: false, run: false, jump: false, spin: false, shoot: false },
   touchHeld: {}, padHeld: {},
   pressedAt: { jump: -1, spin: -1 },
   relAt: { left: -1e9, right: -1e9 }, dashDir: null,   // soltou a seta e apertou de novo logo em seguida: corre até soltar
   queue: [],           // eventos de tecla de borda para a lógica (pressionadas desde o último passo)
   KEYMAP: {
     ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right', ArrowDown: 'down', KeyS: 'down',
-    ArrowUp: 'up', KeyW: 'up', ShiftLeft: 'run', ShiftRight: 'run', KeyZ: 'jump', Space: 'jump', KeyX: 'spin',
+    ArrowUp: 'up', KeyW: 'up', ShiftLeft: 'run', ShiftRight: 'run', KeyZ: 'jump', Space: 'jump', KeyX: 'spin', KeyF: 'shoot',
   },
   init() {
     window.addEventListener('keydown', e => {
@@ -65,9 +65,9 @@ const Input = {
     const ui = !['play', 'map'].includes(Game.state);
     const key = code => Game.onKey({ code, repeat: false, preventDefault() { } });
     // teclas do jogo (seguradas)
-    // com o tiro da Echo, Y atira (sem ele, Y corre como X)
-    const shotOn = typeof EchoShot !== 'undefined' && EchoShot.tier() >= 0;
-    const game = { left: now.left, right: now.right, up: now.up, down: now.down, jump: now.jump, spin: now.spin, run: now.x || (now.y && !shotOn) || now.sh };
+    // com o tiro da Echo (ou o LASER), Y atira e, segurado, carrega o laser (sem eles, Y corre como X)
+    const shotOn = typeof EchoShot !== 'undefined' && (EchoShot.tier() >= 0 || P.power === 'laser');
+    const game = { left: now.left, right: now.right, up: now.up, down: now.down, jump: now.jump, spin: now.spin, run: now.x || (now.y && !shotOn) || now.sh, shoot: now.y && shotOn };
     for (const k in game) {
       if (game[k] && !this.padHeld[k]) { this.padHeld[k] = true; if (!this.held[k] && !this.touchHeld[k]) this.edge(k); }
       else if (!game[k] && this.padHeld[k]) { this.padHeld[k] = false; this.release(k); }

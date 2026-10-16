@@ -468,6 +468,7 @@ const EchoShot = {
       }
       const box = { x: b.x - 6, y: b.y - 6, w: 12, h: 12 };
       for (const e of Ents.list) {
+        if (e.shootable && !e.dead && !b.hit.has(e) && overlap(box, e)) { if (Ents.types[e.type].shot(e, 1, b)) { b.hit.add(e); b.life = 0; break; } continue; }
         if (!e.enemy || e.dead || e.state === 'dying' || e.state === 'flat' || e.state === 'held' || b.hit.has(e) || !overlap(box, e)) continue;
         b.hit.add(e); this.hit(e, b);
         if (!C.pierce || e.type === 'giant') { b.life = 0; break; }

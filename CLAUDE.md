@@ -36,7 +36,7 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 - Futuro: depois do jogo inteiro, app Android (Google Play). Mantenha tudo pensado para toque e offline.
 - Preferências já dadas: sem voz em combos e nomes de criaturas; correr com toque duplo na seta (janela medida da
   soltura); quique alto com janela antes/depois (só no ar); blocos-fantasma dependem da barra, não do Grimório.
-- **Vozes gravadas (ElevenLabs)**: 401 falas em `src/voice/` (MP3 + `manifest.json`), embutidas pelo build.
+- **Vozes gravadas (ElevenLabs)**: 469 falas em `src/voice/` (MP3 + `manifest.json`), embutidas pelo build.
   Elenco: **Echo = Lulu** (feminina e sensual, escolhida pelo dono), **narrador do Baú = Elder Rowan** (a voz antiga
   das portas, pedida pelo dono no lugar do Lawrence; `[warmly]`, 1,08×), **portas e altares = Elder Rowan** (`[slowly]`,
   acelerada 1,15× no corte). Não imitar vozes de pessoas reais (ele citou Morgan Freeman: só a referência de idoso e grave). A Echo agora é **ela** nos textos em português ("a Echo", "sua amiga").
@@ -70,9 +70,10 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 | `75_worldmap.js` | `Transition` (íris/fechadura + cartão "Nexy × vidas"), `WorldMap` (andar, revelar caminhos, toque; desenho: ilha flutuante `land()` guardada em imagem, `prep()` rio/pontes/cascata, `landmark()` marco de cada fase, `pad()`, `fog()` sobre o que não foi descoberto, constelações TOBE/CITY) |
 | `78_palace.js` | TO BE PALACE: entidades `knight` e `beswitch`, `Palace` (pulso vê o passado `ping`, `drawGhost`/`drawTarget`/`statue`/`drawClock`, chão-espelho `drawMirror`, `drawRing`), `PalaceIntro` (lembrança + tabela, `Save.data.met.palace`), `PalaceSwitch` (cena do interruptor), `BG.drawPalace` |
 | `80_city.js` | 1-3: `City` (caixa: `initBox`/`moveBox`/`land`/`flyPos`/`drawCube`, `ping` acha a caixa escondida, `drawBack` antes do terreno e `drawFront` depois dos letreiros; prédios `drawSolid`; chuva/raios `tick`/`strike`/`drawRain`; `drawDecor`, `drawAltar`, `drawMapBoard`; Bússola `compassTarget`/`drawCompass`/`drawNeedle`), entidades `gargoyle`, `train`, `citymap`, `decor`, `CityIntro` (`Save.data.met.city`), `CityMap` (painel do Baú, estado `citymap`), `CompassScene` (`Save.data.met.compass`), `BG.drawCity` |
+| `82_city2.js` | 1-3, a segunda metade: `Power` (poderes `P.power` laser/wings e `P.starT`; `give`/`lose`/`refill`; tiro do Nexy `press`/`shoot`, carga segurando F (`Input.held.shoot`, `touchHeld.shot`, `padHeld.shoot`); `drawBack` asas, `drawFront` canhão/estrela, `drawBolts`), `EnemyFire` (tiros ciano dos inimigos), entidades `powerup`, `drone`, `beam` (emissor: `left` com vida e `shootable`; `down` liga/desliga), `vent`, `sentinel`; `Sentinel` (`live` troca as regras do terminal por rodada, `answer`, `damage`, `roundOver`, `drawTerminal`), `SentinelScene` (a queda), `City2` (avisos, `drawShutter` do portão) |
 | `99_boot.js` | `window.NEXY` (API de teste) e `Game.boot()` |
 
-- Cenas: `Game.scene()` devolve a cena ativa (`Cine`, `Birth`, `Prologue`, `Glitch`, `Warp`, `PalaceSwitch`, `PalaceIntro`, `CompassScene`, `CityIntro`, `Arrival`); todas têm `zoom`, `sat`, `letter`,
+- Cenas: `Game.scene()` devolve a cena ativa (`Cine`, `Birth`, `Prologue`, `Glitch`, `Warp`, `PalaceSwitch`, `PalaceIntro`, `CompassScene`, `CityIntro`, `SentinelScene`, `Arrival`); todas têm `zoom`, `sat`, `letter`,
   `timeScale`, `update`, `key`, `drawWorld`, `drawScreen`. `Game.echoBorn` = o Echo já existe nesta partida (na 1-1
   começa falso; a porta com `birth: 'echo'` dispara `Birth`).
 - Estados do `Game.state`: `title`, `map`, `play`, `panel`, `chest`, `engine`, `citymap`, `cinematic`, `pause`, `grimoire`, `assist`,
@@ -82,7 +83,8 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 - Mapas ASCII em `src/levels/*.map` (o build troca `/*MAP:id*/`). A 1-2 é gerada por `tools/gen_map_1-2.py`
   (edite o gerador e rode `python3 tools/gen_map_1-2.py src/levels/1-2.map`); o palácio por `tools/gen_map_palace.py`.
 - Frases: `accept` → `Sentence.apply` (tipos `open`, `transform`, `exit`, `target`, `targets` (vários, um de cada vez),
-  `echo`, `we`, `beswitch`, `box` (`target` + `spot`: a caixa voa para o lugar dito)); `enact` → `Sentence.enact` (`morph`, `mirror`, `crawler`, `confused` com alvo único ou
+  `echo`, `we`, `beswitch`, `box` (`target` + `spot`: a caixa voa para o lugar dito), `core` (o terminal do Sentinela)); uma porta com `live(def)` troca
+  as próprias regras ao abrir o painel; `enact` → `Sentence.enact` (`morph`, `mirror`, `crawler`, `confused` com alvo único ou
   lista); qualquer `enact` pode ter `tip: {en, pt}` = a Echo explica o erro 0,5 s depois (sem dar a frase pronta).
 - Runas/alvos: `hFirst` encolhe a altura primeiro (o portão afunda); `small: {w:0,h:0}` = não existe (ponte que caiu).
 - `levelTag(L)`: 'WORLD 1-2' ou, para fases com nome (palácio), 'WORLD 1'.
@@ -140,7 +142,10 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 - Visual novo: chão-espelho (`level.mirror`), fundo do palácio com relógio gigante (ponteiros para trás até o
   interruptor), música `palace` (Ré menor, 84 BPM, tique-taque).
 
-## 5c. Fase 1-3 "WHERE IS IT?" (200 × 26, telhados; a rua lá embaixo é morte)
+## 5c. Fase 1-3 "WHERE IS IT?" (400 × 26, telhados; a rua lá embaixo é morte)
+
+- O dono achou a 1ª versão (200 colunas) curta e pediu mais power-ups, tiros de laser e a ideia mais desenvolvida:
+  a fase dobrou (seções E-H abaixo), com poderes, drones, feixes e o primeiro chefe.
 
 - Mecânica nova: a CAIXA DE NEON vai para onde a frase disser (`kind: 'box'`, `spots` com nome; `back` = atrás de algo,
   não é chão, só o pulso mostra; `say` = a Echo comenta ao pousar; `find` = a Echo diz ao achar com o pulso). Os
@@ -159,8 +164,31 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   vira chão no meio; do parapeito, UNDER THE SIGN (c114-116 L16-17) → placa → muro. Gárgulas c108 L15 (sobre o
   buraco: pulo correndo nela; letra T c108 L11) e c112 L9 (atrair do parapeito).
 - D Estação (135-162): estação c135-140 L16, checkpoint c137, trem `T` c141 (6 de largura, vai até c157; posição pelo
-  relógio da simulação, como os tubos), letra Y c154 L11, gárgula c148 L11. E Praça (163-199): checkpoint c165, MAPA
-  DA CIDADE `Q` c172 (porta `citymap`), cristal escondido `w` c180 L12, saída `N` c195.
+  relógio da simulação, como os tubos), letra Y c154 L11, gárgula c148 L11.
+- E Mercado neon (163-212, telhado L16 até c262): checkpoint c165, bloco do LASER `8` c169 L12 (`refill: 6`), drones `d`
+  c180 L11 e c193 L9, Rastejante c184, MAPA DA CIDADE `Q` c200 (porta `citymap`), cristal escondido `w` c207 L12.
+- F Beco dos lasers (213-262): IN FRONT OF `9` c216, LASER `0` c219 (L12); altar4 `(` c222 "THE BOX IS _ THE _."; poste
+  `#` c226 L15 (de cima dele o feixe não pega); marquise c228-236 L11-13 (corredor de 2 linhas: o feixe na L15 pega até
+  pulando); EMISSOR `<` c241 L14-15 (`hp: 10`, sólido; atira para a esquerda até a primeira coisa sólida). box4 2×2
+  começa ON (c240-241 L12-13, em cima do emissor); FRONT c239-240 L14-15 bloqueia o feixe; BEHIND c242. Checkpoint
+  c246, STAR invisível `s` c248 L12 (`city-star`), portões `/` c251 e `u` c257 L9 (1,4 s ligado / 1,4 s desligado,
+  fases opostas, piscam 0,45 s antes), drone c255 L5.
+- G Abismo e antena (263-330): WINGS `~` c266 (`refill`), NEXT TO `+` c270, BETWEEN `-` c273 (`ifMissing`); altar5 `)`
+  c278 "THE BOX IS _ THE _ AND THE _."; placa BAR (decor, SIGN) c281-283; ventilador `^` c284 (coluna c283.5-285.5 até
+  L3: com WINGS e o pulo seguro, sobe). Abismo c285-291 (7 colunas: com 8 o pulo andando da caixa ao muro não chegava).
+  Prédio da antena c292-330 L11 (5 linhas acima). box5 3×2 começa ON THE WALL (c292); BETWEEN = c287-289 L13-14 (dois
+  pulos de 2 colunas, andando). Checkpoint c296, sacadas c300 L8 / c306 L5 / c300 L2, vida `l` c307 L1, sacada solta
+  c317-320 L6 (só planando do alto; vida c318 L2), drones c297 L4 e c312 L7.
+- H Arena (331-372) e saída: checkpoint c333, terminal `K` c335 ("WHERE IS THE CORE?" → IT IS _ THE SHIELD), poço `m`
+  c342 L12 (UNDER/BEHIND/NEXT TO que faltarem), LASER `8` c345, Sentinela `S` c353 L7 (acorda com o Nexy depois de
+  c338), portão `bossgate` c372-373 L9-15 (`look: 'shutter'`, afunda no fim da cena), saída `N` c392. Zona `boost`.
+- Sentinela (`SENTINEL` em `10_data.js`): rodadas UNDER → BEHIND → NEXT TO (`CORE_AT`), 8 de vida por rodada (tiro 1,
+  carregado 3, pisão no casco 2, i-frames 0,3 s). Resposta certa: 6 s aberto e baixo (o núcleo na altura do tiro).
+  Sem inglês: a cada 10 s de luta esquenta (aviso 1,2 s) e abre 2,6 s (vencer só assim leva ~1,5 min jogando perfeito).
+  Morrer: ele dorme de novo, a rodada fica. Aberto, o casco deixa o tiro passar (senão o núcleo de trás ficava imune).
+- Poderes: tomar dano com poder = perde o poder (`P.hurt`), STAR ignora tudo e mata no toque (menos gigantes). Morreu ou
+  trocou de fase: `P.reset` zera. O poder sai do bloco, mostra o nome 0,9 s e vem até o Nexy (o bloco fica alto demais
+  para pegar parado). A Echo apresenta cada coisa uma vez (`Save.data.met.laser/wings/star/drone`, `City2.met*`).
 - Gárgula: `watched` = o Nexy de frente (±16 px); de costas e perto (8 colunas, 10 linhas) ela treme 0,35 s (ainda é
   chão) e voa: primeiro até a altura da cabeça, depois reto. Longe ou a mais de 14 blocos de casa, volta ao poleiro.
   Pedra = `plat` e não machuca; pisão = pedra por 2 s + quique; giro quebra.
@@ -184,11 +212,14 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   spawn), `lure` (de costas até ela chegar, depois olha), `hop` (seta segurada só depois de alguns quadros) e `say`.
   Depois de usar a gárgula como degrau, ande até a ponta da placa antes do pulo seguinte, como o jogador faz.
 - `City.tick` (chuva, raios) roda no tempo real (`Game.frame`); nos testes o laço é trocado, então não há raio.
+- `HELP13.walk(dir, frames, stop)` anda e pula sozinho ao travar ou na beirada (como o jogador); `HELP13.off(g)` espera um
+  portão de laser apagar. Para subir num degrau de 1 bloco (o poste) use `hop` (andando ele passa por cima).
+  No painel, a mesma palavra não entra duas vezes (frases com SIGN SIGN não existem para o jogador).
 - Toda mudança: `node build.js` e a suíte inteira verde antes do push.
 
 ## 7. Próximos passos e ideias anotadas
 
-- **Vozes do ElevenLabs: feito.** Conector ElevenLabs na conta do dono (plano Creator, ~226 mil créditos; o
+- **Vozes do ElevenLabs: feito** (a expansão da 1-3 gravou mais 68 falas, ~2.700 créditos). Conector ElevenLabs na conta do dono (plano Creator, ~226 mil créditos; o
   fluxo `COwNUEJ4BcLtDt0Uju1O` guarda todas as gerações). A conta gratuita que conectou sozinha antes (de outra pessoa)
   foi bloqueada pela ElevenLabs e não deve ser usada. Fala nova no jogo = rodar `tools/voice/` (lines → chunks --only-missing → gerar e
   transcrever cada bloco pelo conector → split → build). Gastou ~13 mil créditos até agora (326 falas + testes de voz).
@@ -223,7 +254,7 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   e STOP/FREEZE/FIRE/SHOOT atira.
 - **Tutoriais atualizados** (pedido do dono): tela inicial (C pulso, F tiro, V voz), linha do controle, Grimório com a
   aba **POWERS** (pulso, tiro, voz, Coração, Anel do TO BE, cartão; fechados até conquistar), texto do VOICE MODE.
-- Esperando aprovação da 1-2 (com o baú), do TO BE PALACE e da 1-3. Depois: Casa "PUSH OR PULL?" (saída secreta da
+- Esperando aprovação da 1-2 (com o baú), do TO BE PALACE e da 1-3 (agora com a 2ª metade: poderes, lasers, drones e o Sentinela). Depois: Casa "PUSH OR PULL?" (saída secreta da
   1-2), forte e castelo do Mundo 1. A agulha da Bússola aponta para a frente (o forte) na cena da 1-3.
 - Cada fase nova: algo inédito + acréscimo ao Coração + desafio crescente acima do A1 + caminho alternativo + um passo
   a mais no visual rumo à cidade Castlevania cyberpunk.

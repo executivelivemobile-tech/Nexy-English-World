@@ -111,6 +111,66 @@
  },
  {
   "who": "echo",
+  "text": "It is a laser!",
+  "prompt": "It is a laser!"
+ },
+ {
+  "who": "echo",
+  "text": "Wings! Hold jump.",
+  "prompt": "Wings! Hold jump."
+ },
+ {
+  "who": "echo",
+  "text": "A star! Run!",
+  "prompt": "A star! Run!"
+ },
+ {
+  "who": "echo",
+  "text": "A drone! Look out!",
+  "prompt": "A drone! Look out!"
+ },
+ {
+  "who": "echo",
+  "text": "The laser is on!",
+  "prompt": "The laser is on!"
+ },
+ {
+  "who": "echo",
+  "text": "Wait... now go!",
+  "prompt": "Wait... now go!"
+ },
+ {
+  "who": "echo",
+  "text": "It is the Sentinel!",
+  "prompt": "It is the Sentinel!"
+ },
+ {
+  "who": "echo",
+  "text": "Where is the core?",
+  "prompt": "Where is the core?"
+ },
+ {
+  "who": "echo",
+  "text": "The core is open! Shoot!",
+  "prompt": "The core is open! Shoot!"
+ },
+ {
+  "who": "echo",
+  "text": "Where is the core now?",
+  "prompt": "Where is the core now?"
+ },
+ {
+  "who": "echo",
+  "text": "It is hot! Now!",
+  "prompt": "It is hot! Now!"
+ },
+ {
+  "who": "echo",
+  "text": "We did it!",
+  "prompt": "We did it!"
+ },
+ {
+  "who": "echo",
   "text": "Hello! I am Echo. I am your friend.",
   "prompt": "Hello! I am Echo. I am your friend."
  },
@@ -326,6 +386,41 @@
  },
  {
   "who": "echo",
+  "text": "in front of",
+  "prompt": "in front of."
+ },
+ {
+  "who": "echo",
+  "text": "next to",
+  "prompt": "next to."
+ },
+ {
+  "who": "echo",
+  "text": "laser",
+  "prompt": "laser."
+ },
+ {
+  "who": "echo",
+  "text": "wings",
+  "prompt": "wings."
+ },
+ {
+  "who": "echo",
+  "text": "star",
+  "prompt": "star."
+ },
+ {
+  "who": "echo",
+  "text": "shield",
+  "prompt": "shield."
+ },
+ {
+  "who": "echo",
+  "text": "core",
+  "prompt": "core."
+ },
+ {
+  "who": "echo",
   "text": "Crawler",
   "prompt": "Crawler."
  },
@@ -353,6 +448,16 @@
   "who": "echo",
   "text": "Gargoyle",
   "prompt": "Gargoyle."
+ },
+ {
+  "who": "echo",
+  "text": "Drone",
+  "prompt": "Drone."
+ },
+ {
+  "who": "echo",
+  "text": "Sentinel",
+  "prompt": "Sentinel."
  },
  {
   "who": "echo",
@@ -618,6 +723,41 @@
   "who": "story",
   "text": "The heart knows.",
   "prompt": "The heart knows."
+ },
+ {
+  "who": "echo",
+  "text": "Look again!",
+  "prompt": "Look again!"
+ },
+ {
+  "who": "story",
+  "text": "The Sentinel is down.",
+  "prompt": "The Sentinel is down."
+ },
+ {
+  "who": "story",
+  "text": "Where is the core? It is gone!",
+  "prompt": "Where is the core? It is gone!"
+ },
+ {
+  "who": "door",
+  "text": "front",
+  "prompt": "front."
+ },
+ {
+  "who": "door",
+  "text": "of",
+  "prompt": "of."
+ },
+ {
+  "who": "door",
+  "text": "next",
+  "prompt": "next."
+ },
+ {
+  "who": "door",
+  "text": "to",
+  "prompt": "to."
  },
  {
   "who": "echo",
@@ -973,6 +1113,41 @@
   "who": "story",
   "text": "between",
   "prompt": "between."
+ },
+ {
+  "who": "story",
+  "text": "in front of",
+  "prompt": "in front of."
+ },
+ {
+  "who": "story",
+  "text": "next to",
+  "prompt": "next to."
+ },
+ {
+  "who": "story",
+  "text": "laser",
+  "prompt": "laser."
+ },
+ {
+  "who": "story",
+  "text": "wings",
+  "prompt": "wings."
+ },
+ {
+  "who": "story",
+  "text": "star",
+  "prompt": "star."
+ },
+ {
+  "who": "story",
+  "text": "shield",
+  "prompt": "shield."
+ },
+ {
+  "who": "story",
+  "text": "core",
+  "prompt": "core."
  },
  {
   "who": "door",
@@ -1762,7 +1937,7 @@
  {
   "who": "door",
   "text": "THE",
-  "prompt": "THE."
+  "prompt": "the."
  },
  {
   "who": "door",
@@ -1866,6 +2041,126 @@
  },
  {
   "who": "echo",
+  "text": "Under the laser? It is on the floor!",
+  "prompt": "Under the laser? It is on the floor!"
+ },
+ {
+  "who": "echo",
+  "text": "In the laser? It is too hot!",
+  "prompt": "In the laser? It is too hot!"
+ },
+ {
+  "who": "echo",
+  "text": "Where is the box? Look at the laser!",
+  "prompt": "Where is the box? Look at the laser!"
+ },
+ {
+  "who": "echo",
+  "text": "The box and the laser!",
+  "prompt": "The box and the laser!"
+ },
+ {
+  "who": "door",
+  "text": "The box is under the laser.",
+  "prompt": "The box is under the laser."
+ },
+ {
+  "who": "door",
+  "text": "The box is in the laser.",
+  "prompt": "The box is in the laser."
+ },
+ {
+  "who": "door",
+  "text": "The box is in front of the laser.",
+  "prompt": "The box is in front of the laser."
+ },
+ {
+  "who": "door",
+  "text": "The box is behind the laser.",
+  "prompt": "The box is behind the laser."
+ },
+ {
+  "who": "door",
+  "text": "The box is on the laser.",
+  "prompt": "The box is on the laser."
+ },
+ {
+  "who": "echo",
+  "text": "Next to is one thing. Two things? Between!",
+  "prompt": "Next to is one thing. Two things? Between!"
+ },
+ {
+  "who": "echo",
+  "text": "Between the sign and the wall!",
+  "prompt": "Between the sign and the wall!"
+ },
+ {
+  "who": "echo",
+  "text": "In the middle? Between!",
+  "prompt": "In the middle? Between!"
+ },
+ {
+  "who": "door",
+  "text": "The box is between the sign and the wall.",
+  "prompt": "The box is between the sign and the wall."
+ },
+ {
+  "who": "door",
+  "text": "The box is between the wall and the sign.",
+  "prompt": "The box is between the wall and the sign."
+ },
+ {
+  "who": "door",
+  "text": "AND",
+  "prompt": "and."
+ },
+ {
+  "who": "door",
+  "text": "Where is the core?",
+  "prompt": "Where is the core?"
+ },
+ {
+  "who": "door",
+  "text": "It is under the shield.",
+  "prompt": "It is under the shield."
+ },
+ {
+  "who": "door",
+  "text": "It is behind the shield.",
+  "prompt": "It is behind the shield."
+ },
+ {
+  "who": "door",
+  "text": "It is next to the shield.",
+  "prompt": "It is next to the shield."
+ },
+ {
+  "who": "door",
+  "text": "It is on the shield.",
+  "prompt": "It is on the shield."
+ },
+ {
+  "who": "door",
+  "text": "It is in the shield.",
+  "prompt": "It is in the shield."
+ },
+ {
+  "who": "door",
+  "text": "It is in front of the shield.",
+  "prompt": "It is in front of the shield."
+ },
+ {
+  "who": "door",
+  "text": "It is between the shield.",
+  "prompt": "It is between the shield."
+ },
+ {
+  "who": "door",
+  "text": "shield",
+  "prompt": "shield."
+ },
+ {
+  "who": "echo",
   "text": "Now it is behind the sign.",
   "prompt": "Now it is behind the sign."
  },
@@ -1883,6 +2178,21 @@
   "who": "echo",
   "text": "Now it is behind the wall.",
   "prompt": "Now it is behind the wall."
+ },
+ {
+  "who": "echo",
+  "text": "Now the box is in front of the laser!",
+  "prompt": "Now the box is in front of the laser!"
+ },
+ {
+  "who": "echo",
+  "text": "It is behind the laser. The laser is on!",
+  "prompt": "It is behind the laser. The laser is on!"
+ },
+ {
+  "who": "echo",
+  "text": "The box is between the sign and the wall!",
+  "prompt": "The box is between the sign and the wall!"
  },
  {
   "who": "door",
@@ -2003,5 +2313,35 @@
   "who": "door",
   "text": "between",
   "prompt": "between."
+ },
+ {
+  "who": "door",
+  "text": "in front of",
+  "prompt": "in front of."
+ },
+ {
+  "who": "door",
+  "text": "next to",
+  "prompt": "next to."
+ },
+ {
+  "who": "door",
+  "text": "laser",
+  "prompt": "laser."
+ },
+ {
+  "who": "door",
+  "text": "wings",
+  "prompt": "wings."
+ },
+ {
+  "who": "door",
+  "text": "star",
+  "prompt": "star."
+ },
+ {
+  "who": "door",
+  "text": "core",
+  "prompt": "core."
  }
 ]

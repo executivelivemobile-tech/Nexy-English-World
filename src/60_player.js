@@ -5,7 +5,7 @@ const P = {
   facing: 1, onGround: false, lastGround: -1, jumpedSinceGround: true, crouch: false, spinning: false, spinT: 0,
   scale: 1, visScale: 1, scaleFrom: 1, scaleT: 1, aura: false, invuln: 0, dead: false, deathT: 0, pitDeath: false,
   combo: 0, held: null, giant: false, spinBreak: false, trail: [], walkPhase: 0, squash: 0, interact: null,
-  lastSafe: null, kickT: 0, riding: null, form: null,
+  lastSafe: null, kickT: 0, riding: null, form: null, power: null, starT: 0,
   get cx() { return this.x + this.w / 2; },
   get cy() { return this.y + this.h / 2; },
   box() { return this.dead ? { x: -9999, y: -9999, w: 0, h: 0 } : this; },
@@ -16,7 +16,7 @@ const P = {
     this.vx = 0; this.vy = 0; this.facing = 1; this.onGround = false; this.crouch = false; this.spinning = false;
     this.aura = false; this.invuln = 0; this.dead = false; this.deathT = 0; this.combo = 0; this.held = null;
     this.giant = false; this.trail = []; this.interact = null; this.lastSafe = { x: footX, y: footY }; this.jumpedSinceGround = true; this.bounceWindow = 0; this.lockRise = false; this.comboGlow = 0;
-    this.riding = null; this.form = null;
+    this.riding = null; this.form = null; this.power = null; this.starT = 0;   // morreu ou trocou de fase: os poderes (1-3) se perdem
   },
 
   update(dt) {
@@ -64,6 +64,8 @@ const P = {
     const holdBtn = this.spinning ? (I.get('spin') || I.get('jump')) : I.get('jump');
     const g = this.vy < 0 ? (holdBtn || this.lockRise ? CFG.G_UP : CFG.G_CUT) : CFG.G_DOWN;
     this.vy = Math.min(this.vy + g * dt, CFG.MAX_FALL);
+    // com as WINGS: segurando o pulo, a queda fica lenta (planar)
+    if (this.power === 'wings' && !this.onGround && this.vy > CFG.GLIDE_FALL && holdBtn) this.vy = CFG.GLIDE_FALL;
 
     // movimento e colisão
     this.giant = this.scale > 1.5; this.spinBreak = this.spinning && this.vy > 0;
@@ -187,6 +189,8 @@ const P = {
       if (e.state === 'held' || e.frozen > 0 || this.dead || !overlap(this, e)) continue;
       // gárgula de pedra: não machuca (é chão por cima); só voando ela ataca e pode levar pisão
       if (e.type === 'gargoyle' && e.state !== 'fly' && e.state !== 'home') continue;
+      // com a STAR: quem o Nexy tocar explode (menos os gigantes, que só empurram)
+      if (this.starT > 0 && e.type !== 'giant') { Enemy.kill(e, 'pop', sign(e.x + e.w / 2 - this.cx) || 1); SFX.crush(); Game.addOrbs(1); continue; }
       const falling = this.y - this.py > 0.01 || this.vy > 0;
       const above = this.py + this.h <= e.y + e.h * 0.5 + 3;
       // gigantes: fecham a passagem (empurram, não machucam)
@@ -230,6 +234,7 @@ const P = {
     else if (e.type === 'crawler' || e.type === 'thief') Enemy.kill(e, 'flat');
     else if (e.type === 'knight') Ents.types.knight.clang(e);   // o elmo só tine: com giro a armadura se desfaz
     else if (e.type === 'gargoyle') Ents.types.gargoyle.stun(e);   // vira pedra por 2 s: com giro ela quebra
+    else if (e.type === 'drone') Enemy.kill(e, 'pop', this.facing);   // o drone cai com qualquer pisão
     else if (e.state === 'walk') { Ents.types.casco.toShell(e); e.immune = 0.15; Game.registerCreature('SHELL'); }
     else if (e.state === 'slide') { e.state = 'shell'; e.vx = 0; e.immune = 0.15; }
     this.y = topY - this.h;
@@ -241,7 +246,9 @@ const P = {
     Game.comboReward(this.combo);
   },
   hurt() {
-    if (this.invuln > 0 || this.dead) return;
+    if (this.invuln > 0 || this.dead || this.starT > 0) return;
+    // com um poder (LASER, WINGS), o golpe leva o poder e não a vida
+    if (this.power) { Power.lose(); this.invuln = CFG.INVULN; this.dropHeld(); return; }
     if (this.aura) {
       this.aura = false; this.invuln = CFG.INVULN; SFX.damage(); Game.shake(4);
       FX.burst(this.cx, this.cy, 30, 'c', 260, { life: 0.8 });

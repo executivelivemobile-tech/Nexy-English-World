@@ -3,7 +3,7 @@
 const T = { AIR: 0, SOLID: 1, PLATFORM: 2, FAKE: 3, CRACKED: 4, BLOCK: 5, DOOR: 6, RUNE: 7 };
 const TS = CFG.TILE;
 // inimigos que nascem dos spawns (e o nome no Grimório)
-const CREATURE_OF = { crawler: 'CRAWLER', casco: 'SHELL', flyer: 'FLYER', thief: 'THIEF', giant: 'CRAWLER', knight: 'KNIGHT', gargoyle: 'GARGOYLE' };
+const CREATURE_OF = { crawler: 'CRAWLER', casco: 'SHELL', flyer: 'FLYER', thief: 'THIEF', giant: 'CRAWLER', knight: 'KNIGHT', gargoyle: 'GARGOYLE', drone: 'DRONE', sentinel: 'SENTINEL' };
 
 const World = {
   level: null, w: 0, h: 0, pxW: 0, pxH: 0, tiles: null, blocks: new Map(), doorTiles: new Map(), doors: {},
@@ -44,7 +44,7 @@ const World = {
           if (b.content && b.content.letter != null) letters++;
         } else if (def.entity) {
           if (def.entity === 'start') this.start = { x: c * TS + TS / 2, y: (r + 1) * TS };
-          else if (CREATURE_OF[def.entity] && def.entity !== 'giant') {
+          else if (CREATURE_OF[def.entity] && def.entity !== 'giant' && !def.boss) {
             this.spawns.push({ type: def.entity, c, r, opts: def, state: 'waiting', ent: null, seen: false, timer: 0 });
             creatures.add(CREATURE_OF[def.entity]);
           } else {
@@ -267,6 +267,8 @@ const World = {
     if (ct.crystal) Ents.spawn('crystal', { x: cx, y: cy, baseY: b.r * TS - TS * 0.55, emerge: 1 });
     if (ct.orbs) for (let i = 0; i < ct.orbs; i++) Ents.spawn('orb', { x: cx, y: b.r * TS, vx: (Math.random() - 0.5) * 160, vy: -260 - Math.random() * 120, homing: true, delay: 0.2 + i * 0.05 });
     if (ct.letter != null) Ents.spawn('letter', { index: ct.letter, x: cx, y: cy, magnet: true });
+    // um poder (1-3): sai do bloco e flutua em cima dele; o bloco volta a encher depois de alguns segundos
+    if (ct.power) { Ents.spawn('powerup', { kind: ct.power, x: cx, y: cy, baseY: b.r * TS - TS * 0.6, blk: b }); SFX.wordAppear(); if (ct.refill) Power.refill(b, ct.refill); }
   },
   updateBlocks(dt) {
     for (const b of this.blocks.values()) {
@@ -369,6 +371,7 @@ const World = {
       const rc = this.runeRect(t, t.cur), sx = t.shake > 0 ? Math.sin(time * 60) * 2.5 * t.shake : 0;
       const x = rc.c0 * TS - camX + sx, y = rc.r0 * TS - camY, w = t.cur.w * TS, h = t.cur.h * TS;
       if (x > CFG.VIEW_W + 40 || x + w < -40 || y > CFG.VIEW_H + 40 || y + h < -40) continue;
+      if (t.look === 'shutter') { City2.drawShutter(ctx, t, x, y, w, h, time); continue; }   // o portão do fim da 1-3
       if (t.look && Palace.drawTarget(ctx, t, x, y, w, h, time)) continue;
       const p = 0.5 + 0.5 * Math.sin(time * 2 + t.c);
       R.draw(R.glow('c', 48), x + w / 2, y + Math.min(h, 40) / 2, Math.max(1, w / 64), 0.18 + 0.12 * p + t.glow * 0.6, true);

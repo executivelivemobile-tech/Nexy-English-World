@@ -32,6 +32,7 @@ const PARTS = [
   '76_secret.js',       // 1-1: o segredo (tijolo do bug, WARP CARD, TO BE ENGINE, teletransporte) e o tiro da Echo
   '78_palace.js',       // TO BE PALACE: cavaleiro, interruptor do ser, alvos do passado, chão-espelho, fundo e cenas
   '80_city.js',         // 1-3: a caixa de neon, gárgula, trem, mapa da cidade, prédios, chuva, chegada e a bússola
+  '82_city2.js',        // 1-3, a segunda metade: poderes (LASER, WINGS, STAR), drones, feixes de laser, ventilador e o Sentinela
   '99_boot.js',         // API de teste no console e partida
 ];
 

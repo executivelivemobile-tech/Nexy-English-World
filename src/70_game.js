@@ -58,6 +58,7 @@ const Sentence = {
     else if (r.type === 'targets') r.targets.forEach((id, i) => Game.later(i * 0.45, () => World.setTarget(id, r.act)));   // um de cada vez
     else if (r.type === 'beswitch') PalaceSwitch.start(d);
     else if (r.type === 'box') City.moveBox(r.target, r.spot);   // a caixa de neon voa para o lugar dito (1-3)
+    else if (r.type === 'core') Sentinel.answer(r.where);   // o terminal do Sentinela: a Echo acha o núcleo
     else if (r.type === 'echo') Echo.act(r.act, r.act === 'big' ? def.ride : null);
     else if (r.type === 'we') { Echo.act(r.act); if (r.act === 'big') { P.squash = -0.5; FX.burst(P.cx, P.cy, 30, 'm', 220, { life: 0.7, g: 0 }); } }
     // Grimório: palavras usadas + palavras fixas do molde
@@ -98,6 +99,7 @@ const Panel = {
   get nSlots() { return this.door.def.mold.filter(t => t === '_').length; },
   available() { const used = new Set(this.slots.filter(v => v != null)); return Game.bar.map((w, i) => i).filter(i => !used.has(i)); },
   open(d) {
+    if (d.def.live) d.def.live(d.def);   // portas que mudam com o jogo (o terminal do Sentinela: a rodada atual)
     this.door = d; this.slots = new Array(this.nSlots).fill(null); this.busy = false;
     const av = this.available(); this.sel = av.length ? av[0] : -1;
     $('pkind').textContent = d.def.title || (d.kind === 'pedestal' ? 'PEDESTAL OF THE VOICE' : 'DOOR');
@@ -254,6 +256,7 @@ const UI = {
       if (PalaceSwitch.active) return PalaceSwitch.tap();
       if (CityIntro.active) return CityIntro.tap();
       if (CompassScene.active) return CompassScene.tap();
+      if (SentinelScene.active) return SentinelScene.tap();
       if (Game.state !== 'map') return;
       const st = $('stage').getBoundingClientRect(), k = st.width / CFG.VIEW_W;
       WorldMap.tap((e.clientX - st.left) / k, (e.clientY - st.top) / k);
@@ -316,8 +319,11 @@ const UI = {
     if (L.hud !== hudOn) { L.hud = hudOn; $('hud').style.opacity = hudOn ? 1 : 0; $('wordbar').style.opacity = hudOn ? 1 : 0; }
     const pingOn = g.where === 'level' && g.echoBorn && !Echo.hidden;
     if (L.ping !== pingOn) { L.ping = pingOn; $('tbping').style.display = pingOn ? '' : 'none'; }
-    const shotOn = pingOn && EchoShot.tier() >= 0;
+    const shotOn = pingOn && EchoShot.tier() >= 0 || g.where === 'level' && P.power === 'laser';
     if (L.shot !== shotOn) { L.shot = shotOn; $('tbshot').style.display = shotOn ? '' : 'none'; }
+    // o poder do momento (1-3): LASER, WINGS e a STAR com os segundos que faltam
+    const pw = g.where === 'level' ? [P.power ? POWERS[P.power].word : '', P.starT > 0 ? 'STAR ' + Math.ceil(P.starT) : ''].filter(Boolean).join(' + ') : '';
+    if (L.power !== pw) { L.power = pw; $('powerbox').style.display = pw ? '' : 'none'; $('powername').textContent = pw; }
     if (L.card !== g.card) { L.card = g.card; $('cardbox').style.display = g.card ? '' : 'none'; }
     const touch = document.body.classList.contains('touch');
     if (L.touch !== touch) { L.touch = touch; $('wordbar').classList.toggle('top', touch); }
@@ -400,6 +406,12 @@ const UI = {
         hb >= 0 ? 'Nasce no Baú da Memória. Cada pergunta difícil que você acerta muda a cor dele e aumenta o poder: ' + HEART[hb].reward : '', 'Heart of words', hb < 0, false, P0);
       card(PALACE.ring.name, S.heart.ring ? PALACE.ring.pt : '', S.heart.ring ? 'POWER · TO BE PALACE' : 'LOCKED · A FORGOTTEN PALACE',
         S.heart.ring ? 'Você disse quem era e quem é (I WAS · I AM) e o palácio acordou. ' + PALACE.ring.reward : '', 'To be ring', !S.heart.ring, false, P0);
+      // os poderes dos blocos (1-3): o nome em inglês, como pegar e como usar
+      for (const k of ['laser', 'wings', 'star']) {
+        const D = POWERS[k], got = !!S.met[k];
+        card(D.word, got ? D.pt + (k === 'laser' ? ' · ' + (pad ? 'Y' : 'F') + ' (ou SHOT no toque)' : k === 'wings' ? ' · segure o pulo' : '') : '', got ? 'POWER · FROM A BLOCK · LOST WHEN HIT' : 'LOCKED · WORLD 1-3',
+          got ? D.info : '', D.say.replace('!', ''), !got, false, P0);
+      }
       const cp = S.heart.compass | 0, C = CITY.compass[Math.max(0, cp - 1)];
       card(C.name, cp ? C.pt : '', cp ? 'POWER · LEVEL ' + cp + ' OF ' + CITY.compass.length : 'LOCKED · WORLD 1-3',
         cp ? 'Nasceu no mapa da cidade. A seta magenta em volta do Nexy aponta o que falta encontrar. ' + CITY.compass.slice(0, cp).map(x => x.info).join(' ') : '', 'Compass of words', !cp, false, P0);
@@ -503,12 +515,13 @@ const Game = {
     if (typeof Glitch !== 'undefined') { Glitch.active = false; Warp.active = false; EchoShot.reset(); }
     if (typeof Palace !== 'undefined') { PalaceIntro.active = false; PalaceSwitch.active = false; Palace.reset(); }
     if (typeof City !== 'undefined') { CityIntro.active = false; CompassScene.active = false; City.reset(); }
+    if (typeof City2 !== 'undefined') City2.reset();
     this.card = false;
   },
   // tamanho da barra de palavras: cresce nas fases com mais vocabulário (LEVELS[id].barMax)
   barMax() { return (World.level && World.level.barMax) || CFG.WORD_BAR_MAX; },
   // cena ativa (Coração, nascimento do Echo, chegada): todas têm a mesma interface
-  scene() { return Cine.active ? Cine : Birth.active ? Birth : Prologue.active ? Prologue : Glitch.active ? Glitch : Warp.active ? Warp : PalaceSwitch.active ? PalaceSwitch : PalaceIntro.active ? PalaceIntro : CompassScene.active ? CompassScene : CityIntro.active ? CityIntro : Arrival.active ? Arrival : null; },
+  scene() { return Cine.active ? Cine : Birth.active ? Birth : Prologue.active ? Prologue : Glitch.active ? Glitch : Warp.active ? Warp : PalaceSwitch.active ? PalaceSwitch : PalaceIntro.active ? PalaceIntro : CompassScene.active ? CompassScene : CityIntro.active ? CityIntro : SentinelScene.active ? SentinelScene : Arrival.active ? Arrival : null; },
   // relógio da simulação (para quebra-cabeças determinísticos, como os sinos)
   later(sec, fn) { this.timers.push({ t: this.simTime + sec, fn }); },
   loadLevel(id) {
@@ -606,7 +619,7 @@ const Game = {
         else if (c === 'KeyH') { if (P.interact) this.buyHint(P.interact); else UI.msg('HINTS WORK NEAR DOORS'); }
         else if (c === 'KeyV' && Save.data.assist.voice && Listen.available() && P.interact) { this.openPanel(P.interact); Panel.listen(); }
         else if (c === 'KeyV') EchoShot.listen();
-        else if (c === 'KeyF') EchoShot.fire();
+        else if (c === 'KeyF') Power.press();   // com o LASER, o Nexy atira; sem ele, a Echo
         break;
       case 'panel': Panel.key(e); break;
       case 'chest': Chest.key(e); break;
@@ -644,7 +657,7 @@ const Game = {
     P.px = P.x; P.py = P.y; Ents.save(); Cam.px = Cam.x; Cam.py = Cam.y; Echo.px = Echo.x; Echo.py = Echo.y;
     // cena: o jogo controla o Nexy (investida)
     if (this.forceInput) { Input.touchHeld = Object.assign({}, this.forceInput); for (const k in Input.held) Input.held[k] = false; Input.padHeld = {}; Input.pressedAt.jump = -1; Input.pressedAt.spin = -1; Input.queue.length = 0; }
-    for (const k of Input.queue) { if (k === 'up' && this.state === 'play') P.tryInteract(); if (k === 'ping' && EchoPulse.fire()) Hints.mark('ping'); if (k === 'shot') EchoShot.fire(); }
+    for (const k of Input.queue) { if (k === 'up' && this.state === 'play') P.tryInteract(); if (k === 'ping' && EchoPulse.fire()) Hints.mark('ping'); if (k === 'shot') Power.press(); }
     Input.queue.length = 0;
     if (this.state !== 'play' && this.state !== 'clearing') return;
     if (P.dead) { P.update(dt); FX.update(dt); Echo.update(dt); Cam.update(dt); return; }
@@ -655,7 +668,7 @@ const Game = {
     Ents.update(dt);
     // quem está em cima de uma plataforma móvel anda com ela
     if (P.riding) { const e = P.riding; if (e.dead) P.riding = null; else { World.move(P, e.dx, 0); World.move(P, 0, e.dy); } }
-    World.updateBlocks(dt); EchoPulse.update(dt); EchoShot.update(dt);
+    World.updateBlocks(dt); EchoPulse.update(dt); EchoShot.update(dt); Power.update(dt);
     if (this.timers.length) { const due = this.timers.filter(x => x.t <= this.simTime); this.timers = this.timers.filter(x => x.t > this.simTime); for (const x of due) x.fn(); }
     // zonas: cripta escura e abafada, campanário em crescendo
     const z = World.zoneAt(P.cx, P.cy);
@@ -689,9 +702,12 @@ const Game = {
     Ents.draw(ctx, camX, camY, a, 'mid');
     Ents.draw(ctx, camX, camY, a, 'enemy');
     World.drawVeils(ctx, camX, camY);
+    Power.drawBack(ctx, camX, camY, a);   // as asas (atrás do Nexy)
     P.draw(ctx, camX, camY, a);
+    Power.drawFront(ctx, camX, camY, a);  // o canhão do LASER e o brilho da STAR
     Echo.draw(ctx, camX, camY, a);
     EchoShot.draw(ctx, camX, camY);
+    Power.drawBolts(ctx, camX, camY);     // os tiros do Nexy e os dos inimigos
     City.drawCompass(ctx, camX, camY);   // a seta da Bússola das Palavras (todas as fases)
     FX.draw(ctx, camX, camY);
     Dark.draw(ctx, camX, camY);
@@ -714,7 +730,7 @@ const Game = {
       g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.3)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
     }), 480, 270);
     Cine.drawScreen(ctx); Birth.drawScreen(ctx); Arrival.drawScreen(ctx); Prologue.drawScreen(ctx); Glitch.drawScreen(ctx); Warp.drawScreen(ctx);
-    PalaceIntro.drawScreen(ctx); PalaceSwitch.drawScreen(ctx); CityIntro.drawScreen(ctx); CompassScene.drawScreen(ctx);
+    PalaceIntro.drawScreen(ctx); PalaceSwitch.drawScreen(ctx); CityIntro.drawScreen(ctx); CompassScene.drawScreen(ctx); SentinelScene.drawScreen(ctx);
     Transition.draw(ctx, this.time);
   },
 
@@ -819,7 +835,7 @@ const Game = {
       return;
     }
     const cp = this.checkpoint || World.start;
-    P.reset(cp.x, cp.y); Spawns.reset(); Echo.reset(); Echo.hidden = !this.echoBorn; Cam.snap(); Music.normal(); EchoShot.refill(); EchoShot.bolts = [];
+    P.reset(cp.x, cp.y); Spawns.reset(); Echo.reset(); Echo.hidden = !this.echoBorn; Cam.snap(); Music.normal(); EchoShot.refill(); EchoShot.bolts = []; Power.respawn();
   },
   finish(exit, bonus) {
     if (this.state !== 'play') return;

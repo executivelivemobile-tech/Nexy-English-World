@@ -45,19 +45,19 @@ Tela inicial → **mapa do Mundo 1** → fase → tela de fim → volta ao mapa.
 | Q | SELECT / BACK | soltar o item da reserva |
 | H | Y (no painel) | dica (tradução da inscrição) |
 | C | LB | pulso da Echo (revela o escondido; no palácio, o passado; na cidade, a caixa escondida) |
-| F | Y (depois de ganhar o tiro; antes disso Y corre) | tiro da Echo: o 1º paralisa, o 2º quebra |
+| F | Y (depois de ganhar o tiro ou o LASER; antes disso Y corre) | com o LASER (1-3): o Nexy atira; segure e solte para o tiro carregado. Sem ele: tiro da Echo (o 1º paralisa, o 2º quebra) |
 | V | | falar a frase na porta (VOICE MODE ligado); longe das portas, com o tiro: segure V e diga STOP! |
 | M | | som liga/desliga |
 | Esc ou P | START | pausa |
 
 Tudo o que o Nexy e a Echo já sabem fazer fica no **Grimório → aba POWERS** (pulso, tiro, voz, Coração, Anel do TO
-BE, Bússola das Palavras, cartão), com o botão e o que cada poder faz. O que ainda não foi conquistado aparece fechado.
+BE, Bússola das Palavras, LASER, WINGS, STAR, cartão), com o botão e o que cada poder faz. O que ainda não foi conquistado aparece fechado.
 
 No painel das portas, com o controle: A coloca/confirma, B volta, X apaga a última palavra, Y pede dica e o
 direcional escolhe a palavra. Nos menus, o direcional navega (segurar repete).
 
 No celular aparecem botões de toque (◀ ▼ ▶, RUN, JUMP, SPIN, OPEN perto das portas, ECHO depois que a Echo nasce e
-SHOT depois que o tiro é conquistado). O toque duplo em ◀ ou ▶ também
+SHOT depois que o tiro é conquistado ou com o LASER). O toque duplo em ◀ ou ▶ também
 faz correr. No mapa, basta tocar numa fase para o Nexy andar até ela; tocar na fase onde ele está entra nela.
 
 ## Fase 1-2 · WHO ARE YOU? (a Nave dos Ecos)
@@ -209,8 +209,14 @@ desenhos da caixa em cima, embaixo, dentro e atrás. As coisas da cidade têm et
 | Letreiro do HOTEL | IT IS ___ THE SIGN. → **UNDER** | a caixa desce para baixo da placa: dela se sobe na placa e no prédio alto | atrair a gárgula e olhar para ela: parada no ar, ela vira degrau |
 | Outdoor | a caixa sumiu: o pulso da Echo acha (**It is behind the sign!**); THE BOX IS ___ THE HOLE. → **IN** | a caixa tapa o buraco do corredor | escada de incêndio + a gárgula do outdoor |
 | Café | duas lacunas: THE BOX IS ___ THE ___. → **IN THE HOLE**, depois **UNDER THE SIGN** (no outro altar) | a caixa vira chão no meio do buraco; depois sobe para baixo do letreiro do café | pulo correndo na gárgula de pedra sobre o buraco; a gárgula do muro |
-| Estação | — | o **trem** do monotrilho leva o Nexy até a praça | — |
-| Praça | o **MAPA DA CIDADE** (↑ READ) | leitura, a Bússola nasce, escalada acima do A1 | é opcional |
+| Estação | — | o **trem** do monotrilho leva o Nexy até o mercado | — |
+| Mercado neon | bloco do **LASER** (o primeiro poder) | o Nexy ganha um canhão no braço; drones e um Rastejante para treinar | — |
+| Mapa da cidade | o **MAPA DA CIDADE** (↑ READ) | leitura, a Bússola nasce, escalada acima do A1 | é opcional |
+| Beco dos lasers | THE BOX IS ___ THE ___. → **IN FRONT OF THE LASER** | o feixe fecha o corredor (pega até pulando); a caixa na FRENTE do laser leva o tiro | subir no poste (o feixe passa embaixo) e destruir o emissor com 10 tiros; ou pular por cima da marquise |
+| Portões de laser | — | ligam e desligam (piscam antes): espere apagar e passe | a **STAR** escondida (pulso da Echo) deixa atravessar ligado |
+| O abismo | THE BOX IS ___ THE ___ AND THE ___. → **BETWEEN THE SIGN AND THE WALL** | a caixa fica no meio do abismo (entre a placa do bar e o muro): dois pulos andando | **WINGS** + o ventilador da beirada: segure o pulo, o vento levanta, plane até o prédio |
+| A antena | — | sacadas até o topo (vida lá em cima) | só planando se chega na sacada solta (outra vida) |
+| A arena | IT IS ___ THE SHIELD. → **UNDER**, depois **BEHIND**, depois **NEXT TO** | o **SENTINELA** muda o núcleo de lugar a cada rodada; a frase certa faz a Echo abrir o escudo e ele cai atordoado por 6 s | sem o terminal: ele superaquece de tempos em tempos e fica aberto um instante (mais longo e difícil) |
 
 - **Erro com retorno, sem castigo**: frase sem sentido faz a caixa tremer e a Echo diz o porquê ("In the sign? It is
   too thin!", "A wall has no inside!", "On the hole? It falls in!"). Frase certa mas inútil também ensina: UNDER THE
@@ -226,8 +232,21 @@ desenhos da caixa em cima, embaixo, dentro e atrás. As coisas da cidade têm et
   distância em blocos. 4: também a saída secreta. O Coração ganha uma agulha (no mapa, no Grimório e nas cenas).
 - **A cena da bússola** (na pegada God of War): a chuva para no ar, dois tambores, um raio cai no mapa, o Coração sobe
   e a agulha gira até apontar para a frente.
-- Palavras novas: BOX, ON, UNDER, IN, BEHIND, WALL, SIGN, HOLE e BETWEEN. Trilha em Mi menor, 108 BPM, synthwave por
-  cima do órgão, com o chiado da chuva e trovões.
+- **Os PODERES dos blocos** (como os do Mario, com o nome em inglês e a Echo dizendo a palavra): **LASER** (F / Y /
+  SHOT atira para a frente; segurar e soltar = tiro carregado, que atravessa, vale por 3 e apaga tiros inimigos),
+  **WINGS** (no ar, segurar o pulo plana; em cima de um ventilador, o vento levanta) e **STAR** (9 s sem dano, nem dos
+  lasers; quem você tocar explode). Levou um golpe com um poder: perde o poder, não a vida. Os blocos voltam a encher.
+  O poder atual aparece no HUD (POWER).
+- **Drone (DRONE)**, criatura nova: patrulha no ar; perto, mira (uma linha fina ciano, que trava um instante antes) e
+  atira. Pisão ou laser derrubam; o tiro da Echo o deixa parado no ar.
+- **O Sentinela (SENTINEL)**, o primeiro chefe: dorme até o Nexy entrar na arena; paira atirando rajadas e, a partir da
+  2ª rodada, solta drones. O núcleo fica perto do escudo (embaixo, atrás, do lado). No terminal, a frase do lugar certo
+  faz a luz da Echo achar o núcleo; atire nele (tiro 1, carregado 3) ou pule no casco (2). Errar o lugar: a Echo diz
+  "Look again!" e explica a palavra. A rodada fica guardada se o Nexy morrer. Na queda: tudo para, rachaduras de luz,
+  três tambores, explosão em câmera lenta, SENTINEL DOWN, e o portão do fim afunda.
+- Palavras novas: BOX, ON, UNDER, IN, BEHIND, WALL, SIGN, HOLE, BETWEEN, IN FRONT OF, NEXT TO, LASER, WINGS, STAR,
+  SHIELD e CORE. Trilha em Mi menor, 108 BPM, synthwave por cima do órgão, com o chiado da chuva e trovões (a
+  percussão cresce na arena).
 
 ## A Echo: a primeira ferramenta (nasce na 1-1)
 
@@ -279,13 +298,14 @@ O jogo que vai para o jogador é só o `index.html`, autocontido. Ele é **gerad
 | `src/76_secret.js` | 1-1: o segredo, a TO BE ENGINE, o teletransporte e o tiro da Echo |
 | `src/78_palace.js` | TO BE PALACE: cavaleiro, interruptor, desenho dos alvos do passado, chão-espelho, fundo e as duas cenas |
 | `src/80_city.js` | 1-3: a caixa de neon, gárgula, trem, mapa da cidade, prédios, chuva e raios, a chegada, o desafio do mapa e a Bússola |
+| `src/82_city2.js` | 1-3, a segunda metade: poderes (LASER, WINGS, STAR), drones, feixes e portões de laser, ventilador, o Sentinela e a cena da queda |
 | `src/62_nexy_look.js` | o visual do Nexy em 6 estágios (boneco articulado, quadros guardados em memória; folha: `tools/look_sheet.js`) |
 | `src/75_worldmap.js` | transições (íris e fechadura) e o mapa-múndi |
 | `src/99_boot.js` | API de teste no console (`NEXY`) e partida |
 | `src/levels/1-1.map` | mapa ASCII da 1-1 (23 linhas × 208 colunas) |
 | `src/levels/1-2.map` | mapa ASCII da 1-2 (40 linhas × 312 colunas) |
 | `src/levels/palace.map` | mapa ASCII do palácio (23 linhas × 150 colunas), gerado por `tools/gen_map_palace.py` |
-| `src/levels/1-3.map` | mapa ASCII da 1-3 (26 linhas × 200 colunas), gerado por `tools/gen_map_1-3.py` |
+| `src/levels/1-3.map` | mapa ASCII da 1-3 (26 linhas × 400 colunas), gerado por `tools/gen_map_1-3.py` |
 | `build.js` | junta tudo em `index.html` |
 | `tools/gen_map_1-2.py` | gerador do mapa da 1-2 (edite e rode para regenerar `src/levels/1-2.map`) |
 | `src/voice/` | as falas gravadas (MP3) e o `manifest.json`; o build embute tudo no `index.html` |

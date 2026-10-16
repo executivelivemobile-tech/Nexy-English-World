@@ -66,6 +66,7 @@ const CFG = {
   CRAWLER_SPEED: 50, CASCO_SPEED: 45, ENEMY_GRAVITY: 2000,
   MAGNET: 64, WORD_BAR_MAX: 8, START_LIVES: 5, HINT_COST: 10,
   ORBS_PER_LIFE: 100,
+  GLIDE_FALL: 60,   // com as WINGS, segurando o pulo, a queda fica lenta (px/s)
 };
 
 /* ============================== BRILHO DAS SILHUETAS ==============================
@@ -128,6 +129,13 @@ const WORDS = {
   SIGN:    { cls: 'noun', pt: 'placa / letreiro', say: 'sign', lore: 'A cidade fala com placas de neon. Algumas aguentam o seu peso.' },
   HOLE:    { cls: 'noun', pt: 'buraco', say: 'hole', lore: 'Lá embaixo fica a rua. Um buraco só deixa de ser perigo quando algo fica IN THE HOLE.' },
   BETWEEN: { cls: 'preposition', pt: 'entre', say: 'between', lore: 'No meio de duas coisas. No mapa da cidade, a torre fica entre a estação e a ponte.' },
+  'IN FRONT OF': { cls: 'preposition', pt: 'na frente de', say: 'in front of', lore: 'Entre você e a coisa. A caixa IN FRONT OF THE LASER leva o tiro no seu lugar.' },
+  'NEXT TO': { cls: 'preposition', pt: 'ao lado de', say: 'next to', lore: 'Bem do lado, encostado em UMA coisa. Entre DUAS coisas já é BETWEEN.' },
+  LASER:   { cls: 'noun', pt: 'laser', say: 'laser', lore: 'Luz que corta. Na mão do Nexy é arma; no beco, é uma parede que queima.' },
+  WINGS:   { cls: 'noun', pt: 'asas', say: 'wings', lore: 'Sozinhas não sobem: para isso existe o vento. Mas, com elas, ninguém cai depressa.' },
+  STAR:    { cls: 'noun', pt: 'estrela', say: 'star', lore: 'Escondida no beco dos lasers. Por alguns segundos, nada te machuca.' },
+  SHIELD:  { cls: 'noun', pt: 'escudo', say: 'shield', lore: 'O Sentinela esconde o núcleo perto do escudo: embaixo, atrás ou do lado.' },
+  CORE:    { cls: 'noun', pt: 'núcleo', say: 'core', lore: 'O coração da máquina. Diga onde ele está, e a Echo o encontra.' },
 };
 const CREATURES = {
   CRAWLER: { pt: 'rastejante', say: 'Crawler', lore: 'Rasteja porque nunca aprendeu a falar.' },
@@ -136,6 +144,8 @@ const CREATURES = {
   THIEF:   { pt: 'ladrão de palavras', say: 'Word thief', lore: 'Não sabe falar, então rouba. Sempre a última palavra que você aprendeu.' },
   KNIGHT:  { pt: 'cavaleiro', say: 'Knight', lore: 'Era um guarda do palácio. Hoje é só armadura que ainda anda: pisão comum só faz o elmo tinir; com giro, ela se desfaz.' },
   GARGOYLE: { pt: 'gárgula', say: 'Gargoyle', lore: 'Vira pedra quando você olha para ela. De costas, ela voa atrás de você. Parada no ar, serve de degrau; com giro, ela se quebra.' },
+  DRONE:    { pt: 'drone', say: 'Drone', lore: 'O olho voador dos telhados. Antes de atirar, ele mira (uma linha fina): saia da frente. Pisão ou laser derrubam; o tiro da Echo o deixa parado no ar.' },
+  SENTINEL: { pt: 'sentinela', say: 'Sentinel', lore: 'O guarda da cidade. Esconde o núcleo perto do escudo e muda de lugar a cada rodada: quem diz onde ele está abre o escudo.' },
 };
 // O ECHO, o companheiro do Nexy: se apresenta na primeira partida e fala nas horas certas (frases A1 com legenda)
 const ECHO = {
@@ -163,6 +173,18 @@ const ECHO = {
     gargoyle: [{ en: 'It is a gargoyle!', pt: 'Uma gárgula! Olhando para ela, ela vira pedra (e dá para subir nela). De costas, ela voa atrás de você.' }],
     map: [{ en: 'Look! A map of the city.', pt: 'Olha! Um mapa da cidade. Aperte ↑ para ler: ele dá um poder novo ao Coração.' }],
     compass: [{ en: 'Now we know where it is!', pt: 'Agora a gente sabe onde as coisas estão: a seta da bússola aponta para o que falta.' }],
+    // 1-3 · a segunda metade: poderes, lasers, drones e o Sentinela
+    laser: [{ en: 'It is a laser!', pt: 'Um LASER no seu braço! Aperte F (Y no controle) para atirar. Segure e solte: tiro carregado.' }],
+    wings: [{ en: 'Wings! Hold jump.', pt: 'Asas! No ar, segure o pulo para planar. Em cima de um ventilador, o vento te levanta.' }],
+    star: [{ en: 'A star! Run!', pt: 'Uma estrela! Por alguns segundos nada te machuca, e quem você tocar explode.' }],
+    drone: [{ en: 'A drone! Look out!', pt: 'Um drone! Quando aparecer a linha fina, ele vai atirar: saia da frente. Pisão ou laser derrubam.' }],
+    beam: [{ en: 'The laser is on!', pt: 'O feixe fecha o corredor. Leia o altar: onde a caixa precisa ficar? (Ou destrua o emissor com tiros.)' }],
+    gates: [{ en: 'Wait... now go!', pt: 'Esses lasers ligam e desligam. Espere apagar e passe.' }],
+    sentinel: [{ en: 'It is the Sentinel!', pt: 'O Sentinela! O núcleo dele fica perto do escudo.' }, { en: 'Where is the core?', pt: 'Diga no terminal onde o núcleo está, e eu abro o escudo.' }],
+    coreOpen: [{ en: 'The core is open! Shoot!', pt: 'O núcleo está aberto! Atire nele (ou pule em cima do Sentinela).' }],
+    coreMove: [{ en: 'Where is the core now?', pt: 'O núcleo mudou de lugar. Olhe bem e responda no terminal.' }],
+    overheat: [{ en: 'It is hot! Now!', pt: 'Ele esquentou demais: o núcleo abriu por um instante. Atire!' }],
+    victory: [{ en: 'We did it!', pt: 'Conseguimos! O Sentinela caiu e o portão abriu.' }],
   },
 };
 // A LEI DAS PALAVRAS: o prólogo da primeira partida (73_echo.js → Prologue). Quem fala é o narrador (a voz antiga);
@@ -266,6 +288,31 @@ const CITY = {
     { en: 'The heart knows.', pt: 'O Coração sabe. Ele ganhou uma bússola.' },
   ],
 };
+// os poderes que saem dos blocos (1-3): o nome em inglês aparece e a Echo diz a palavra. Machucou, perdeu (a estrela não protege
+// para sempre). LASER e WINGS ocupam o mesmo lugar (um troca o outro); a STAR vale por alguns segundos.
+const POWERS = {
+  laser: { word: 'LASER', pt: 'Laser', say: 'Laser!', info: 'F (Y no controle, SHOT no toque) atira para a frente. Segure e solte: o tiro carregado atravessa e vale por 3.' },
+  wings: { word: 'WINGS', pt: 'Asas', say: 'Wings!', info: 'No ar, segure o pulo para planar. Em cima de um ventilador, o vento te levanta.' },
+  star:  { word: 'STAR', pt: 'Estrela', say: 'Star!', info: 'Por 9 segundos nada te machuca, nem os lasers; quem você tocar explode.', time: 9 },
+};
+// o SENTINELA (o chefe da 1-3): a cada rodada o núcleo fica num lugar diferente perto do escudo.
+// Quem diz no terminal onde ele está (IT IS UNDER THE SHIELD) abre o escudo por 'open' s; sem inglês, ele esquenta
+// a cada 'heat.every' s de luta e fica aberto 'heat.open' s (outro caminho, mais difícil).
+const SENTINEL = {
+  rounds: [{ where: 'UNDER' }, { where: 'BEHIND' }, { where: 'NEXT TO' }],
+  hp: 8, open: 6, heat: { every: 10, warn: 1.2, open: 2.6 },
+  // o porquê da Echo quando a resposta é outra (sem dar a frase pronta)
+  tips: {
+    UNDER: { en: 'Look again!', pt: 'UNDER = embaixo. O núcleo está embaixo do escudo? Olhe de novo.' },
+    BEHIND: { en: 'Look again!', pt: 'BEHIND = atrás. O núcleo está escondido atrás do escudo? Aperte C e olhe de novo.' },
+    'NEXT TO': { en: 'Look again!', pt: 'NEXT TO = ao lado. O núcleo está do lado do escudo? Olhe de novo.' },
+    ON: { en: 'Look again!', pt: 'ON = em cima. O núcleo nunca fica em cima do escudo. Olhe onde ele está.' },
+    IN: { en: 'Look again!', pt: 'IN = dentro. O escudo é uma placa: não tem dentro. Olhe onde o núcleo está.' },
+    'IN FRONT OF': { en: 'Look again!', pt: 'IN FRONT OF = na frente. Na frente do escudo não tem nada. Olhe onde o núcleo está.' },
+    BETWEEN: { en: 'Look again!', pt: 'BETWEEN pede duas coisas. Aqui só tem o escudo: embaixo, atrás ou do lado?' },
+  },
+  scene: [{ en: 'The Sentinel is down.', pt: 'O Sentinela caiu.' }, { en: 'Where is the core? It is gone!', pt: 'Onde está o núcleo? Sumiu!' }],
+};
 // o tiro da Echo, nível por nível (o 1º tiro paralisa, o 2º quebra; recarrega com o tempo e nos checkpoints)
 const SHOT = [
   { name: 'STUN SHOT', pt: 'Tiro Paralisante', max: 3, every: 8, stun: 4, info: '3 tiros. O 1º paralisa o Rastejante (dá para pisar nele); o 2º quebra.' },
@@ -288,7 +335,7 @@ const PHRASES_PT = {
   'WHAT WAS HERE?': 'O que existia aqui?', 'WERE THEY BIG OR SMALL?': 'Eles eram grandes ou pequenos?',
   'HOW WAS NEXY YESTERDAY?': 'Como o Nexy estava ontem?', 'HOW IS NEXY TODAY?': 'Como o Nexy está hoje?',
   'HOW WERE THEY YESTERDAY?': 'Como eles eram ontem?', 'WHO WERE YOU? WHO ARE YOU?': 'Quem você era? Quem você é?',
-  'WHERE IS THE BOX?': 'Onde está a caixa?', 'WHERE IS IT?': 'Onde está?',
+  'WHERE IS THE BOX?': 'Onde está a caixa?', 'WHERE IS IT?': 'Onde está?', 'WHERE IS THE CORE?': 'Onde está o núcleo?',
 };
 
 /* ============================== LEGENDA GLOBAL ============================== */
