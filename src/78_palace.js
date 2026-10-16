@@ -4,8 +4,8 @@
    (PalaceSwitch, na pegada God of War: pausa pesada, tambor, impacto congelado, onda de luz). */
 
 /* ---------- CAVALEIRO: armadura vazia que ainda patrulha ----------
-   Pisão comum só faz o elmo tinir (ele cambaleia e o Nexy quica); pisão com giro, casco, tiro duplo da Echo
-   ou o Nexy gigante desmontam a armadura. Encostar de lado machuca. */
+   Pisão comum só faz o elmo tinir (ele cambaleia e a Nexy quica); pisão com giro, casco, tiro duplo da Echo
+   ou a Nexy gigante desmontam a armadura. Encostar de lado machuca. */
 Ents.reg('knight', {
   layer: 'enemy',
   init(e) { e.w = 26; e.h = 40; e.dir = -1; e.enemy = true; e.kind = 'enemy'; e.state = 'walk'; e.res = {}; e.onGround = false; e.creature = 'KNIGHT'; e.stagger = 0; },
@@ -178,7 +178,7 @@ const Palace = {
     ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.3; ctx.stroke();
     R.draw(R.text(past ? 'YESTERDAY' : 'TODAY', '700 7px Orbitron, Inter, sans-serif', wa(0.85), past ? ca(0.9) : 'rgba(217,70,239,0.9)', 4), cx, cy - 22);
   },
-  /* chão-espelho: o Nexy e a Echo refletidos no piso polido (desenhados num buffer e virados de cabeça para baixo) */
+  /* chão-espelho: a Nexy e a Echo refletidos no piso polido (desenhados num buffer e virados de cabeça para baixo) */
   drawMirror(ctx, camX, camY, a) {
     const fr = World.h - 3, yf = fr * TS - camY;
     if (yf > CFG.VIEW_H || P.dead && P.pitDeath) return;

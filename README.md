@@ -21,14 +21,14 @@ Tela inicial → **mapa do Mundo 1** → fase → tela de fim → volta ao mapa.
   cascata, estradas com uma faísca que passa e pontes. Cada fase tem um marco grande; o que ainda não foi descoberto
   fica sob névoa, com "?". Estrela cadente, nuvens e raios atrás do castelo. As palavras-mestras viram constelações.
 
-- No mapa, o Nexy anda pelos caminhos abertos (setas, alavanca do controle ou toque numa fase) e entra com Enter ou pulo.
+- No mapa, a Nexy anda pelos caminhos abertos (setas, alavanca do controle ou toque numa fase) e entra com Enter ou pulo.
 - Cada saída abre um caminho novo, que se desenha ponto a ponto. A saída normal da 1-1 abre a 1-2; a secreta abre o
   Palácio do To Be. A normal da 1-2 abre a 1-3; a secreta abre a Casa dos Falsos Amigos "PUSH OR PULL?".
 - No céu do mapa, as letras de **HELLO** (1-1) e **WORLD** (1-2) acendem como uma constelação conforme são achadas.
   As outras fases têm a sua palavra-mestra (palácio: **TOBE**; 1-3: **CITY**), que aparece no cartão e no fim da fase.
 - Vidas e orbes atravessam as fases. Letras, saídas e a melhor Fluência ficam salvas por fase.
-- Transições: ao entrar numa fase, uma íris neon fecha sobre o Nexy e mostra o cartão da fase (nome, letras já
-  achadas e "Nexy × vidas"). Ao sair pela saída secreta, a íris fecha numa **fechadura**. No fim de jogo, o Nexy volta
+- Transições: ao entrar numa fase, uma íris neon fecha sobre a Nexy e mostra o cartão da fase (nome, letras já
+  achadas e "Nexy × vidas"). Ao sair pela saída secreta, a íris fecha numa **fechadura**. No fim de jogo, a Nexy volta
   ao mapa com as vidas recarregadas.
 
 ## Controles
@@ -45,12 +45,12 @@ Tela inicial → **mapa do Mundo 1** → fase → tela de fim → volta ao mapa.
 | Q | SELECT / BACK | soltar o item da reserva |
 | H | Y (no painel) | dica (tradução da inscrição) |
 | C | LB | pulso da Echo (revela o escondido; no palácio, o passado; na cidade, a caixa escondida) |
-| F | Y (depois de ganhar o tiro ou o LASER; antes disso Y corre) | com o LASER (1-3): o Nexy atira; segure e solte para o tiro carregado. Sem ele: tiro da Echo (o 1º paralisa, o 2º quebra) |
+| F | Y (depois de ganhar o tiro ou o LASER; antes disso Y corre) | com o LASER (1-3): a Nexy atira; segure e solte para o tiro carregado. Sem ele: tiro da Echo (o 1º paralisa, o 2º quebra) |
 | V | | falar a frase na porta (VOICE MODE ligado); longe das portas, com o tiro: segure V e diga STOP! |
 | M | | som liga/desliga |
 | Esc ou P | START | pausa |
 
-Tudo o que o Nexy e a Echo já sabem fazer fica no **Grimório → aba POWERS** (pulso, tiro, voz, Coração, Anel do TO
+Tudo o que a Nexy e a Echo já sabem fazer fica no **Grimório → aba POWERS** (pulso, tiro, voz, Coração, Anel do TO
 BE, Bússola das Palavras, LASER, WINGS, STAR, cartão), com o botão e o que cada poder faz. O que ainda não foi conquistado aparece fechado.
 
 No painel das portas, com o controle: A coloca/confirma, B volta, X apaga a última palavra, Y pede dica e o
@@ -58,11 +58,11 @@ direcional escolhe a palavra. Nos menus, o direcional navega (segurar repete).
 
 No celular aparecem botões de toque (◀ ▼ ▶, RUN, JUMP, SPIN, OPEN perto das portas, ECHO depois que a Echo nasce e
 SHOT depois que o tiro é conquistado ou com o LASER). O toque duplo em ◀ ou ▶ também
-faz correr. No mapa, basta tocar numa fase para o Nexy andar até ela; tocar na fase onde ele está entra nela.
+faz correr. No mapa, basta tocar numa fase para a Nexy andar até ela; tocar na fase onde ela está entra nela.
 
 ## Fase 1-2 · WHO ARE YOU? (a Nave dos Ecos)
 
-O Nexy entra na catedral: nave, cripta e campanário, terminando no telhado, com o céu e a cidade da 1-1 lá embaixo.
+A Nexy entra na catedral: nave, cripta e campanário, terminando no telhado, com o céu e a cidade da 1-1 lá embaixo.
 Palavra-mestra: **WORLD**. Na 1-2 a barra de palavras cresce para **10** espaços.
 
 **A mecânica nova: o pronome decide quem a frase atinge.**
@@ -71,17 +71,17 @@ Palavra-mestra: **WORLD**. Na 1-2 a barra de palavras cresce para **10** espaço
 | --- | --- |
 | IT IS BIG / SMALL | a pedra com a runa IT cresce ou encolhe |
 | THEY ARE SMALL / BIG | os três Rastejantes gigantes encolhem (e viram Rastejantes comuns) ou crescem de novo |
-| YOU ARE BIG / SMALL | a Echo cresce (no telhado, vira uma plataforma que leva o Nexy) ou encolhe |
-| WE ARE BIG | o Nexy e a Echo juntos |
+| YOU ARE BIG / SMALL | a Echo cresce (no telhado, vira uma plataforma que leva a Nexy) ou encolhe |
+| WE ARE BIG | a Nexy e a Echo juntos |
 | IT ARE SMALL, THEY IS… | concordância errada: o alvo treme, confuso, e nada acontece |
 
 **As cinco seções**
 
 1. **Portal da Nave.** Altar "WHAT IS BIG?": IT IS BIG ergue a runa até a sacada da letra W. Primeiro Alado.
-   Porta "WHO ARE YOU?" → I AM **NEXY** (I AM YOU faz o reflexo do Nexy acenar no vidro).
+   Porta "WHO ARE YOU?" → I AM **NEXY** (I AM YOU faz o reflexo da Nexy acenar no vidro).
 2. **Os Lustres.** Abismo atravessado de lustre em lustre (eles balançam em fases opostas), com checkpoint no primeiro pilar.
    Ponte de três Alados: quem emenda 3 pisões sobe até uma vida escondida. Porta "ARE YOU A CRAWLER?" → NO, I AM NOT
-   (com YES, a porta acredita e o Nexy vira Rastejante por alguns segundos).
+   (com YES, a porta acredita e a Nexy vira Rastejante por alguns segundos).
 3. **O Coro dos Sinos.** Portão "HOW ARE YOU?": toque os sinos na ordem I → AM → FINE (o AM só do degrau; o FINE só
    de cima do lustre). Ordem errada: o eco repete a frase e os sinos zeram. De primeira: uma vida cai do grande sino.
    Tubos do órgão sobem e descem na batida da música (do alto do tubo 2 sai o SMALL). Corredor do **Ladrão de
@@ -94,14 +94,14 @@ Palavra-mestra: **WORLD**. Na 1-2 a barra de palavras cresce para **10** espaço
    Atrás do muro, a câmara da luz; uma parede falsa debaixo da torre esconde a **Lua** (3 vidas).
 5. **O Campanário.** Subida vertical: tubos, sacada com vida, plataformas, lustre e o telhado. Atalho-fantasma
    (IS e ARE na barra viram degraus). Porta "IS IT A DOOR?" → YES, IT IS. No telhado, o altar "WHO IS BIG?":
-   **IT IS BIG** faz a ponte para o fim normal; **YOU ARE BIG** faz a Echo levar o Nexy pelo céu até o fim secreto.
+   **IT IS BIG** faz a ponte para o fim normal; **YOU ARE BIG** faz a Echo levar a Nexy pelo céu até o fim secreto.
 
 Vidas: ponte de Alados (3x), bloco logo depois da porta 2, sinos de primeira, Lua (3), meio do campanário e as que o
 Coração dá.
 
 ### O Baú da Memória e o Coração das Palavras
 
-Uma leitura curta sobre a jornada do Nexy ("Nexy is small. The city is dark…"), em 5 passos pensados com a ciência do
+Uma leitura curta sobre a jornada da Nexy ("Nexy is small. The city is dark…"), em 5 passos pensados com a ciência do
 aprendizado:
 
 1. **4 palavras novas** antes de ler (DARK, LIGHT, AFRAID, STRONG), com desenho, voz e tradução.
@@ -116,8 +116,8 @@ aprendizado:
 5. **"I AM STRONG."**: o aluno monta (ou fala) a frase em 1ª pessoa. Escolher AFRAID apaga a luz e a Echo pergunta
    "Are you?".
 
-Então vem a cena (na pegada God of War): silêncio, faixas de cinema, as palavras que o aluno aprendeu giram em volta do
-Nexy e entram nele, três tambores de guerra e ele cresce, o grito de batalha ("I AM STRONGER THAN YESTERDAY!" no nível
+Então vem a cena (na pegada God of War): silêncio, faixas de cinema, as palavras que o aluno aprendeu giram em volta da
+Nexy e entram nela, três tambores de guerra e ela cresce, o grito de batalha ("I AM STRONGER THAN YESTERDAY!" no nível
 máximo), a investida em câmera lenta, o impacto congelado, o Muro do Silêncio explode e a luz entra. Enter pula a cena.
 
 **Quem não consegue** passar pelo baú tem outro caminho: um poço escuro antes do muro, subindo com um quique num
@@ -126,7 +126,7 @@ Alado, e uma passagem baixa por cima do muro.
 ## A Lei das Palavras: o prólogo (só na primeira partida)
 
 Antes de pisar no mundo, o jogo mostra as três leis em vez de explicá-las. No escuro, a voz antiga diz "In this world,
-words are magic." As letras de **HELLO** caem e acendem o chão onde o Nexy pousa ("Words are the floor."). Um
+words are magic." As letras de **HELLO** caem e acendem o chão onde a Nexy pousa ("Words are the floor."). Um
 Rastejante pequenino aparece; no ar surge **IT IS BIG.** e ele vira um gigante no caminho ("What you say is true.").
 Então é a vez do jogador: **IT IS ___.** com BIG e SMALL. BIG o deixa ainda maior (sem castigo: o mundo só obedece);
 SMALL o encolhe e ele foge. Só depois disso a regra ganha nome: "Quer que algo fique pequeno? Diga que ele É pequeno."
@@ -139,8 +139,8 @@ altar da 1-2, e as dicas da Echo na cripta lembram o começo.
 Existe uma máquina estranha no corredor depois da porta 2: a **TO BE ENGINE** ("TO BE OR NOT TO BE?"). Sem cartão, ela
 não liga. Onde está o cartão é segredo (dica: preste atenção em tudo, até no fundo da tela, logo no começo). Quem
 termina a 1-1 com pontuação máxima ganha o **cartão dourado**: daí em diante a fase já começa com ele. Com ele, a máquina ensina o
-verbo TO BE inteiro (I AM, YOU ARE, **HE** IS = o Nexy, **SHE** IS = a Echo, IT IS, WE ARE, THEY ARE), pede as 7
-ligações (errar não zera: a errada volta no fim) e oferece uma escalada de frases acima do A1. Ligada, ela leva o Nexy ao fim da fase com
+verbo TO BE inteiro (I AM, YOU ARE, **HE** IS = a Nexy, **SHE** IS = a Echo, IT IS, WE ARE, THEY ARE), pede as 7
+ligações (errar não zera: a errada volta no fim) e oferece uma escalada de frases acima do A1. Ligada, ela leva a Nexy ao fim da fase com
 as vidas cheias e dá à Echo um poder que fica salvo:
 
 - **Tiro da Echo** (F · Y no controle · SHOT no toque): o 1º tiro **paralisa** o inimigo (vira cristal, não machuca e
@@ -148,9 +148,9 @@ as vidas cheias e dá à Echo um poder que fica salvo:
   mais longa, luz que atravessa, luz que persegue). Com o VOICE MODE: segure **V**, o tempo desacelera, e diga
   **"STOP!"**.
 
-## O visual do Nexy evolui
+## O visual da Nexy evolui
 
-O Nexy é um boneco articulado desenhado em código (capuz de gato, cachecol, cauda de cabo). Ele começa como um
+A Nexy é uma boneca articulada desenhada em código (capuz de gato, cachecol, cauda de cabo). Ela começa como um
 **rascunho de neon** na primeira partida e ganha camadas a cada fase concluída, até a forma final com asas de fênix:
 
 | Estágio | Aparece | O que muda |
@@ -163,7 +163,7 @@ O Nexy é um boneco articulado desenhado em código (capuz de gato, cachecol, ca
 | PHOENIX · Fênix | depois do castelo | asas de penas de fogo e a chama na cauda |
 
 Ao voltar ao mapa com um estágio novo aparece **NEXY EVOLVED**. É só desenho: a caixa de colisão e a física são as
-mesmas. O estágio atual fica no Grimório (aba POWERS); para jogar com o Nexy antigo: pausa → ASSIST → **CLASSIC NEXY**.
+mesmas. O estágio atual fica no Grimório (aba POWERS); para jogar com a Nexy antiga: pausa → ASSIST → **CLASSIC NEXY**.
 Folha com os 6 estágios animados: `tools/look_sheet.js`.
 
 ## TO BE PALACE (a saída secreta da 1-1)
@@ -171,7 +171,7 @@ Folha com os 6 estágios animados: `tools/look_sheet.js`.
 O palácio do verbo TO BE. Ontem ele era cheio de luz; hoje está escuro. **A mecânica nova é o passado**: dizer o que
 EXISTIA (WAS, WERE) traz de volta o que existia. Na primeira visita, uma lembrança mostra o palácio aceso ("Yesterday,
 this palace was full of light.") e ensina a tabela antes do primeiro desafio (TODAY: I AM · IT IS · THEY ARE →
-YESTERDAY: I WAS · IT WAS · THEY WERE). O chão do salão é um espelho: o Nexy e a Echo aparecem refletidos.
+YESTERDAY: I WAS · IT WAS · THEY WERE). O chão do salão é um espelho: a Nexy e a Echo aparecem refletidos.
 
 | Lugar | Frase | O que acontece | Outro caminho (sem o inglês) |
 | --- | --- | --- | --- |
@@ -184,7 +184,7 @@ YESTERDAY: I WAS · IT WAS · THEY WERE). O chão do salão é um espelho: o Nex
   "It was a bridge!". As estátuas deixam a sombra do tamanho antigo na parede.
 - **Erro com retorno, sem castigo**: frase errada só faz o alvo tremer, e a Echo aponta o porquê sem dar a frase
   pronta ("Not today. Yesterday!", "They? Not was!", "Nexy is he!").
-- **Cavaleiro (KNIGHT)**, criatura nova: pisão comum só faz o elmo tinir (o Nexy quica e ele cambaleia); com giro a
+- **Cavaleiro (KNIGHT)**, criatura nova: pisão comum só faz o elmo tinir (a Nexy quica e ele cambaleia); com giro a
   armadura se desfaz. O tiro da Echo também funciona nele.
 - **O INTERRUPTOR DO SER**: a frase final é em 1ª pessoa, passado e presente juntos. A cena tem pausa pesada, dois
   tambores, a alavanca descendo com impacto congelado, uma onda de luz e as cinco formas do verbo (AM, IS, ARE, WAS,
@@ -196,7 +196,7 @@ YESTERDAY: I WAS · IT WAS · THEY WERE). O chão do salão é um espelho: o Nex
 
 ## Fase 1-3 · WHERE IS IT? (os telhados da cidade na chuva)
 
-A primeira vez que o Nexy sai das igrejas: a **cidade Castlevania cyberpunk** vista de cima, na chuva, com raios,
+A primeira vez que a Nexy sai das igrejas: a **cidade Castlevania cyberpunk** vista de cima, na chuva, com raios,
 letreiros de neon, prédios com janelas acesas (agora com **profundidade**: o telhado tem face de cima e o prédio tem
 lateral), um outdoor gigante e um monotrilho. Cair entre os prédios é morte. Palavra-mestra: **C I T Y**.
 
@@ -210,8 +210,8 @@ desenhos da caixa em cima, embaixo, dentro e atrás. As coisas da cidade têm et
 | Letreiro do HOTEL | IT IS ___ THE SIGN. → **UNDER** | a caixa desce para baixo da placa: dela se sobe na placa e no prédio alto | atrair a gárgula e olhar para ela: parada no ar, ela vira degrau |
 | Outdoor | a caixa sumiu: o pulso da Echo acha (**It is behind the sign!**); THE BOX IS ___ THE HOLE. → **IN** | a caixa tapa o buraco do corredor | escada de incêndio + a gárgula do outdoor |
 | Café | duas lacunas: THE BOX IS ___ THE ___. → **IN THE HOLE**, depois **UNDER THE SIGN** (no outro altar) | a caixa vira chão no meio do buraco; depois sobe para baixo do letreiro do café | pulo correndo na gárgula de pedra sobre o buraco; a gárgula do muro |
-| Estação | — | o **trem** do monotrilho leva o Nexy até o mercado | — |
-| Mercado neon | bloco do **LASER** (o primeiro poder) | o Nexy ganha um canhão no braço; drones e um Rastejante para treinar | — |
+| Estação | — | o **trem** do monotrilho leva a Nexy até o mercado | — |
+| Mercado neon | bloco do **LASER** (o primeiro poder) | a Nexy ganha um canhão no braço; drones e um Rastejante para treinar | — |
 | Mapa da cidade | o **MAPA DA CIDADE** (↑ READ) | leitura, a Bússola nasce, escalada acima do A1 | é opcional |
 | Beco dos lasers | THE BOX IS ___ THE ___. → **IN FRONT OF THE LASER** | o feixe fecha o corredor (pega até pulando); a caixa na FRENTE do laser leva o tiro | subir no poste (o feixe passa embaixo) e destruir o emissor com 10 tiros; ou pular por cima da marquise |
 | Portões de laser | — | ligam e desligam (piscam antes): espere apagar e passe | a **STAR** escondida (pulso da Echo) deixa atravessar ligado |
@@ -223,12 +223,12 @@ desenhos da caixa em cima, embaixo, dentro e atrás. As coisas da cidade têm et
   too thin!", "A wall has no inside!", "On the hole? It falls in!"). Frase certa mas inútil também ensina: UNDER THE
   HOLE e a caixa cai na rua ("Oh no! It fell down.").
 - **Gárgula (GARGOYLE)**, criatura nova: de pedra quando você olha para ela (não machuca e é chão); de costas, ela
-  treme, acorda e voa atrás de você. Pisão comum a deixa de pedra por 2 s e o Nexy quica alto; com giro ela quebra.
-- **O mapa da cidade**: uma cidade desenhada de lado (estação, torre com a catedral atrás e o Nexy em cima, ponte com o
+  treme, acorda e voa atrás de você. Pisão comum a deixa de pedra por 2 s e a Nexy quica alto; com giro ela quebra.
+- **O mapa da cidade**: uma cidade desenhada de lado (estação, torre com a catedral atrás e a Nexy em cima, ponte com o
   palácio embaixo). O narrador lê quatro frases e cada uma acende a parte do desenho (BETWEEN é palavra nova). Ler já
   dá a **BÚSSOLA DAS PALAVRAS**; a escalada (A2 → B1, uma tentativa por pergunta) deixa a bússola mais forte. Errar
   encerra a escalada, mas a bússola fica; dá para tentar de novo.
-- **A Bússola das Palavras** (o acréscimo da 1-3 ao Coração): uma seta magenta em volta do Nexy aponta o que falta,
+- **A Bússola das Palavras** (o acréscimo da 1-3 ao Coração): uma seta magenta em volta da Nexy aponta o que falta,
   em **todas as fases**. Nível 1: a letra mais perto. 2: também os segredos (blocos invisíveis, paredes falsas). 3: a
   distância em blocos. 4: também a saída secreta. O Coração ganha uma agulha (no mapa, no Grimório e nas cenas).
 - **A cena da bússola** (na pegada God of War): a chuva para no ar, dois tambores, um raio cai no mapa, o Coração sobe
@@ -240,10 +240,10 @@ desenhos da caixa em cima, embaixo, dentro e atrás. As coisas da cidade têm et
   O poder atual aparece no HUD (POWER).
 - **Drone (DRONE)**, criatura nova: patrulha no ar; perto, mira (uma linha fina ciano, que trava um instante antes) e
   atira. Pisão ou laser derrubam; o tiro da Echo o deixa parado no ar.
-- **O Sentinela (SENTINEL)**, o primeiro chefe: dorme até o Nexy entrar na arena; paira atirando rajadas e, a partir da
+- **O Sentinela (SENTINEL)**, o primeiro chefe: dorme até a Nexy entrar na arena; paira atirando rajadas e, a partir da
   2ª rodada, solta drones. O núcleo fica perto do escudo (embaixo, atrás, do lado). No terminal, a frase do lugar certo
   faz a luz da Echo achar o núcleo; atire nele (tiro 1, carregado 3) ou pule no casco (2). Errar o lugar: a Echo diz
-  "Look again!" e explica a palavra. A rodada fica guardada se o Nexy morrer. Na queda: tudo para, rachaduras de luz,
+  "Look again!" e explica a palavra. A rodada fica guardada se a Nexy morrer. Na queda: tudo para, rachaduras de luz,
   três tambores, explosão em câmera lenta, SENTINEL DOWN, e o portão do fim afunda.
 - Palavras novas: BOX, ON, UNDER, IN, BEHIND, WALL, SIGN, HOLE, BETWEEN, IN FRONT OF, NEXT TO, LASER, WINGS, STAR,
   SHIELD e CORE. Trilha em Mi menor, 108 BPM, synthwave por cima do órgão, com o chiado da chuva e trovões (a
@@ -251,7 +251,7 @@ desenhos da caixa em cima, embaixo, dentro e atrás. As coisas da cidade têm et
 
 ## A Echo: a primeira ferramenta (nasce na 1-1)
 
-A 1-1 começa com o Nexy **sozinho**, descendo do céu num feixe de luz. Placas de dica aparecem nos lugares certos
+A 1-1 começa com a Nexy **sozinha**, descendo do céu num feixe de luz. Placas de dica aparecem nos lugares certos
 (em inglês, com português) e somem quando você já fez a ação. Ao dizer a primeira palavra, **HELLO!** na porta 1, ela
 ecoa pela catedral ("hello… hello… hello"), as ondas voltam, as letras H-E-L-L-O giram e se juntam numa luz: nasce a
 **Echo** ("ECHO · YOUR FIRST TOOL · YOUR FRIEND"). Ela dá uma volta em oito, se apresenta ("Hello! I am Echo. I am
@@ -300,7 +300,7 @@ O jogo que vai para o jogador é só o `index.html`, autocontido. Ele é **gerad
 | `src/78_palace.js` | TO BE PALACE: cavaleiro, interruptor, desenho dos alvos do passado, chão-espelho, fundo e as duas cenas |
 | `src/80_city.js` | 1-3: a caixa de neon, gárgula, trem, mapa da cidade, prédios, chuva e raios, a chegada, o desafio do mapa e a Bússola |
 | `src/82_city2.js` | 1-3, a segunda metade: poderes (LASER, WINGS, STAR), drones, feixes e portões de laser, ventilador, o Sentinela e a cena da queda |
-| `src/62_nexy_look.js` | o visual do Nexy em 6 estágios (boneco articulado, quadros guardados em memória; folha: `tools/look_sheet.js`) |
+| `src/62_nexy_look.js` | o visual da Nexy em 6 estágios (boneco articulado, quadros guardados em memória; folha: `tools/look_sheet.js`) |
 | `src/75_worldmap.js` | transições (íris e fechadura) e o mapa-múndi |
 | `src/99_boot.js` | API de teste no console (`NEXY`) e partida |
 | `src/levels/1-1.map` | mapa ASCII da 1-1 (23 linhas × 208 colunas) |

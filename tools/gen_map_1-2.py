@@ -103,7 +103,7 @@ row_orbs(34, [226, 227, 228])                               # a pedra IT fica na
 fill(233, 235, 25, 31, '.'); put(233, 33, '='); put(235, 31, 'B')
 fill(236, 239, 25, 26, '.'); row_orbs(26, [237, 238])
 put(233, 35, '@')                                           # BAÚ DA MEMÓRIA
-fill(238, 239, 32, 35, 'X')                                 # MURO DO SILÊNCIO (só o Nexy gigante quebra)
+fill(238, 239, 32, 35, 'X')                                 # MURO DO SILÊNCIO (só a Nexy gigante quebra)
 fill(240, 247, 25, 35, '.')                                 # câmara da luz
 fill(241, 243, 33, 33, '=')
 fill(245, 247, 30, 31, '#')                                 # patamar da porta 3

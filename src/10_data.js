@@ -104,14 +104,14 @@ const WORDS = {
   NO:     { cls: 'interjection', pt: 'não', say: 'no', lore: 'A resposta mais curta. Quase sempre precisa de um NOT logo depois.' },
   NOT:    { cls: 'adverb', pt: 'não (depois do verbo)', say: 'not', lore: 'Vem depois do AM, do IS e do ARE, e vira a frase do avesso.' },
   FRIEND: { cls: 'noun', pt: 'amigo / amiga', say: 'friend', lore: 'Escondida no alto do campanário. Quem a encontra nunca mais sobe sozinho.' },
-  // aprendidas no Baú da Memória (1-2), lendo a história do Nexy
-  DARK:   { cls: 'adjective', pt: 'escuro', say: 'dark', lore: 'A cidade era assim quando o Nexy chegou. Ainda é, para quem não tem palavras.' },
+  // aprendidas no Baú da Memória (1-2), lendo a história da Nexy
+  DARK:   { cls: 'adjective', pt: 'escuro', say: 'dark', lore: 'A cidade era assim quando a Nexy chegou. Ainda é, para quem não tem palavras.' },
   LIGHT:  { cls: 'noun', pt: 'luz', say: 'light', lore: 'Cada palavra aprendida acende uma. Junte muitas e a noite vira dia.' },
-  AFRAID: { cls: 'adjective', pt: 'com medo', say: 'afraid', lore: 'Dizer que está com medo também é coragem. O Nexy disse, e depois deixou de estar.' },
+  AFRAID: { cls: 'adjective', pt: 'com medo', say: 'afraid', lore: 'Dizer que está com medo também é coragem. A Nexy disse, e depois deixou de estar.' },
   STRONG: { cls: 'adjective', pt: 'forte', say: 'strong', lore: 'Não é o tamanho. É tudo o que você já aprendeu, de pé dentro de você.' },
-  // aprendidas na TO BE ENGINE (o segredo da 1-1): HE é o Nexy, SHE é a Echo
-  HE:     { cls: 'pronoun', pt: 'ele (o Nexy)', say: 'he', lore: 'Quando falam do Nexy sem dizer o nome dele. HE pede IS.' },
-  SHE:    { cls: 'pronoun', pt: 'ela (a Echo)', say: 'she', lore: 'A Echo, quando alguém fala dela. SHE pede IS, como HE e IT.' },
+  // aprendidas na TO BE ENGINE (o segredo da 1-1): HE é a Nexy, SHE é a Echo
+  HE:     { cls: 'pronoun', pt: 'ele (a voz antiga das portas)', say: 'he', lore: 'Para um homem ou um menino, sem dizer o nome. A voz antiga que fala nas portas é HE. HE pede IS.' },
+  SHE:    { cls: 'pronoun', pt: 'ela (a Nexy, a Echo)', say: 'she', lore: 'A Nexy e a Echo, quando alguém fala delas sem dizer o nome. SHE pede IS, como HE e IT.' },
   CARD:   { cls: 'noun', pt: 'cartão', say: 'card', lore: 'Caiu de dentro de uma parede que parecia defeito. Liga a máquina do TO BE.' },
   // TO BE PALACE: o passado do verbo TO BE
   WAS:       { cls: 'verb', pt: 'era / estava (passado de AM e IS)', say: 'was', lore: 'O IS de ontem. Diga o que algo ERA e o palácio lembra.' },
@@ -131,7 +131,7 @@ const WORDS = {
   BETWEEN: { cls: 'preposition', pt: 'entre', say: 'between', lore: 'No meio de duas coisas. No mapa da cidade, a torre fica entre a estação e a ponte.' },
   'IN FRONT OF': { cls: 'preposition', pt: 'na frente de', say: 'in front of', lore: 'Entre você e a coisa. A caixa IN FRONT OF THE LASER leva o tiro no seu lugar.' },
   'NEXT TO': { cls: 'preposition', pt: 'ao lado de', say: 'next to', lore: 'Bem do lado, encostado em UMA coisa. Entre DUAS coisas já é BETWEEN.' },
-  LASER:   { cls: 'noun', pt: 'laser', say: 'laser', lore: 'Luz que corta. Na mão do Nexy é arma; no beco, é uma parede que queima.' },
+  LASER:   { cls: 'noun', pt: 'laser', say: 'laser', lore: 'Luz que corta. Na mão da Nexy é arma; no beco, é uma parede que queima.' },
   WINGS:   { cls: 'noun', pt: 'asas', say: 'wings', lore: 'Sozinhas não sobem: para isso existe o vento. Mas, com elas, ninguém cai depressa.' },
   STAR:    { cls: 'noun', pt: 'estrela', say: 'star', lore: 'Escondida no beco dos lasers. Por alguns segundos, nada te machuca.' },
   SHIELD:  { cls: 'noun', pt: 'escudo', say: 'shield', lore: 'O Sentinela esconde o núcleo perto do escudo: embaixo, atrás ou do lado.' },
@@ -147,10 +147,10 @@ const CREATURES = {
   DRONE:    { pt: 'drone', say: 'Drone', lore: 'O olho voador dos telhados. Antes de atirar, ele mira (uma linha fina): saia da frente. Pisão ou laser derrubam; o tiro da Echo o deixa parado no ar.' },
   SENTINEL: { pt: 'sentinela', say: 'Sentinel', lore: 'O guarda da cidade. Esconde o núcleo perto do escudo e muda de lugar a cada rodada: quem diz onde ele está abre o escudo.' },
 };
-// O ECHO, o companheiro do Nexy: se apresenta na primeira partida e fala nas horas certas (frases A1 com legenda)
+// O ECHO, o companheiro da Nexy: se apresenta na primeira partida e fala nas horas certas (frases A1 com legenda)
 const ECHO = {
   pt: 'eco · a sua companheira', say: 'Echo',
-  lore: 'Nasceu da primeira palavra que o Nexy ouviu. Fala as palavras em inglês com você, ilumina o escuro e, quando você diz YOU ARE BIG, cresce para te carregar.',
+  lore: 'Nasceu da primeira palavra que a Nexy ouviu. Fala as palavras em inglês com você, ilumina o escuro e, quando você diz YOU ARE BIG, cresce para te carregar.',
   lines: {
     intro: [{ en: 'Hello! I am Echo.', pt: 'Olá! Eu sou a Echo.' }, { en: 'I am your friend.', pt: 'Sou sua amiga. Eu falo as palavras em inglês para você.' }],
     dark: [{ en: 'It is dark.', pt: 'Está escuro.' }, { en: 'I am your light.', pt: 'Eu sou a sua luz. Fique perto de mim.' }],
@@ -213,10 +213,10 @@ const ENGINE = {
   table: [
     { p: 'I', v: 'AM', pt: 'eu sou / estou', icon: 'i' },
     { p: 'YOU', v: 'ARE', pt: 'você é / está', icon: 'you' },
-    { p: 'HE', v: 'IS', pt: 'ele é / está · o Nexy', icon: 'he', fresh: true },
-    { p: 'SHE', v: 'IS', pt: 'ela é / está · a Echo', icon: 'she', fresh: true },
+    { p: 'HE', v: 'IS', pt: 'ele é / está · a voz antiga (o narrador das portas)', icon: 'he', fresh: true },
+    { p: 'SHE', v: 'IS', pt: 'ela é / está · a Nexy (e a Echo)', icon: 'she', fresh: true },
     { p: 'IT', v: 'IS', pt: 'é / está · as coisas: a chave, a porta', icon: 'it' },
-    { p: 'WE', v: 'ARE', pt: 'nós somos / estamos · o Nexy e a Echo', icon: 'we' },
+    { p: 'WE', v: 'ARE', pt: 'nós somos / estamos · a Nexy e a Echo', icon: 'we' },
     { p: 'THEY', v: 'ARE', pt: 'eles são / estão · os Rastejantes', icon: 'they' },
   ],
   // escalada: uma tentativa por degrau; cada acerto deixa o tiro da Echo mais forte (SHOT[nível])
@@ -246,7 +246,7 @@ const PALACE = {
     { en: 'The ghost steps are the floor now.', pt: 'Os degraus-fantasma (AM, IS, ARE) agora são chão para sempre, mesmo sem as palavras na barra.' },
   ],
   ring: { name: 'TO BE RING', pt: 'Anel do TO BE', reward: 'Os degraus-fantasma ficam sólidos para sempre. O Coração ganha um anel.' },
-  cheer: { en: 'We were small. Now we are strong!', pt: 'Nós éramos pequenos. Agora somos fortes!' },
+  cheer: { en: 'We were small. Now we are strong!', pt: 'Nós éramos pequenas. Agora somos fortes!' },
 };
 // WORLD 1-3 · WHERE IS IT? (16_level_1-3.js, 80_city.js): a chegada na cidade (narrador + a tabela das preposições),
 // o MAPA DA CIDADE (leitura com karaokê + escalada acima do A1) e a BÚSSOLA DAS PALAVRAS (o acréscimo ao Coração).
@@ -260,11 +260,11 @@ const CITY = {
     { w: 'ON', pt: 'em cima de', icon: 'on' }, { w: 'UNDER', pt: 'embaixo de', icon: 'under' },
     { w: 'IN', pt: 'dentro de', icon: 'in' }, { w: 'BEHIND', pt: 'atrás de', icon: 'behind' },
   ],
-  // o mapa (visto de lado): a estação, a torre (a catedral atrás dela, o Nexy em cima) e a ponte (o palácio embaixo)
+  // o mapa (visto de lado): a estação, a torre (a catedral atrás dela, a Nexy em cima) e a ponte (o palácio embaixo)
   map: {
     intro: { en: 'Read the map of the city.', pt: 'Leia o mapa da cidade. Cada frase acende uma parte do desenho.' },
     lines: [
-      { en: 'Nexy is on the tower.', pt: 'O Nexy está em cima da torre.', k: 'nexy' },
+      { en: 'Nexy is on the tower.', pt: 'A Nexy está em cima da torre.', k: 'nexy' },
       { en: 'The palace is under the bridge.', pt: 'O palácio fica embaixo da ponte.', k: 'palace' },
       { en: 'The cathedral is behind the tower.', pt: 'A catedral fica atrás da torre.', k: 'cathedral' },
       { en: 'The tower is between the station and the bridge.', pt: 'A torre fica ENTRE a estação e a ponte. BETWEEN = entre.', k: 'tower', fresh: 'BETWEEN' },
@@ -280,7 +280,7 @@ const CITY = {
     ],
   },
   compass: [
-    { name: 'COMPASS OF WORDS', pt: 'Bússola das Palavras', info: 'A seta em volta do Nexy aponta a letra mais perto que ainda falta.' },
+    { name: 'COMPASS OF WORDS', pt: 'Bússola das Palavras', info: 'A seta em volta da Nexy aponta a letra mais perto que ainda falta.' },
     { name: 'SECRET SENSE', pt: 'Faro de Segredos', info: '+ aponta também os segredos escondidos (blocos invisíveis e paredes falsas).' },
     { name: 'DISTANCE', pt: 'Distância', info: '+ mostra quantos passos (blocos) faltam.' },
     { name: 'KEYHOLE', pt: 'Fechadura', info: '+ aponta também a saída secreta da fase.' },
@@ -331,11 +331,11 @@ const MASTER_WORDS = {
 };
 const PHRASES_PT = {
   'HELLO!': 'Olá!', 'HOW ARE YOU?': 'Como você está?', 'WHAT IS THIS?': 'O que é isso?',
-  'ARE YOU BIG OR SMALL?': 'Você é grande ou pequeno?',
+  'ARE YOU BIG OR SMALL?': 'Você é grande ou pequena?',
   'WHO ARE YOU?': 'Quem é você?', 'WHAT IS BIG?': 'O que é grande?', 'ARE YOU A CRAWLER?': 'Você é um rastejante?',
   'BIG OR SMALL?': 'Grande ou pequeno?', 'IS IT A DOOR?': 'Isso é uma porta?', 'WHO IS BIG?': 'Quem é grande?',
   'WHAT WAS HERE?': 'O que existia aqui?', 'WERE THEY BIG OR SMALL?': 'Eles eram grandes ou pequenos?',
-  'HOW WAS NEXY YESTERDAY?': 'Como o Nexy estava ontem?', 'HOW IS NEXY TODAY?': 'Como o Nexy está hoje?',
+  'HOW WAS NEXY YESTERDAY?': 'Como a Nexy estava ontem?', 'HOW IS NEXY TODAY?': 'Como a Nexy está hoje?',
   'HOW WERE THEY YESTERDAY?': 'Como eles eram ontem?', 'WHO WERE YOU? WHO ARE YOU?': 'Quem você era? Quem você é?',
   'WHERE IS THE BOX?': 'Onde está a caixa?', 'WHERE IS IT?': 'Onde está?', 'WHERE IS THE CORE?': 'Onde está o núcleo?',
 };
@@ -396,7 +396,7 @@ const LEVELS = {
       'v': { block: 'invisible', content: { life: 1 }, secret: 'echo-secret' },   // o 1º segredo que o pulso do Echo revela
       'j': { block: 'glitch', content: { card: true }, secret: 'glitch' },          // o "bug" de propósito: invisível, lá no alto; só o 3º quique seguido (o trem) alcança
     },
-    // Placas de dica: aparecem quando o Nexy chega perto e somem depois que a ação foi feita (until).
+    // Placas de dica: aparecem quando a Nexy chega perto e somem depois que a ação foi feita (until).
     hints: [
       { c: 7, r: 17, en: '← → MOVE · Z JUMP', pt: 'ande com as setas e pule com Z', until: 'jump' },
       { c: 16, r: 14, en: 'HIT THE ? FROM BELOW', pt: 'bata no bloco ? por baixo: ele solta uma palavra', until: 'word' },
@@ -414,7 +414,7 @@ const LEVELS = {
       'V': { entity: 'pedestal', door: 'pedestal' },
       'T': { entity: 'engine', door: 'engine' },
     },
-    // o teletransporte da TO BE ENGINE deixa o Nexy aqui: a praça final, antes do AM, do BIG e do pedestal
+    // o teletransporte da TO BE ENGINE deixa a Nexy aqui: a praça final, antes do AM, do BIG e do pedestal
     warp: { c: 181, r: 19 },
     // Portas: a frase-molde usa '_' para as lacunas. accept = frases certas (cada uma com seu resultado).
     // enact = frases "erradas" que a porta encena. Resultados: open | transform(scale) | exit(id) | morph(icon).
@@ -484,12 +484,12 @@ const WORLDS = {
   },
 };
 
-/* ============================== O CORAÇÃO DAS PALAVRAS (a ferramenta do Nexy) ==============================
+/* ============================== O CORAÇÃO DAS PALAVRAS (a ferramenta da Nexy) ==============================
    Nasce na 1-2 (Baú da Memória). Cada degrau vencido na escalada de perguntas acima do A1 sobe o Coração de nível:
    ele muda de cor e o poder cresce. O melhor nível fica salvo e aparece no mapa. Cada fase nova deve acrescentar
    algo a ele (um poder, um detalhe visual), sempre com desafio crescente. Cores dentro da paleta neon-noir. */
 const HEART = [
-  { name: 'CYAN HEART', pt: 'Coração Ciano', reward: 'O Nexy fica gigante e quebra o muro.' },
+  { name: 'CYAN HEART', pt: 'Coração Ciano', reward: 'A Nexy fica gigante e quebra o muro.' },
   { name: 'MAGENTA HEART', pt: 'Coração Magenta', reward: '+ escudo de cristal depois de voltar ao tamanho normal.' },
   { name: 'WHITE HEART', pt: 'Coração Incandescente', reward: '+ 1 vida.' },
   { name: 'PRISM HEART', pt: 'Coração Prisma', reward: '+ 30 orbes.' },

@@ -1,11 +1,11 @@
 
 /* ============================== 1-1 · A CHEGADA E O NASCIMENTO DO ECHO ==============================
-   O Nexy chega sozinho, num feixe de luz. Ao dizer a primeira palavra (HELLO! na porta 1), ela ecoa pela catedral,
+   A Nexy chega sozinha, num feixe de luz. Ao dizer a primeira palavra (HELLO! na porta 1), ela ecoa pela catedral,
    as ondas voltam, as letras H-E-L-L-O giram e se juntam numa luz: nasce o ECHO, a primeira ferramenta (e o primeiro
    amigo). Depois, o PULSO DO ECHO (tecla C, LB no controle, botão ECHO no toque) revela segredos.
    As cenas usam a mesma interface da cena do Coração (Cine): zoom, sat, letter, timeScale, drawWorld, drawScreen. */
 
-/* ---------- a chegada: o Nexy desce do céu num feixe magenta ---------- */
+/* ---------- a chegada: a Nexy desce do céu num feixe magenta ---------- */
 const Arrival = {
   active: false, t: 0, zoom: 1, sat: 0, letter: 0, timeScale: 1, glow: 0, flash: 0, landed: -1, foot: 0, rings: [],
   start() {
@@ -107,7 +107,7 @@ const Birth = {
     if (this.born >= 0) Echo.birthK = Math.min(1, (t - this.born) / 0.7);
     if (t > 4.0) this.once('title', () => { this.title = { k: 0 }; Music.resolve(); });
     if (this.title) this.title.k = Math.min(1, this.title.k + dt * 2.5);
-    // 5. o Echo dá uma volta em oito em volta do Nexy, deixando um rastro
+    // 5. o Echo dá uma volta em oito em volta da Nexy, deixando um rastro
     if (t > 4.6 && t < 6.0) {
       const u = (t - 4.6) / 1.4 * Math.PI * 2;
       Echo.px = Echo.x; Echo.py = Echo.y;

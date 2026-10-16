@@ -1,10 +1,10 @@
 /* ============================== 1-3 · A SEGUNDA METADE: PODERES, LASERS, DRONES E O SENTINELA ==============================
-   Os PODERES saem dos blocos (POWERS em 10_data.js): LASER (o braço do Nexy atira; segurar e soltar = tiro carregado),
+   Os PODERES saem dos blocos (POWERS em 10_data.js): LASER (o braço da Nexy atira; segurar e soltar = tiro carregado),
    WINGS (segurar o pulo no ar plana; em cima do ventilador o vento levanta) e STAR (alguns segundos sem dano).
    Machucou com um poder: perde o poder (como no Mario). F / Y / SHOT atira com o LASER; sem ele, é o tiro da Echo.
    Criaturas novas: o DRONE (mira com uma linha fina e atira) e o SENTINELA (o chefe: diga no terminal onde o núcleo está).
    Peças novas: o emissor de laser (o feixe fecha o corredor; a caixa NA FRENTE bloqueia; tiros quebram o emissor), os
-   portões que ligam e desligam e o ventilador. Os tiros dos inimigos são ciano (o sistema); os do Nexy, magenta. */
+   portões que ligam e desligam e o ventilador. Os tiros dos inimigos são ciano (o sistema); os da Nexy, magenta. */
 const CHARGE_T = 0.75;   // segurar o tiro por este tempo carrega o laser
 const Power = {
   bolts: [], cool: 0, hold: 0, charged: false, shotT: 0,
@@ -23,7 +23,7 @@ const Power = {
     const met = Save.data.met;
     if (!met[kind]) { met[kind] = true; Save.write(); if (Game.echoBorn) Game.later(0.9, () => Echo.talk(ECHO.lines[kind])); }
   },
-  // machucou com um poder: ele se desfaz e o Nexy fica piscando (a estrela protege enquanto dura)
+  // machucou com um poder: ele se desfaz e a Nexy fica piscando (a estrela protege enquanto dura)
   lose() {
     const k = P.power; P.power = null; this.hold = 0; this.charged = false;
     SFX.damage(); Game.shake(4); FX.burst(P.cx, P.cy, 30, 'm', 240, { life: 0.7, g: 200 });
@@ -102,7 +102,7 @@ const Power = {
     Ents.spawn('orb', { x: cx, y: cy, vx: dir * 60, vy: -260, homing: true, delay: 0.25 });
   },
   /* ---------- desenho ---------- */
-  // atrás do Nexy: as asas (abertas planando)
+  // atrás da Nexy: as asas (abertas planando)
   drawBack(ctx, camX, camY, a) {
     if (P.dead || P.power !== 'wings') return;
     const x = lerp(P.px, P.x, a) + P.w / 2 - camX, y = lerp(P.py, P.y, a) + 15 - camY;
@@ -188,7 +188,7 @@ const EnemyFire = {
   },
 };
 
-/* ---------- o poder saindo do bloco: sobe, mostra o nome um instante e vem até o Nexy (se ele estiver perto) ---------- */
+/* ---------- o poder saindo do bloco: sobe, mostra o nome um instante e vem até a Nexy (se ela estiver perto) ---------- */
 Ents.reg('powerup', {
   layer: 'mid',
   init(e) { e.w = 26; e.h = 26; e.x -= e.w / 2; e.y -= e.h / 2; e.y0 = e.y; e.k = 0; },
@@ -205,7 +205,7 @@ Ents.reg('powerup', {
   },
 });
 
-/* ---------- DRONE: patrulha em volta de casa; perto do Nexy mira (linha fina) e atira ---------- */
+/* ---------- DRONE: patrulha em volta de casa; perto da Nexy mira (linha fina) e atira ---------- */
 Ents.reg('drone', {
   layer: 'enemy',
   init(e) { e.w = 30; e.h = 20; e.enemy = true; e.kind = 'enemy'; e.state = 'patrol'; e.creature = 'DRONE'; e.aimT = 0; e.cool = 1.2 + Math.random(); e.dir = -1; e.pt = Math.random() * 6; e.dx = 0; e.dy = 0; e.res = {}; },
@@ -215,7 +215,7 @@ Ents.reg('drone', {
     const ox = e.x, oy = e.y, gx = e.x + e.w / 2, gy = e.y + e.h / 2, dx = P.cx - gx, dy = P.cy - gy;
     const near = !P.dead && Math.abs(dx) < 9 * TS && Math.abs(dy) < 7 * TS;
     if (near && !City2.metDrone && Game.echoBorn && !Save.data.met.drone) { City2.metDrone = true; Save.data.met.drone = true; Save.write(); Echo.talk(ECHO.lines.drone); }
-    e.dir = sign(dx) || e.dir;   // o olho segue o Nexy
+    e.dir = sign(dx) || e.dir;   // o olho segue a Nexy
     if (e.state === 'aim') {
       e.aimT -= dt;
       if (e.aimT > 0.22) { e.tx = P.cx; e.ty = P.cy; }   // a mira trava um instante antes do tiro: dá para desviar
@@ -248,7 +248,7 @@ Ents.reg('drone', {
     ctx.strokeStyle = wa(0.22); ctx.lineWidth = 1.2; ctx.beginPath();
     for (const s of [-1, 1]) { ctx.moveTo(cx + s * 8, cy - 3); ctx.lineTo(cx + s * 15, cy - 8); const r = 7 * Math.abs(Math.sin(t * 40 + s)); ctx.moveTo(cx + s * 15 - r, cy - 9); ctx.lineTo(cx + s * 15 + r, cy - 9); }
     ctx.stroke();
-    // o corpo: uma lente escura com a íris ciano olhando para o Nexy
+    // o corpo: uma lente escura com a íris ciano olhando para a Nexy
     ctx.beginPath(); ctx.ellipse(cx, cy, 12, 9, 0, 0, Math.PI * 2); ctx.fillStyle = '#05080b'; ctx.fill(); ctx.strokeStyle = wa(0.32); ctx.lineWidth = 1; ctx.stroke();
     ctx.beginPath(); ctx.moveTo(cx - 6, cy + 9); ctx.lineTo(cx - 3, cy + 13); ctx.lineTo(cx + 3, cy + 13); ctx.lineTo(cx + 6, cy + 9); ctx.strokeStyle = wa(0.18); ctx.stroke();
     const ix = cx + e.dir * 4, hot = e.state === 'aim' || e.flash > 0;
@@ -259,7 +259,7 @@ Ents.reg('drone', {
 });
 
 /* ---------- o EMISSOR DE LASER: o feixe vai até a primeira coisa sólida (a caixa na frente bloqueia) ----------
-   dir 'left' = deitado no chão, atirando para a esquerda na altura do Nexy (tem vida: tiros quebram);
+   dir 'left' = deitado no chão, atirando para a esquerda na altura da Nexy (tem vida: tiros quebram);
    dir 'down' = pendurado, atirando para baixo; on/off/phase = liga e desliga (pisca um instante antes de ligar). */
 Ents.reg('beam', {
   layer: 'mid',
@@ -361,7 +361,7 @@ Ents.reg('beam', {
   },
 });
 
-/* ---------- o VENTILADOR: com as WINGS e o pulo seguro, o vento levanta o Nexy (outro caminho do abismo) ---------- */
+/* ---------- o VENTILADOR: com as WINGS e o pulo seguro, o vento levanta a Nexy (outro caminho do abismo) ---------- */
 Ents.reg('vent', {
   layer: 'back',
   init(e) { e.w = TS; e.h = 10; e.x = e.c * TS; e.y = (e.r + 1) * TS - 10; e.top = (e.opts.top || 3) * TS; },
@@ -392,11 +392,11 @@ Ents.reg('vent', {
 });
 
 /* ============================== O SENTINELA (o chefe da 1-3) ==============================
-   Paira sobre a arena e atira rajadas mirando o Nexy (e solta drones). O núcleo fica perto do ESCUDO, num lugar diferente
+   Paira sobre a arena e atira rajadas mirando a Nexy (e solta drones). O núcleo fica perto do ESCUDO, num lugar diferente
    a cada rodada (SENTINEL.rounds: embaixo, atrás, do lado). No terminal: IT IS UNDER THE SHIELD → a luz da Echo acha o
    núcleo, o Sentinela cai atordoado e fica aberto SENTINEL.open s. Sem inglês: a cada SENTINEL.heat.every s de luta ele
    esquenta e fica aberto um instante (mais difícil). SENTINEL.hp por rodada: tiro 1, carregado 3, pisão 2.
-   A rodada fica guardada se o Nexy morrer. Depois da 3ª: a cena (SentinelScene) e o portão do fim afunda. */
+   A rodada fica guardada se a Nexy morrer. Depois da 3ª: a cena (SentinelScene) e o portão do fim afunda. */
 const CORE_AT = { UNDER: { x: 0, y: 64 }, BEHIND: { x: 0, y: 8 }, 'NEXT TO': { x: 82, y: 8 } };
 const Sentinel = {
   ent: null,
@@ -478,7 +478,7 @@ Ents.reg('sentinel', {
     const goal = CORE_AT[S.where(e)];
     if (e.moveK < 1 && e.from) { e.moveK = Math.min(1, e.moveK + dt / 0.9); const k = e.moveK * e.moveK * (3 - 2 * e.moveK); e.core.x = lerp(e.from.x, goal.x, k); e.core.y = lerp(e.from.y, goal.y, k) - Math.sin(e.moveK * Math.PI) * 30; }
     else { e.core.x = goal.x; e.core.y = goal.y; }
-    // para onde ele vai: alto pairando, ou baixo (aberto) com o núcleo na altura do tiro do Nexy
+    // para onde ele vai: alto pairando, ou baixo (aberto) com o núcleo na altura do tiro da Nexy
     let tx = e.hx, ty = e.hy + Math.sin(e.t * 1.3) * 10;
     if (e.state === 'sleep') {
       ty = e.hy + Math.sin(e.t * 0.8) * 6;
@@ -488,7 +488,7 @@ Ents.reg('sentinel', {
       if (e.stateT <= 0) { S.wake(e, true); if (Game.echoBorn && !e.met) { e.met = true; Echo.talk(ECHO.lines.sentinel); } }
     } else if (e.state === 'fight') {
       e.mx += dt * (0.45 + e.round * 0.12); tx = e.hx + Math.sin(e.mx) * 9 * TS;
-      // rajada: 3 tiros mirando o Nexy (5 em leque na última rodada)
+      // rajada: 3 tiros mirando a Nexy (5 em leque na última rodada)
       e.fireT -= dt;
       if (e.fireT <= 0 && !P.dead) { e.burst = e.round >= 2 ? 5 : 3; e.burstT = 0; e.fireT = [2.4, 2, 1.6][e.round]; }
       if (e.burst > 0) {
@@ -585,7 +585,7 @@ Ents.reg('sentinel', {
     ctx.quadraticCurveTo(52, 22, 0, 34); ctx.quadraticCurveTo(-52, 22, -58, -14); ctx.closePath();
     ctx.fillStyle = '#05080c'; ctx.fill(); ctx.strokeStyle = hot ? 'rgba(240,253,255,0.9)' : wa(0.32); ctx.lineWidth = 1.4; ctx.stroke();
     ctx.beginPath(); ctx.moveTo(-44, -10); ctx.quadraticCurveTo(0, 6, 44, -10); ctx.strokeStyle = ca(0.18); ctx.lineWidth = 1; ctx.stroke();
-    // o olho no alto do casco (segue o Nexy; fechado dormindo)
+    // o olho no alto do casco (segue a Nexy; fechado dormindo)
     const look = clamp((P.cx - e.cx) / 300, -1, 1) * 8, lid = e.state === 'sleep' ? 1.2 : stun ? 1.5 : 4.5;
     ctx.beginPath(); ctx.ellipse(0, -18, 16, lid, 0, 0, Math.PI * 2); ctx.fillStyle = '#0a1418'; ctx.fill(); ctx.strokeStyle = ca(0.7); ctx.lineWidth = 1; ctx.stroke();
     R.draw(R.glow('c', 16), look, -18, 1, e.state === 'sleep' ? 0.3 : 0.95, true);

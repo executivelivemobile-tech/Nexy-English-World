@@ -53,7 +53,7 @@ LEVELS.palace = {
     { c: 79, r: 10, en: 'YESTERDAY → WAS · TODAY → IS', pt: 'ontem pede o passado; hoje, o presente', until: 'clock1' },
     { c: 118, r: 9, en: 'YESTERDAY I … · TODAY I …', pt: 'fale de você: como você era e como você é', until: 'switch' },
   ],
-  // as estátuas ficam encostadas umas nas outras e na parede: crescidas, não sobra vão de 1 bloco onde o Nexy fique preso
+  // as estátuas ficam encostadas umas nas outras e na parede: crescidas, não sobra vão de 1 bloco onde a Nexy fique presa
   // alvos. look: memory (pedra de luz que volta), knight (estátua), gate (portão). ghost: contorno do que existia
   // ('ping' = só com o pulso da Echo; 'always' = sempre, bem fraco). past = o que a Echo diz ao ver o passado.
   targets: {
@@ -96,8 +96,8 @@ LEVELS.palace = {
       accept: [{ words: ['WAS'], result: { type: 'target', target: 'step1', act: 'big' } }],
       enact: [
         { words: ['IS'], result: { type: 'confused', target: 'step1', tip: { en: 'Not today. Yesterday!', pt: 'YESTERDAY = ontem. Ontem pede o passado de IS: WAS.' } } },
-        { words: ['WERE'], result: { type: 'confused', target: 'step1', tip: { en: 'Nexy? Not were!', pt: 'O Nexy é um só (HE): no passado, WAS.' } } },
-        { words: ['*'], result: { type: 'confused', target: 'step1', tip: { en: 'Nexy is he!', pt: 'O Nexy é HE: hoje IS, ontem WAS.' } } },
+        { words: ['WERE'], result: { type: 'confused', target: 'step1', tip: { en: 'Nexy? Not were!', pt: 'A Nexy é uma só (SHE): no passado, WAS.' } } },
+        { words: ['*'], result: { type: 'confused', target: 'step1', tip: { en: 'Nexy is she!', pt: 'A Nexy é SHE: hoje IS, ontem WAS.' } } },
       ],
     },
     clock2: {
@@ -105,7 +105,7 @@ LEVELS.palace = {
       accept: [{ words: ['IS'], result: { type: 'target', target: 'step2', act: 'big' } }],
       enact: [
         { words: ['WAS'], result: { type: 'confused', target: 'step2', tip: { en: 'Not yesterday. Today!', pt: 'TODAY = hoje. Hoje pede o presente: IS.' } } },
-        { words: ['*'], result: { type: 'confused', target: 'step2', tip: { en: 'Nexy is he!', pt: 'O Nexy é HE: hoje IS, ontem WAS.' } } },
+        { words: ['*'], result: { type: 'confused', target: 'step2', tip: { en: 'Nexy is she!', pt: 'A Nexy é SHE: hoje IS, ontem WAS.' } } },
       ],
     },
     clock3: {

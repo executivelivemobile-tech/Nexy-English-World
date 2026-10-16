@@ -297,7 +297,7 @@ test('correr: segurar anda, soltar e apertar de novo logo em seguida corre', asy
 }, { ownPages: true });
 
 /* ---------------- 1-1: a chegada e o nascimento do Echo ---------------- */
-test('1-1: o Nexy chega sozinho; o HELLO! na porta 1 faz nascer o Echo, e só depois a porta abre', async ({ page }) => {
+test('1-1: a Nexy chega sozinha; o HELLO! na porta 1 faz nascer o Echo, e só depois a porta abre', async ({ page }) => {
   const r = await page.evaluate(async () => {
     const P = NEXY.P, G = NEXY.Game, W = NEXY.World, out = {};
     out.start = { born: G.echoBorn, hidden: Echo.hidden, pulse: EchoPulse.fire() };
@@ -337,7 +337,7 @@ test('1-1: o pulso do Echo revela o bloco invisível, a parede falsa e a palavra
   expect(r.veil && r.peek, `revela a parede falsa e deixa ouvir a palavra do "?" (${JSON.stringify(r)})`);
 });
 
-test('1-1: a chegada no feixe de luz termina com o Nexy no chão e no controle', async ({ browser }) => {
+test('1-1: a chegada no feixe de luz termina com a Nexy no chão e no controle', async ({ browser }) => {
   const { ctx, page, errors } = await openGame(browser, { realtime: true });
   await page.keyboard.press('Enter'); await page.waitForTimeout(300);
   await page.evaluate(() => { NEXY.Save.data.met.prologue = true; NEXY.Game.enterLevel('1-1'); });   // já viu o prólogo: só a chegada
@@ -375,7 +375,7 @@ test('1-1 prólogo: letras viram chão; IT IS BIG faz o Rastejante crescer; BIG 
     return out;
   });
   expect(r.dark && r.toChoice, `começa no escuro e chega à escolha (${JSON.stringify(r)})`);
-  expect(r.floor && r.landed, `as letras acendem o chão e o Nexy pousa nele (${JSON.stringify(r)})`);
+  expect(r.floor && r.landed, `as letras acendem o chão e a Nexy pousa nele (${JSON.stringify(r)})`);
   expect(r.big >= 3 && r.slotBig === 'BIG' && r.bigger > r.big && r.back, `IT IS BIG: gigante; BIG de novo: ainda maior e volta à escolha (${r.big} → ${r.bigger})`);
   expect(r.slotSmall === 'SMALL' && r.small && /pequeno/.test(r.rule || ''), `SMALL: encolhe, foge e a regra aparece (${r.rule})`);
   expect(r.end && r.after.state === 'play' && r.after.met && r.after.word, `termina no controle, lembra que já viu e deixa HELLO no chão (${JSON.stringify(r.after)})`);
@@ -453,7 +453,7 @@ test('1-1 segredo: o trem de Rastejantes empurra sem machucar; quando o mural ac
   expect(r.hidden && r.cars === 3 && r.push, `o trem: 3 Rastejantes que só empurram (${JSON.stringify(r)})`);
   expect(r.twoMiss, `o 2º quique não alcança o tijolo (${JSON.stringify(r.three)})`);
   expect(r.three.stomps === 3 && r.glitch && r.used, `o pisão triplo bate no tijolo e a tela "dá erro" (${JSON.stringify(r)})`);
-  expect(r.card && r.line === 'What is it?', `o cartão cai e o Nexy pega (${JSON.stringify(r)})`);
+  expect(r.card && r.line === 'What is it?', `o cartão cai e a Nexy pega (${JSON.stringify(r)})`);
 });
 
 test('1-1 cartão dourado: terminar com pontuação máxima (sem precisar do segredo do cartão) dá o GOLD CARD; daí em diante a 1-1 começa com o cartão', async ({ page }) => {
@@ -517,7 +517,7 @@ test('tiro da Echo: o 1º paralisa (não machuca e vira plataforma), o 2º quebr
     out.locked = !EchoShot.fire();
     NEXY.Save.data.shot.best = 0; EchoShot.reset(); out.charges0 = EchoShot.charges;
     H.noEnemies();
-    // um Rastejante de verdade, na frente do Nexy
+    // um Rastejante de verdade, na frente da Nexy
     const cr = E.spawn('crawler', { x: 30 * 32, y: 19 * 32 + 8, opts: {} }); cr.dir = 0; H.step(10);
     H.tp(25, 19, 0); P.facing = 1; Echo.reset(); H.step(30);
     out.fired = EchoShot.fire(); for (let i = 0; i < 40; i++) { H.step(1); if (cr.frozen > 0) break; }
@@ -733,7 +733,7 @@ test('1-2 Baú da Memória: palavras, leitura, perguntas, escalada até a Coroa 
   });
   expect(r.open === 'chest' && r.words, `abre o baú e ensina as 4 palavras (${JSON.stringify(r)})`);
   expect(r.through.tier === 4 && r.through.cine, `escalada completa: Coroa das Palavras (${JSON.stringify(r.through)})`);
-  expect(r.run.broke > 0 && r.run.broke < 10.4, `o Nexy gigante quebra o muro na investida (${JSON.stringify(r.run)})`);
+  expect(r.run.broke > 0 && r.run.broke < 10.4, `a Nexy gigante quebra o muro na investida (${JSON.stringify(r.run)})`);
   expect(r.after.wall && r.after.scale === 1 && r.after.state === 'play' && r.after.x > 239, `depois da cena: muro aberto, tamanho normal, na câmara (${JSON.stringify(r.after)})`);
   expect(r.after.aura && r.after.lives === 2 && r.after.orbs >= 30 && r.heart === 4, `recompensas do nível 4 (${JSON.stringify(r.after)})`);
   expect(r.review, 'reabrir o baú mostra a história de novo');
@@ -1015,7 +1015,7 @@ test('1-2 cripta: frase certa que não abre o caminho faz a Echo apontar o que b
   expect(r.state === 'play', 'o jogo segue normal');
 }, L12);
 
-test('1-2 cripta: IT IS SMALL primeiro não tira os gigantes; a Echo avisa, e também quando o Nexy empurra os gigantes', async ({ page }) => {
+test('1-2 cripta: IT IS SMALL primeiro não tira os gigantes; a Echo avisa, e também quando a Nexy empurra os gigantes', async ({ page }) => {
   await page.evaluate(HELP12);
   const r = await page.evaluate(async () => {
     const P = NEXY.P, out = {};
@@ -1245,7 +1245,7 @@ test('palácio: THEY WERE BIG ergue as estátuas em escada (THEY WAS e THEY ARE 
     out.small = ['knight1', 'knight2', 'knight3'].every(id => W.targets[id].state === 'small');
     // o Alado ao lado da parede existe enquanto as estátuas são pequenas
     H.wakeSpawns(); H.tp(70, 19, 999); H.step(30); out.flyerBefore = NEXY.Ents.list.some(e => e.type === 'flyer' && !e.dead && e.x > 74 * 32);
-    // o Nexy parado num dos vãos entre as estátuas pequenas: quando elas crescem, ele vai junto para cima
+    // a Nexy parada num dos vãos entre as estátuas pequenas: quando elas crescem, ela vai junto para cima
     H.tp(73, 19, 999); H.step(2);
     Sentence.apply(W.doors.altar2, W.level.doors.altar2.accept[0], ['WERE', 'BIG']); H.step(240);
     out.lifted = !P.dead && P.onGround && Math.round(P.y + P.h) <= 15 * 32;
@@ -1291,7 +1291,7 @@ test('palácio: torre do relógio — WAS (ontem), IS (hoje), WERE (ontem) fazem
     out.walk = top && P.onGround && Math.round(P.y + P.h) === 640 && P.x > 106 * 32;
     return out;
   });
-  expect(r.tip1 === 'Nexy is he!' && r.tip2 === 'Not yesterday. Today!' && r.tip3 === 'They? Not was!', `dicas (${r.tip1} | ${r.tip2} | ${r.tip3})`);
+  expect(r.tip1 === 'Nexy is she!' && r.tip2 === 'Not yesterday. Today!' && r.tip3 === 'They? Not was!', `dicas (${r.tip1} | ${r.tip2} | ${r.tip3})`);
   expect(r.step1 === 3 && r.step2 === 3 && r.bridge === 15, `degraus e ponte (${JSON.stringify(r)})`);
   expect(r.is, 'o IS sai do bloco em cima da sacada');
   expect([r.hop1, r.hop2, r.hop3, r.hop4].join() === '1,1,1,1', `subida (${[r.hop1, r.hop2, r.hop3, r.hop4]})`);
@@ -1314,7 +1314,7 @@ test('palácio: outro caminho em cada desafio — Alados no abismo, na parede e 
   for (const k in r) expect(r[k] > 0, `caminho ${k} (${JSON.stringify(r)})`);
 }, LP);
 
-test('palácio: cavaleiro — pisão comum só faz o elmo tinir (o Nexy quica), com giro a armadura se desfaz; de lado machuca', async ({ page }) => {
+test('palácio: cavaleiro — pisão comum só faz o elmo tinir (a Nexy quica), com giro a armadura se desfaz; de lado machuca', async ({ page }) => {
   const r = await page.evaluate(() => {
     const P = NEXY.P, out = {};
     H.noEnemies(); H.tp(50, 19);
@@ -1331,7 +1331,7 @@ test('palácio: cavaleiro — pisão comum só faz o elmo tinir (o Nexy quica), 
     H.set([]); out.side = !P.aura;
     return out;
   });
-  expect(r.clang && r.grimoire, `pisão comum só tine e o Nexy quica (${JSON.stringify(r)})`);
+  expect(r.clang && r.grimoire, `pisão comum só tine e a Nexy quica (${JSON.stringify(r)})`);
   expect(r.spin, 'com giro a armadura se desfaz');
   expect(r.side, 'encostar de lado machuca');
 }, LP);
@@ -1538,7 +1538,7 @@ test('1-3 café: THE BOX IS IN THE HOLE vira chão no meio do buraco; do parapei
   expect(r.under && r.climb === '1,1,1', `UNDER THE SIGN e a subida até o muro (${JSON.stringify(r)})`);
 }, L13);
 
-test('1-3 gárgula: olhando para ela é pedra (chão, não machuca); de costas ela acorda, desce e vem; voando machuca; pisão a deixa de pedra e o Nexy quica; com giro quebra', async ({ page }) => {
+test('1-3 gárgula: olhando para ela é pedra (chão, não machuca); de costas ela acorda, desce e vem; voando machuca; pisão a deixa de pedra e a Nexy quica; com giro quebra', async ({ page }) => {
   await page.evaluate(HELP12); await page.evaluate(HELP13);
   const r = await page.evaluate(() => {
     const P = NEXY.P, G = NEXY.Game, out = {};
@@ -1548,7 +1548,7 @@ test('1-3 gárgula: olhando para ela é pedra (chão, não machuca); de costas e
     // voando, encostar machuca
     P.invuln = 0; P.aura = false; for (let i = 0; i < 900 && !P.dead; i++) { P.facing = -1; H.step(1); }
     out.hurt = P.dead;
-    // pisão: ela voando logo abaixo (atrás do Nexy, que olha para o outro lado); vira pedra por 2 s e ele quica alto
+    // pisão: ela voando logo abaixo (atrás da Nexy, que olha para o outro lado); vira pedra por 2 s e ela quica alto
     const under = spin => {
       const g = H13.spawn(20, 19, 27); NEXY.teleport(20, 11); P.facing = 1; P.vy = 0; P.spinning = spin;
       g.x = P.cx - 33; g.y = P.y + P.h + 30; g.state = 'fly'; g.plat = false; g.wakeT = 1; g.hx = g.x; g.hy = g.y;
@@ -1563,7 +1563,7 @@ test('1-3 gárgula: olhando para ela é pedra (chão, não machuca); de costas e
   expect(r.stone, 'olhando para ela: pedra parada no poleiro, e é chão');
   expect(r.wake === 'wake' && r.fly, `de costas: acorda e desce voando (${r.wake}/${r.fly})`);
   expect(r.hurt, 'voando, ela machuca');
-  expect(r.stomp, 'pisão: vira pedra por 2 s e o Nexy quica alto');
+  expect(r.stomp, 'pisão: vira pedra por 2 s e a Nexy quica alto');
   expect(r.spin, 'com giro ela quebra');
 }, L13);
 
@@ -1622,7 +1622,7 @@ test('1-3 letras e segredos: C do alto da placa, I em cima do outdoor, T da gár
   expect(r.secrets === 'city-crystal,city-life', `segredos (${r.secrets})`);
 }, L13);
 
-test('1-3 trem: espera na estação, leva o Nexy até a praça (sem cair) e buzina ao sair', async ({ page }) => {
+test('1-3 trem: espera na estação, leva a Nexy até a praça (sem cair) e buzina ao sair', async ({ page }) => {
   await page.evaluate(HELP12); await page.evaluate(HELP13);
   const r = await page.evaluate(() => {
     const P = NEXY.P, G = NEXY.Game, out = {};
@@ -1677,7 +1677,7 @@ test('1-3 mapa da cidade: leitura (BETWEEN), a bússola nasce; escalada sobe a b
 }, L13);
 
 /* ---------------- 1-3, a segunda metade: poderes, lasers, drones, o abismo e o Sentinela ---------------- */
-test('1-3 poderes: o LASER sai do bloco e vem até o Nexy; F atira, segurar carrega o tiro forte; machucado perde o poder e não a vida; o bloco volta a encher; sem laser, F é o tiro da Echo', async ({ page }) => {
+test('1-3 poderes: o LASER sai do bloco e vem até a Nexy; F atira, segurar carrega o tiro forte; machucado perde o poder e não a vida; o bloco volta a encher; sem laser, F é o tiro da Echo', async ({ page }) => {
   await page.evaluate(HELP12); await page.evaluate(HELP13);
   const r = await page.evaluate(() => {
     const P = NEXY.P, G = NEXY.Game, S = NEXY.Save.data, out = {};
@@ -1697,7 +1697,7 @@ test('1-3 poderes: o LASER sai do bloco e vem até o Nexy; F atira, segurar carr
     S.shot.best = 0; EchoShot.refill(); const n0 = EchoShot.bolts.length; G.onKey({ code: 'KeyF' }); out.echo = EchoShot.bolts.length === n0 + 1; S.shot.best = -1;
     return out;
   });
-  expect(r.block === 'used' && r.got === 'laser' && r.hud === 'LASER' && r.word, `o LASER vem até o Nexy, no HUD e no Grimório (${JSON.stringify(r)})`);
+  expect(r.block === 'used' && r.got === 'laser' && r.hud === 'LASER' && r.word, `o LASER vem até a Nexy, no HUD e no Grimório (${JSON.stringify(r)})`);
   expect(r.refill === 'ready', `o bloco volta a encher (${r.refill})`);
   expect(r.bolt && r.crawler === 'dying', `F atira e o Rastejante cai (${r.crawler})`);
   expect(r.charged && r.big, 'segurar carrega e soltar dispara o tiro forte');
@@ -1825,7 +1825,7 @@ test('1-3 abismo: sem caixa nem asas não se passa; NEXT TO dá dica; BETWEEN TH
   expect(r.glide && r.noGlide, `a sacada solta: planando sim, pulando não (${JSON.stringify(r)})`);
 }, L13);
 
-test('1-3 Sentinela: acorda quando o Nexy entra; o terminal só aceita o lugar desta rodada (erro com dica); UNDER, BEHIND, NEXT TO abrem o núcleo; a cena da queda; o portão afunda e a saída fecha a fase', async ({ page }) => {
+test('1-3 Sentinela: acorda quando a Nexy entra; o terminal só aceita o lugar desta rodada (erro com dica); UNDER, BEHIND, NEXT TO abrem o núcleo; a cena da queda; o portão afunda e a saída fecha a fase', async ({ page }) => {
   await page.evaluate(HELP12); await page.evaluate(HELP13);
   const r = await page.evaluate(async () => {
     const P = NEXY.P, G = NEXY.Game, W = NEXY.World, out = { log: [] };
@@ -1833,7 +1833,7 @@ test('1-3 Sentinela: acorda quando o Nexy entra; o terminal só aceita o lugar d
     const S = NEXY.Ents.list.find(e => e.type === 'sentinel');
     H.tp(334, 15, 999); H.step(30); out.sleep = S.state;
     H.tp(341, 15, 999); for (let i = 0; i < 200 && S.state !== 'fight'; i++) H.step(1); out.awake = S.state === 'fight' && G.creatures.has('SENTINEL') && G.wordsSeen.has('SHIELD');
-    // o Nexy atira do lado do núcleo (do lado direito quando ele está NEXT TO)
+    // a Nexy atira do lado do núcleo (do lado direito quando ele está NEXT TO)
     const shoot = () => { Power.give('laser'); for (let i = 0; i < 60 * 8; i++) { const c = Sentinel.corePos(S), right = S.core.x > 40; if (Sentinel.exposed(S) && i % 3 === 0) { P.x = (right ? c.x + 128 : c.x - 160) - P.w / 2; P.y = 16 * 32 - P.h; P.vx = 0; P.vy = 0; P.facing = right ? -1 : 1; P.px = P.x; P.py = P.y; } if (i % 10 === 0) Power.press(); H.step(1); P.invuln = 999; if (SentinelScene.active || S.state === 'rise') return true; } return false; };
     for (let round = 0; round < 3; round++) {
       const where = Sentinel.where(S), wrong = where === 'UNDER' ? 'BEHIND' : 'UNDER';
@@ -1850,13 +1850,13 @@ test('1-3 Sentinela: acorda quando o Nexy entra; o terminal só aceita o lugar d
     out.finish = G.state === 'clearing' && G.exit === 'normal';
     return out;
   });
-  expect(r.sleep === 'sleep' && r.awake, `dorme até o Nexy entrar; acorda e entra no Grimório (${JSON.stringify(r)})`);
+  expect(r.sleep === 'sleep' && r.awake, `dorme até a Nexy entrar; acorda e entra no Grimório (${JSON.stringify(r)})`);
   expect(r.log.filter(l => /certo→open/.test(l) && /erro \w+( TO)?→fight\/Look again!/.test(l)).length === 3, `cada rodada: erro com dica, certo abre (${r.log.join(' | ')})`);
   expect(r.log.filter(l => /rodada \d true/.test(l)).length === 3, `3 rodadas vencidas (${r.log.join(' | ')})`);
   expect(r.scene && r.after && r.gate && r.finish, `a cena, o portão e a saída (${JSON.stringify(r)})`);
 }, L13);
 
-test('1-3 Sentinela sem inglês: ele superaquece e abre sozinho; a rodada fica guardada se o Nexy morrer; dá para vencer só atirando', async ({ page }) => {
+test('1-3 Sentinela sem inglês: ele superaquece e abre sozinho; a rodada fica guardada se a Nexy morrer; dá para vencer só atirando', async ({ page }) => {
   await page.evaluate(HELP12); await page.evaluate(HELP13);
   const r = await page.evaluate(() => {
     const P = NEXY.P, G = NEXY.Game, out = {};
@@ -1878,11 +1878,11 @@ test('1-3 Sentinela sem inglês: ele superaquece e abre sozinho; a rodada fica g
   expect(r.won, `vence sem o terminal (${r.time} s)`);
 }, L13);
 
-test('visual novo do Nexy: rascunho na 1ª partida, evolui com as fases (aviso no mapa uma vez), CLASSIC NEXY volta ao antigo; a física não muda', async ({ page }) => {
+test('visual novo da Nexy: rascunho na 1ª partida, evolui com as fases (aviso no mapa uma vez), CLASSIC NEXY volta ao antigo; a física não muda', async ({ page }) => {
   const r = await page.evaluate(() => {
     const P = NEXY.P, G = NEXY.Game, S = NEXY.Save.data, out = {};
     H.noEnemies(); H.tp(20, 19);
-    // desenha o Nexy num quadro limpo e conta os pixels acesos em volta dele
+    // desenha a Nexy num quadro limpo e conta os pixels acesos em volta dela
     const lit = () => { G.render(1); const c = document.getElementById('game'), k = c.width / 960, x = c.getContext('2d');
       const d = x.getImageData(Math.round((P.x - NEXY.Cam.x - 30) * k), Math.round((P.y - NEXY.Cam.y - 20) * k), Math.round(80 * k), Math.round(70 * k)).data;
       let n = 0; for (let i = 0; i < d.length; i += 4) if (d[i] + d[i + 2] > 300) n++; return n; };

@@ -9,8 +9,8 @@
    2. O tijolo trava, a tela "dá pau" (falso erro: TO BE NOT FOUND) e o mundo reinicia: cai o WARP CARD.
       Quem termina a 1-1 com pontuação máxima ganha o CARTÃO DOURADO: daí em diante a 1-1 já começa com o cartão.
    3. A TO BE ENGINE, no fim do corredor 2, todo mundo vê e ninguém liga sem o cartão. Com ele: a tabela inteira do TO BE
-      (HE = o Nexy, SHE = a Echo), as 7 ligações (errar não zera: a errada volta no fim da fila) e a escalada acima do A1.
-   4. Ligada, ela teletransporta o Nexy para a praça final com as vidas cheias, e a Echo ganha o TIRO (fica salvo).
+      (HE = a Nexy, SHE = a Echo), as 7 ligações (errar não zera: a errada volta no fim da fila) e a escalada acima do A1.
+   4. Ligada, ela teletransporta a Nexy para a praça final com as vidas cheias, e a Echo ganha o TIRO (fica salvo).
    O caminho normal continua inteiro: o segredo é um atalho e um poder, nunca a única saída. */
 
 /* ---------- o falso travamento ---------- */
@@ -163,15 +163,15 @@ Ents.reg('engine', {
 const PRONOUN_ICONS = {
   i: '<svg viewBox="-32 -32 64 64"><g stroke="#d946ef" stroke-width="2" fill="#050505"><rect x="-8" y="-4" width="16" height="22" rx="8"/><circle cy="-13" r="8"/></g><path d="M10 6 L3 2" stroke="#22d3ee" stroke-width="2.2" stroke-linecap="round"/><circle cx="2" cy="1.5" r="2" fill="#22d3ee"/></svg>',
   you: '<svg viewBox="-32 -32 64 64"><circle r="22" fill="none" stroke="#22d3ee" stroke-opacity=".35" stroke-dasharray="3 4"/><path d="M-16 6 L6 6 L6 -2 L14 -2" fill="none" stroke="#d946ef" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 -7 L18 -2 L10 3" fill="none" stroke="#f0abfc" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  he: '<svg viewBox="-32 -32 64 64"><g stroke="#d946ef" stroke-width="2" fill="#050505"><rect x="-8" y="-4" width="16" height="22" rx="8"/><circle cy="-13" r="8"/></g><rect x="-2" y="-15" width="8" height="3" rx="1.5" fill="#f0abfc"/></svg>',
-  she: '<svg viewBox="-32 -32 64 64"><circle r="20" fill="#d946ef" fill-opacity=".14"/><circle r="11" fill="#050505" stroke="#f0abfc" stroke-width="1.6"/><circle r="4.5" fill="#e879f9"/><circle cx="-3.5" cy="-3.5" r="1.6" fill="#fff" fill-opacity=".8"/></svg>',
+  he: '<svg viewBox="-32 -32 64 64"><path d="M-12 20 L-8 -4 Q0 -24 8 -4 L12 20 Z" fill="#050505" stroke="#22d3ee" stroke-width="2" stroke-linejoin="round"/><path d="M-4 -6 Q0 4 4 -6" fill="none" stroke="#a5f3fc" stroke-width="1.6"/><path d="M16 -14 V22" stroke="#22d3ee" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="-16" r="3" fill="#a5f3fc"/></svg>',
+  she: '<svg viewBox="-32 -32 64 64"><g stroke="#d946ef" stroke-width="2" fill="#050505"><rect x="-12" y="-2" width="16" height="22" rx="8"/><circle cx="-4" cy="-11" r="8"/></g><path d="M-11 -16 L-10 -24 L-6 -18 M3 -16 L2 -24 L-2 -18" fill="none" stroke="#f0abfc" stroke-width="1.6" stroke-linejoin="round"/><circle cx="15" cy="-14" r="6" fill="#050505" stroke="#f0abfc" stroke-width="1.4"/><circle cx="15" cy="-14" r="2.4" fill="#e879f9"/></svg>',
   it: '<svg viewBox="-32 -32 64 64"><g stroke="#22d3ee" stroke-width="3" fill="none" stroke-linecap="round"><circle cx="-9" r="8"/><path d="M-1 0 H20 M14 0 V7 M19 0 V9"/></g></svg>',
   we: '<svg viewBox="-32 -32 64 64"><g stroke="#d946ef" stroke-width="2" fill="#050505"><rect x="-14" y="-2" width="14" height="20" rx="7"/><circle cx="-7" cy="-10" r="7"/></g><circle cx="13" cy="-6" r="8" fill="#050505" stroke="#f0abfc" stroke-width="1.6"/><circle cx="13" cy="-6" r="3.2" fill="#e879f9"/></svg>',
   they: '<svg viewBox="-32 -32 64 64"><g fill="#050505" stroke="#22d3ee" stroke-opacity=".75" stroke-width="1.6">' +
     [-17, 0, 17].map(dx => `<path d="M${dx - 8} 12 L${dx - 9} 4 L${dx - 5} -3 L${dx} -6 L${dx + 5} -3 L${dx + 9} 4 L${dx + 8} 12 Z"/>`).join('') + '</g>' +
     [-17, 0, 17].map(dx => `<circle cx="${dx}" cy="4" r="1.8" fill="#22d3ee"/>`).join('') + '</svg>',
 };
-const NAME_OF = { i: 'me', you: 'you, the player', he: 'Nexy', she: 'Echo', it: 'the key, the door', we: 'Nexy + Echo', they: 'the crawlers' };
+const NAME_OF = { i: 'me', you: 'you, the player', he: 'the old voice', she: 'Nexy, Echo', it: 'the key, the door', we: 'Nexy + Echo', they: 'the crawlers' };
 
 const Engine = {
   d: null, st: null, showPt: false, timers: [], busy: false,
@@ -234,7 +234,7 @@ const Engine = {
         ${this.sockets()}
         <div class="c-actions">${this.btn('LEARN THE TABLE →', 'learn', 'primary')}${this.btn('I KNOW IT · WIRE IT →', 'wire')}</div>`;
     } else if (st.step === 'learn') {
-      h = `<div class="c-title">THE VERB TO BE</div><div class="c-sub">Listen and look. <b class="e-new">HE</b> and <b class="e-new">SHE</b> are new.</div>${this.pt('Ouça e veja. HE (ele) é o Nexy; SHE (ela) é a Echo. HE, SHE e IT pedem IS.')}
+      h = `<div class="c-title">THE VERB TO BE</div><div class="c-sub">Listen and look. <b class="e-new">HE</b> and <b class="e-new">SHE</b> are new.</div>${this.pt('Ouça e veja. HE (ele) é a voz antiga que fala nas portas; SHE (ela) é a Nexy, e a Echo também. HE, SHE e IT pedem IS.')}
         <div class="e-table">${ENGINE.table.map((r, i) => `<button class="btn e-row" data-a="row" data-i="${i}">${PRONOUN_ICONS[r.icon]}<span class="e-p">${r.p}</span><span class="e-v">${r.v}</span><span class="e-n">${NAME_OF[r.icon]}${r.fresh ? ' · <b class="e-new">NEW</b>' : ''}</span></button>`).join('')}</div>
         <div class="c-actions">${this.btn('▶ LISTEN', 'hear', 'small')}${this.btn('WIRE IT →', 'wire', 'primary')}</div>`;
     } else if (st.step === 'wire') {
@@ -367,7 +367,7 @@ const Warp = {
     this.flash = Math.max(0, this.flash - dt * 1.6);
     P.px = P.x; P.py = P.y; FX.update(dt);
   },
-  // o clarão: o Nexy reaparece na praça final, com as vidas cheias
+  // o clarão: a Nexy reaparece na praça final, com as vidas cheias
   jump() {
     this.moved = true; this.flash = 1;
     const w = World.level.warp, fx = w.c * TS + TS / 2, fy = (w.r + 1) * TS;
@@ -397,7 +397,7 @@ const Warp = {
     }
     for (const r of this.rings) { ctx.save(); ctx.translate(r.x - camX, r.y - camY); ctx.scale(1, 0.3); ctx.beginPath(); ctx.arc(0, 0, r.r, 0, Math.PI * 2); ctx.strokeStyle = `rgba(232,121,249,${r.life})`; ctx.lineWidth = 2.5; ctx.stroke(); ctx.restore(); }
     if (!this.moved) {
-      // o verbo TO BE inteiro girando em volta do Nexy, cada vez mais perto
+      // o verbo TO BE inteiro girando em volta da Nexy, cada vez mais perto
       const rad = Math.max(18, 90 - this.t * 38);
       for (const w of this.words) {
         const x = P.cx - camX + Math.cos(w.a) * rad, y = P.cy - camY + Math.sin(w.a) * rad * 0.45;
@@ -479,7 +479,7 @@ Ents.reg('mural', {
       ctx.beginPath(); ctx.moveTo(cx - 11, gy + 7); ctx.lineTo(cx - 12, gy - 1); ctx.lineTo(cx - 6, gy - 7); ctx.lineTo(cx, gy - 10); ctx.lineTo(cx + 6, gy - 7); ctx.lineTo(cx + 12, gy - 1); ctx.lineTo(cx + 11, gy + 7); ctx.closePath();
       ctx.fillStyle = '#05070a'; ctx.fill(); ctx.strokeStyle = ca(0.8); ctx.lineWidth = 1.2; ctx.stroke();
     }
-    // os arcos dos quiques (pontilhados, magenta = o Nexy) e o 3º subindo até o tijolo
+    // os arcos dos quiques (pontilhados, magenta = a Nexy) e o 3º subindo até o tijolo
     ctx.setLineDash([4, 4]); ctx.lineDashOffset = -t * 20; ctx.strokeStyle = 'rgba(240,171,252,0.95)'; ctx.lineWidth = 1.6;
     ctx.beginPath(); ctx.moveTo(xs[0] - 40, gy - 4); ctx.quadraticCurveTo(xs[0] - 20, gy - 40, xs[0], gy - 12); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(xs[0], gy - 12); ctx.quadraticCurveTo((xs[0] + xs[1]) / 2, gy - 70, xs[1], gy - 12); ctx.stroke();
@@ -498,7 +498,7 @@ Ents.reg('mural', {
 });
 
 /* ============================== O TIRO DA ECHO ==============================
-   F (Y no controle, SHOT no toque): a Echo atira luz para onde o Nexy olha. O 1º tiro PARALISA (o inimigo vira cristal,
+   F (Y no controle, SHOT no toque): a Echo atira luz para onde a Nexy olha. O 1º tiro PARALISA (o inimigo vira cristal,
    não machuca e vira plataforma por alguns segundos); o 2º QUEBRA (e solta orbes). Gigantes não sentem nada.
    Cargas por nível (SHOT), recarga com o tempo e nos checkpoints. VOICE MODE: segure V e diga STOP! (o tempo fica lento
    enquanto a Echo escuta). */
@@ -514,7 +514,7 @@ const EchoShot = {
     if (this.charges <= 0) { SFX.thud(); this.emptyT = 0.6; return false; }
     this.charges--; this.used = true; this.tutorial = false;
     // mira: o inimigo mais perto à frente (a Echo flutua acima da cabeça e os Rastejantes são baixinhos);
-    // sem alvo, segue reto na altura do peito do Nexy
+    // sem alvo, segue reto na altura do peito da Nexy
     const dir = P.facing, sx = Echo.x, sy = Echo.y;
     let tx = sx + dir * 8 * TS, ty = P.y + P.h * 0.55, bd = 9 * TS;
     for (const e of Ents.enemies()) {

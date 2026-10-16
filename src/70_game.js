@@ -74,7 +74,7 @@ const Sentence = {
     if (t.kind === 'giants') return Ents.list.some(e => e.type === 'giant' && !e.dead && e.state !== 'shrink');
     return t.state !== 'small';
   },
-  // o Nexy empurrou o que bloqueia (os gigantes): a mesma dica do altar, no máximo a cada 6 s
+  // a Nexy empurrou o que bloqueia (os gigantes): a mesma dica do altar, no máximo a cada 6 s
   bumped(blocker) {
     if (Game.simTime - (this.bumpT || -99) < 6 || Echo.line) return;
     for (const id in World.doors) {
@@ -391,7 +391,7 @@ const UI = {
         card(w, info.pt, e ? (e.door ? 'USED AT · ' + e.door : 'COLLECTED · ' + info.cls.toUpperCase()) : 'UNKNOWN', info.lore, info.say, !e);
       }
     } else if (tab === 'powers') {
-      // PODERES: o que o Nexy e a Echo já sabem fazer (e como usar). O que ainda não foi conquistado fica fechado.
+      // PODERES: o que a Nexy e a Echo já sabem fazer (e como usar). O que ainda não foi conquistado fica fechado.
       const S = Save.data, pad = Input.padSeen, sh = S.shot.best, hb = S.heart.best, P0 = { name: true, plain: true, locked: 'Ainda não foi conquistado.' };
       const ls = NexyLook.stageFor(S.cleared), L0 = NEXY_STAGES[ls], L1 = NEXY_STAGES[ls + 1];
       card('NEXY · ' + L0.name, L0.pt, 'LOOK · STAGE ' + (ls + 1) + ' OF ' + NEXY_STAGES.length,
@@ -414,7 +414,7 @@ const UI = {
       }
       const cp = S.heart.compass | 0, C = CITY.compass[Math.max(0, cp - 1)];
       card(C.name, cp ? C.pt : '', cp ? 'POWER · LEVEL ' + cp + ' OF ' + CITY.compass.length : 'LOCKED · WORLD 1-3',
-        cp ? 'Nasceu no mapa da cidade. A seta magenta em volta do Nexy aponta o que falta encontrar. ' + CITY.compass.slice(0, cp).map(x => x.info).join(' ') : '', 'Compass of words', !cp, false, P0);
+        cp ? 'Nasceu no mapa da cidade. A seta magenta em volta da Nexy aponta o que falta encontrar. ' + CITY.compass.slice(0, cp).map(x => x.info).join(' ') : '', 'Compass of words', !cp, false, P0);
       const gold = S.goldCard, anyCard = gold || G.words.CARD;
       card(gold ? 'GOLD CARD' : 'WARP CARD', anyCard ? (gold ? 'cartão dourado' : 'cartão de teletransporte') : '', gold ? 'ITEM · FOREVER' : anyCard ? 'ITEM · ONE RUN' : 'LOCKED · ???',
         anyCard ? 'Liga a TO BE ENGINE: quem sabe o verbo TO BE inteiro viaja até o fim da fase com as vidas cheias. ' + (gold ? 'Dourado: ganho com a pontuação máxima na 1-1, agora a fase sempre começa com ele.' : 'Vale só na partida em que você o encontrou. Terminar a 1-1 com pontuação máxima dá o cartão dourado, que fica para sempre.') : '',
@@ -551,7 +551,7 @@ const Game = {
   },
   toMap() {
     UI.hideAll(); this.where = 'map'; this.state = 'map'; this.clearInput();
-    // o Nexy evolui ao concluir fases: o visual novo aparece no mapa, com aviso (só uma vez por estágio)
+    // a Nexy evolui ao concluir fases: o visual novo aparece no mapa, com aviso (só uma vez por estágio)
     const st = NexyLook.stageFor(Save.data.cleared), seen = Save.data.met.look || 0; NexyLook.stage = st;
     if (st > seen) { Save.data.met.look = st; Save.write(); if (!Save.data.assist.classic) setTimeout(() => { SFX.oneUp(); UI.msg('NEXY EVOLVED · ' + NEXY_STAGES[st].name + ' · ' + NEXY_STAGES[st].pt, 3600); }, 1400); }
     Music.setVariant('map'); Music.normal(); WorldMap.enter();
@@ -562,7 +562,7 @@ const Game = {
     UI.hideAll(); WorldMap.leave(); this.loadLevel(id); this.where = 'level'; this.state = 'play'; this.acc = 0; this.clearInput();
     Music.setVariant(LEVELS[id].music || 'world1'); Music.normal();
     if (!viaTransition) setTimeout(() => UI.toast(), 250);
-    // a 1-1 começa com a chegada do Nexy num feixe de luz (sem o Echo: ele nasce do primeiro HELLO).
+    // a 1-1 começa com a chegada da Nexy num feixe de luz (sem o Echo: ele nasce do primeiro HELLO).
     // Na primeira partida, a chegada é o prólogo inteiro: A Lei das Palavras.
     if (!this.noIntro && !this.echoBorn) setTimeout(() => {
       if (this.state === 'play' && World.level.id === id && !Arrival.active && !Prologue.active) (Save.data.met.prologue ? Arrival : Prologue).start();
@@ -623,7 +623,7 @@ const Game = {
         else if (c === 'KeyH') { if (P.interact) this.buyHint(P.interact); else UI.msg('HINTS WORK NEAR DOORS'); }
         else if (c === 'KeyV' && Save.data.assist.voice && Listen.available() && P.interact) { this.openPanel(P.interact); Panel.listen(); }
         else if (c === 'KeyV') EchoShot.listen();
-        else if (c === 'KeyF') Power.press();   // com o LASER, o Nexy atira; sem ele, a Echo
+        else if (c === 'KeyF') Power.press();   // com o LASER, a Nexy atira; sem ele, a Echo
         break;
       case 'panel': Panel.key(e); break;
       case 'chest': Chest.key(e); break;
@@ -659,7 +659,7 @@ const Game = {
     this.simTime += dt;
     if (this.hitstopN > 0) { this.hitstopN--; return; }
     P.px = P.x; P.py = P.y; Ents.save(); Cam.px = Cam.x; Cam.py = Cam.y; Echo.px = Echo.x; Echo.py = Echo.y;
-    // cena: o jogo controla o Nexy (investida)
+    // cena: o jogo controla a Nexy (investida)
     if (this.forceInput) { Input.touchHeld = Object.assign({}, this.forceInput); for (const k in Input.held) Input.held[k] = false; Input.padHeld = {}; Input.pressedAt.jump = -1; Input.pressedAt.spin = -1; Input.queue.length = 0; }
     for (const k of Input.queue) { if (k === 'up' && this.state === 'play') P.tryInteract(); if (k === 'ping' && EchoPulse.fire()) Hints.mark('ping'); if (k === 'shot') Power.press(); }
     Input.queue.length = 0;
@@ -689,7 +689,7 @@ const Game = {
     const ctx = R.ctx; ctx.setTransform(R.k, 0, 0, R.k, 0, 0); ctx.clearRect(0, 0, CFG.VIEW_W, CFG.VIEW_H);
     if (this.where === 'map' || this.state === 'title') { WorldMap.render(ctx, this.time); Transition.draw(ctx, this.time); return; }
     const camX = lerp(Cam.px, Cam.x, a) + Cam.sx, camY = lerp(Cam.py, Cam.y, a) + Cam.sy, t = this.time;
-    // zoom da cena: a câmera chega perto do Nexy (um pouco abaixo do centro, ângulo heroico)
+    // zoom da cena: a câmera chega perto da Nexy (um pouco abaixo do centro, ângulo heroico)
     const sc = this.scene(), zoom = sc ? sc.zoom : 1, zx = lerp(P.px, P.x, a) + P.w / 2 - camX, zy = lerp(P.py, P.y, a) + P.h * 0.75 - camY;
     const applyZoom = () => { if (zoom !== 1) { ctx.translate(zx, zy); ctx.scale(zoom, zoom); ctx.translate(-zx, -zy); } };
     ctx.save(); applyZoom();
@@ -706,12 +706,12 @@ const Game = {
     Ents.draw(ctx, camX, camY, a, 'mid');
     Ents.draw(ctx, camX, camY, a, 'enemy');
     World.drawVeils(ctx, camX, camY);
-    Power.drawBack(ctx, camX, camY, a);   // as asas (atrás do Nexy)
+    Power.drawBack(ctx, camX, camY, a);   // as asas (atrás da Nexy)
     P.draw(ctx, camX, camY, a);
     Power.drawFront(ctx, camX, camY, a);  // o canhão do LASER e o brilho da STAR
     Echo.draw(ctx, camX, camY, a);
     EchoShot.draw(ctx, camX, camY);
-    Power.drawBolts(ctx, camX, camY);     // os tiros do Nexy e os dos inimigos
+    Power.drawBolts(ctx, camX, camY);     // os tiros da Nexy e os dos inimigos
     City.drawCompass(ctx, camX, camY);   // a seta da Bússola das Palavras (todas as fases)
     FX.draw(ctx, camX, camY);
     Dark.draw(ctx, camX, camY);
@@ -719,7 +719,7 @@ const Game = {
     if (city) City.drawRain(ctx, camX, camY, 'front');
     ctx.restore();
     if (sc) {
-      // a cor some do mundo; o Nexy, o Echo e a cena continuam em cor por cima
+      // a cor some do mundo; a Nexy, o Echo e a cena continuam em cor por cima
       if (sc.sat > 0.01) { ctx.save(); ctx.globalCompositeOperation = 'saturation'; ctx.fillStyle = `rgba(128,128,128,${sc.sat.toFixed(3)})`; ctx.fillRect(0, 0, CFG.VIEW_W, CFG.VIEW_H); ctx.restore(); }
       ctx.save(); applyZoom();
       if (sc.sat > 0.01) { P.draw(ctx, camX, camY, a); Echo.draw(ctx, camX, camY, a); }

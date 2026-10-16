@@ -1181,8 +1181,8 @@
  },
  {
   "who": "story",
-  "text": "Yesterday, Nexy was afraid of the dark. Today, he is stronger than yesterday, because every word he learns becomes a part of him.",
-  "prompt": "Yesterday, Nexy was afraid of the dark. Today, he is stronger than yesterday, because every word he learns becomes a part of him."
+  "text": "Yesterday, Nexy was afraid of the dark. Today, she is stronger than yesterday, because every word she learns becomes a part of her.",
+  "prompt": "Yesterday, Nexy was afraid of the dark. Today, she is stronger than yesterday, because every word she learns becomes a part of her."
  },
  {
   "who": "story",
@@ -1191,18 +1191,18 @@
  },
  {
   "who": "echo",
-  "text": "He is afraid.",
-  "prompt": "He is afraid."
+  "text": "She is afraid.",
+  "prompt": "She is afraid."
  },
  {
   "who": "echo",
-  "text": "He was afraid.",
-  "prompt": "He was afraid."
+  "text": "She was afraid.",
+  "prompt": "She was afraid."
  },
  {
   "who": "echo",
-  "text": "He was big.",
-  "prompt": "He was big."
+  "text": "She was big.",
+  "prompt": "She was big."
  },
  {
   "who": "story",
@@ -1221,13 +1221,13 @@
  },
  {
   "who": "echo",
-  "text": "Because he is afraid.",
-  "prompt": "Because he is afraid."
+  "text": "Because she is afraid.",
+  "prompt": "Because she is afraid."
  },
  {
   "who": "echo",
-  "text": "Because he learns words.",
-  "prompt": "Because he learns words."
+  "text": "Because she learns words.",
+  "prompt": "Because she learns words."
  },
  {
   "who": "story",
@@ -1306,13 +1306,13 @@
  },
  {
   "who": "echo",
-  "text": "Yes, he is.",
-  "prompt": "Yes, he is."
+  "text": "Yes, she is.",
+  "prompt": "Yes, she is."
  },
  {
   "who": "echo",
-  "text": "No, he is not.",
-  "prompt": "No, he is not."
+  "text": "No, she is not.",
+  "prompt": "No, she is not."
  },
  {
   "who": "echo",
@@ -1406,8 +1406,8 @@
  },
  {
   "who": "echo",
-  "text": "him",
-  "prompt": "him."
+  "text": "her",
+  "prompt": "her."
  },
  {
   "who": "echo",
@@ -1761,8 +1761,8 @@
  },
  {
   "who": "echo",
-  "text": "Nexy is he!",
-  "prompt": "Nexy is he!"
+  "text": "Nexy is she!",
+  "prompt": "Nexy is she!"
  },
  {
   "who": "door",

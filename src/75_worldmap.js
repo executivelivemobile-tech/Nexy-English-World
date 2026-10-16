@@ -72,7 +72,7 @@ const Transition = {
 };
 
 /* ============================== MAPA-MÚNDI (como no Mario World) ==============================
-   O Nexy anda pelos caminhos abertos entre as fases. Enter / pulo entra na fase.
+   A Nexy anda pelos caminhos abertos entre as fases. Enter / pulo entra na fase.
    Caminhos novos se desenham ponto a ponto na primeira vez que aparecem. */
 const WorldMap = {
   world: 1, at: '1-1', walk: null, route: [], reveal: [], revealT: 0, x: 0, y: 0, facing: 1, phase: 0, echo: { x: 0, y: 0 }, hop: 0,

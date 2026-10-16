@@ -128,7 +128,7 @@ const World = {
         const b = this.blockAt(c, r);
         if (b.kind === 'invisible' && b.state === 'hidden')
           return axis === 'y' && dir < 0 && (body.kind === 'player' || body.kind === 'shell') && prevEdge >= (r + 1) * TS - 0.5;
-        // o tijolo do bug: invisível; a cabeça do Nexy (ou um casco jogado para cima) bate nele por baixo
+        // o tijolo do bug: invisível; a cabeça da Nexy (ou um casco jogado para cima) bate nele por baixo
         if (b.kind === 'glitch' && b.state === 'hidden') return axis === 'y' && dir < 0 && (body.kind === 'player' || body.kind === 'shell') && prevEdge >= (r + 1) * TS - 0.5;
         return this.blockSolid(b);
       }
@@ -781,7 +781,7 @@ const BG = {
 };
 
 /* ============================== ESCURIDÃO (cripta) ==============================
-   Uma camada preta com buracos de luz no Nexy, no Echo (que brilha mais forte) e em quem tem luz própria. */
+   Uma camada preta com buracos de luz na Nexy, no Echo (que brilha mais forte) e em quem tem luz própria. */
 const Dark = {
   k: 0,
   draw(ctx, camX, camY) {

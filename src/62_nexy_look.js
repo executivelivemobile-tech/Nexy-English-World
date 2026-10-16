@@ -1,6 +1,6 @@
 
-/* ============================== O VISUAL DO NEXY: um boneco articulado que evolui ==============================
-   O Nexy é desenhado em código sobre um esqueleto (quadril, tronco, pescoço, cabeça, braços, pernas, cauda e
+/* ============================== O VISUAL DA NEXY: uma boneca articulada que evolui ==============================
+   A Nexy é desenhado em código sobre um esqueleto (quadril, tronco, pescoço, cabeça, braços, pernas, cauda e
    cachecol). Cada estágio põe camadas por cima do mesmo esqueleto: rascunho de neon → tinta → equipamento →
    núcleo → elmo → fênix (a forma final, a da arte de referência). A caixa de colisão nunca muda: orelhas, cauda,
    cachecol e asas são só desenho, então a física e as fases continuam iguais.
@@ -427,7 +427,7 @@ const NexyLook = {
     q.boil = Math.floor(p.t * 3) % 3;
     return q;
   },
-  // tela pronta para a pose (k = pixels por unidade do jogo: escala da tela × tamanho do Nexy)
+  // tela pronta para a pose (k = pixels por unidade do jogo: escala da tela × tamanho da Nexy)
   W: 112, H: 104, OX: 62, OY: 84,
   sprite(p, stage, k) {
     const q = this.frame(p);
@@ -441,7 +441,7 @@ const NexyLook = {
     this.cache.set(key, c);
     return c;
   },
-  // carimba o Nexy com os pés em (0,0) do contexto atual (já transladado e espelhado por quem chama)
+  // carimba a Nexy com os pés em (0,0) do contexto atual (já transladado e espelhado por quem chama)
   draw(ctx, p, stage, k) {
     const c = this.sprite(p, stage, k);
     ctx.drawImage(c, -this.OX, -this.OY, this.W, this.H);

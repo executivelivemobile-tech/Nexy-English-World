@@ -133,7 +133,7 @@ LEVELS['1-3'] = {
       'under-sign': { c: 114, r: 17 },
       'behind-sign': { c: 114, r: 14, back: true, say: { en: 'Now it is behind the sign.', pt: 'Agora a caixa está ATRÁS da placa: escondida, e não dá para subir nela.' } },
     } },
-    // o beco: a caixa começa em cima do emissor; NA FRENTE dele (entre o Nexy e o laser) ela leva o tiro
+    // o beco: a caixa começa em cima do emissor; NA FRENTE dele (entre a Nexy e o laser) ela leva o tiro
     box4: { kind: 'box', w: 2, h: 2, state: 'on', spots: {
       on: { c: 240, r: 13 },
       front: { c: 239, r: 15, say: { en: 'Now the box is in front of the laser!', pt: 'A caixa está NA FRENTE do laser: o feixe bate nela e o corredor fica livre.' } },

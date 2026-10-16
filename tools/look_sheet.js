@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Folha de evolução do Nexy: uma página que mostra os 6 estágios do visual, animados, usando o MESMO código do jogo
+/* Folha de evolução da Nexy: uma página que mostra os 6 estágios do visual, animados, usando o MESMO código do jogo
  * (src/62_nexy_look.js). Serve para o dono aprovar o visual antes de trocar o personagem nas fases.
  *   node tools/look_sheet.js <saida.html>     (sem esqueleto <html>/<body>: é publicada como página do claude.ai) */
 'use strict';
@@ -125,7 +125,7 @@ ${look.replace(/<\/script>/g, '<\\/script>')}
     for (const card of cards) {
       const { w, h } = fit(card.c), x = card.c.getContext('2d');
       x.setTransform(1, 0, 0, 1, 0, 0); backdrop(x, w, h);
-      const k = h / 92;   // a carta mostra o Nexy com uns 60 px do jogo de altura (orelhas incluídas)
+      const k = h / 92;   // a carta mostra a Nexy com uns 60 px do jogo de altura (orelhas incluídas)
       x.setTransform(k, 0, 0, k, w * 0.54, h * 0.84);
       NexyLook.paint(x, p, card.s, k);
       // reflexo no chão de vidro

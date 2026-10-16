@@ -1,9 +1,9 @@
 
 /* ============================== BAÚ DA MEMÓRIA (1-2) ==============================
-   Uma leitura curta sobre a jornada do Nexy, em 5 passos guiados pela ciência do aprendizado:
+   Uma leitura curta sobre a jornada da Nexy, em 5 passos guiados pela ciência do aprendizado:
    palavras-chave antes (imagem + som + tradução) → leitura com voz e karaokê → perguntas com prova no texto →
    ESCALADA opcional acima do A1 (dificuldade crescente; cada acerto muda a cor do Coração e dá mais poder) →
-   produção em 1ª pessoa (I AM STRONG). Depois, a cena épica: o Nexy cresce e quebra o Muro do Silêncio. */
+   produção em 1ª pessoa (I AM STRONG). Depois, a cena épica: a Nexy cresce e quebra o Muro do Silêncio. */
 
 // ícones das palavras novas (SVG em linha, só ciano e magenta)
 const WORD_ICONS = {
@@ -310,9 +310,9 @@ const Chest = {
 };
 
 /* ============================== A CENA DO CORAÇÃO (pegada God of War) ==============================
-   Silêncio pesado → o Coração sobe do baú → as palavras que ESTE jogador aprendeu giram em volta do Nexy e entram
-   nele → três batidas de tambor de guerra e ele cresce → o grito de batalha → investida em câmera lenta →
-   impacto congelado, o muro explode em cacos e a luz entra → o Nexy volta ao tamanho normal (a força fica dentro). */
+   Silêncio pesado → o Coração sobe do baú → as palavras que ESTE jogador aprendeu giram em volta da Nexy e entram
+   nele → três batidas de tambor de guerra e ela cresce → o grito de batalha → investida em câmera lenta →
+   impacto congelado, o muro explode em cacos e a luz entra → a Nexy volta ao tamanho normal (a força fica dentro). */
 const Cine = {
   active: false, t: 0, d: null, tier: 0, zoom: 1, letter: 0, sat: 0, flash: 0, timeScale: 1, freezeT: 0, lid: false,
   heart: null, words: [], rings: [], shards: [], dust: [], rays: 0, title: null, glow: 0, impactT: -1, ev: {}, wall: null, skipShown: false,
@@ -354,7 +354,7 @@ const Cine = {
       if (k >= 1) { w.gone = true; this.glow = 1; FX.burst(P2.x, P2.y, 8, 'm', 140, { life: 0.4, g: 0 }); if (!this.ev.beatT || t - this.ev.beatT > 0.14) { SFX.heartbeat(); this.ev.beatT = t; } }
     }
     this.glow = Math.max(0, this.glow - dt * 2);
-    // 4. três batidas de tambor de guerra: o Nexy cresce
+    // 4. três batidas de tambor de guerra: a Nexy cresce
     [[5.0, 1.33, 5], [5.5, 1.66, 7], [6.0, 2, 10]].forEach(([at, s, sh], i) => {
       if (t > at) this.once('grow' + i, () => {
         SFX.warDrum(); if (i === 2) SFX.grow(); P.setScale(s); Game.shake(sh); this.flash = 0.25;
@@ -400,7 +400,7 @@ const Cine = {
       Dark.k = approach(Dark.k, 0.45, dt);
     }
   },
-  // o Muro do Silêncio explode de uma vez (chamado quando o Nexy gigante encosta nele)
+  // o Muro do Silêncio explode de uma vez (chamado quando a Nexy gigante encosta nele)
   onBreak(c, r) {
     const w = this.wall; if (!w || c < w.c0 || c > w.c1 || r < w.r0 || r > w.r1) return false;
     this.breakWall(); return true;
@@ -462,7 +462,7 @@ const Cine = {
       R.draw(R.glow('w', 64), cx, cy, 2.4, 0.7 * this.rays, true);
       ctx.restore();
     }
-    // círculo de runas sob o Nexy
+    // círculo de runas sob a Nexy
     if (this.t > 2.6 && this.impactT < 0) {
       const k = Math.min(1, (this.t - 2.6) / 1.5), x = P.cx - camX, y = P.y + P.h - camY;
       ctx.save(); ctx.translate(x, y); ctx.scale(1, 0.28); ctx.rotate(this.t * 0.8);
@@ -478,7 +478,7 @@ const Cine = {
       ctx.beginPath(); ctx.arc(0, 0, r.r, 0, Math.PI * 2); ctx.strokeStyle = `rgba(232,121,249,${0.8 * r.life})`; ctx.lineWidth = 3; ctx.stroke();
       ctx.restore();
     }
-    // brilho do Nexy absorvendo as palavras
+    // brilho da Nexy absorvendo as palavras
     if (this.glow > 0) R.draw(R.glow('m', 64), P.cx - camX, P.cy - camY, 1.2 * P.scale, this.glow * 0.8, true);
     // o Coração
     if (this.t > 0.9 && !h.gone) drawHeart(ctx, h.x - camX, h.y - camY + Math.sin(this.t * 3) * 3, h.s, this.tier, this.t);

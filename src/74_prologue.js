@@ -1,8 +1,8 @@
 
 /* ============================== 1-1 · A LEI DAS PALAVRAS (o prólogo da primeira partida) ==============================
-   Antes de o Nexy pisar no mundo, as três leis são mostradas, não explicadas:
+   Antes de a Nexy pisar no mundo, as três leis são mostradas, não explicadas:
    1. palavras são magia: o feixe e a voz antiga no escuro;
-   2. palavras viram chão: as letras de HELLO caem e acendem o chão onde ele pousa;
+   2. palavras viram chão: as letras de HELLO caem e acendem o chão onde ela pousa;
    3. o que você diz vira verdade: IT IS BIG faz um Rastejante pequenino virar gigante, e ele fecha o caminho.
       Vez do jogador: IT IS ___ com BIG e SMALL. BIG o deixa ainda maior (sem castigo: o mundo só obedece);
       SMALL o encolhe e ele foge. A regra em português só aparece depois que o jogador a usou.
@@ -18,7 +18,7 @@ const Prologue = {
     P.y = Cam.y - 160; P.py = P.y; P.vx = 0; P.vy = 0; P.invuln = 99; P.facing = 1;
     Game.state = 'cinematic'; Game.clearInput(); SFX.riser(1.4);
     Music.set({ bass: 0, organ: 0, perc: 0, pad: 0.45 }); Music.setDrone(true);
-    // as cinco letras de HELLO, uma por coluna; o Nexy pousa no meio delas (no primeiro L)
+    // as cinco letras de HELLO, uma por coluna; a Nexy pousa no meio delas (no primeiro L)
     const c0 = Math.floor(this.footX / TS) - 2;
     'HELLO'.split('').forEach((ch, i) => this.letters.push({ ch, c: c0 + i, y: Cam.y - 40 - i * 26, vy: 0, at: 0.35 + i * 0.24, landed: -1 }));
     this.say(PROLOGUE.magic, 'story');
@@ -80,7 +80,7 @@ const Prologue = {
     if (!this.active) return;
     this.t += dt; this.pt += dt; this.textT += dt;
     const ph = this.phase, cr = this.crawler;
-    // o Nexy desce devagar no feixe até as letras virarem chão; depois pousa
+    // a Nexy desce devagar no feixe até as letras virarem chão; depois pousa
     if (this.landT < 0) {
       P.py = P.y;
       if (this.dropping) { P.vy = Math.min(900, P.vy + 2600 * dt); P.y = Math.min(this.foot - P.h, P.y + P.vy * dt); if (P.y >= this.foot - P.h) this.land(); }

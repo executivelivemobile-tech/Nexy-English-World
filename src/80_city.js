@@ -295,7 +295,7 @@ const City = {
     if (near && Game.state === 'play' && Save.data.heart.compass > 0) R.draw(R.text('COMPASS ' + Save.data.heart.compass + ' / ' + CITY.compass.length, '600 10px Orbitron, Inter, sans-serif', '#f0abfc', 'rgba(217,70,239,0.8)', 6), x + w / 2, y - 12, 1, 0.7 + 0.3 * p);
   },
 
-  /* ---------- a BÚSSOLA DAS PALAVRAS: a seta em volta do Nexy (vale em todas as fases) ---------- */
+  /* ---------- a BÚSSOLA DAS PALAVRAS: a seta em volta da Nexy (vale em todas as fases) ---------- */
   compassTarget() {
     const lv = Save.data.heart.compass | 0; if (lv <= 0) return null;
     const cand = [];
@@ -340,11 +340,11 @@ const City = {
 
 /* ---------- GÁRGULA: de pedra quando você olha para ela; de costas, ela voa atrás de você ----------
    Parada (pedra) não machuca e é chão por cima (degrau no ar). Voando, encostar machuca; pisão comum a deixa de pedra
-   por 2 s (e o Nexy quica alto); pisão com giro, casco, tiro duplo da Echo ou o Nexy gigante a quebram. */
+   por 2 s (e a Nexy quica alto); pisão com giro, casco, tiro duplo da Echo ou a Nexy gigante a quebram. */
 Ents.reg('gargoyle', {
   layer: 'enemy',
   init(e) { e.w = 28; e.h = 26; e.enemy = true; e.kind = 'enemy'; e.state = 'stone'; e.creature = 'GARGOYLE'; e.plat = true; e.dx = 0; e.dy = 0; e.wakeT = 0; e.stunT = 0; e.dir = -1; e.res = {}; },
-  // o Nexy está olhando para ela? (de frente, ou com ela bem em cima)
+  // a Nexy está olhando para ela? (de frente, ou com ela bem em cima)
   watched(e) { const gx = e.x + e.w / 2; return P.facing > 0 ? gx >= P.cx - 16 : gx <= P.cx + 16; },
   toStone(e) {
     if (e.state === 'fly' || e.state === 'home') { SFX.stone(); FX.burst(e.x + e.w / 2, e.y + e.h / 2, 10, 'c', 120, { life: 0.4, g: 0 }); }
@@ -368,11 +368,11 @@ Ents.reg('gargoyle', {
         // um instante de pedra tremendo antes de voar (e ainda é chão): dá tempo de se virar
         if (near && e.state === 'stone') { e.state = 'wake'; SFX.wake(); }
       } else if (!near || leash) {
-        // longe do Nexy (ou longe demais de casa): volta voando devagar para o poleiro
+        // longe da Nexy (ou longe demais de casa): volta voando devagar para o poleiro
         if (away < 2) { e.x = e.hx; e.y = e.hy; this.toStone(e); }
         else { e.state = 'home'; e.plat = false; const k = Math.min(1, 60 * dt / away); e.x += (e.hx - e.x) * k; e.y += (e.hy - e.y) * k; e.dir = sign(e.hx - e.x) || e.dir; }
       } else {
-        // primeiro desce (ou sobe) até a altura da cabeça do Nexy, depois vem reto na direção dele
+        // primeiro desce (ou sobe) até a altura da cabeça da Nexy, depois vem reto na direção dela
         if (e.state !== 'fly') { e.state = 'fly'; e.plat = false; }
         const dx = P.cx - gx, dy = P.y + 6 - gy;
         const vy = clamp(dy * 2.2, -95, 95), vx = Math.abs(dy) < 40 ? clamp(dx * 1.6, -48, 48) : clamp(dx * 0.4, -14, 14);
@@ -642,7 +642,7 @@ const CityMap = {
         <div class="c-opts tight">${r.options.map((o, i) => `<button class="btn copt" data-a="rung" data-i="${i}">${o}</button>`).join('')}</div><div class="c-ev" id="cev"></div><div class="c-actions" id="cnext"></div>`;
     } else if (st.step === 'done') {
       const C = CITY.compass[lv - 1];
-      h = `<div class="c-title chal">${C.name}</div><div class="c-sub">${C.pt}. ${C.info}</div>${this.pt('A seta magenta em volta do Nexy aponta o que falta encontrar, em todas as fases.')}
+      h = `<div class="c-title chal">${C.name}</div><div class="c-sub">${C.pt}. ${C.info}</div>${this.pt('A seta magenta em volta da Nexy aponta o que falta encontrar, em todas as fases.')}
         ${this.tiers()}
         <div class="c-actions">${lv < CITY.compass.length ? this.btn('CLIMB AGAIN ↑', 'climb') : ''}${this.btn('CLOSE', 'close', 'primary')}</div>`;
     }

@@ -189,7 +189,7 @@ const P = {
       if (e.state === 'held' || e.frozen > 0 || this.dead || !overlap(this, e)) continue;
       // gárgula de pedra: não machuca (é chão por cima); só voando ela ataca e pode levar pisão
       if (e.type === 'gargoyle' && e.state !== 'fly' && e.state !== 'home') continue;
-      // com a STAR: quem o Nexy tocar explode (menos os gigantes, que só empurram)
+      // com a STAR: quem a Nexy tocar explode (menos os gigantes, que só empurram)
       if (this.starT > 0 && e.type !== 'giant') { Enemy.kill(e, 'pop', sign(e.x + e.w / 2 - this.cx) || 1); SFX.crush(); Game.addOrbs(1); continue; }
       const falling = this.y - this.py > 0.01 || this.vy > 0;
       const above = this.py + this.h <= e.y + e.h * 0.5 + 3;
@@ -352,7 +352,7 @@ const P = {
       if (sp < 0.2) continue;
       const a2 = Math.min(1, (sp - 0.2) * (1 + (this.comboGlow || 0) * 0.5)) * k * alpha, tx = p.x - camX, ty = p.y - camY, hh = this.h * 0.86;
       R.draw(R.glow('m', 24), tx, ty, (0.5 + 0.6 * k) * s, a2 * 0.6, true);
-      if (!Save.data.assist.classic && !this.form) {   // visual novo: o rastro é a sombra do próprio Nexy
+      if (!Save.data.assist.classic && !this.form) {   // visual novo: o rastro é a sombra da própria Nexy
         ctx.save(); ctx.globalAlpha = a2 * 0.32; ctx.globalCompositeOperation = 'lighter'; ctx.translate(tx, ty + this.h / 2); ctx.scale(this.facing * s, s);
         NexyLook.draw(ctx, { t, phase: this.walkPhase || 0, speed: Math.abs(this.vx) / CFG.WALK, air: this.onGround ? 0 : (this.vy < 0 ? -1 : 1) }, NexyLook.stage, R.k * s);
         ctx.restore(); continue;
@@ -504,7 +504,7 @@ const Echo = {
     const l = this.line, k = Math.min(1, this.lineT * 5, this.outT != null ? this.outT * 5 : 1);
     if (!this.said || k <= 0) return;
     const en = R.text(l.en, '700 12px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(217,70,239,0.9)', 5), pt = R.text(l.pt, '400 11px Inter, sans-serif', wa(0.75), null, 0);
-    // o balão fica do lado de trás do Nexy (não cobre o que está à frente, nem o que o Echo revelou)
+    // o balão fica do lado de trás da Nexy (não cobre o que está à frente, nem o que o Echo revelou)
     const w = Math.max(en.w, pt.w) + 6, h = 44, bx = clamp(x - P.facing * (w / 2 - 14), w / 2 + 10, CFG.VIEW_W - w / 2 - 10), by = y - 40;
     ctx.save(); ctx.globalAlpha = k;
     rrect(ctx, bx - w / 2, by - h / 2, w, h, 14); ctx.fillStyle = 'rgba(2,2,2,0.82)'; ctx.fill(); ctx.strokeStyle = 'rgba(217,70,239,0.7)'; ctx.lineWidth = 1; ctx.stroke();
@@ -629,7 +629,7 @@ const Doors = {
       if (d.kind === 'bells') for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(x + d.w / 2, y + d.h * (0.3 + i * 0.2), 4, 0, Math.PI * 2); ctx.strokeStyle = ca(0.3); ctx.stroke(); }
     }
     ctx.restore();
-    // "I AM YOU.": o reflexo do Nexy aparece no vidro da porta e acena
+    // "I AM YOU.": o reflexo da Nexy aparece no vidro da porta e acena
     if (d.mirror > 0) {
       const k = Math.min(1, d.mirror * 2, (1.8 - d.mirror) * 4);
       R.draw(R.glow('m', 40), x + d.w / 2, y + d.h - 28, 1, 0.5 * k, true);

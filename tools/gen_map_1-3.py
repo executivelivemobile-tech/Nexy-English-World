@@ -65,7 +65,7 @@ put(148, 11, 'q')                                            # gárgula do trilh
 put(154, 11, 'y')                                            # letra Y (pulo de cima do trem)
 orbs(13, [144, 145, 150, 151, 158, 159])
 
-# ---------------- E · O MERCADO NEON (163-212): o LASER do Nexy ----------------
+# ---------------- E · O MERCADO NEON (163-212): o LASER da Nexy ----------------
 roof(163, 262, 16)                                           # um telhado só, do mercado ao fim do beco
 put(165, 15, 'F')
 put(169, 12, '8')                                            # bloco do LASER (power-up; volta a encher)
@@ -79,7 +79,7 @@ put(216, 12, '9'); put(219, 12, '0')                         # IN FRONT OF, LASE
 put(222, 15, '(')                                            # altar 4
 put(226, 15, '#')                                            # o poste onde o feixe termina (dá para subir nele)
 fill(228, 236, 11, 13, '#')                                  # a marquise: embaixo dela o corredor tem 2 linhas (não se pula o feixe)
-put(241, 15, '<')                                            # o EMISSOR (atira para a esquerda, na altura do Nexy; o tiro quebra)
+put(241, 15, '<')                                            # o EMISSOR (atira para a esquerda, na altura da Nexy; o tiro quebra)
 put(233, 8, 'd')                                             # drone em cima da marquise
 put(246, 15, 'F')
 put(248, 12, 's')                                            # STAR escondida (o pulso mostra)

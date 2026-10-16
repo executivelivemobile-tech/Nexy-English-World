@@ -363,7 +363,7 @@ Ents.reg('bigbell', {
   },
 });
 
-/* ---------- ECHO GIGANTE: "YOU ARE BIG" vira uma plataforma que leva o Nexy ----------
+/* ---------- ECHO GIGANTE: "YOU ARE BIG" vira uma plataforma que leva a Nexy ----------
    ride.board = onde ele espera (tile), ride.path = pontos do caminho (tiles; r = linha da superfície). */
 Ents.reg('echoride', {
   layer: 'mid',

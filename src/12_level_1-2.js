@@ -1,7 +1,7 @@
 
 /* ============================== FASE 1-2 · WHO ARE YOU? (A Nave dos Ecos) ==============================
-   O Nexy entra na catedral: nave, cripta e campanário, terminando no telhado. Palavra-mestra: WORLD.
-   Mecânica nova: o PRONOME decide quem a frase atinge (I → o Nexy, IT → a runa, THEY → o grupo, YOU → o Echo).
+   A Nexy entra na catedral: nave, cripta e campanário, terminando no telhado. Palavra-mestra: WORLD.
+   Mecânica nova: o PRONOME decide quem a frase atinge (I → a Nexy, IT → a runa, THEY → o grupo, YOU → o Echo).
 
    ───────────── LEGENDA EXTRA DESTA FASE (além da legenda global da 1-1) ─────────────
      w O % L D   letras W O R L D            T V ^   altares (1, 2 e 3)          1 2 3   portas
@@ -96,34 +96,34 @@ LEVELS['1-2'] = {
        Quem não consegue tem outro caminho: o poço escuro por cima do muro, subindo com um quique no Alado. */
     chest: {
       kind: 'chest', inscription: 'MEMORY CHEST', title: 'MEMORY CHEST',
-      wall: [238, 32, 239, 35],   // o Muro do Silêncio (colunas 238-239, linhas 32-35): só o Nexy gigante quebra
+      wall: [238, 32, 239, 35],   // o Muro do Silêncio (colunas 238-239, linhas 32-35): só a Nexy gigante quebra
       story: {
         words: [
           { w: 'DARK', icon: 'dark' }, { w: 'LIGHT', icon: 'light' }, { w: 'AFRAID', icon: 'afraid' }, { w: 'STRONG', icon: 'strong' },
         ],
         pages: [
-          { en: 'Nexy is small. The city is dark. Nobody says hello.', pt: 'Nexy é pequeno. A cidade é escura. Ninguém diz olá.' },
+          { en: 'Nexy is small. The city is dark. Nobody says hello.', pt: 'A Nexy é pequena. A cidade é escura. Ninguém diz olá.' },
           { en: 'Nexy finds a word. Then another word. Every word is a light.', pt: 'Nexy encontra uma palavra. Depois outra palavra. Cada palavra é uma luz.' },
-          { en: 'Nexy is not afraid now. Echo is a friend. Words make Nexy strong.', pt: 'Agora o Nexy não tem medo. A Echo é uma amiga. As palavras deixam o Nexy forte.' },
+          { en: 'Nexy is not afraid now. Echo is a friend. Words make Nexy strong.', pt: 'Agora a Nexy não tem medo. A Echo é uma amiga. As palavras deixam a Nexy forte.' },
         ],
         // ev = a frase do texto que prova a resposta (aparece quando o aluno erra)
         questions: [
           { q: 'Is the city dark?', pt: 'A cidade é escura?', options: ['Yes, it is.', 'No, it is not.'], answer: 0, ev: [0, 'The city is dark.'] },
           { q: 'What is every word?', pt: 'O que é cada palavra?', options: ['a door', 'a light', 'a key'], answer: 1, ev: [1, 'Every word is a light.'] },
-          { q: 'Is Nexy afraid now?', pt: 'O Nexy está com medo agora?', options: ['Yes, he is.', 'No, he is not.'], answer: 1, ev: [2, 'Nexy is not afraid now.'] },
+          { q: 'Is Nexy afraid now?', pt: 'A Nexy está com medo agora?', options: ['Yes, she is.', 'No, she is not.'], answer: 1, ev: [2, 'Nexy is not afraid now.'] },
         ],
         // A ESCALADA (acima do A1): cada acerto sobe um degrau, a pergunta seguinte é mais difícil e o Coração
         // muda de cor e ganha poder. Uma tentativa por degrau; errar encerra a escalada (o poder conquistado fica).
         climb: {
-          page: { en: 'Yesterday, Nexy was afraid of the dark. Today, he is stronger than yesterday, because every word he learns becomes a part of him.',
-                  pt: 'Ontem, o Nexy tinha medo do escuro. Hoje, ele está mais forte do que ontem, porque cada palavra que ele aprende vira parte dele.' },
+          page: { en: 'Yesterday, Nexy was afraid of the dark. Today, she is stronger than yesterday, because every word she learns becomes a part of her.',
+                  pt: 'Ontem, a Nexy tinha medo do escuro. Hoje, ela está mais forte do que ontem, porque cada palavra que ela aprende vira parte dela.' },
           rungs: [
-            { level: 'A2', q: 'How was Nexy yesterday?', pt: 'Como o Nexy estava ontem?', options: ['He is afraid.', 'He was afraid.', 'He was big.'], answer: 1,
-              tip: 'WAS é o passado de IS. Yesterday (ontem) pede o passado: he was afraid.' },
-            { level: 'A2', q: 'When is Nexy stronger?', pt: 'Quando o Nexy está mais forte?', options: ['Today.', 'Yesterday.'], answer: 0,
-              tip: 'STRONGER THAN = mais forte do que. Today he is stronger than yesterday.' },
-            { level: 'B1', q: 'Why is Nexy stronger?', pt: 'Por que o Nexy está mais forte?', options: ['Because the city is dark.', 'Because he is afraid.', 'Because he learns words.'], answer: 2,
-              tip: 'BECAUSE = porque. Because every word he learns becomes a part of him.' },
+            { level: 'A2', q: 'How was Nexy yesterday?', pt: 'Como a Nexy estava ontem?', options: ['She is afraid.', 'She was afraid.', 'She was big.'], answer: 1,
+              tip: 'WAS é o passado de IS. Yesterday (ontem) pede o passado: she was afraid.' },
+            { level: 'A2', q: 'When is Nexy stronger?', pt: 'Quando a Nexy está mais forte?', options: ['Today.', 'Yesterday.'], answer: 0,
+              tip: 'STRONGER THAN = mais forte do que. Today she is stronger than yesterday.' },
+            { level: 'B1', q: 'Why is Nexy stronger?', pt: 'Por que a Nexy está mais forte?', options: ['Because the city is dark.', 'Because she is afraid.', 'Because she learns words.'], answer: 2,
+              tip: 'BECAUSE = porque. Because every word she learns becomes a part of her.' },
             { level: 'B1+', q: 'What does the story teach?', pt: 'O que a história ensina?', options: ['The dark is dangerous.', 'Learning makes you grow.', 'Friends are not important.'], answer: 1,
               tip: 'A ideia principal não está escrita palavra por palavra: aprender faz você crescer. É inferência.' },
           ],
@@ -141,7 +141,7 @@ LEVELS['1-2'] = {
     door2: {
       char: '2', inscription: 'ARE YOU A CRAWLER?', mold: ['_', ',', 'I', 'AM', '_', '.'],
       accept: [{ words: ['NO', 'NOT'], result: { type: 'open' } }],
-      // a porta acredita no "sim": o Nexy vira Rastejante por alguns segundos
+      // a porta acredita no "sim": a Nexy vira Rastejante por alguns segundos
       enact: [{ words: ['YES', '*'], result: { type: 'crawler', duration: 3.5 }, say: 'Yes, I am a crawler!' }],
     },
     gate: {
@@ -198,7 +198,7 @@ LEVELS['1-2'] = {
     },
     altar3: {
       kind: 'pedestal', title: 'ALTAR OF THE RUNES', inscription: 'WHO IS BIG?', mold: ['_', '_', 'BIG', '.'], consume: false, reusable: true,
-      // YOU ARE BIG: o Echo cresce, espera ao lado do altar e leva o Nexy pelo céu até o fim secreto
+      // YOU ARE BIG: o Echo cresce, espera ao lado do altar e leva a Nexy pelo céu até o fim secreto
       ride: { board: [257, 8], path: [[258, 3], [299, 3], [306, 7]] },
       accept: [
         { words: ['IT', 'IS'], result: { type: 'target', target: 'rune3', act: 'big' } },

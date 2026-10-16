@@ -18,7 +18,7 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 ## 2. Visão e regras de design (decididas por ele; valem para as próximas fases)
 
 - **Cada fase traz algo novo** (mecânica, criatura, item, cena). Nada de repetir fórmula; vocabulário novo sempre
-  dentro da história do Nexy.
+  dentro da história da Nexy.
 - **Desafie acima do A1** (A2 → B1+) de forma **crescente**: quanto mais o aluno acerta, mais poderosa fica a
   ferramenta que ele ganha. O **Coração das Palavras** (`HEART` em `10_data.js`) muda de cor por nível
   (ciano → magenta → incandescente → prisma → Coroa) e é salvo (`Save.data.heart`); cada fase futura deve acrescentar
@@ -36,14 +36,17 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 - Futuro: depois do jogo inteiro, app Android (Google Play). Mantenha tudo pensado para toque e offline.
 - Preferências já dadas: sem voz em combos e nomes de criaturas; correr com toque duplo na seta (janela medida da
   soltura); quique alto com janela antes/depois (só no ar); blocos-fantasma dependem da barra, não do Grimório.
-- **Vozes gravadas (ElevenLabs)**: 469 falas em `src/voice/` (MP3 + `manifest.json`), embutidas pelo build.
+- **Vozes gravadas (ElevenLabs)**: 471 falas em `src/voice/` (MP3 + `manifest.json`), embutidas pelo build.
   Elenco: **Echo = Lulu** (feminina e sensual, escolhida pelo dono), **narrador do Baú = Elder Rowan** (a voz antiga
   das portas, pedida pelo dono no lugar do Lawrence; `[warmly]`, 1,08×), **portas e altares = Elder Rowan** (`[slowly]`,
   acelerada 1,15× no corte). Não imitar vozes de pessoas reais (ele citou Morgan Freeman: só a referência de idoso e grave). A Echo agora é **ela** nos textos em português ("a Echo", "sua amiga").
   Falas sem gravação: a porta repete palavra por palavra; senão outra voz gravada; senão a voz do aparelho
   (`Voice.score` prefere Natural/Neural/Google). ASSIST → ECHO'S VOICE alterna "Lulu · studio" e as vozes do aparelho.
   Como gerar falas novas: `tools/voice/README.md`.
-- O **Echo** (orbe que segue o Nexy) é o companheiro: fala as palavras, se apresenta na 1ª partida
+- **A Nexy é ELA** (feminina; o dono corrigiu): em inglês SHE/HER ("Today, she is stronger", "Nexy is she!"), em
+  português a/da/na Nexy, adjetivos no feminino. Na tabela do TO BE, HE = a voz antiga das portas (o narrador, voz
+  masculina) e SHE = a Nexy (e a Echo).
+- O **Echo** (orbe que segue a Nexy) é o companheiro: fala as palavras, se apresenta na 1ª partida
   (`ECHO.lines.intro`), avisa no escuro e é a luz da cripta. O dono não sabia o que era: sempre apresente as coisas.
 
 ## 3. Arquitetura (`src/`, na ordem do build)
@@ -66,11 +69,11 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 | `73_echo.js` | `Arrival` (chegada no feixe), `Birth` (o Echo nasce do HELLO na porta 1), `EchoPulse` (sonar, C/LB/toque), `Hints` (placas) |
 | `74_prologue.js` | `Prologue`: A Lei das Palavras (1ª partida; `Save.data.met.prologue`), entidade `floorword` |
 | `76_secret.js` | segredo da 1-1: `Glitch` (falso erro), entidades `card` e `engine`, `Engine` (tela da TO BE ENGINE no painel do baú, estado `engine`), `Warp` (teletransporte), `EchoShot` (tiro da Echo) |
-| `62_nexy_look.js` | `NexyLook` (o visual do Nexy: esqueleto `rig`, camadas por estágio `paint`, quadros em cache `sprite`, `stageFor(cleared)`), `NEXY_STAGES`. Também usado por `tools/look_sheet.js` (não pode depender do jogo) |
+| `62_nexy_look.js` | `NexyLook` (o visual da Nexy: esqueleto `rig`, camadas por estágio `paint`, quadros em cache `sprite`, `stageFor(cleared)`), `NEXY_STAGES`. Também usado por `tools/look_sheet.js` (não pode depender do jogo) |
 | `75_worldmap.js` | `Transition` (íris/fechadura + cartão "Nexy × vidas"), `WorldMap` (andar, revelar caminhos, toque; desenho: ilha flutuante `land()` guardada em imagem, `prep()` rio/pontes/cascata, `landmark()` marco de cada fase, `pad()`, `fog()` sobre o que não foi descoberto, constelações TOBE/CITY) |
 | `78_palace.js` | TO BE PALACE: entidades `knight` e `beswitch`, `Palace` (pulso vê o passado `ping`, `drawGhost`/`drawTarget`/`statue`/`drawClock`, chão-espelho `drawMirror`, `drawRing`), `PalaceIntro` (lembrança + tabela, `Save.data.met.palace`), `PalaceSwitch` (cena do interruptor), `BG.drawPalace` |
 | `80_city.js` | 1-3: `City` (caixa: `initBox`/`moveBox`/`land`/`flyPos`/`drawCube`, `ping` acha a caixa escondida, `drawBack` antes do terreno e `drawFront` depois dos letreiros; prédios `drawSolid`; chuva/raios `tick`/`strike`/`drawRain`; `drawDecor`, `drawAltar`, `drawMapBoard`; Bússola `compassTarget`/`drawCompass`/`drawNeedle`), entidades `gargoyle`, `train`, `citymap`, `decor`, `CityIntro` (`Save.data.met.city`), `CityMap` (painel do Baú, estado `citymap`), `CompassScene` (`Save.data.met.compass`), `BG.drawCity` |
-| `82_city2.js` | 1-3, a segunda metade: `Power` (poderes `P.power` laser/wings e `P.starT`; `give`/`lose`/`refill`; tiro do Nexy `press`/`shoot`, carga segurando F (`Input.held.shoot`, `touchHeld.shot`, `padHeld.shoot`); `drawBack` asas, `drawFront` canhão/estrela, `drawBolts`), `EnemyFire` (tiros ciano dos inimigos), entidades `powerup`, `drone`, `beam` (emissor: `left` com vida e `shootable`; `down` liga/desliga), `vent`, `sentinel`; `Sentinel` (`live` troca as regras do terminal por rodada, `answer`, `damage`, `roundOver`, `drawTerminal`), `SentinelScene` (a queda), `City2` (avisos, `drawShutter` do portão) |
+| `82_city2.js` | 1-3, a segunda metade: `Power` (poderes `P.power` laser/wings e `P.starT`; `give`/`lose`/`refill`; tiro da Nexy `press`/`shoot`, carga segurando F (`Input.held.shoot`, `touchHeld.shot`, `padHeld.shoot`); `drawBack` asas, `drawFront` canhão/estrela, `drawBolts`), `EnemyFire` (tiros ciano dos inimigos), entidades `powerup`, `drone`, `beam` (emissor: `left` com vida e `shootable`; `down` liga/desliga), `vent`, `sentinel`; `Sentinel` (`live` troca as regras do terminal por rodada, `answer`, `damage`, `roundOver`, `drawTerminal`), `SentinelScene` (a queda), `City2` (avisos, `drawShutter` do portão) |
 | `99_boot.js` | `window.NEXY` (API de teste) e `Game.boot()` |
 
 - Cenas: `Game.scene()` devolve a cena ativa (`Cine`, `Birth`, `Prologue`, `Glitch`, `Warp`, `PalaceSwitch`, `PalaceIntro`, `CompassScene`, `CityIntro`, `SentinelScene`, `Arrival`); todas têm `zoom`, `sat`, `letter`,
@@ -112,7 +115,7 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 - **Poço de palavras** `m` em c217 L32 (logo depois do altar 2): cada batida dá a próxima palavra que falta de
   THEY/ARE/SMALL/IT/IS (`content.reserve`). O SMALL fica no alto dos tubos do órgão; sem o poço, quem passava direto
   ficava preso nos gigantes (aconteceu com o dono).
-- Altar 2 tem `nudge`: depois de qualquer frase certa (até IT IS SMALL, que não tira os gigantes) e quando o Nexy
+- Altar 2 tem `nudge`: depois de qualquer frase certa (até IT IS SMALL, que não tira os gigantes) e quando a Nexy
   empurra os gigantes (`Sentence.bumped`, a cada 6 s), a Echo diz o que ainda bloqueia (1ª vez "They are big.", depois "Make them small!", ou "Something is here!" apontando o poço se faltar palavra;
   idem para a pedra). O dono achou que tinha travado ali.
 
@@ -152,7 +155,7 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   desafios de altura são todos de 5 linhas (160 px): nem o pulo correndo (154) alcança; a caixa ou a gárgula parada no
   ar viram o degrau. Palavra-mestra CITY (`c i t y`).
 - A Letreiro do HOTEL (0-44): ON c4, UNDER c7 (L16); altar1 `!` c13 "IT IS _ THE SIGN." Placa `=` c18-23 L15, caixa
-  box1 2×2 começa ON (c18-19, na ponta esquerda: a gárgula vem da direita e o Nexy sobe pela outra ponta) → UNDER
+  box1 2×2 começa ON (c18-19, na ponta esquerda: a gárgula vem da direita e a Nexy sobe pela outra ponta) → UNDER
   (c20-21 L18-19). Prédio alto c25-44 L12. Gárgula `q` c27 L10. Letra C c21 L11. Checkpoint c30. Vida escondida `v` c35 L8.
 - B Outdoor (45-83): IN c46, BEHIND c52; altar2 `@` c49 "THE BOX IS _ THE HOLE.". Outdoor sólido c60-72 L9-17,
   corredor L18-19, BURACO c65-67 (3 colunas: com 2 dava para pular correndo com coyote). box2 3×2 começa ATRÁS do
@@ -180,16 +183,16 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   pulos de 2 colunas, andando). Checkpoint c296, sacadas c300 L8 / c306 L5 / c300 L2, vida `l` c307 L1, sacada solta
   c317-320 L6 (só planando do alto; vida c318 L2), drones c297 L4 e c312 L7.
 - H Arena (331-372) e saída: checkpoint c333, terminal `K` c335 ("WHERE IS THE CORE?" → IT IS _ THE SHIELD), poço `m`
-  c342 L12 (UNDER/BEHIND/NEXT TO que faltarem), LASER `8` c345, Sentinela `S` c353 L7 (acorda com o Nexy depois de
+  c342 L12 (UNDER/BEHIND/NEXT TO que faltarem), LASER `8` c345, Sentinela `S` c353 L7 (acorda com a Nexy depois de
   c338), portão `bossgate` c372-373 L9-15 (`look: 'shutter'`, afunda no fim da cena), saída `N` c392. Zona `boost`.
 - Sentinela (`SENTINEL` em `10_data.js`): rodadas UNDER → BEHIND → NEXT TO (`CORE_AT`), 8 de vida por rodada (tiro 1,
   carregado 3, pisão no casco 2, i-frames 0,3 s). Resposta certa: 6 s aberto e baixo (o núcleo na altura do tiro).
   Sem inglês: a cada 10 s de luta esquenta (aviso 1,2 s) e abre 2,6 s (vencer só assim leva ~1,5 min jogando perfeito).
   Morrer: ele dorme de novo, a rodada fica. Aberto, o casco deixa o tiro passar (senão o núcleo de trás ficava imune).
 - Poderes: tomar dano com poder = perde o poder (`P.hurt`), STAR ignora tudo e mata no toque (menos gigantes). Morreu ou
-  trocou de fase: `P.reset` zera. O poder sai do bloco, mostra o nome 0,9 s e vem até o Nexy (o bloco fica alto demais
+  trocou de fase: `P.reset` zera. O poder sai do bloco, mostra o nome 0,9 s e vem até a Nexy (o bloco fica alto demais
   para pegar parado). A Echo apresenta cada coisa uma vez (`Save.data.met.laser/wings/star/drone`, `City2.met*`).
-- Gárgula: `watched` = o Nexy de frente (±16 px); de costas e perto (8 colunas, 10 linhas) ela treme 0,35 s (ainda é
+- Gárgula: `watched` = a Nexy de frente (±16 px); de costas e perto (8 colunas, 10 linhas) ela treme 0,35 s (ainda é
   chão) e voa: primeiro até a altura da cabeça, depois reto. Longe ou a mais de 14 blocos de casa, volta ao poleiro.
   Pedra = `plat` e não machuca; pisão = pedra por 2 s + quique; giro quebra.
 - Mapa da cidade (`CITY.map`): leitura com karaokê (BETWEEN no Grimório) → Bússola nível 1; escalada de 3 perguntas
@@ -229,7 +232,7 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 - **Prólogo A Lei das Palavras** (pedido do dono: ensinar logo no início, sem chamar ninguém de burro): mostra, não
   explica; a regra em PT só aparece depois que o jogador usou SMALL. `PROLOGUE` em `10_data.js`. Lembranças: placa na
   escada-fantasma (1-1, `until: 'ghost'`), placa no altar 1 (1-2, `until: 'altar1'`; `Sentence.apply` marca o id da porta).
-- **Visual novo do Nexy: no jogo** (o dono pediu as mudanças depois de ver a folha
+- **Visual novo da Nexy: no jogo** (o dono pediu as mudanças depois de ver a folha
   https://claude.ai/artifact/9GzkEvZ2PrXqBoJZHtc7qR). `P.drawBody` → `P.drawLook` (pose a partir de vx/vy/walkPhase/
   crouch/held/kickT; `P.poseSpeed` força a pose no mapa e no cartão). Estágio = `NexyLook.stageFor(Save.data.cleared)`
   (rascunho → tinta depois da 1-1 → equipamento depois da 1-2 → núcleo depois da 1-3 → elmo depois do forte → fênix
@@ -238,7 +241,7 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   Uma versão **mais fiel à arte de referência** (armadura roxa de metal estilo robô, elmo de gato, núcleo, garras,
   botas grandes, asas de fênix) foi feita no commit `280a8da`; o dono pediu para **voltar ao visual anterior** (o
   rascunho que evolui, `726c683`) "até decidirmos melhor". Para retomar: `git show 280a8da:src/62_nexy_look.js`.
-  O rastro da corrida é a sombra do próprio Nexy. Blender: o dono seguiu o conselho de manter o desenho em código.
+  O rastro da corrida é a sombra da própria Nexy. Blender: o dono seguiu o conselho de manter o desenho em código.
 - **Segredo da 1-1** (pedido do dono, "como no Donkey Kong"; só ele e quem ele contar devem saber, por isso o README
   não explica): o **TREM DE RASTEJANTES** logo no começo (entidade `conga`, `4 5 6` em c21/24/27, no lugar do
   Rastejante solitário de c29): três em fila no mesmo caminho (c20-30, 40 px/s, 112 px de distância, posição pelo

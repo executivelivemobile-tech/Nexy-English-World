@@ -89,7 +89,7 @@ const SFX = {
   boxLand() { const t = AudioSys.t; tone('sine', 110, t, 0.3, 0.4, { to: 46 }); tone('triangle', 660, t, 0.25, 0.05, { verb: true }); noise(t, 0.12, 0.14, { type: 'lowpass', freq: 900 }); },
   // o "bug" de propósito: estalos digitais e chiado
   glitch() { const t = AudioSys.t; for (let i = 0; i < 7; i++) tone('square', 80 + Math.random() * 900, t + i * 0.045, 0.04, 0.05, { filter: { freq: 2600 } }); noise(t, 0.35, 0.12, { type: 'bandpass', freq: 3200, q: 0.8 }); },
-  // 1-3: o laser do Nexy (comum e carregado), a estrela, os tiros e a mira dos drones, o feixe ligando, o núcleo do chefe
+  // 1-3: o laser da Nexy (comum e carregado), a estrela, os tiros e a mira dos drones, o feixe ligando, o núcleo do chefe
   laser() { const t = AudioSys.t; tone('square', 1900, t, 0.09, 0.035, { to: 700, filter: { freq: 4200 } }); tone('sine', 1200, t, 0.08, 0.05, { to: 2200 }); },
   blast() { const t = AudioSys.t; tone('sawtooth', 900, t, 0.35, 0.08, { to: 140, filter: { freq: 2600 } }); tone('sine', 180, t, 0.3, 0.3, { to: 60 }); noise(t, 0.25, 0.14, { type: 'bandpass', freq: 1800, to: 500, q: 0.8 }); },
   charged() { const t = AudioSys.t; for (const [f, d] of [[1320, 0], [1980, 0.06], [2640, 0.12]]) tone('sine', f, t + d, 0.18, 0.04, { verb: true }); },

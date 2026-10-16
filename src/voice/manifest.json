@@ -3950,10 +3950,34 @@
    ],
    "from": "echo-5"
   },
-  "echo:because he is afraid": {
-   "file": "echo/because-he-is-afraid.mp3",
-   "text": "Because he is afraid.",
-   "dur": 1.92,
+  "echo:because she is afraid": {
+   "file": "echo/because-she-is-afraid.mp3",
+   "text": "Because she is afraid.",
+   "dur": 1.61,
+   "b": [
+    [
+     0,
+     0.35
+    ],
+    [
+     8,
+     0.51
+    ],
+    [
+     12,
+     0.75
+    ],
+    [
+     15,
+     0.91
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:because she learns words": {
+   "file": "echo/because-she-learns-words.mp3",
+   "text": "Because she learns words.",
+   "dur": 1.8,
    "b": [
     [
      0,
@@ -3961,42 +3985,18 @@
     ],
     [
      8,
-     0.52
+     0.44
     ],
     [
-     11,
-     0.92
+     12,
+     0.68
     ],
     [
-     14,
+     19,
      1.08
     ]
    ],
    "from": "echo-1"
-  },
-  "echo:because he learns words": {
-   "file": "echo/because-he-learns-words.mp3",
-   "text": "Because he learns words.",
-   "dur": 2.18,
-   "b": [
-    [
-     0,
-     0.08
-    ],
-    [
-     8,
-     0.48
-    ],
-    [
-     11,
-     0.72
-    ],
-    [
-     18,
-     1.2
-    ]
-   ],
-   "from": "echo-2"
   },
   "echo:because the city is dark": {
    "file": "echo/because-the-city-is-dark.mp3",
@@ -4450,66 +4450,6 @@
    ],
    "from": "echo-4"
   },
-  "echo:he is afraid": {
-   "file": "echo/he-is-afraid.mp3",
-   "text": "He is afraid.",
-   "dur": 1.28,
-   "b": [
-    [
-     0,
-     0.12
-    ],
-    [
-     3,
-     0.36
-    ],
-    [
-     6,
-     0.52
-    ]
-   ],
-   "from": "echo-1"
-  },
-  "echo:he was afraid": {
-   "file": "echo/he-was-afraid.mp3",
-   "text": "He was afraid.",
-   "dur": 1.49,
-   "b": [
-    [
-     0,
-     0.09
-    ],
-    [
-     3,
-     0.33
-    ],
-    [
-     7,
-     0.81
-    ]
-   ],
-   "from": "echo-1"
-  },
-  "echo:he was big": {
-   "file": "echo/he-was-big.mp3",
-   "text": "He was big.",
-   "dur": 1.33,
-   "b": [
-    [
-     0,
-     0.09
-    ],
-    [
-     3,
-     0.33
-    ],
-    [
-     7,
-     0.73
-    ]
-   ],
-   "from": "echo-1"
-  },
   "echo:heart of words": {
    "file": "echo/heart-of-words.mp3",
    "text": "Heart of words",
@@ -4606,17 +4546,17 @@
    ],
    "from": "echo-1"
   },
-  "echo:him": {
-   "file": "echo/him.mp3",
-   "text": "him",
-   "dur": 0.73,
+  "echo:her": {
+   "file": "echo/her.mp3",
+   "text": "her",
+   "dur": 0.49,
    "b": [
     [
      0,
-     0.46
+     0.06
     ]
    ],
-   "from": "echo-5"
+   "from": "echo-1"
   },
   "echo:hole": {
    "file": "echo/hole.mp3",
@@ -5770,25 +5710,25 @@
    ],
    "from": "echo-3"
   },
-  "echo:nexy is he": {
-   "file": "echo/nexy-is-he.mp3",
-   "text": "Nexy is he!",
-   "dur": 1.38,
+  "echo:nexy is she": {
+   "file": "echo/nexy-is-she.mp3",
+   "text": "Nexy is she!",
+   "dur": 1.54,
    "b": [
     [
      0,
-     0.07
+     0.04
     ],
     [
      5,
-     0.56
+     0.6
     ],
     [
      8,
-     0.72
+     0.84
     ]
    ],
-   "from": "echo-2"
+   "from": "echo-1"
   },
   "echo:nexy not were": {
    "file": "echo/nexy-not-were.mp3",
@@ -5822,30 +5762,6 @@
    ],
    "from": "echo-3"
   },
-  "echo:no he is not": {
-   "file": "echo/no-he-is-not.mp3",
-   "text": "No, he is not.",
-   "dur": 1.55,
-   "b": [
-    [
-     0,
-     0.17
-    ],
-    [
-     4,
-     0.65
-    ],
-    [
-     7,
-     0.81
-    ],
-    [
-     10,
-     1.21
-    ]
-   ],
-   "from": "echo-2"
-  },
   "echo:no it is not": {
    "file": "echo/no-it-is-not.mp3",
    "text": "No, it is not.",
@@ -5869,6 +5785,30 @@
     ]
    ],
    "from": "echo-2"
+  },
+  "echo:no she is not": {
+   "file": "echo/no-she-is-not.mp3",
+   "text": "No, she is not.",
+   "dur": 1.45,
+   "b": [
+    [
+     0,
+     0.09
+    ],
+    [
+     4,
+     0.57
+    ],
+    [
+     8,
+     0.81
+    ],
+    [
+     11,
+     0.97
+    ]
+   ],
+   "from": "echo-1"
   },
   "echo:nobody": {
    "file": "echo/nobody.mp3",
@@ -6278,6 +6218,66 @@
     [
      0,
      0.16
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:she is afraid": {
+   "file": "echo/she-is-afraid.mp3",
+   "text": "She is afraid.",
+   "dur": 1.6,
+   "b": [
+    [
+     0,
+     0.13
+    ],
+    [
+     4,
+     0.32
+    ],
+    [
+     7,
+     0.48
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:she was afraid": {
+   "file": "echo/she-was-afraid.mp3",
+   "text": "She was afraid.",
+   "dur": 1.57,
+   "b": [
+    [
+     0,
+     0.12
+    ],
+    [
+     4,
+     0.29
+    ],
+    [
+     8,
+     0.53
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:she was big": {
+   "file": "echo/she-was-big.mp3",
+   "text": "She was big.",
+   "dur": 1.57,
+   "b": [
+    [
+     0,
+     0.29
+    ],
+    [
+     4,
+     0.49
+    ],
+    [
+     8,
+     0.73
     ]
    ],
    "from": "echo-1"
@@ -7306,26 +7306,6 @@
    ],
    "from": "echo-3"
   },
-  "echo:yes he is": {
-   "file": "echo/yes-he-is.mp3",
-   "text": "Yes, he is.",
-   "dur": 1.33,
-   "b": [
-    [
-     0,
-     0.42
-    ],
-    [
-     5,
-     0.57
-    ],
-    [
-     8,
-     0.81
-    ]
-   ],
-   "from": "echo-2"
-  },
   "echo:yes it is": {
    "file": "echo/yes-it-is.mp3",
    "text": "Yes, it is.",
@@ -7345,6 +7325,26 @@
     ]
    ],
    "from": "echo-2"
+  },
+  "echo:yes she is": {
+   "file": "echo/yes-she-is.mp3",
+   "text": "Yes, she is.",
+   "dur": 1.31,
+   "b": [
+    [
+     0,
+     0.07
+    ],
+    [
+     5,
+     0.55
+    ],
+    [
+     9,
+     0.79
+    ]
+   ],
+   "from": "echo-1"
   },
   "echo:yesterday": {
    "file": "echo/yesterday.mp3",
@@ -9274,102 +9274,102 @@
    ],
    "from": "story-1"
   },
-  "story:yesterday nexy was afraid of the dark today he is stronger than yesterday because every word he learns becomes a part of him": {
-   "file": "story/yesterday-nexy-was-afraid-of-the-dark-today-he-i.mp3",
-   "text": "Yesterday, Nexy was afraid of the dark. Today, he is stronger than yesterday, because every word he learns becomes a part of him.",
-   "dur": 11.59,
+  "story:yesterday nexy was afraid of the dark today she is stronger than yesterday because every word she learns becomes a part of her": {
+   "file": "story/yesterday-nexy-was-afraid-of-the-dark-today-she-.mp3",
+   "text": "Yesterday, Nexy was afraid of the dark. Today, she is stronger than yesterday, because every word she learns becomes a part of her.",
+   "dur": 10.62,
    "b": [
     [
      0,
-     0.14
+     0.22
     ],
     [
      11,
-     1.4
+     1.19
     ],
     [
      16,
-     2
+     1.7
     ],
     [
      20,
-     2.14
+     1.93
     ],
     [
      27,
-     2.77
+     2.52
     ],
     [
      30,
-     2.88
+     2.67
     ],
     [
      34,
-     3.03
+     2.81
     ],
     [
      40,
-     4.29
+     3.78
     ],
     [
      47,
-     5.4
+     4.59
     ],
     [
-     50,
-     5.55
+     51,
+     4.74
     ],
     [
-     53,
+     54,
+     5.04
+    ],
+    [
+     63,
+     5.63
+    ],
+    [
+     68,
      5.85
     ],
     [
-     62,
-     6.4
+     79,
+     6.74
     ],
     [
-     67,
-     6.59
+     87,
+     7.26
     ],
     [
-     78,
-     7.63
+     93,
+     7.7
     ],
     [
-     86,
-     8.22
+     98,
+     8.07
     ],
     [
-     92,
-     8.66
+     102,
+     8.3
     ],
     [
-     97,
-     9.03
-    ],
-    [
-     100,
-     9.18
-    ],
-    [
-     107,
-     10.07
-    ],
-    [
-     115,
-     10.66
+     109,
+     8.96
     ],
     [
      117,
-     10.81
+     9.56
     ],
     [
-     122,
-     11.11
+     119,
+     9.78
     ],
     [
-     125,
-     11.26
+     124,
+     10.07
+    ],
+    [
+     127,
+     10.22
     ]
    ],
    "from": "story-1"
