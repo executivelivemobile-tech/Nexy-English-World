@@ -240,12 +240,18 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   rascunho que evolui, `726c683`) "até decidirmos melhor". Para retomar: `git show 280a8da:src/62_nexy_look.js`.
   O rastro da corrida é a sombra do próprio Nexy. Blender: o dono seguiu o conselho de manter o desenho em código.
 - **Segredo da 1-1** (pedido do dono, "como no Donkey Kong"; só ele e quem ele contar devem saber, por isso o README
-  não explica): tijolo `j` (kind `glitch`) INVISÍVEL em c103 **L15** (na altura do pulo), colado na torre da porta 2,
-  logo depois da porta (checkpoint c104). Pular embaixo dele (a cabeça bate, como os blocos escondidos do Mario) ou
-  jogar o casco para cima acorda (`solidFor` para `player` e `shell`; pisca sozinho a cada ~6,5 s e no pulso da Echo)
-  → `Glitch` (falso erro TO BE NOT FOUND) → WARP CARD (`Game.card`, por partida). Antes ficava em L12 e só o
-  casco-guarda J (segurar corrida, encostar na torre, ↑ e soltar) alcançava: o dono achou impossível (no toque nem há ↑)
-  e pediu para simplificar; o caminho do casco continua valendo.
+  não explica): o **TREM DE RASTEJANTES** logo no começo (entidade `conga`, `4 5 6` em c21/24/27, no lugar do
+  Rastejante solitário de c29): três em fila no mesmo caminho (c20-30, 40 px/s, 112 px de distância, posição pelo
+  relógio da simulação: `Conga.tri/pos`). Em fila não mordem, só empurram (`P.enemyContacts`); o pisão amassa e eles
+  voltam (`summon`). Indo para a direita com os três na mesma perna (`Conga.state().on`, ~1,75 s a cada ~14,7 s) o
+  **MURAL** do fundo (`7` em c19 L5: três Rastejantes, arcos 1x/2x/3x, seta até o tijolo; "TOGETHER"/"NOW!") acende.
+  Pisão no de trás, no do meio e no da frente segurando o pulo: o 3º quique bate a cabeça no tijolo `j` (kind
+  `glitch`) INVISÍVEL em **c28 L3** (o 2º quique para ~36 px abaixo) → `Glitch` (falso erro TO BE NOT FOUND) → WARP
+  CARD (`Game.card`, por partida). Comece em c19 (de c18 o bloco HELLO corta o pulo). Histórico: o tijolo ficava em
+  c103 L12 (só casco jogado para cima alcançava; no toque nem há ↑), o dono achou impossível e pediu algo que exigisse
+  atenção. **CARTÃO DOURADO**: terminar a 1-1 com pontuação máxima (`Game.perfectRun`: todas as palavras, letras,
+  criaturas e segredos menos o do cartão) grava `Save.data.goldCard`; daí em diante `loadLevel('1-1')` começa com o
+  cartão (aviso na tela de fim, fala `ECHO.lines.goldCard`, Grimório GOLD CARD).
   TO BE ENGINE `T` em c136 (corredor 2): sem cartão a Echo diz "It is a machine. It needs a card."; com cartão:
   tabela (HE = Nexy, SHE = Echo, palavras novas), as 7 ligações (errar não zera mais: a errada vai para o fim da fila), escalada de
   4 frases (A2 → B1) que sobe o nível do tiro. Teletransporte (`Warp`): IS/ARE da barra viram combustível, praça

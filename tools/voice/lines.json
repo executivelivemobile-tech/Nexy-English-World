@@ -76,6 +76,11 @@
  },
  {
   "who": "echo",
+  "text": "A gold card! It is yours now.",
+  "prompt": "A gold card! It is yours now."
+ },
+ {
+  "who": "echo",
   "text": "I can see the past!",
   "prompt": "I can see the past!"
  },
@@ -788,6 +793,11 @@
   "who": "echo",
   "text": "Warp card",
   "prompt": "Warp card."
+ },
+ {
+  "who": "echo",
+  "text": "Gold card",
+  "prompt": "Gold card."
  },
  {
   "who": "echo",

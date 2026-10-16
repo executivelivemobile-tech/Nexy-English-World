@@ -416,36 +416,61 @@ test('lembranças da lei: placa na escada-fantasma (1-1) e no primeiro altar (1-
   expect(r.h12 && r.altarDone, `1-2: placa WHAT YOU SAY IS TRUE some com IT IS BIG (${JSON.stringify(r)})`);
 });
 
-test('1-1 segredo: o tijolo invisível na altura do pulo, colado na torre da porta 2: a cabeça (pulo embaixo) acorda; o casco jogado para cima também; o "erro" solta o WARP CARD', async ({ page }) => {
+test('1-1 segredo: o trem de Rastejantes empurra sem machucar; quando o mural acende, o pisão triplo (pulos de verdade) bate no tijolo lá no alto e cai o WARP CARD; o duplo não alcança', async ({ page }) => {
   const r = await page.evaluate(() => {
     const P = NEXY.P, G = NEXY.Game, W = NEXY.World, E = NEXY.Ents, out = {};
-    H.noEnemies();
-    let b = W.blockAt(103, 15); out.hidden = b && b.kind === 'glitch' && b.state === 'hidden';
-    // o pulso da Echo só faz piscar (nenhuma fala: ela não o vê)
-    H.tp(103, 19, 999); H.step(80); Echo.line = null; EchoPulse.cool = 0; EchoPulse.fire(); out.flick = b.flick > 0 && !Echo.line && b.state === 'hidden';
-    // pulo de verdade embaixo dele: a cabeça bate e a tela "dá erro"
-    H.set([]); H.step(10); H.set(['jump']); H.press('jump');
-    for (let i = 0; i < 60; i++) { H.step(1); if (Glitch.active) break; } H.set([]);
-    out.head = Glitch.active && G.state === 'cinematic';
+    G.timers = []; Echo.line = null; Echo.lines = [];
+    const b = W.blockAt(28, 3); out.hidden = b && b.kind === 'glitch' && b.state === 'hidden';
+    H.wakeSpawns(); H.tp(19, 19, 0); H.step(10); out.cars = Conga.cars().length;
+    // encostar no trem só empurra
+    const c0 = Conga.cars()[0]; P.invuln = 0; P.x = c0.x - P.w - 1; P.y = 20 * 32 - P.h; P.px = P.x; P.py = P.y; P.vx = 120; H.set(['right']); H.step(6); H.set([]);
+    out.push = !P.dead && P.invuln <= 0 && P.x + P.w <= c0.x + 1; H.tp(19, 19, 999); H.step(5);
+    // pisões seguidos segurando o pulo: o de trás, o do meio, o da frente; depois para o tijolo
+    const run = (order) => {
+      let n = 0; while (Conga.state(G.simTime).on && n++ < 2000) H.step(1);
+      n = 0; while (!Conga.state(G.simTime).on && n++ < 2000) H.step(1);
+      let stomps = 0, minHead2 = 1e9; H.set(['jump']); H.press('jump');
+      for (let f = 0; f < 600; f++) {
+        const tgt = Conga.cars().find(c => c.opts.i === order[stomps]), keys = ['jump'];
+        const tx = stomps < order.length && tgt ? tgt.x + tgt.w / 2 : 28 * 32 + 16, dx = tx - P.cx;
+        if (dx > 5) keys.push('right'); else if (dx < -5) keys.push('left');
+        H.set(keys); H.step(1); if (stomps === 2) minHead2 = Math.min(minHead2, P.y);
+        if (P.combo > stomps) stomps = P.combo;
+        if (Glitch.active || (P.onGround && f > 10)) break;
+      }
+      H.set([]); return { stomps, glitch: Glitch.active, minHead2: Math.round(minHead2) };
+    };
+    out.three = run([2, 1, 0]);
+    // no 2º quique a cabeça não chega no tijolo (fundo dele em y = 128); só o 3º
+    out.twoMiss = out.three.minHead2 > 4 * 32 + 20;
+    out.glitch = out.three.glitch && G.state === 'cinematic';
     let n = 0; while (Glitch.active && n++ < 300) Glitch.update(1 / 60);
     out.used = b.state === 'used' && G.secrets.has('glitch') && G.state === 'play';
-    H.step(100); out.card = G.card && !E.list.some(e => e.type === 'card'); out.line = Echo.line && Echo.line.en;
-    // o caminho antigo continua: o casco-guarda, levado até a torre e jogado para cima
-    G.loadLevel('1-1'); G.echoBorn = true; Echo.hidden = false; G.timers = []; b = W.blockAt(103, 15);
-    H.wakeSpawns(); H.tp(105, 19, 999); H.step(10);
-    const ca = E.list.find(e => e.type === 'casco'); Ents.types.casco.toShell(ca); H.step(5);
-    P.x = ca.x - 24; P.y = ca.y + ca.h - P.h; P.facing = 1; H.set(['run', 'right']); for (let i = 0; i < 40; i++) { H.step(1); if (ca.state === 'held') break; }
-    H.set(['run', 'left']); for (let i = 0; i < 160; i++) { H.step(1); if (P.x <= 101 * 32 + 66) break; }
-    H.set(['run']); H.step(20); out.flush = Math.round(P.x) === 103 * 32;
-    H.set(['run', 'up']); H.step(2); H.set(['up']); H.step(1);
-    for (let i = 0; i < 90; i++) { H.step(1); if (Glitch.active) break; }
-    out.shell = Glitch.active && Glitch.shell === ca;
-    n = 0; while (Glitch.active && n++ < 300) Glitch.update(1 / 60); H.set([]);
+    H.set([]); for (let i = 0; i < 240 && !G.card; i++) H.step(1);
+    out.card = G.card && !E.list.some(e => e.type === 'card'); out.line = Echo.line && Echo.line.en;
     return out;
   });
-  expect(r.hidden && r.flick, `tijolo invisível na linha 15; o pulso só pisca (${JSON.stringify(r)})`);
-  expect(r.head && r.used && r.card && r.line === 'What is it?', `pulo embaixo: a cabeça acorda, conta como segredo e o cartão cai na mão (${JSON.stringify(r)})`);
-  expect(r.flush && r.shell, `o casco jogado para cima também acorda (${JSON.stringify(r)})`);
+  expect(r.hidden && r.cars === 3 && r.push, `o trem: 3 Rastejantes que só empurram (${JSON.stringify(r)})`);
+  expect(r.twoMiss, `o 2º quique não alcança o tijolo (${JSON.stringify(r.three)})`);
+  expect(r.three.stomps === 3 && r.glitch && r.used, `o pisão triplo bate no tijolo e a tela "dá erro" (${JSON.stringify(r)})`);
+  expect(r.card && r.line === 'What is it?', `o cartão cai e o Nexy pega (${JSON.stringify(r)})`);
+});
+
+test('1-1 cartão dourado: terminar com pontuação máxima (sem precisar do segredo do cartão) dá o GOLD CARD; daí em diante a 1-1 começa com o cartão', async ({ page }) => {
+  const r = await page.evaluate(() => {
+    const G = NEXY.Game, W = NEXY.World, S = NEXY.Save.data, out = {};
+    S.goldCard = false;
+    const fill = () => { const T = W.totals; T.wordList.forEach(w => G.wordsSeen.add(w)); G.letters = G.letters.map(() => true); T.creatureList.forEach(c => G.creatures.add(c));
+      let k = 0; while (G.secrets.size < T.secrets - 1) G.secrets.add('s' + k++); };
+    fill(); G.wordsSeen.delete('HELLO'); out.notYet = G.perfectRun();
+    fill(); out.perfect = G.perfectRun();
+    G.finish('normal', 0); out.gold = S.goldCard && G.goldNew;
+    G.loadLevel('1-1'); out.card = G.card;
+    S.goldCard = false; G.loadLevel('1-1'); out.noCard = !G.card;
+    return out;
+  });
+  expect(!r.notYet && r.perfect, `pontuação máxima = tudo menos o cartão (${JSON.stringify(r)})`);
+  expect(r.gold && r.card && r.noCard, `o cartão dourado fica salvo e a fase começa com ele (${JSON.stringify(r)})`);
 });
 
 test('1-1 TO BE ENGINE: sem cartão não liga; as 7 ligações (errar não zera: a errada volta no fim); escalada dá o tiro; teletransporte com vidas cheias', async ({ page }) => {

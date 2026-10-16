@@ -1,10 +1,13 @@
 
 /* ============================== 1-1 · O SEGREDO (pedido do dono, "como no Donkey Kong") ==============================
-   1. Um tijolo INVISÍVEL colado na torre da porta 2 (c103, linha 15), na altura do pulo, logo depois da porta. De vez em
-      quando (e no pulso da Echo) ele pisca como um pixel com defeito. Pular embaixo dele (a cabeça bate) ou jogar um
-      casco para cima (↑ ao soltar) acorda o tijolo. Antes ele ficava na linha 12 e só o casco alcançava: o dono achou
-      impossível (e no toque não há ↑), então pediu para simplificar.
+   1. O TREM DE RASTEJANTES, logo no começo (c20-30, antes da porta 1): três Rastejantes em fila, indo e voltando. Em fila
+      eles não mordem, só empurram (o iniciante não morre ali). Por um instante, indo para a direita, eles ficam em
+      sequência certinha: o MURAL no fundo acende (três Rastejantes, os arcos 1x, 2x e 3x e o tijolo lá em cima).
+      Pisão no último da fila, no do meio e no da frente, segurando o pulo: o 3º quique (≈ 16 blocos) bate a cabeça
+      num tijolo INVISÍVEL lá no alto (c28, linha 3). O 2º quique não chega. Pedido do dono: antes o tijolo ficava na
+      torre da porta 2 e só um casco jogado para cima alcançava; ele achou impossível e quis algo que exige atenção.
    2. O tijolo trava, a tela "dá pau" (falso erro: TO BE NOT FOUND) e o mundo reinicia: cai o WARP CARD.
+      Quem termina a 1-1 com pontuação máxima ganha o CARTÃO DOURADO: daí em diante a 1-1 já começa com o cartão.
    3. A TO BE ENGINE, no fim do corredor 2, todo mundo vê e ninguém liga sem o cartão. Com ele: a tabela inteira do TO BE
       (HE = o Nexy, SHE = a Echo), as 7 ligações (errar não zera: a errada volta no fim da fila) e a escalada acima do A1.
    4. Ligada, ela teletransporta o Nexy para a praça final com as vidas cheias, e a Echo ganha o TIRO (fica salvo).
@@ -409,6 +412,90 @@ const Warp = {
     if (this.flash > 0) { ctx.fillStyle = `rgba(255,255,255,${Math.min(1, this.flash)})`; ctx.fillRect(0, 0, CFG.VIEW_W, CFG.VIEW_H); }
   },
 };
+
+/* ---------- o TREM DE RASTEJANTES e o MURAL (o caminho até o cartão) ----------
+   Os três andam no mesmo caminho (vai e volta entre xa e xb), um atrás do outro com 'gap' de distância: quando a frente
+   vira, eles se embaralham; indo para a direita com os três na mesma perna, ficam em sequência (o mural acende).
+   A posição vem do relógio da simulação (como o trem da 1-3): o mesmo momento sempre se repete. */
+const Conga = {
+  xa: 20 * TS, xb: 30 * TS - 26, v: 40, gap: 112,
+  tri(t) {
+    const L = this.xb - this.xa, per = 2 * L / this.v, d = (((t % per) + per) % per) * this.v;
+    return d < L ? { x: this.xa + d, dir: 1 } : { x: this.xa + 2 * L - d, dir: -1 };
+  },
+  pos(i, t) { return this.tri(t - i * this.gap / this.v); },   // i = 0 é a frente; os outros seguem o mesmo caminho, atrasados
+  cars() { return Ents.list.filter(e => e.type === 'conga' && !e.dead && e.state === 'walk').sort((a, b) => a.opts.i - b.opts.i); },
+  // em sequência: os três vivos, indo para a direita, na mesma perna (k = 0..1 quanto do instante já passou; soon = quase)
+  state(t) {
+    const p = this.tri(t), need = this.xa + 2 * this.gap, all = this.cars().length === 3;
+    return { all, on: all && p.dir > 0 && p.x >= need, soon: all && p.dir > 0 && p.x >= need - 60 && p.x < need, k: clamp((p.x - need) / (this.xb - need), 0, 1) };
+  },
+};
+Ents.reg('conga', {
+  layer: 'enemy',
+  init(e) { e.w = 26; e.h = 24; e.enemy = true; e.kind = 'enemy'; e.state = 'walk'; e.creature = 'CRAWLER'; e.dir = 1; e.res = {}; e.dx = 0; e.dy = 0; e.bumpT = 0; this.place(e); },
+  place(e) { const p = Conga.pos(e.opts.i, Game.simTime); e.x = p.x; e.dir = p.dir; },
+  update(e, dt) {
+    if (e.state !== 'walk') return Ents.types.crawler.update(e, dt);   // amassado ou caindo: igual a um Rastejante
+    if (e.bumpT > 0) e.bumpT -= dt;
+    const ox = e.x; this.place(e); e.dx = e.x - ox;
+  },
+  draw(ctx, e, x, y) {
+    // a corda do trem: cada um segura o da frente (só quando estão em fila, perto um do outro)
+    if (e.state === 'walk' && e.opts.i > 0) {
+      const f = Conga.cars().find(o => o.opts.i === e.opts.i - 1), camX = e.x - x;
+      if (f && Math.abs(f.x - e.x) < Conga.gap + 8 && f.dir === e.dir) {
+        const ax = e.dir > 0 ? x + e.w - 2 : x + 2, bx = (e.dir > 0 ? f.x + 2 : f.x + f.w - 2) - camX, yy = y + e.h * 0.5;
+        ctx.beginPath(); ctx.moveTo(ax, yy); ctx.quadraticCurveTo((ax + bx) / 2, yy + 7 + Math.sin(e.t * 6) * 2, bx, yy);
+        ctx.strokeStyle = ca(0.35); ctx.lineWidth = 1.2; ctx.stroke();
+      }
+    }
+    Ents.types.crawler.draw(ctx, e, x, y);
+    // a frente do trem tem um farolzinho
+    if (e.state === 'walk' && e.opts.i === 0) { const hx = x + e.w / 2 + e.dir * 12; R.draw(R.glow('c', 14), hx, y + 6, 0.8, 0.6 + 0.3 * Math.sin(e.t * 8), true); }
+  },
+});
+// o mural no fundo: três Rastejantes em fila, os arcos 1x, 2x, 3x e o tijolo lá no alto. Fraco quase sempre; acende quando
+// o trem está em sequência (e pisca um instante antes). Só desenho.
+Ents.reg('mural', {
+  layer: 'back',
+  init(e) { e.x = e.c * TS; e.y = e.r * TS; e.w = 11 * TS; e.h = 6 * TS; e.glow = 0; },
+  update(e, dt) {
+    const s = Conga.state(Game.simTime);
+    e.lit = s.on; e.soon = s.soon;
+    e.glow = approach(e.glow, s.on ? 1 : s.soon ? 0.5 : 0, dt * 4);
+  },
+  draw(ctx, e, x, y) {
+    const t = e.t, g = e.glow, a = 0.22 + 0.7 * g + (e.soon && Math.floor(t * 8) % 2 ? 0.15 : 0), w = e.w, h = e.h;
+    ctx.save(); ctx.globalAlpha = a;
+    // a moldura do painel (um outdoor velho, pendurado no fundo)
+    rrect(ctx, x + 4, y + 4, w - 8, h - 8, 10); ctx.fillStyle = 'rgba(3,6,9,0.55)'; ctx.fill(); ctx.strokeStyle = ca(0.45); ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x + 40, y + h - 4); ctx.lineTo(x + 30, y + h + 40); ctx.moveTo(x + w - 40, y + h - 4); ctx.lineTo(x + w - 30, y + h + 40); ctx.strokeStyle = wa(0.12); ctx.stroke();
+    // o chão do desenho e os três Rastejantes em fila
+    // (x, y) do painel ↔ mundo: o 3º Rastejante e a seta ficam embaixo do tijolo de verdade (c28, linha 3)
+    const gy = y + h - 26, xs = [x + 136, x + 216, x + 296], bx = x + 28 * TS + TS / 2 - e.x, by = y + 3 * TS + 8 - e.y;
+    ctx.beginPath(); ctx.moveTo(x + 22, gy + 8); ctx.lineTo(x + w - 22, gy + 8); ctx.strokeStyle = ca(0.3); ctx.stroke();
+    for (const cx of xs) {
+      ctx.beginPath(); ctx.moveTo(cx - 11, gy + 7); ctx.lineTo(cx - 12, gy - 1); ctx.lineTo(cx - 6, gy - 7); ctx.lineTo(cx, gy - 10); ctx.lineTo(cx + 6, gy - 7); ctx.lineTo(cx + 12, gy - 1); ctx.lineTo(cx + 11, gy + 7); ctx.closePath();
+      ctx.fillStyle = '#05070a'; ctx.fill(); ctx.strokeStyle = ca(0.8); ctx.lineWidth = 1.2; ctx.stroke();
+    }
+    // os arcos dos quiques (pontilhados, magenta = o Nexy) e o 3º subindo até o tijolo
+    ctx.setLineDash([4, 4]); ctx.lineDashOffset = -t * 20; ctx.strokeStyle = 'rgba(240,171,252,0.95)'; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.moveTo(xs[0] - 40, gy - 4); ctx.quadraticCurveTo(xs[0] - 20, gy - 40, xs[0], gy - 12); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(xs[0], gy - 12); ctx.quadraticCurveTo((xs[0] + xs[1]) / 2, gy - 70, xs[1], gy - 12); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(xs[1], gy - 12); ctx.quadraticCurveTo((xs[1] + xs[2]) / 2, gy - 104, xs[2], gy - 12); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(xs[2], gy - 12); ctx.lineTo(bx, by + 22); ctx.stroke();
+    ctx.setLineDash([]);
+    for (const [i, cx] of xs.entries()) R.draw(R.text((i + 1) + 'x', '800 11px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(217,70,239,1)', 6), cx, gy - 26 - i * 18, 1, 1);
+    // a seta para cima e o "pixel com defeito" lá no alto (o tijolo de verdade fica acima do painel)
+    ctx.beginPath(); ctx.moveTo(bx - 6, by + 18); ctx.lineTo(bx, by + 10); ctx.lineTo(bx + 6, by + 18); ctx.strokeStyle = 'rgba(240,171,252,0.95)'; ctx.stroke();
+    ctx.fillStyle = 'rgba(217,70,239,0.7)'; ctx.fillRect(bx - 9, by, 18, 2); ctx.fillStyle = 'rgba(34,211,238,0.7)'; ctx.fillRect(bx - 11, by + 4 + Math.random() * 2, 22, 1.5);
+    // o letreiro: TOGETHER (juntos) quando acende
+    R.draw(R.text(e.lit ? 'NOW!' : 'TOGETHER', '800 12px Orbitron, Inter, sans-serif', '#ffffff', e.lit ? 'rgba(217,70,239,1)' : 'rgba(34,211,238,1)', 7), x + 70, y + 24, 1, 1);
+    ctx.restore();
+    if (g > 0.05) R.draw(R.glow('m', 64), x + w / 2, y + h / 2, w / 90, 0.25 * g, true);
+  },
+});
 
 /* ============================== O TIRO DA ECHO ==============================
    F (Y no controle, SHOT no toque): a Echo atira luz para onde o Nexy olha. O 1º tiro PARALISA (o inimigo vira cristal,

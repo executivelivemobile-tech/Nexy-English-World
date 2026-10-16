@@ -193,6 +193,12 @@ const P = {
       if (this.starT > 0 && e.type !== 'giant') { Enemy.kill(e, 'pop', sign(e.x + e.w / 2 - this.cx) || 1); SFX.crush(); Game.addOrbs(1); continue; }
       const falling = this.y - this.py > 0.01 || this.vy > 0;
       const above = this.py + this.h <= e.y + e.h * 0.5 + 3;
+      // o trem de Rastejantes (1-1): em fila eles não mordem, só empurram (o pisão vale)
+      if (e.type === 'conga' && !(falling && above)) {
+        const left = this.cx < e.x + e.w / 2; this.x = left ? e.x - this.w : e.x + e.w; this.vx = left ? Math.min(this.vx, -60) : Math.max(this.vx, 60);
+        if (e.bumpT <= 0) { e.bumpT = 0.4; SFX.thud(); }
+        continue;
+      }
       // gigantes: fecham a passagem (empurram, não machucam)
       if (e.type === 'giant') {
         if (falling && above) { this.y = e.y - this.h; this.bounce(false); SFX.thud(); }
@@ -231,7 +237,7 @@ const P = {
     this.combo++;
     if (spin) Enemy.kill(e, 'pop', this.facing);
     else if (e.type === 'flyer') Ents.types.flyer.clip(e);
-    else if (e.type === 'crawler' || e.type === 'thief') Enemy.kill(e, 'flat');
+    else if (e.type === 'crawler' || e.type === 'thief' || e.type === 'conga') Enemy.kill(e, 'flat');
     else if (e.type === 'knight') Ents.types.knight.clang(e);   // o elmo só tine: com giro a armadura se desfaz
     else if (e.type === 'gargoyle') Ents.types.gargoyle.stun(e);   // vira pedra por 2 s: com giro ela quebra
     else if (e.type === 'drone') Enemy.kill(e, 'pop', this.facing);   // o drone cai com qualquer pisão

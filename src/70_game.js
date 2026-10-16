@@ -415,8 +415,10 @@ const UI = {
       const cp = S.heart.compass | 0, C = CITY.compass[Math.max(0, cp - 1)];
       card(C.name, cp ? C.pt : '', cp ? 'POWER · LEVEL ' + cp + ' OF ' + CITY.compass.length : 'LOCKED · WORLD 1-3',
         cp ? 'Nasceu no mapa da cidade. A seta magenta em volta do Nexy aponta o que falta encontrar. ' + CITY.compass.slice(0, cp).map(x => x.info).join(' ') : '', 'Compass of words', !cp, false, P0);
-      card('WARP CARD', G.words.CARD ? 'cartão de teletransporte' : '', G.words.CARD ? 'ITEM · ONE RUN' : 'LOCKED · ???',
-        G.words.CARD ? 'Liga a TO BE ENGINE: quem sabe o verbo TO BE inteiro viaja até o fim da fase com as vidas cheias. Vale só na partida em que você o encontrou.' : '', 'Warp card', !G.words.CARD, false, { plain: true, locked: 'Dizem que existe. Ninguém sabe onde.' });
+      const gold = S.goldCard, anyCard = gold || G.words.CARD;
+      card(gold ? 'GOLD CARD' : 'WARP CARD', anyCard ? (gold ? 'cartão dourado' : 'cartão de teletransporte') : '', gold ? 'ITEM · FOREVER' : anyCard ? 'ITEM · ONE RUN' : 'LOCKED · ???',
+        anyCard ? 'Liga a TO BE ENGINE: quem sabe o verbo TO BE inteiro viaja até o fim da fase com as vidas cheias. ' + (gold ? 'Dourado: ganho com a pontuação máxima na 1-1, agora a fase sempre começa com ele.' : 'Vale só na partida em que você o encontrou. Terminar a 1-1 com pontuação máxima dá o cartão dourado, que fica para sempre.') : '',
+        gold ? 'Gold card' : 'Warp card', !anyCard, false, { plain: true, locked: 'Dizem que existe. Ninguém sabe onde. (Ou termine a 1-1 com pontuação máxima.)' });
     } else {
       card('ECHO', ECHO.pt, 'COMPANION · ALWAYS WITH YOU', ECHO.lore, ECHO.say, false, true);
       for (const k of Object.keys(CREATURES)) { const c = CREATURES[k]; card(k, c.pt, G.creatures[k] ? 'CREATURE · WORLD 1' : 'UNKNOWN', c.lore, c.say, !G.creatures[k]); }
@@ -456,6 +458,7 @@ const UI = {
       const p = document.createElement('span'); p.className = 'p'; p.textContent = pt;
       d.append(b, a, p); box.appendChild(d);
     };
+    if (g.goldNew) chip('GOLD CARD', 'cartão dourado · pontuação máxima: a 1-1 já começa com o cartão', 'Gold card', true);
     if (all) chip(mw, 'palavra-mestra · ' + MASTER_WORDS[mw].pt, MASTER_WORDS[mw].say, true);
     for (const w of g.learnedOrder) chip(w, WORDS[w].pt, WORDS[w].say, false);
     if (!g.learnedOrder.length) { const n = document.createElement('div'); n.className = 'p'; n.textContent = '—'; box.appendChild(n); }
@@ -516,7 +519,7 @@ const Game = {
     if (typeof Palace !== 'undefined') { PalaceIntro.active = false; PalaceSwitch.active = false; Palace.reset(); }
     if (typeof City !== 'undefined') { CityIntro.active = false; CompassScene.active = false; City.reset(); }
     if (typeof City2 !== 'undefined') City2.reset();
-    this.card = false;
+    this.card = false; this.goldNew = false;
   },
   // tamanho da barra de palavras: cresce nas fases com mais vocabulário (LEVELS[id].barMax)
   barMax() { return (World.level && World.level.barMax) || CFG.WORD_BAR_MAX; },
@@ -527,6 +530,7 @@ const Game = {
   loadLevel(id) {
     this.newRun(LEVELS[id].masterWord); NexyLook.stage = NexyLook.stageFor(Save.data.cleared);
     World.load(LEVELS[id]); Ents.clear(); FX.list = [];
+    this.card = id === '1-1' && Save.data.goldCard;   // o CARTÃO DOURADO (pontuação máxima na 1-1): já começa com ele
     for (const s of World.statics) {
       const o = { c: s.c, r: s.r, opts: s.opts };
       if (s.type === 'letter') o.index = s.opts.index;
@@ -802,6 +806,12 @@ const Game = {
     if (!free) this.orbs -= CFG.HINT_COST;
     d.hint = true; SFX.ui(); UI.msg(PHRASES_PT[d.def.inscription] || '', 2400);
   },
+  // tudo encontrado nesta partida (o segredo do cartão não conta: ele é o prêmio de quem não achou)
+  perfectRun() {
+    const T = World.totals, glitch = [...World.blocks.values()].some(b => b.kind === 'glitch');
+    const secrets = [...this.secrets].filter(s => s !== 'glitch').length;
+    return T.wordList.every(w => this.wordsSeen.has(w)) && this.letters.every(Boolean) && T.creatureList.every(c => this.creatures.has(c)) && secrets >= T.secrets - (glitch ? 1 : 0);
+  },
   foundSecret(id) { if (this.secrets.has(id)) return; this.secrets.add(id); UI.msg('SECRET FOUND'); },
   registerCreature(name) {
     if (this.creatures.has(name)) return false;
@@ -856,6 +866,11 @@ const Game = {
     const total = T.words + T.letters + T.exits + T.secrets + T.creatures;
     this.fluencyFound = found; this.fluencyTotal = total; this.fluency = Math.round(found / total * 100);
     S.bestFluency[id] = Math.max(S.bestFluency[id] || 0, this.fluency);
+    // pontuação máxima na 1-1 (todas as palavras, letras, criaturas e segredos; o cartão em si não precisa): o CARTÃO DOURADO
+    if (id === '1-1' && !S.goldCard && this.perfectRun()) {
+      S.goldCard = true; this.goldNew = true;
+      setTimeout(() => { UI.msg('GOLD CARD', 2600); Voice.say(ECHO.lines.goldCard[0].en, 'echo'); }, 4600);
+    }
     Save.write();
     setTimeout(() => { if (all) Voice.say(MASTER_WORDS[mw].say + '!', 'echo'); }, 2600);
     if (id === '1-1' && this.echoBorn) this.later(0.4, () => Echo.talk(ECHO.lines.teaser));

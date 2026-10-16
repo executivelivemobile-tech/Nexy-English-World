@@ -93,7 +93,7 @@ function build() {
   // a porta repete palavra por palavra as frases que não foram gravadas: as partes de IN FRONT OF e NEXT TO
   for (const w of ['front', 'of', 'next', 'to']) add('door', w, w + '.');
   // Grimório → PODERES: o botão de ouvir
-  for (const p of ['Echo pulse', 'Echo shot', 'Voice mode', 'Heart of words', 'To be ring', 'Warp card', 'Compass of words']) add('echo', p, alone(p));
+  for (const p of ['Echo pulse', 'Echo shot', 'Voice mode', 'Heart of words', 'To be ring', 'Warp card', 'Gold card', 'Compass of words']) add('echo', p, alone(p));
 
   /* ---------------- portas, altares, baú ---------------- */
   for (const id in LEVELS) {

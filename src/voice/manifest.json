@@ -3718,6 +3718,42 @@
    ],
    "from": "echo-1"
   },
+  "echo:a gold card it is yours now": {
+   "file": "echo/a-gold-card-it-is-yours-now.mp3",
+   "text": "A gold card! It is yours now.",
+   "dur": 4.03,
+   "b": [
+    [
+     0,
+     0.16
+    ],
+    [
+     2,
+     0.32
+    ],
+    [
+     7,
+     0.96
+    ],
+    [
+     13,
+     1.68
+    ],
+    [
+     16,
+     1.84
+    ],
+    [
+     19,
+     2.08
+    ],
+    [
+     25,
+     2.48
+    ]
+   ],
+   "from": "echo-1"
+  },
   "echo:a hole has no behind": {
    "file": "echo/a-hole-has-no-behind.mp3",
    "text": "A hole has no behind!",
@@ -4373,6 +4409,22 @@
     ]
    ],
    "from": "echo-2"
+  },
+  "echo:gold card": {
+   "file": "echo/gold-card.mp3",
+   "text": "Gold card",
+   "dur": 1.73,
+   "b": [
+    [
+     0,
+     0.81
+    ],
+    [
+     5,
+     1.13
+    ]
+   ],
+   "from": "echo-1"
   },
   "echo:h": {
    "file": "echo/h.mp3",

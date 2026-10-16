@@ -3,7 +3,7 @@
 const T = { AIR: 0, SOLID: 1, PLATFORM: 2, FAKE: 3, CRACKED: 4, BLOCK: 5, DOOR: 6, RUNE: 7 };
 const TS = CFG.TILE;
 // inimigos que nascem dos spawns (e o nome no Grimório)
-const CREATURE_OF = { crawler: 'CRAWLER', casco: 'SHELL', flyer: 'FLYER', thief: 'THIEF', giant: 'CRAWLER', knight: 'KNIGHT', gargoyle: 'GARGOYLE', drone: 'DRONE', sentinel: 'SENTINEL' };
+const CREATURE_OF = { crawler: 'CRAWLER', casco: 'SHELL', flyer: 'FLYER', thief: 'THIEF', giant: 'CRAWLER', knight: 'KNIGHT', gargoyle: 'GARGOYLE', drone: 'DRONE', sentinel: 'SENTINEL', conga: 'CRAWLER' };
 
 const World = {
   level: null, w: 0, h: 0, pxW: 0, pxH: 0, tiles: null, blocks: new Map(), doorTiles: new Map(), doors: {},

@@ -164,6 +164,7 @@ const ECHO = {
     warp: [{ en: 'We are here!', pt: 'Chegamos! Vidas cheias. O pedestal está logo ali.' }],
     shot: [{ en: 'I am strong now!', pt: 'Ganhei um poder: aperte F (Y no controle) e eu atiro luz.' }, { en: 'Stop, crawler!', pt: 'O 1º tiro paralisa o Rastejante: dá para pisar nele. O 2º quebra.' }],
     shotVoice: [{ en: 'Say stop!', pt: 'No VOICE MODE: segure V e diga STOP! que eu atiro.' }],
+    goldCard: [{ en: 'A gold card! It is yours now.', pt: 'Um cartão dourado! Agora ele é seu: na 1-1 você já começa com ele, e a TO BE ENGINE liga sempre.' }],
     // TO BE PALACE
     past: [{ en: 'I can see the past!', pt: 'Aqui eu enxergo o passado: aperte C (LB no controle) e eu mostro o que existia.' }],
     knight: [{ en: 'It is a knight!', pt: 'Um cavaleiro! Pisão comum só bate no elmo; pule girando (X) para quebrar a armadura.' }],
@@ -202,8 +203,9 @@ const PROLOGUE = {
     { en: 'WHAT YOU SAY IS TRUE', pt: 'o que você diz vira verdade' },
   ],
 };
-// O SEGREDO DA 1-1 (76_secret.js): um tijolo invisível colado na torre da porta 2, na altura do pulo, acorda com a cabeça
-// (ou um casco jogado para cima); a tela "trava" (falso erro) e cai o WARP CARD. Com ele, a TO BE ENGINE do corredor 2
+// O SEGREDO DA 1-1 (76_secret.js): um tijolo invisível lá no alto, no começo da fase, que só o 3º quique seguido alcança
+// (o pisão triplo no trem de Rastejantes, quando o mural do fundo acende); a tela "trava" (falso erro) e cai o WARP CARD.
+// Terminar a 1-1 com pontuação máxima dá o CARTÃO DOURADO: daí em diante a 1-1 já começa com o cartão. Com ele, a TO BE ENGINE do corredor 2
 // liga: tabela completa do verbo TO BE, as 7 ligações (a errada volta no fim) e a escalada acima do A1. O teletransporte leva à praça final com as vidas
 // cheias, e a escalada decide a força do TIRO DA ECHO (fica salvo e vale nas outras fases).
 const ENGINE = {
@@ -392,7 +394,7 @@ const LEVELS = {
       's': { block: 'invisible', content: { word: 'SMALL' }, secret: 'invisible-small' },
       'l': { block: 'glass', content: { letter: 3 } },
       'v': { block: 'invisible', content: { life: 1 }, secret: 'echo-secret' },   // o 1º segredo que o pulso do Echo revela
-      'j': { block: 'glitch', content: { card: true }, secret: 'glitch' },          // o "bug" de propósito: invisível, acorda com a cabeça (pulo embaixo) ou um casco
+      'j': { block: 'glitch', content: { card: true }, secret: 'glitch' },          // o "bug" de propósito: invisível, lá no alto; só o 3º quique seguido (o trem) alcança
     },
     // Placas de dica: aparecem quando o Nexy chega perto e somem depois que a ação foi feita (until).
     hints: [
@@ -405,6 +407,10 @@ const LEVELS = {
     // Entidades com parâmetros extras por caractere (sobrepõem a legenda global).
     entities: {
       'J': { entity: 'casco', respawn: 'offscreen', zone: [103, 124] },
+      // o TREM DE RASTEJANTES (o segredo do cartão): três em fila, no chão, antes da porta 1. Em fila não mordem, só empurram;
+      // o pisão vale. Por um instante eles ficam em sequência (o mural do fundo acende) e o pisão triplo leva lá no alto
+      '4': { entity: 'conga', i: 0, respawn: 'summon' }, '5': { entity: 'conga', i: 1, respawn: 'summon' }, '6': { entity: 'conga', i: 2, respawn: 'summon' },
+      '7': { entity: 'mural' },
       'V': { entity: 'pedestal', door: 'pedestal' },
       'T': { entity: 'engine', door: 'engine' },
     },
@@ -498,7 +504,7 @@ const Save = {
   defaults() {
     return {
       grimoire: { words: {}, creatures: {}, master: {} },
-      exits: {}, bestFluency: {}, letters: {}, cleared: {}, heart: { best: -1, by: {}, ring: false, compass: 0 }, met: {}, shot: { best: -1 },
+      exits: {}, bestFluency: {}, letters: {}, cleared: {}, heart: { best: -1, by: {}, ring: false, compass: 0 }, met: {}, shot: { best: -1 }, goldCard: false,
       map: { at: '1-1', revealed: {} },
       flags: { palaces: { toBe: false } },
       assist: { slow: false, safeFall: false, freeHints: false, subtitles: false, voice: false, classic: false },
@@ -520,6 +526,7 @@ const Save = {
           Object.assign(d.met, s.met);
           if (s.heart) { d.heart.best = s.heart.best != null ? s.heart.best : -1; Object.assign(d.heart.by, s.heart.by); d.heart.ring = !!s.heart.ring; d.heart.compass = s.heart.compass | 0; }
           if (s.shot && s.shot.best != null) d.shot.best = s.shot.best;
+          d.goldCard = !!s.goldCard;
           if (s.map) { if (s.map.at) d.map.at = s.map.at; Object.assign(d.map.revealed, s.map.revealed); }
           // saves da versão só com a 1-1: quem já saiu da 1-1 já tem os caminhos abertos
           for (const id in d.exits) if (d.exits[id].normal || d.exits[id].secret) d.cleared[id] = true;
