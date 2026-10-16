@@ -168,6 +168,13 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   (rascunho → tinta depois da 1-1 → equipamento depois da 1-2 → núcleo depois da 1-3 → elmo depois do forte → fênix
   depois do castelo), atualizado em `loadLevel` e `toMap` (aviso NEXY EVOLVED uma vez por estágio, `Save.data.met.look`).
   ASSIST → CLASSIC NEXY (`Save.data.assist.classic`) volta ao antigo. Só desenho: colisão e física iguais.
+  **Fiel à arte de referência do dono** (imagem gerada no Gemini: armadura roxa estilo robô/Mega Man X, elmo com
+  orelhas de gato, gema na testa, aba em V, fone redondo, núcleo triangular no peito, ombreiras e manoplas de penas,
+  garras, botas grandes com joelheira e gema, cauda de placas com chama, asas de fênix, espada de plasma). Metal com
+  degradê (`metal`), reflexo (`shine`), circuitos (`neon`), gemas (`gem`), penas (`feather`). No tamanho do jogo
+  (`k < 3`) o contorno fica mais grosso e brilhante para ler no escuro; na folha, mais fino. Sem cachecol (não existe
+  na referência). O rastro da corrida é a sombra do próprio Nexy. O dono sugeriu Blender: ficou para depois (a
+  referência é 2D e, nos 48 px do jogo, um modelo 3D perderia os detalhes do mesmo jeito).
 - **Segredo da 1-1** (pedido do dono, "como no Donkey Kong"; só ele e quem ele contar devem saber, por isso o README
   não explica): tijolo `j` (kind `glitch`) INVISÍVEL em c103 L12, colado na torre da porta 2, acima do checkpoint c104.
   Só casco subindo bate (`solidFor`; a cabeça passa reto; o pulso só faz piscar). Casco-guarda J (c107) → segurar

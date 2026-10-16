@@ -336,6 +336,11 @@ const P = {
       if (sp < 0.2) continue;
       const a2 = Math.min(1, (sp - 0.2) * (1 + (this.comboGlow || 0) * 0.5)) * k * alpha, tx = p.x - camX, ty = p.y - camY, hh = this.h * 0.86;
       R.draw(R.glow('m', 24), tx, ty, (0.5 + 0.6 * k) * s, a2 * 0.6, true);
+      if (!Save.data.assist.classic && !this.form) {   // visual novo: o rastro é a sombra do próprio Nexy
+        ctx.save(); ctx.globalAlpha = a2 * 0.32; ctx.globalCompositeOperation = 'lighter'; ctx.translate(tx, ty + this.h / 2); ctx.scale(this.facing * s, s);
+        NexyLook.draw(ctx, { t, phase: this.walkPhase || 0, speed: Math.abs(this.vx) / CFG.WALK, air: this.onGround ? 0 : (this.vy < 0 ? -1 : 1) }, NexyLook.stage, R.k * s);
+        ctx.restore(); continue;
+      }
       rrect(ctx, tx - 8 * s, ty - hh / 2, 16 * s, hh, 8 * s);
       ctx.fillStyle = `rgba(217,70,239,${(a2 * 0.16).toFixed(3)})`; ctx.fill();
       ctx.strokeStyle = `rgba(232,121,249,${(a2 * 0.45).toFixed(3)})`; ctx.lineWidth = 1; ctx.stroke();
