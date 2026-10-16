@@ -49,6 +49,8 @@ function drawHeart(ctx, x, y, s, tier, t, alpha = 1) {
   ctx.restore();
   // o acréscimo do TO BE PALACE: o anel em volta do Coração
   if (Save.data.heart.ring && !PalaceSwitch.active) Palace.drawRing(ctx, x, y, s, t, alpha);
+  // o acréscimo da cidade (1-3): a agulha da Bússola das Palavras atravessando o Coração
+  if ((Save.data.heart.compass | 0) > 0 && !CompassScene.active) City.drawNeedle(ctx, x, y, s, Math.sin(t * 0.8) * 0.25, alpha);
 }
 
 /* ---------- o baú (entidade) ---------- */

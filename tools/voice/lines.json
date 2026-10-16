@@ -91,6 +91,26 @@
  },
  {
   "who": "echo",
+  "text": "Look! A box.",
+  "prompt": "Look! A box."
+ },
+ {
+  "who": "echo",
+  "text": "It is a gargoyle!",
+  "prompt": "It is a gargoyle!"
+ },
+ {
+  "who": "echo",
+  "text": "Look! A map of the city.",
+  "prompt": "Look! A map of the city."
+ },
+ {
+  "who": "echo",
+  "text": "Now we know where it is!",
+  "prompt": "Now we know where it is!"
+ },
+ {
+  "who": "echo",
   "text": "Hello! I am Echo. I am your friend.",
   "prompt": "Hello! I am Echo. I am your friend."
  },
@@ -261,6 +281,51 @@
  },
  {
   "who": "echo",
+  "text": "box",
+  "prompt": "box."
+ },
+ {
+  "who": "echo",
+  "text": "on",
+  "prompt": "on."
+ },
+ {
+  "who": "echo",
+  "text": "under",
+  "prompt": "under."
+ },
+ {
+  "who": "echo",
+  "text": "in",
+  "prompt": "in."
+ },
+ {
+  "who": "echo",
+  "text": "behind",
+  "prompt": "behind."
+ },
+ {
+  "who": "echo",
+  "text": "wall",
+  "prompt": "wall."
+ },
+ {
+  "who": "echo",
+  "text": "sign",
+  "prompt": "sign."
+ },
+ {
+  "who": "echo",
+  "text": "hole",
+  "prompt": "hole."
+ },
+ {
+  "who": "echo",
+  "text": "between",
+  "prompt": "between."
+ },
+ {
+  "who": "echo",
   "text": "Crawler",
   "prompt": "Crawler."
  },
@@ -283,6 +348,11 @@
   "who": "echo",
   "text": "Knight",
   "prompt": "Knight."
+ },
+ {
+  "who": "echo",
+  "text": "Gargoyle",
+  "prompt": "Gargoyle."
  },
  {
   "who": "echo",
@@ -338,6 +408,21 @@
   "who": "echo",
   "text": "B",
   "prompt": "B."
+ },
+ {
+  "who": "echo",
+  "text": "City",
+  "prompt": "City."
+ },
+ {
+  "who": "echo",
+  "text": "C",
+  "prompt": "C."
+ },
+ {
+  "who": "echo",
+  "text": "Y",
+  "prompt": "Y."
  },
  {
   "who": "echo",
@@ -475,6 +560,66 @@
   "prompt": "[excited] We were small. Now we are strong!"
  },
  {
+  "who": "story",
+  "text": "This is the city of words.",
+  "prompt": "This is the city of words."
+ },
+ {
+  "who": "story",
+  "text": "Where is the box? Say it, and it goes there.",
+  "prompt": "Where is the box? Say it, and it goes there."
+ },
+ {
+  "who": "story",
+  "text": "On. Under. In. Behind.",
+  "prompt": "[warmly] On... Under... In... Behind."
+ },
+ {
+  "who": "story",
+  "text": "Read the map of the city.",
+  "prompt": "Read the map of the city."
+ },
+ {
+  "who": "story",
+  "text": "Nexy is on the tower.",
+  "prompt": "Nexy is on the tower."
+ },
+ {
+  "who": "story",
+  "text": "The palace is under the bridge.",
+  "prompt": "The palace is under the bridge."
+ },
+ {
+  "who": "story",
+  "text": "The cathedral is behind the tower.",
+  "prompt": "The cathedral is behind the tower."
+ },
+ {
+  "who": "story",
+  "text": "The tower is between the station and the bridge.",
+  "prompt": "The tower is between the station and the bridge."
+ },
+ {
+  "who": "echo",
+  "text": "The tower.",
+  "prompt": "The tower."
+ },
+ {
+  "who": "echo",
+  "text": "It is under the bridge.",
+  "prompt": "It is under the bridge."
+ },
+ {
+  "who": "story",
+  "text": "Where is it?",
+  "prompt": "Where is it?"
+ },
+ {
+  "who": "story",
+  "text": "The heart knows.",
+  "prompt": "The heart knows."
+ },
+ {
   "who": "echo",
   "text": "Echo pulse",
   "prompt": "Echo pulse."
@@ -503,6 +648,11 @@
   "who": "echo",
   "text": "Warp card",
   "prompt": "Warp card."
+ },
+ {
+  "who": "echo",
+  "text": "Compass of words",
+  "prompt": "Compass of words."
  },
  {
   "who": "door",
@@ -780,6 +930,51 @@
   "prompt": "today."
  },
  {
+  "who": "story",
+  "text": "box",
+  "prompt": "box."
+ },
+ {
+  "who": "story",
+  "text": "on",
+  "prompt": "on."
+ },
+ {
+  "who": "story",
+  "text": "under",
+  "prompt": "under."
+ },
+ {
+  "who": "story",
+  "text": "in",
+  "prompt": "in."
+ },
+ {
+  "who": "story",
+  "text": "behind",
+  "prompt": "behind."
+ },
+ {
+  "who": "story",
+  "text": "wall",
+  "prompt": "wall."
+ },
+ {
+  "who": "story",
+  "text": "sign",
+  "prompt": "sign."
+ },
+ {
+  "who": "story",
+  "text": "hole",
+  "prompt": "hole."
+ },
+ {
+  "who": "story",
+  "text": "between",
+  "prompt": "between."
+ },
+ {
   "who": "door",
   "text": "Memory chest",
   "prompt": "Memory chest"
@@ -938,11 +1133,6 @@
   "who": "echo",
   "text": "The",
   "prompt": "The."
- },
- {
-  "who": "echo",
-  "text": "city",
-  "prompt": "city."
  },
  {
   "who": "echo",
@@ -1541,6 +1731,161 @@
  },
  {
   "who": "door",
+  "text": "Where is the box?",
+  "prompt": "Where is the box?"
+ },
+ {
+  "who": "echo",
+  "text": "In the sign? It is too thin!",
+  "prompt": "In the sign? It is too thin!"
+ },
+ {
+  "who": "door",
+  "text": "It is under the sign.",
+  "prompt": "It is under the sign."
+ },
+ {
+  "who": "door",
+  "text": "It is on the sign.",
+  "prompt": "It is on the sign."
+ },
+ {
+  "who": "door",
+  "text": "It is behind the sign.",
+  "prompt": "It is behind the sign."
+ },
+ {
+  "who": "door",
+  "text": "It is in the sign.",
+  "prompt": "It is in the sign."
+ },
+ {
+  "who": "door",
+  "text": "THE",
+  "prompt": "THE."
+ },
+ {
+  "who": "door",
+  "text": "sign",
+  "prompt": "sign."
+ },
+ {
+  "who": "echo",
+  "text": "On the hole? It falls in!",
+  "prompt": "On the hole? It falls in!"
+ },
+ {
+  "who": "echo",
+  "text": "A hole has no behind!",
+  "prompt": "A hole has no behind!"
+ },
+ {
+  "who": "door",
+  "text": "The box is on the hole.",
+  "prompt": "The box is on the hole."
+ },
+ {
+  "who": "door",
+  "text": "The box is behind the hole.",
+  "prompt": "The box is behind the hole."
+ },
+ {
+  "who": "door",
+  "text": "The box is in the hole.",
+  "prompt": "The box is in the hole."
+ },
+ {
+  "who": "door",
+  "text": "The box is under the hole.",
+  "prompt": "The box is under the hole."
+ },
+ {
+  "who": "door",
+  "text": "box",
+  "prompt": "box."
+ },
+ {
+  "who": "door",
+  "text": "hole",
+  "prompt": "hole."
+ },
+ {
+  "who": "echo",
+  "text": "A wall has no inside!",
+  "prompt": "A wall has no inside!"
+ },
+ {
+  "who": "echo",
+  "text": "Under the wall? No space!",
+  "prompt": "Under the wall? No space!"
+ },
+ {
+  "who": "door",
+  "text": "The box is in the wall.",
+  "prompt": "The box is in the wall."
+ },
+ {
+  "who": "door",
+  "text": "The box is under the wall.",
+  "prompt": "The box is under the wall."
+ },
+ {
+  "who": "door",
+  "text": "The box is in the sign.",
+  "prompt": "The box is in the sign."
+ },
+ {
+  "who": "door",
+  "text": "The box is under the sign.",
+  "prompt": "The box is under the sign."
+ },
+ {
+  "who": "door",
+  "text": "The box is on the sign.",
+  "prompt": "The box is on the sign."
+ },
+ {
+  "who": "door",
+  "text": "The box is behind the sign.",
+  "prompt": "The box is behind the sign."
+ },
+ {
+  "who": "door",
+  "text": "The box is on the wall.",
+  "prompt": "The box is on the wall."
+ },
+ {
+  "who": "door",
+  "text": "The box is behind the wall.",
+  "prompt": "The box is behind the wall."
+ },
+ {
+  "who": "door",
+  "text": "Where is it?",
+  "prompt": "Where is it?"
+ },
+ {
+  "who": "echo",
+  "text": "Now it is behind the sign.",
+  "prompt": "Now it is behind the sign."
+ },
+ {
+  "who": "echo",
+  "text": "It is behind the sign!",
+  "prompt": "It is behind the sign!"
+ },
+ {
+  "who": "echo",
+  "text": "Oh no! It fell down.",
+  "prompt": "Oh no! It fell down."
+ },
+ {
+  "who": "echo",
+  "text": "Now it is behind the wall.",
+  "prompt": "Now it is behind the wall."
+ },
+ {
+  "who": "door",
   "text": "are",
   "prompt": "are."
  },
@@ -1628,5 +1973,35 @@
   "who": "door",
   "text": "bridge",
   "prompt": "bridge."
+ },
+ {
+  "who": "door",
+  "text": "on",
+  "prompt": "on."
+ },
+ {
+  "who": "door",
+  "text": "under",
+  "prompt": "under."
+ },
+ {
+  "who": "door",
+  "text": "in",
+  "prompt": "in."
+ },
+ {
+  "who": "door",
+  "text": "behind",
+  "prompt": "behind."
+ },
+ {
+  "who": "door",
+  "text": "wall",
+  "prompt": "wall."
+ },
+ {
+  "who": "door",
+  "text": "between",
+  "prompt": "between."
  }
 ]

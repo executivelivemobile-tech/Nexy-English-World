@@ -365,6 +365,25 @@ body.touch #touch { display: block; }
 #chest .e-keys { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 #chest .e-keys span { font: 500 10px var(--f-display); letter-spacing: .14em; color: var(--txt-2); border: 1px solid var(--line-2); border-radius: 14px; padding: 7px 12px; }
 #chest .e-keys b { color: #fff; margin-right: 6px; }
+/* o mapa da cidade (1-3): o desenho de lado, as frases que acendem as partes */
+#chest.citymap { gap: 10px; padding-top: 62px; padding-bottom: 34px; }
+#chest .cmap { width: 430px; max-width: 92%; height: auto; overflow: visible; flex: none; }
+#chest .cmap.small { width: 360px; }
+#chest .cmap .cm-g { stroke: rgba(34,211,238,.35); stroke-width: 1; }
+#chest .cmap .cm-x path, #chest .cmap .cm-x rect, #chest .cmap .cm-x circle { fill: rgba(8,14,18,.92); stroke: rgba(34,211,238,.6); stroke-width: 1.4; transition: stroke .25s, filter .25s; }
+#chest .cmap .cm-x .cm-back { fill: rgba(6,9,12,.85); stroke: rgba(34,211,238,.28); stroke-dasharray: 4 4; }
+#chest .cmap .cm-nexy rect, #chest .cmap .cm-nexy circle { fill: #120818; stroke: #d946ef; }
+#chest .cmap .cm-x.on path, #chest .cmap .cm-x.on rect, #chest .cmap .cm-x.on circle { stroke: #f0abfc; stroke-width: 2.2; filter: drop-shadow(0 0 6px #d946ef); }
+#chest .cmap text { font: 700 10px var(--f-display); letter-spacing: .14em; fill: rgba(255,255,255,.6); text-anchor: middle; }
+#chest .cmap text.cm-s { font-size: 8px; fill: rgba(165,243,252,.55); }
+#chest .cm-lines { display: flex; flex-direction: column; gap: 5px; min-width: 460px; }
+#chest .cm-line { text-transform: none; letter-spacing: .02em; font: 600 15px var(--f-body); padding: 6px 18px; text-align: left; }
+#chest .c-opts.tight { gap: 7px; }
+#chest .c-opts.tight ~ .c-ev { font-size: 14px; min-height: 0; }
+#chest.citymap .c-q { font-size: 20px; }
+#chest .c-opts.tight .copt { padding: 7px 24px; font-size: 16px; }
+#chest .cm-line b { color: var(--mag-hi); font-weight: 700; }
+#chest .cm-line.say { border-color: var(--mag-glow); box-shadow: var(--neon-mag); }
 #cardicon { display: block; width: 18px; height: 12px; border-radius: 3px; border: 1px solid #f0abfc; background: linear-gradient(180deg, #12091a 40%, #22d3ee 40%, #22d3ee 58%, #12091a 58%); box-shadow: 0 0 10px rgba(217,70,239,.6); }
 #cineskip { position: absolute; right: 22px; bottom: 18px; font: 500 9px var(--f-display); letter-spacing: .3em; color: var(--txt-3); opacity: 0; transition: opacity .4s; pointer-events: none; z-index: 6; }
 #cineskip.on { opacity: 1; }
@@ -403,7 +422,7 @@ body.touch #touch { display: block; }
         <div class="hg"><span class="hl">Lives</span><span class="mono" id="mhLives">×5</span></div>
         <div class="hg"><span class="hl">Orbs</span><span class="mono" id="mhOrbs">000</span></div>
         <div class="hg"><span class="hl">Fluency</span><span class="mono" id="mhFlu">0%</span></div>
-        <div class="hg" id="mhHeartBox" style="display:none"><span class="hl">Heart</span><i id="mhHeart" style="width:12px;height:12px;transform:rotate(45deg);display:block;box-shadow:0 0 10px rgba(217,70,239,.6)"></i></div>
+        <div class="hg" id="mhHeartBox" style="display:none"><span class="hl">Heart</span><span style="position:relative;display:block;width:12px;height:12px"><i id="mhHeart" style="width:12px;height:12px;transform:rotate(45deg);display:block;box-shadow:0 0 10px rgba(217,70,239,.6)"></i><i id="mhNeedle" style="display:none;position:absolute;left:-5px;top:5px;width:22px;height:2px;border-radius:1px;background:linear-gradient(90deg,#22d3ee,#fff,#f0abfc);box-shadow:0 0 6px #d946ef;transform:rotate(-12deg)"></i></span></div>
         <div class="hg"><button class="mbtn" id="mhMute" aria-label="Sound">SND</button><button class="mbtn" id="mhPause" aria-label="Pause"><i></i></button></div>
       </div>
       <div class="mbot" id="mhBot">

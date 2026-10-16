@@ -3,7 +3,7 @@
 const T = { AIR: 0, SOLID: 1, PLATFORM: 2, FAKE: 3, CRACKED: 4, BLOCK: 5, DOOR: 6, RUNE: 7 };
 const TS = CFG.TILE;
 // inimigos que nascem dos spawns (e o nome no Grimório)
-const CREATURE_OF = { crawler: 'CRAWLER', casco: 'SHELL', flyer: 'FLYER', thief: 'THIEF', giant: 'CRAWLER', knight: 'KNIGHT' };
+const CREATURE_OF = { crawler: 'CRAWLER', casco: 'SHELL', flyer: 'FLYER', thief: 'THIEF', giant: 'CRAWLER', knight: 'KNIGHT', gargoyle: 'GARGOYLE' };
 
 const World = {
   level: null, w: 0, h: 0, pxW: 0, pxH: 0, tiles: null, blocks: new Map(), doorTiles: new Map(), doors: {},
@@ -66,7 +66,10 @@ const World = {
       const t = Object.assign({ id, state: 'small', shake: 0, glow: 0 }, level.targets[id]);
       this.targets[id] = t;
       if (t.kind === 'rune') { t.cur = { w: 0, h: 0 }; t.goal = Object.assign({}, t[t.state]); t.stepT = 0; this.applyRune(t, t.goal, true); }
+      else if (t.kind === 'box') City.initBox(t);   // a caixa de neon da 1-3 (lugares com nome)
     }
+    // letreiros, etiquetas e enfeites (só desenho)
+    for (const d of level.decor || []) this.statics.push({ type: 'decor', c: d.c, r: d.r, opts: d });
     // paredes falsas: cada grupo de 'W' esconde a sala até a próxima pedra
     const seen = new Set();
     for (let r = 0; r < this.h; r++) for (let c = 0; c < this.w; c++) {
@@ -327,6 +330,7 @@ const World = {
       return true;
     }
     if (t.kind === 'giants') return Ents.types.giant.setAll(act);
+    if (t.kind === 'box') return City.moveBox(id, act);
     return false;
   },
   confuse(id) {
@@ -342,6 +346,7 @@ const World = {
       if (t.shake > 0) t.shake = Math.max(0, t.shake - dt * 1.2);
       if (t.glow > 0) t.glow = Math.max(0, t.glow - dt * 0.6);
       if (t.ping > 0) t.ping -= dt;
+      if (t.kind === 'box') { City.updateBox(t, dt); continue; }
       if (t.kind !== 'rune' || (t.cur.w === t.goal.w && t.cur.h === t.goal.h)) continue;
       t.stepT -= dt; if (t.stepT > 0) continue;
       t.stepT = 0.07;
@@ -407,6 +412,7 @@ const World = {
     return ch;
   },
   drawSolid(x, c, r, x0, y0) {
+    if (this.level.bg === 'city') return City.drawSolid(x, c, r, x0, y0);   // a cidade: prédios com janelas e profundidade
     const S = (cc, rr) => { const t = this.type(cc, rr); return t === T.SOLID || t === T.FAKE; };
     const up = r === 0 ? true : S(c, r - 1), dn = r === this.h - 1 ? true : S(c, r + 1), lf = S(c - 1, r), rt = S(c + 1, r);
     const RAD = 9, tl = !up && !lf ? RAD : 0, tr = !up && !rt ? RAD : 0, br = !dn && !rt ? RAD : 0, bl = !dn && !lf ? RAD : 0;
@@ -747,6 +753,7 @@ const BG = {
     if (!this.built) this.build();
     if (World.level.bg === 'nave') return this.drawNave(ctx, camX, camY, time);
     if (World.level.bg === 'palace') return this.drawPalace(ctx, camX, camY, time);
+    if (World.level.bg === 'city') return this.drawCity(ctx, camX, camY, time);
     // camada 1: grade e partículas ciano bem apagadas
     ctx.save();
     ctx.strokeStyle = cb(0.05); ctx.lineWidth = 1;

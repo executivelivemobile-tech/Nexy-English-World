@@ -57,6 +57,7 @@ const Sentence = {
     else if (r.type === 'target') World.setTarget(r.target, r.act);
     else if (r.type === 'targets') r.targets.forEach((id, i) => Game.later(i * 0.45, () => World.setTarget(id, r.act)));   // um de cada vez
     else if (r.type === 'beswitch') PalaceSwitch.start(d);
+    else if (r.type === 'box') City.moveBox(r.target, r.spot);   // a caixa de neon voa para o lugar dito (1-3)
     else if (r.type === 'echo') Echo.act(r.act, r.act === 'big' ? def.ride : null);
     else if (r.type === 'we') { Echo.act(r.act); if (r.act === 'big') { P.squash = -0.5; FX.burst(P.cx, P.cy, 30, 'm', 220, { life: 0.7, g: 0 }); } }
     // Grimório: palavras usadas + palavras fixas do molde
@@ -251,6 +252,8 @@ const UI = {
       if (Prologue.active) { const st = $('stage').getBoundingClientRect(), k = st.width / CFG.VIEW_W; Prologue.tap((e.clientX - st.left) / k, (e.clientY - st.top) / k); return; }
       if (PalaceIntro.active) return PalaceIntro.tap();
       if (PalaceSwitch.active) return PalaceSwitch.tap();
+      if (CityIntro.active) return CityIntro.tap();
+      if (CompassScene.active) return CompassScene.tap();
       if (Game.state !== 'map') return;
       const st = $('stage').getBoundingClientRect(), k = st.width / CFG.VIEW_W;
       WorldMap.tap((e.clientX - st.left) / k, (e.clientY - st.top) / k);
@@ -308,7 +311,7 @@ const UI = {
     if (L.item !== g.reserve) { L.item = g.reserve; $('itemslot').classList.toggle('full', !!g.reserve); }
     const ts = fmtTime(g.timeRun); if (L.time !== ts) { L.time = ts; $('time').textContent = ts; }
     const showOpen = g.state === 'play' && !!P.interact;
-    if (L.open !== showOpen) { L.open = showOpen; $('tbopen').classList.toggle('show', showOpen); $('tbopen').textContent = P.interact && P.interact.kind === 'pedestal' ? 'SPEAK' : P.interact && P.interact.kind === 'engine' ? 'USE' : 'OPEN'; }
+    if (L.open !== showOpen) { L.open = showOpen; $('tbopen').classList.toggle('show', showOpen); $('tbopen').textContent = P.interact && P.interact.kind === 'pedestal' ? 'SPEAK' : P.interact && P.interact.kind === 'engine' ? 'USE' : P.interact && P.interact.kind === 'citymap' ? 'READ' : 'OPEN'; }
     const hudOn = g.state !== 'title' && g.where === 'level' && (!g.scene() || g.scene() === Glitch);
     if (L.hud !== hudOn) { L.hud = hudOn; $('hud').style.opacity = hudOn ? 1 : 0; $('wordbar').style.opacity = hudOn ? 1 : 0; }
     const pingOn = g.where === 'level' && g.echoBorn && !Echo.hidden;
@@ -388,7 +391,7 @@ const UI = {
       card('NEXY · ' + L0.name, L0.pt, 'LOOK · STAGE ' + (ls + 1) + ' OF ' + NEXY_STAGES.length,
         L0.note + (L1 ? ' Próximo: ' + L1.pt + ' (' + L1.note.toLowerCase().replace(/\.$/, '') + '), ao concluir mais uma fase.' : ' A forma final.') + ' ASSIST › CLASSIC NEXY volta ao visual antigo.', 'Nexy', false, true, P0);
       card('ECHO PULSE', 'pulso da Echo · ' + (pad ? 'LB' : 'C') + ' (ou ECHO no toque)', 'POWER · ALWAYS WITH YOU',
-        'A Echo encontra o que está escondido: blocos invisíveis, paredes falsas e a palavra dentro do bloco ?. No TO BE PALACE ela enxerga o passado: mostra o contorno do que existia.', 'Echo pulse', false, true, P0);
+        'A Echo encontra o que está escondido: blocos invisíveis, paredes falsas e a palavra dentro do bloco ?. No TO BE PALACE ela enxerga o passado: mostra o contorno do que existia. Na cidade (1-3), ela acha a caixa escondida atrás das coisas.', 'Echo pulse', false, true, P0);
       card(sh >= 0 ? SHOT[sh].name : 'ECHO SHOT', sh >= 0 ? SHOT[sh].pt + ' · ' + (pad ? 'Y' : 'F') + ' (ou SHOT no toque)' : '', sh >= 0 ? 'POWER · LEVEL ' + (sh + 1) + ' OF ' + SHOT.length : 'LOCKED · A SECRET IN WORLD 1-1',
         sh >= 0 ? 'O 1º tiro paralisa o inimigo (ele para, não machuca e vira plataforma); o 2º quebra. ' + SHOT[sh].info + ' No VOICE MODE: segure V e diga STOP!' : '', 'Echo shot', sh < 0, false, P0);
       card('VOICE MODE', 'modo de voz · V', 'POWER · ASSIST › VOICE MODE',
@@ -397,6 +400,9 @@ const UI = {
         hb >= 0 ? 'Nasce no Baú da Memória. Cada pergunta difícil que você acerta muda a cor dele e aumenta o poder: ' + HEART[hb].reward : '', 'Heart of words', hb < 0, false, P0);
       card(PALACE.ring.name, S.heart.ring ? PALACE.ring.pt : '', S.heart.ring ? 'POWER · TO BE PALACE' : 'LOCKED · A FORGOTTEN PALACE',
         S.heart.ring ? 'Você disse quem era e quem é (I WAS · I AM) e o palácio acordou. ' + PALACE.ring.reward : '', 'To be ring', !S.heart.ring, false, P0);
+      const cp = S.heart.compass | 0, C = CITY.compass[Math.max(0, cp - 1)];
+      card(C.name, cp ? C.pt : '', cp ? 'POWER · LEVEL ' + cp + ' OF ' + CITY.compass.length : 'LOCKED · WORLD 1-3',
+        cp ? 'Nasceu no mapa da cidade. A seta magenta em volta do Nexy aponta o que falta encontrar. ' + CITY.compass.slice(0, cp).map(x => x.info).join(' ') : '', 'Compass of words', !cp, false, P0);
       card('WARP CARD', G.words.CARD ? 'cartão de teletransporte' : '', G.words.CARD ? 'ITEM · ONE RUN' : 'LOCKED · ???',
         G.words.CARD ? 'Liga a TO BE ENGINE: quem sabe o verbo TO BE inteiro viaja até o fim da fase com as vidas cheias. Vale só na partida em que você o encontrou.' : '', 'Warp card', !G.words.CARD, false, { plain: true, locked: 'Dizem que existe. Ninguém sabe onde.' });
     } else {
@@ -413,7 +419,7 @@ const UI = {
   menuKey(e) {
     const c = e.code;
     if (c === 'Escape' || c === 'KeyP') { if (Game.state === 'pause') Game.resume(); else this.back(); return; }
-    const scr = $(Game.state === 'engine' ? 'chest' : Game.state); if (!scr) return;
+    const scr = $(Game.state === 'engine' || Game.state === 'citymap' ? 'chest' : Game.state); if (!scr) return;
     const items = [...scr.querySelectorAll('.btn, .tgl')].filter(b => b.offsetParent !== null && !b.disabled);
     if (!items.length) return;
     let i = items.indexOf(document.activeElement);
@@ -496,12 +502,13 @@ const Game = {
     if (typeof Birth !== 'undefined') { Birth.active = false; Arrival.active = false; Prologue.active = false; EchoPulse.reset(); Hints.reset(); }
     if (typeof Glitch !== 'undefined') { Glitch.active = false; Warp.active = false; EchoShot.reset(); }
     if (typeof Palace !== 'undefined') { PalaceIntro.active = false; PalaceSwitch.active = false; Palace.reset(); }
+    if (typeof City !== 'undefined') { CityIntro.active = false; CompassScene.active = false; City.reset(); }
     this.card = false;
   },
   // tamanho da barra de palavras: cresce nas fases com mais vocabulário (LEVELS[id].barMax)
   barMax() { return (World.level && World.level.barMax) || CFG.WORD_BAR_MAX; },
   // cena ativa (Coração, nascimento do Echo, chegada): todas têm a mesma interface
-  scene() { return Cine.active ? Cine : Birth.active ? Birth : Prologue.active ? Prologue : Glitch.active ? Glitch : Warp.active ? Warp : PalaceSwitch.active ? PalaceSwitch : PalaceIntro.active ? PalaceIntro : Arrival.active ? Arrival : null; },
+  scene() { return Cine.active ? Cine : Birth.active ? Birth : Prologue.active ? Prologue : Glitch.active ? Glitch : Warp.active ? Warp : PalaceSwitch.active ? PalaceSwitch : PalaceIntro.active ? PalaceIntro : CompassScene.active ? CompassScene : CityIntro.active ? CityIntro : Arrival.active ? Arrival : null; },
   // relógio da simulação (para quebra-cabeças determinísticos, como os sinos)
   later(sec, fn) { this.timers.push({ t: this.simTime + sec, fn }); },
   loadLevel(id) {
@@ -545,6 +552,7 @@ const Game = {
     }, viaTransition ? 0 : 50);
     else if (!Save.data.met.echo && this.echoBorn) { Save.data.met.echo = true; Save.write(); this.later(1.4, () => Echo.talk(ECHO.lines.intro)); }
     if (id === 'palace') Palace.enter(viaTransition);
+    if (id === '1-3') City.enter(viaTransition);
     if (LEVELS[id].intro) setTimeout(() => { if (this.where === 'level' && World.level.id === id) UI.msg(LEVELS[id].intro, 3200); }, viaTransition ? 900 : 2800);
     return true;
   },
@@ -603,6 +611,7 @@ const Game = {
       case 'panel': Panel.key(e); break;
       case 'chest': Chest.key(e); break;
       case 'engine': Engine.key(e); break;
+      case 'citymap': CityMap.key(e); break;
       case 'pause': case 'grimoire': case 'assist': UI.menuKey(e); break;
       case 'clear': UI.menuKey(e); break;
     }
@@ -614,6 +623,7 @@ const Game = {
     Transition.update(dt);
     const sc = this.scene(); if (sc) sc.update(dt);
     if (this.state === 'map') WorldMap.update(dt);
+    if (this.where === 'level' && World.level.bg === 'city') City.tick(dt);   // chuva, raios e respingos (tempo real)
     // durante a íris (fechando e no escuro) a fase não anda
     const frozen = Transition.active && Transition.phase !== 'open';
     if (frozen) Input.queue.length = 0;
@@ -666,22 +676,27 @@ const Game = {
     const sc = this.scene(), zoom = sc ? sc.zoom : 1, zx = lerp(P.px, P.x, a) + P.w / 2 - camX, zy = lerp(P.py, P.y, a) + P.h * 0.75 - camY;
     const applyZoom = () => { if (zoom !== 1) { ctx.translate(zx, zy); ctx.scale(zoom, zoom); ctx.translate(-zx, -zy); } };
     ctx.save(); applyZoom();
+    const city = World.level.bg === 'city';
     BG.draw(ctx, camX, camY, t);
+    if (city) City.drawBack(ctx, camX, camY, t);   // caixas escondidas atrás de algo e o trilho do trem
     World.drawTerrain(ctx, camX, camY);
     if (World.level.mirror) Palace.drawMirror(ctx, camX, camY, a);
     Doors.draw(ctx, camX, camY, t);
     World.drawDynamic(ctx, camX, camY, t);
     World.drawTargets(ctx, camX, camY, t);
     Ents.draw(ctx, camX, camY, a, 'back');
+    if (city) City.drawFront(ctx, camX, camY, t);
     Ents.draw(ctx, camX, camY, a, 'mid');
     Ents.draw(ctx, camX, camY, a, 'enemy');
     World.drawVeils(ctx, camX, camY);
     P.draw(ctx, camX, camY, a);
     Echo.draw(ctx, camX, camY, a);
     EchoShot.draw(ctx, camX, camY);
+    City.drawCompass(ctx, camX, camY);   // a seta da Bússola das Palavras (todas as fases)
     FX.draw(ctx, camX, camY);
     Dark.draw(ctx, camX, camY);
     Ents.draw(ctx, camX, camY, a, 'front');
+    if (city) City.drawRain(ctx, camX, camY, 'front');
     ctx.restore();
     if (sc) {
       // a cor some do mundo; o Nexy, o Echo e a cena continuam em cor por cima
@@ -699,7 +714,7 @@ const Game = {
       g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.3)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
     }), 480, 270);
     Cine.drawScreen(ctx); Birth.drawScreen(ctx); Arrival.drawScreen(ctx); Prologue.drawScreen(ctx); Glitch.drawScreen(ctx); Warp.drawScreen(ctx);
-    PalaceIntro.drawScreen(ctx); PalaceSwitch.drawScreen(ctx);
+    PalaceIntro.drawScreen(ctx); PalaceSwitch.drawScreen(ctx); CityIntro.drawScreen(ctx); CompassScene.drawScreen(ctx);
     Transition.draw(ctx, this.time);
   },
 
@@ -788,6 +803,7 @@ const Game = {
   openPanel(d) {
     if (!d || this.state !== 'play') return;
     if (d.kind === 'engine') { Engine.use(d); return; }
+    if (d.kind === 'citymap') { CityMap.open(d); return; }
     if (d.kind === 'chest') { this.state = 'chest'; P.vx *= 0.3; Chest.open(d); return; }
     this.state = 'panel'; P.vx *= 0.3; Panel.open(d);
   },

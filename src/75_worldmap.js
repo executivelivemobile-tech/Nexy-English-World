@@ -180,12 +180,14 @@ const WorldMap = {
     const S = Save.data, n = this.node(this.at), id = this.at;
     $('mhWorld').textContent = 'WORLD ' + this.world + ' · ' + this.W.name;
     $('mhLives').textContent = '×' + Game.lives; $('mhOrbs').textContent = String(Game.orbs).padStart(3, '0');
-    const hb = S.heart && S.heart.best != null ? S.heart.best : -1, ring = !!(S.heart && S.heart.ring);
-    $('mhHeartBox').style.display = hb >= 0 || ring ? '' : 'none';
+    const hb = S.heart && S.heart.best != null ? S.heart.best : -1, ring = !!(S.heart && S.heart.ring), cp = (S.heart && S.heart.compass) | 0;
+    $('mhHeartBox').style.display = hb >= 0 || ring || cp ? '' : 'none';
     $('mhHeart').style.background = hb >= 0 ? HEART_LOOK[hb].css : 'transparent';
     // o Anel do TO BE (TO BE PALACE): um aro ciano em volta do Coração
     $('mhHeart').style.boxShadow = (ring ? '0 0 0 2px rgba(122,216,255,.85), ' : '') + '0 0 10px rgba(217,70,239,.6)';
-    $('mhHeartBox').title = (hb >= 0 ? HEART[hb].name : '') + (ring ? (hb >= 0 ? ' + ' : '') + PALACE.ring.name : '');
+    $('mhHeartBox').title = [hb >= 0 ? HEART[hb].name : '', ring ? PALACE.ring.name : '', cp ? CITY.compass[cp - 1].name : ''].filter(Boolean).join(' + ');
+    // a Bússola (1-3): uma agulha atravessando o Coração
+    $('mhNeedle').style.display = cp ? '' : 'none';
     const bf = Object.values(S.bestFluency); $('mhFlu').textContent = (bf.length ? Math.round(bf.reduce((a, b) => a + b, 0) / bf.length) : 0) + '%';
     $('mhNode').textContent = moving ? '' : (n.label.startsWith('1-') ? 'WORLD ' + n.label + ' · ' : '') + n.name;
     const L = LEVELS[id], box = $('mhLetters'); box.innerHTML = '';

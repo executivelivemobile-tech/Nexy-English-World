@@ -114,6 +114,30 @@
    ],
    "from": "door-1"
   },
+  "door:behind": {
+   "file": "door/behind.mp3",
+   "text": "behind",
+   "dur": 1.16,
+   "b": [
+    [
+     0,
+     0.08
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:between": {
+   "file": "door/between.mp3",
+   "text": "between",
+   "dur": 1.16,
+   "b": [
+    [
+     0,
+     0.16
+    ]
+   ],
+   "from": "door-2"
+  },
   "door:big": {
    "file": "door/big.mp3",
    "text": "big",
@@ -142,6 +166,18 @@
     [
      7,
      1.46
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:box": {
+   "file": "door/box.mp3",
+   "text": "box",
+   "dur": 1.03,
+   "b": [
+    [
+     0,
+     0.24
     ]
    ],
    "from": "door-2"
@@ -241,6 +277,18 @@
     ]
    ],
    "from": "door-3"
+  },
+  "door:hole": {
+   "file": "door/hole.mp3",
+   "text": "hole",
+   "dur": 0.9,
+   "b": [
+    [
+     0,
+     0.1
+    ]
+   ],
+   "from": "door-2"
   },
   "door:how are you": {
    "file": "door/how-are-you.mp3",
@@ -634,6 +682,18 @@
    ],
    "from": "door-1"
   },
+  "door:in": {
+   "file": "door/in.mp3",
+   "text": "in",
+   "dur": 0.76,
+   "b": [
+    [
+     0,
+     0.12
+    ]
+   ],
+   "from": "door-2"
+  },
   "door:is": {
    "file": "door/is.mp3",
    "text": "is",
@@ -978,6 +1038,34 @@
    ],
    "from": "door-1"
   },
+  "door:it is behind the sign": {
+   "file": "door/it-is-behind-the-sign.mp3",
+   "text": "It is behind the sign.",
+   "dur": 2.29,
+   "b": [
+    [
+     0,
+     0.1
+    ],
+    [
+     3,
+     0.31
+    ],
+    [
+     6,
+     0.58
+    ],
+    [
+     13,
+     1.49
+    ],
+    [
+     17,
+     1.7
+    ]
+   ],
+   "from": "door-1"
+  },
   "door:it is big": {
    "file": "door/it-is-big.mp3",
    "text": "It is big.",
@@ -998,6 +1086,62 @@
    ],
    "from": "door-2"
   },
+  "door:it is in the sign": {
+   "file": "door/it-is-in-the-sign.mp3",
+   "text": "It is in the sign.",
+   "dur": 2.52,
+   "b": [
+    [
+     0,
+     0.08
+    ],
+    [
+     3,
+     0.29
+    ],
+    [
+     6,
+     0.99
+    ],
+    [
+     9,
+     1.68
+    ],
+    [
+     13,
+     1.89
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:it is on the sign": {
+   "file": "door/it-is-on-the-sign.mp3",
+   "text": "It is on the sign.",
+   "dur": 2.47,
+   "b": [
+    [
+     0,
+     0.07
+    ],
+    [
+     3,
+     0.28
+    ],
+    [
+     6,
+     0.97
+    ],
+    [
+     9,
+     1.67
+    ],
+    [
+     13,
+     1.88
+    ]
+   ],
+   "from": "door-1"
+  },
   "door:it is small": {
    "file": "door/it-is-small.mp3",
    "text": "It is small.",
@@ -1017,6 +1161,34 @@
     ]
    ],
    "from": "door-2"
+  },
+  "door:it is under the sign": {
+   "file": "door/it-is-under-the-sign.mp3",
+   "text": "It is under the sign.",
+   "dur": 2.71,
+   "b": [
+    [
+     0,
+     0.1
+    ],
+    [
+     3,
+     0.31
+    ],
+    [
+     6,
+     0.87
+    ],
+    [
+     12,
+     1.77
+    ],
+    [
+     16,
+     2.05
+    ]
+   ],
+   "from": "door-1"
   },
   "door:it was a bridge": {
    "file": "door/it-was-a-bridge.mp3",
@@ -1366,6 +1538,18 @@
    ],
    "from": "door-4"
   },
+  "door:on": {
+   "file": "door/on.mp3",
+   "text": "on",
+   "dur": 0.78,
+   "b": [
+    [
+     0,
+     0.34
+    ]
+   ],
+   "from": "door-2"
+  },
   "door:she": {
    "file": "door/she.mp3",
    "text": "she",
@@ -1377,6 +1561,18 @@
     ]
    ],
    "from": "door-1"
+  },
+  "door:sign": {
+   "file": "door/sign.mp3",
+   "text": "sign",
+   "dur": 1.01,
+   "b": [
+    [
+     0,
+     0.44
+    ]
+   ],
+   "from": "door-2"
   },
   "door:small": {
    "file": "door/small.mp3",
@@ -1401,6 +1597,402 @@
     ]
    ],
    "from": "door-4"
+  },
+  "door:the": {
+   "file": "door/the.mp3",
+   "text": "THE",
+   "dur": 0.78,
+   "b": [
+    [
+     0,
+     0.19
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:the box is behind the hole": {
+   "file": "door/the-box-is-behind-the-hole.mp3",
+   "text": "The box is behind the hole.",
+   "dur": 2.79,
+   "b": [
+    [
+     0,
+     0.05
+    ],
+    [
+     4,
+     0.26
+    ],
+    [
+     8,
+     0.95
+    ],
+    [
+     11,
+     1.16
+    ],
+    [
+     18,
+     1.99
+    ],
+    [
+     22,
+     2.2
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:the box is behind the sign": {
+   "file": "door/the-box-is-behind-the-sign.mp3",
+   "text": "The box is behind the sign.",
+   "dur": 2.76,
+   "b": [
+    [
+     0,
+     0.08
+    ],
+    [
+     4,
+     0.29
+    ],
+    [
+     8,
+     0.91
+    ],
+    [
+     11,
+     1.33
+    ],
+    [
+     18,
+     1.96
+    ],
+    [
+     22,
+     2.16
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:the box is behind the wall": {
+   "file": "door/the-box-is-behind-the-wall.mp3",
+   "text": "The box is behind the wall.",
+   "dur": 3.13,
+   "b": [
+    [
+     0,
+     0.03
+    ],
+    [
+     4,
+     0.24
+    ],
+    [
+     8,
+     1.43
+    ],
+    [
+     11,
+     1.63
+    ],
+    [
+     18,
+     2.4
+    ],
+    [
+     22,
+     2.54
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:the box is in the hole": {
+   "file": "door/the-box-is-in-the-hole.mp3",
+   "text": "The box is in the hole.",
+   "dur": 2.69,
+   "b": [
+    [
+     0,
+     0.08
+    ],
+    [
+     4,
+     0.29
+    ],
+    [
+     8,
+     0.92
+    ],
+    [
+     11,
+     1.4
+    ],
+    [
+     14,
+     1.75
+    ],
+    [
+     18,
+     1.96
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:the box is in the sign": {
+   "file": "door/the-box-is-in-the-sign.mp3",
+   "text": "The box is in the sign.",
+   "dur": 2.74,
+   "b": [
+    [
+     0,
+     0.1
+    ],
+    [
+     4,
+     0.31
+    ],
+    [
+     8,
+     0.93
+    ],
+    [
+     11,
+     1.49
+    ],
+    [
+     14,
+     1.84
+    ],
+    [
+     18,
+     2.05
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:the box is in the wall": {
+   "file": "door/the-box-is-in-the-wall.mp3",
+   "text": "The box is in the wall.",
+   "dur": 2.71,
+   "b": [
+    [
+     0,
+     0.1
+    ],
+    [
+     4,
+     0.31
+    ],
+    [
+     8,
+     1
+    ],
+    [
+     11,
+     1.56
+    ],
+    [
+     14,
+     1.84
+    ],
+    [
+     18,
+     2.05
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:the box is on the hole": {
+   "file": "door/the-box-is-on-the-hole.mp3",
+   "text": "The box is on the hole.",
+   "dur": 2.7,
+   "b": [
+    [
+     0,
+     0.09
+    ],
+    [
+     4,
+     0.3
+    ],
+    [
+     8,
+     1.06
+    ],
+    [
+     11,
+     1.48
+    ],
+    [
+     14,
+     1.9
+    ],
+    [
+     18,
+     2.11
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:the box is on the sign": {
+   "file": "door/the-box-is-on-the-sign.mp3",
+   "text": "The box is on the sign.",
+   "dur": 2.62,
+   "b": [
+    [
+     0,
+     0.08
+    ],
+    [
+     4,
+     0.29
+    ],
+    [
+     8,
+     0.99
+    ],
+    [
+     11,
+     1.41
+    ],
+    [
+     14,
+     1.82
+    ],
+    [
+     18,
+     2.03
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:the box is on the wall": {
+   "file": "door/the-box-is-on-the-wall.mp3",
+   "text": "The box is on the wall.",
+   "dur": 3.09,
+   "b": [
+    [
+     0,
+     0.17
+    ],
+    [
+     4,
+     0.35
+    ],
+    [
+     8,
+     1.04
+    ],
+    [
+     11,
+     1.88
+    ],
+    [
+     14,
+     2.3
+    ],
+    [
+     18,
+     2.43
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:the box is under the hole": {
+   "file": "door/the-box-is-under-the-hole.mp3",
+   "text": "The box is under the hole.",
+   "dur": 2.82,
+   "b": [
+    [
+     0,
+     0.08
+    ],
+    [
+     4,
+     0.29
+    ],
+    [
+     8,
+     0.91
+    ],
+    [
+     11,
+     1.4
+    ],
+    [
+     17,
+     1.89
+    ],
+    [
+     21,
+     2.09
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:the box is under the sign": {
+   "file": "door/the-box-is-under-the-sign.mp3",
+   "text": "The box is under the sign.",
+   "dur": 2.85,
+   "b": [
+    [
+     0,
+     0.1
+    ],
+    [
+     4,
+     0.31
+    ],
+    [
+     8,
+     0.93
+    ],
+    [
+     11,
+     1.42
+    ],
+    [
+     17,
+     1.91
+    ],
+    [
+     21,
+     2.11
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:the box is under the wall": {
+   "file": "door/the-box-is-under-the-wall.mp3",
+   "text": "The box is under the wall.",
+   "dur": 2.59,
+   "b": [
+    [
+     0,
+     0.12
+    ],
+    [
+     4,
+     0.26
+    ],
+    [
+     8,
+     0.89
+    ],
+    [
+     11,
+     1.38
+    ],
+    [
+     17,
+     1.86
+    ],
+    [
+     21,
+     2
+    ]
+   ],
+   "from": "door-1"
   },
   "door:they": {
    "file": "door/they.mp3",
@@ -1658,6 +2250,30 @@
    ],
    "from": "door-4"
   },
+  "door:under": {
+   "file": "door/under.mp3",
+   "text": "under",
+   "dur": 0.86,
+   "b": [
+    [
+     0,
+     0.13
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:wall": {
+   "file": "door/wall.mp3",
+   "text": "wall",
+   "dur": 0.98,
+   "b": [
+    [
+     0,
+     0.25
+    ]
+   ],
+   "from": "door-2"
+  },
   "door:was": {
    "file": "door/was.mp3",
    "text": "was",
@@ -1898,6 +2514,50 @@
     [
      9,
      1.81
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:where is it": {
+   "file": "door/where-is-it.mp3",
+   "text": "Where is it?",
+   "dur": 1.56,
+   "b": [
+    [
+     0,
+     0.2
+    ],
+    [
+     6,
+     0.9
+    ],
+    [
+     9,
+     1.11
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:where is the box": {
+   "file": "door/where-is-the-box.mp3",
+   "text": "Where is the box?",
+   "dur": 2.5,
+   "b": [
+    [
+     0,
+     0.07
+    ],
+    [
+     6,
+     0.9
+    ],
+    [
+     9,
+     1.46
+    ],
+    [
+     13,
+     1.74
     ]
    ],
    "from": "door-1"
@@ -2390,6 +3050,34 @@
    ],
    "from": "echo-2"
   },
+  "echo:a hole has no behind": {
+   "file": "echo/a-hole-has-no-behind.mp3",
+   "text": "A hole has no behind!",
+   "dur": 2.07,
+   "b": [
+    [
+     0,
+     0.27
+    ],
+    [
+     2,
+     0.37
+    ],
+    [
+     7,
+     0.69
+    ],
+    [
+     11,
+     0.93
+    ],
+    [
+     14,
+     1.09
+    ]
+   ],
+   "from": "echo-1"
+  },
   "echo:a key": {
    "file": "echo/a-key.mp3",
    "text": "a key",
@@ -2421,6 +3109,34 @@
     ]
    ],
    "from": "echo-2"
+  },
+  "echo:a wall has no inside": {
+   "file": "echo/a-wall-has-no-inside.mp3",
+   "text": "A wall has no inside!",
+   "dur": 2.24,
+   "b": [
+    [
+     0,
+     0.3
+    ],
+    [
+     2,
+     0.46
+    ],
+    [
+     7,
+     0.78
+    ],
+    [
+     11,
+     1.1
+    ],
+    [
+     14,
+     1.26
+    ]
+   ],
+   "from": "echo-1"
   },
   "echo:afraid": {
    "file": "echo/afraid.mp3",
@@ -2598,6 +3314,30 @@
    ],
    "from": "echo-5"
   },
+  "echo:behind": {
+   "file": "echo/behind.mp3",
+   "text": "behind",
+   "dur": 1.56,
+   "b": [
+    [
+     0,
+     0.19
+    ]
+   ],
+   "from": "echo-2"
+  },
+  "echo:between": {
+   "file": "echo/between.mp3",
+   "text": "between",
+   "dur": 0.8,
+   "b": [
+    [
+     0,
+     0.57
+    ]
+   ],
+   "from": "echo-2"
+  },
   "echo:big": {
    "file": "echo/big.mp3",
    "text": "big",
@@ -2610,6 +3350,18 @@
    ],
    "from": "echo-3"
   },
+  "echo:box": {
+   "file": "echo/box.mp3",
+   "text": "box",
+   "dur": 1.17,
+   "b": [
+    [
+     0,
+     0.46
+    ]
+   ],
+   "from": "echo-2"
+  },
   "echo:bridge": {
    "file": "echo/bridge.mp3",
    "text": "bridge",
@@ -2618,6 +3370,18 @@
     [
      0,
      0.04
+    ]
+   ],
+   "from": "echo-2"
+  },
+  "echo:c": {
+   "file": "echo/c.mp3",
+   "text": "C",
+   "dur": 1.14,
+   "b": [
+    [
+     0,
+     0.12
     ]
    ],
    "from": "echo-2"
@@ -2645,6 +3409,26 @@
     ]
    ],
    "from": "echo-4"
+  },
+  "echo:compass of words": {
+   "file": "echo/compass-of-words.mp3",
+   "text": "Compass of words",
+   "dur": 1.82,
+   "b": [
+    [
+     0,
+     0.14
+    ],
+    [
+     8,
+     0.7
+    ],
+    [
+     11,
+     0.94
+    ]
+   ],
+   "from": "echo-1"
   },
   "echo:crawler": {
    "file": "echo/crawler.mp3",
@@ -2830,6 +3614,18 @@
     [
      16,
      0.91
+    ]
+   ],
+   "from": "echo-2"
+  },
+  "echo:gargoyle": {
+   "file": "echo/gargoyle.mp3",
+   "text": "Gargoyle",
+   "dur": 1.09,
+   "b": [
+    [
+     0,
+     0.17
     ]
    ],
    "from": "echo-2"
@@ -3025,6 +3821,18 @@
     ]
    ],
    "from": "echo-5"
+  },
+  "echo:hole": {
+   "file": "echo/hole.mp3",
+   "text": "hole",
+   "dur": 1.11,
+   "b": [
+    [
+     0,
+     0.35
+    ]
+   ],
+   "from": "echo-2"
   },
   "echo:i": {
    "file": "echo/i.mp3",
@@ -3262,6 +4070,54 @@
    ],
    "from": "echo-2"
   },
+  "echo:in": {
+   "file": "echo/in.mp3",
+   "text": "in",
+   "dur": 1.01,
+   "b": [
+    [
+     0,
+     0.21
+    ]
+   ],
+   "from": "echo-2"
+  },
+  "echo:in the sign it is too thin": {
+   "file": "echo/in-the-sign-it-is-too-thin.mp3",
+   "text": "In the sign? It is too thin!",
+   "dur": 2.65,
+   "b": [
+    [
+     0,
+     0.1
+    ],
+    [
+     3,
+     0.21
+    ],
+    [
+     7,
+     0.37
+    ],
+    [
+     13,
+     1.25
+    ],
+    [
+     16,
+     1.41
+    ],
+    [
+     19,
+     1.57
+    ],
+    [
+     23,
+     1.81
+    ]
+   ],
+   "from": "echo-1"
+  },
   "echo:is": {
    "file": "echo/is.mp3",
    "text": "is",
@@ -3306,6 +4162,30 @@
     [
      8,
      0.48
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:it is a gargoyle": {
+   "file": "echo/it-is-a-gargoyle.mp3",
+   "text": "It is a gargoyle!",
+   "dur": 1.86,
+   "b": [
+    [
+     0,
+     0.08
+    ],
+    [
+     3,
+     0.24
+    ],
+    [
+     6,
+     0.4
+    ],
+    [
+     8,
+     0.56
     ]
    ],
    "from": "echo-1"
@@ -3374,6 +4254,34 @@
    ],
    "from": "echo-1"
   },
+  "echo:it is behind the sign": {
+   "file": "echo/it-is-behind-the-sign.mp3",
+   "text": "It is behind the sign!",
+   "dur": 1.64,
+   "b": [
+    [
+     0,
+     0.27
+    ],
+    [
+     3,
+     0.37
+    ],
+    [
+     6,
+     0.61
+    ],
+    [
+     13,
+     0.93
+    ],
+    [
+     17,
+     1.25
+    ]
+   ],
+   "from": "echo-1"
+  },
   "echo:it is big": {
    "file": "echo/it-is-big.mp3",
    "text": "It is big.",
@@ -3410,6 +4318,34 @@
     [
      6,
      0.72
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:it is under the bridge": {
+   "file": "echo/it-is-under-the-bridge.mp3",
+   "text": "It is under the bridge.",
+   "dur": 1.55,
+   "b": [
+    [
+     0,
+     0.06
+    ],
+    [
+     3,
+     0.22
+    ],
+    [
+     6,
+     0.38
+    ],
+    [
+     12,
+     0.7
+    ],
+    [
+     16,
+     0.86
     ]
    ],
    "from": "echo-1"
@@ -3578,6 +4514,58 @@
     [
      14,
      1.59
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:look a box": {
+   "file": "echo/look-a-box.mp3",
+   "text": "Look! A box.",
+   "dur": 2.06,
+   "b": [
+    [
+     0,
+     0.27
+    ],
+    [
+     6,
+     0.56
+    ],
+    [
+     8,
+     0.76
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:look a map of the city": {
+   "file": "echo/look-a-map-of-the-city.mp3",
+   "text": "Look! A map of the city.",
+   "dur": 2.16,
+   "b": [
+    [
+     0,
+     0.35
+    ],
+    [
+     6,
+     0.72
+    ],
+    [
+     8,
+     0.88
+    ],
+    [
+     12,
+     1.2
+    ],
+    [
+     15,
+     1.36
+    ],
+    [
+     19,
+     1.52
     ]
    ],
    "from": "echo-1"
@@ -3882,6 +4870,102 @@
    ],
    "from": "echo-4"
   },
+  "echo:now it is behind the sign": {
+   "file": "echo/now-it-is-behind-the-sign.mp3",
+   "text": "Now it is behind the sign.",
+   "dur": 1.92,
+   "b": [
+    [
+     0,
+     0.24
+    ],
+    [
+     4,
+     0.48
+    ],
+    [
+     7,
+     0.64
+    ],
+    [
+     10,
+     0.8
+    ],
+    [
+     17,
+     1.2
+    ],
+    [
+     21,
+     1.36
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:now it is behind the wall": {
+   "file": "echo/now-it-is-behind-the-wall.mp3",
+   "text": "Now it is behind the wall.",
+   "dur": 1.98,
+   "b": [
+    [
+     0,
+     0.26
+    ],
+    [
+     4,
+     0.5
+    ],
+    [
+     7,
+     0.66
+    ],
+    [
+     10,
+     0.82
+    ],
+    [
+     17,
+     1.18
+    ],
+    [
+     21,
+     1.3
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:now we know where it is": {
+   "file": "echo/now-we-know-where-it-is.mp3",
+   "text": "Now we know where it is!",
+   "dur": 1.94,
+   "b": [
+    [
+     0,
+     0.37
+    ],
+    [
+     4,
+     0.61
+    ],
+    [
+     7,
+     0.77
+    ],
+    [
+     12,
+     1.01
+    ],
+    [
+     18,
+     1.17
+    ],
+    [
+     21,
+     1.33
+    ]
+   ],
+   "from": "echo-1"
+  },
   "echo:now you say it": {
    "file": "echo/now-you-say-it.mp3",
    "text": "Now you. Say it.",
@@ -3929,6 +5013,78 @@
     ]
    ],
    "from": "echo-4"
+  },
+  "echo:oh no it fell down": {
+   "file": "echo/oh-no-it-fell-down.mp3",
+   "text": "Oh no! It fell down.",
+   "dur": 1.86,
+   "b": [
+    [
+     0,
+     0.24
+    ],
+    [
+     3,
+     0.37
+    ],
+    [
+     7,
+     0.85
+    ],
+    [
+     10,
+     1.01
+    ],
+    [
+     15,
+     1.25
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:on": {
+   "file": "echo/on.mp3",
+   "text": "on",
+   "dur": 1.88,
+   "b": [
+    [
+     0,
+     0.71
+    ]
+   ],
+   "from": "echo-2"
+  },
+  "echo:on the hole it falls in": {
+   "file": "echo/on-the-hole-it-falls-in.mp3",
+   "text": "On the hole? It falls in!",
+   "dur": 2.47,
+   "b": [
+    [
+     0,
+     0.28
+    ],
+    [
+     3,
+     0.4
+    ],
+    [
+     7,
+     0.52
+    ],
+    [
+     13,
+     1.24
+    ],
+    [
+     16,
+     1.4
+    ],
+    [
+     22,
+     1.8
+    ]
+   ],
+   "from": "echo-1"
   },
   "echo:part": {
    "file": "echo/part.mp3",
@@ -4005,6 +5161,18 @@
     ]
    ],
    "from": "echo-3"
+  },
+  "echo:sign": {
+   "file": "echo/sign.mp3",
+   "text": "sign",
+   "dur": 0.97,
+   "b": [
+    [
+     0,
+     0.31
+    ]
+   ],
+   "from": "echo-2"
   },
   "echo:small": {
    "file": "echo/small.mp3",
@@ -4158,6 +5326,22 @@
     [
      12,
      0.68
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:the tower": {
+   "file": "echo/the-tower.mp3",
+   "text": "The tower.",
+   "dur": 1.08,
+   "b": [
+    [
+     0,
+     0.06
+    ],
+    [
+     4,
+     0.22
     ]
    ],
    "from": "echo-1"
@@ -4334,6 +5518,46 @@
    ],
    "from": "echo-2"
   },
+  "echo:under": {
+   "file": "echo/under.mp3",
+   "text": "under",
+   "dur": 1.49,
+   "b": [
+    [
+     0,
+     0.41
+    ]
+   ],
+   "from": "echo-2"
+  },
+  "echo:under the wall no space": {
+   "file": "echo/under-the-wall-no-space.mp3",
+   "text": "Under the wall? No space!",
+   "dur": 2.46,
+   "b": [
+    [
+     0,
+     0.3
+    ],
+    [
+     6,
+     0.46
+    ],
+    [
+     10,
+     0.74
+    ],
+    [
+     16,
+     1.34
+    ],
+    [
+     19,
+     1.58
+    ]
+   ],
+   "from": "echo-1"
+  },
   "echo:voice mode": {
    "file": "echo/voice-mode.mp3",
    "text": "Voice mode",
@@ -4361,6 +5585,18 @@
     ]
    ],
    "from": "echo-4"
+  },
+  "echo:wall": {
+   "file": "echo/wall.mp3",
+   "text": "wall",
+   "dur": 0.87,
+   "b": [
+    [
+     0,
+     0.61
+    ]
+   ],
+   "from": "echo-2"
   },
   "echo:warp card": {
    "file": "echo/warp-card.mp3",
@@ -4562,6 +5798,18 @@
    ],
    "from": "echo-4"
   },
+  "echo:y": {
+   "file": "echo/y.mp3",
+   "text": "Y",
+   "dur": 0.87,
+   "b": [
+    [
+     0,
+     0.58
+    ]
+   ],
+   "from": "echo-2"
+  },
   "echo:yes": {
    "file": "echo/yes.mp3",
    "text": "yes",
@@ -4734,6 +5982,30 @@
    ],
    "from": "story-1"
   },
+  "story:behind": {
+   "file": "story/behind.mp3",
+   "text": "behind",
+   "dur": 1.34,
+   "b": [
+    [
+     0,
+     0.36
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:between": {
+   "file": "story/between.mp3",
+   "text": "between",
+   "dur": 1.11,
+   "b": [
+    [
+     0,
+     0.04
+    ]
+   ],
+   "from": "story-2"
+  },
   "story:big": {
    "file": "story/big.mp3",
    "text": "big",
@@ -4745,6 +6017,18 @@
     ]
    ],
    "from": "story-2"
+  },
+  "story:box": {
+   "file": "story/box.mp3",
+   "text": "box",
+   "dur": 0.97,
+   "b": [
+    [
+     0,
+     0.15
+    ]
+   ],
+   "from": "story-1"
   },
   "story:bridge": {
    "file": "story/bridge.mp3",
@@ -4886,6 +6170,18 @@
    ],
    "from": "story-2"
   },
+  "story:hole": {
+   "file": "story/hole.mp3",
+   "text": "hole",
+   "dur": 0.91,
+   "b": [
+    [
+     0,
+     0.06
+    ]
+   ],
+   "from": "story-2"
+  },
   "story:how was nexy yesterday": {
    "file": "story/how-was-nexy-yesterday.mp3",
    "text": "How was Nexy yesterday?",
@@ -4966,6 +6262,18 @@
     [
      21,
      2.3
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:in": {
+   "file": "story/in.mp3",
+   "text": "in",
+   "dur": 0.81,
+   "b": [
+    [
+     0,
+     0.1
     ]
    ],
    "from": "story-1"
@@ -5298,6 +6606,34 @@
    ],
    "from": "story-1"
   },
+  "story:nexy is on the tower": {
+   "file": "story/nexy-is-on-the-tower.mp3",
+   "text": "Nexy is on the tower.",
+   "dur": 2.35,
+   "b": [
+    [
+     0,
+     0.2
+    ],
+    [
+     5,
+     0.79
+    ],
+    [
+     8,
+     1.24
+    ],
+    [
+     11,
+     1.61
+    ],
+    [
+     15,
+     1.76
+    ]
+   ],
+   "from": "story-1"
+  },
   "story:nexy is small the city is dark nobody says hello": {
    "file": "story/nexy-is-small-the-city-is-dark-nobody-says-hello.mp3",
    "text": "Nexy is small. The city is dark. Nobody says hello.",
@@ -5369,6 +6705,74 @@
     ]
    ],
    "from": "story-2"
+  },
+  "story:on": {
+   "file": "story/on.mp3",
+   "text": "on",
+   "dur": 0.83,
+   "b": [
+    [
+     0,
+     0.13
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:on under in behind": {
+   "file": "story/on-under-in-behind.mp3",
+   "text": "On. Under. In. Behind.",
+   "dur": 5.47,
+   "b": [
+    [
+     0,
+     0.17
+    ],
+    [
+     4,
+     1.66
+    ],
+    [
+     11,
+     3.21
+    ],
+    [
+     15,
+     4.47
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:read the map of the city": {
+   "file": "story/read-the-map-of-the-city.mp3",
+   "text": "Read the map of the city.",
+   "dur": 1.98,
+   "b": [
+    [
+     0,
+     0.13
+    ],
+    [
+     5,
+     0.57
+    ],
+    [
+     9,
+     0.72
+    ],
+    [
+     13,
+     1.09
+    ],
+    [
+     16,
+     1.24
+    ],
+    [
+     20,
+     1.46
+    ]
+   ],
+   "from": "story-1"
   },
   "story:say it and it is true": {
    "file": "story/say-it-and-it-is-true.mp3",
@@ -5470,6 +6874,18 @@
    ],
    "from": "story-1"
   },
+  "story:sign": {
+   "file": "story/sign.mp3",
+   "text": "sign",
+   "dur": 0.95,
+   "b": [
+    [
+     0,
+     0.1
+    ]
+   ],
+   "from": "story-1"
+  },
   "story:small": {
    "file": "story/small.mp3",
    "text": "small",
@@ -5493,6 +6909,38 @@
     ]
    ],
    "from": "story-3"
+  },
+  "story:the cathedral is behind the tower": {
+   "file": "story/the-cathedral-is-behind-the-tower.mp3",
+   "text": "The cathedral is behind the tower.",
+   "dur": 2.53,
+   "b": [
+    [
+     0,
+     0.04
+    ],
+    [
+     4,
+     0.22
+    ],
+    [
+     14,
+     0.93
+    ],
+    [
+     17,
+     1.22
+    ],
+    [
+     24,
+     1.7
+    ],
+    [
+     28,
+     1.89
+    ]
+   ],
+   "from": "story-1"
   },
   "story:the city is dark": {
    "file": "story/the-city-is-dark.mp3",
@@ -5578,6 +7026,102 @@
     [
      30,
      1.94
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:the heart knows": {
+   "file": "story/the-heart-knows.mp3",
+   "text": "The heart knows.",
+   "dur": 1.66,
+   "b": [
+    [
+     0,
+     0.12
+    ],
+    [
+     4,
+     0.25
+    ],
+    [
+     10,
+     0.84
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:the palace is under the bridge": {
+   "file": "story/the-palace-is-under-the-bridge.mp3",
+   "text": "The palace is under the bridge.",
+   "dur": 2.36,
+   "b": [
+    [
+     0,
+     0.13
+    ],
+    [
+     4,
+     0.27
+    ],
+    [
+     11,
+     0.79
+    ],
+    [
+     14,
+     1.16
+    ],
+    [
+     20,
+     1.53
+    ],
+    [
+     24,
+     1.68
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:the tower is between the station and the bridge": {
+   "file": "story/the-tower-is-between-the-station-and-the-bridge.mp3",
+   "text": "The tower is between the station and the bridge.",
+   "dur": 3.44,
+   "b": [
+    [
+     0,
+     0.07
+    ],
+    [
+     4,
+     0.4
+    ],
+    [
+     10,
+     1.03
+    ],
+    [
+     13,
+     1.47
+    ],
+    [
+     21,
+     1.84
+    ],
+    [
+     25,
+     1.99
+    ],
+    [
+     33,
+     2.59
+    ],
+    [
+     37,
+     2.73
+    ],
+    [
+     41,
+     2.81
     ]
    ],
    "from": "story-1"
@@ -5678,6 +7222,38 @@
    ],
    "from": "story-1"
   },
+  "story:this is the city of words": {
+   "file": "story/this-is-the-city-of-words.mp3",
+   "text": "This is the city of words.",
+   "dur": 3.08,
+   "b": [
+    [
+     0,
+     0.12
+    ],
+    [
+     5,
+     0.52
+    ],
+    [
+     8,
+     1.11
+    ],
+    [
+     12,
+     1.33
+    ],
+    [
+     17,
+     1.93
+    ],
+    [
+     20,
+     2.15
+    ]
+   ],
+   "from": "story-1"
+  },
   "story:today": {
    "file": "story/today.mp3",
    "text": "today",
@@ -5734,6 +7310,30 @@
     [
      13,
      1.52
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:under": {
+   "file": "story/under.mp3",
+   "text": "under",
+   "dur": 0.91,
+   "b": [
+    [
+     0,
+     0.58
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:wall": {
+   "file": "story/wall.mp3",
+   "text": "wall",
+   "dur": 0.93,
+   "b": [
+    [
+     0,
+     0.15
     ]
    ],
    "from": "story-1"
@@ -5890,6 +7490,74 @@
     [
      13,
      1.4
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:where is it": {
+   "file": "story/where-is-it.mp3",
+   "text": "Where is it?",
+   "dur": 0.91,
+   "b": [
+    [
+     0,
+     0.06
+    ],
+    [
+     6,
+     0.43
+    ],
+    [
+     9,
+     0.57
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:where is the box say it and it goes there": {
+   "file": "story/where-is-the-box-say-it-and-it-goes-there.mp3",
+   "text": "Where is the box? Say it, and it goes there.",
+   "dur": 3.82,
+   "b": [
+    [
+     0,
+     0.04
+    ],
+    [
+     6,
+     0.37
+    ],
+    [
+     9,
+     0.6
+    ],
+    [
+     13,
+     0.82
+    ],
+    [
+     18,
+     2
+    ],
+    [
+     22,
+     2.23
+    ],
+    [
+     26,
+     2.74
+    ],
+    [
+     30,
+     2.89
+    ],
+    [
+     33,
+     3.04
+    ],
+    [
+     38,
+     3.41
     ]
    ],
    "from": "story-1"

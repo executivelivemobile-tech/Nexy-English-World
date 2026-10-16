@@ -182,8 +182,8 @@ const EchoPulse = {
       if (Math.hypot(vx - Echo.x, vy - Echo.y) <= this.R) { v.ping = 3; found++; }
     }
     // no TO BE PALACE o pulso também vê o passado: o contorno do que existia e a Echo dizendo o que era
-    const past = Palace.ping();
-    if (found && !past) Echo.talk(ECHO.lines.found);
+    const past = Palace.ping(), box = City.ping();   // na cidade: a caixa escondida atrás de algo
+    if (found && !past && !box) Echo.talk(ECHO.lines.found);
     return true;
   },
   update(dt) {

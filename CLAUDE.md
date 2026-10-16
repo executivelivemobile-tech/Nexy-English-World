@@ -36,7 +36,7 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 - Futuro: depois do jogo inteiro, app Android (Google Play). Mantenha tudo pensado para toque e offline.
 - Preferências já dadas: sem voz em combos e nomes de criaturas; correr com toque duplo na seta (janela medida da
   soltura); quique alto com janela antes/depois (só no ar); blocos-fantasma dependem da barra, não do Grimório.
-- **Vozes gravadas (ElevenLabs)**: 326 falas em `src/voice/` (MP3 + `manifest.json`), embutidas pelo build.
+- **Vozes gravadas (ElevenLabs)**: 401 falas em `src/voice/` (MP3 + `manifest.json`), embutidas pelo build.
   Elenco: **Echo = Lulu** (feminina e sensual, escolhida pelo dono), **narrador do Baú = Elder Rowan** (a voz antiga
   das portas, pedida pelo dono no lugar do Lawrence; `[warmly]`, 1,08×), **portas e altares = Elder Rowan** (`[slowly]`,
   acelerada 1,15× no corte). Não imitar vozes de pessoas reais (ele citou Morgan Freeman: só a referência de idoso e grave). A Echo agora é **ela** nos textos em português ("a Echo", "sua amiga").
@@ -54,6 +54,7 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 | `10_data.js` | legenda global, `CFG` (física), `LOOK` (brilho), `WORDS`, `CREATURES`, `ECHO`, `MASTER_WORDS`, `PHRASES_PT`, `LEVELS['1-1']`, `WORLDS` (mapa), `HEART`, `Save`, `Flags`, utilitários |
 | `12_level_1-2.js` | `LEVELS['1-2']`: legenda extra, blocos, entidades, zonas, alvos (runas), portas/altares/sinos/baú (com a história) |
 | `14_level_palace.js` | `LEVELS.palace` (TO BE PALACE): legenda, alvos do passado (`look`: memory/knight/gate, `ghost`, `past`), altares, relógios, interruptor |
+| `16_level_1-3.js` | `LEVELS['1-3']` (WHERE IS IT?): legenda, caixas (`kind: 'box'`, `spots` com nome), altares (`BOX3_DOOR` serve aos dois do café; `quiet` esconde a inscrição), `decor` (letreiros, outdoor, etiquetas SIGN/WALL/HOLE, enfeites) |
 | `20_audio.js` | `SFX`, `Music` (variantes `world1`/`map`/`nave`/`palace` com `chords` e `tick` próprios, zonas muffle/boost), `VoiceClips` (vozes gravadas, `/*VOICE_PACK*/`), `Voice.say(text, who, {onBoundary,onEnd})`, `Listen` |
 | `30_input_render.js` | `Input` (teclado, toque, **gamepad** em `pollPad`), `R` (escala, sprites, glow, texto) |
 | `40_world.js` | `World` (tiles, blocos, runas `setTarget`, zonas, veils, colisão `move`), `BG` (cidade e nave), `Dark`, `FX` |
@@ -68,19 +69,20 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 | `62_nexy_look.js` | `NexyLook` (o visual do Nexy: esqueleto `rig`, camadas por estágio `paint`, quadros em cache `sprite`, `stageFor(cleared)`), `NEXY_STAGES`. Também usado por `tools/look_sheet.js` (não pode depender do jogo) |
 | `75_worldmap.js` | `Transition` (íris/fechadura + cartão "Nexy × vidas"), `WorldMap` (andar, revelar caminhos, toque) |
 | `78_palace.js` | TO BE PALACE: entidades `knight` e `beswitch`, `Palace` (pulso vê o passado `ping`, `drawGhost`/`drawTarget`/`statue`/`drawClock`, chão-espelho `drawMirror`, `drawRing`), `PalaceIntro` (lembrança + tabela, `Save.data.met.palace`), `PalaceSwitch` (cena do interruptor), `BG.drawPalace` |
+| `80_city.js` | 1-3: `City` (caixa: `initBox`/`moveBox`/`land`/`flyPos`/`drawCube`, `ping` acha a caixa escondida, `drawBack` antes do terreno e `drawFront` depois dos letreiros; prédios `drawSolid`; chuva/raios `tick`/`strike`/`drawRain`; `drawDecor`, `drawAltar`, `drawMapBoard`; Bússola `compassTarget`/`drawCompass`/`drawNeedle`), entidades `gargoyle`, `train`, `citymap`, `decor`, `CityIntro` (`Save.data.met.city`), `CityMap` (painel do Baú, estado `citymap`), `CompassScene` (`Save.data.met.compass`), `BG.drawCity` |
 | `99_boot.js` | `window.NEXY` (API de teste) e `Game.boot()` |
 
-- Cenas: `Game.scene()` devolve a cena ativa (`Cine`, `Birth`, `Prologue`, `Glitch`, `Warp`, `PalaceSwitch`, `PalaceIntro`, `Arrival`); todas têm `zoom`, `sat`, `letter`,
+- Cenas: `Game.scene()` devolve a cena ativa (`Cine`, `Birth`, `Prologue`, `Glitch`, `Warp`, `PalaceSwitch`, `PalaceIntro`, `CompassScene`, `CityIntro`, `Arrival`); todas têm `zoom`, `sat`, `letter`,
   `timeScale`, `update`, `key`, `drawWorld`, `drawScreen`. `Game.echoBorn` = o Echo já existe nesta partida (na 1-1
   começa falso; a porta com `birth: 'echo'` dispara `Birth`).
-- Estados do `Game.state`: `title`, `map`, `play`, `panel`, `chest`, `cinematic`, `pause`, `grimoire`, `assist`,
+- Estados do `Game.state`: `title`, `map`, `play`, `panel`, `chest`, `engine`, `citymap`, `cinematic`, `pause`, `grimoire`, `assist`,
   `clearing`, `clear`, `gameover`, `leaving`. `Game.where`: `map` | `level`.
 - Fluxo: título → `toMap()` → `WorldMap.tryEnter` → `Transition` → `enterLevel(id, true)` → `finish(exit)` →
   `showClear` → `continueToMap()`.
 - Mapas ASCII em `src/levels/*.map` (o build troca `/*MAP:id*/`). A 1-2 é gerada por `tools/gen_map_1-2.py`
   (edite o gerador e rode `python3 tools/gen_map_1-2.py src/levels/1-2.map`); o palácio por `tools/gen_map_palace.py`.
 - Frases: `accept` → `Sentence.apply` (tipos `open`, `transform`, `exit`, `target`, `targets` (vários, um de cada vez),
-  `echo`, `we`, `beswitch`); `enact` → `Sentence.enact` (`morph`, `mirror`, `crawler`, `confused` com alvo único ou
+  `echo`, `we`, `beswitch`, `box` (`target` + `spot`: a caixa voa para o lugar dito)); `enact` → `Sentence.enact` (`morph`, `mirror`, `crawler`, `confused` com alvo único ou
   lista); qualquer `enact` pode ter `tip: {en, pt}` = a Echo explica o erro 0,5 s depois (sem dar a frase pronta).
 - Runas/alvos: `hFirst` encolhe a altura primeiro (o portão afunda); `small: {w:0,h:0}` = não existe (ponte que caiu).
 - `levelTag(L)`: 'WORLD 1-2' ou, para fases com nome (palácio), 'WORLD 1'.
@@ -138,6 +140,36 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 - Visual novo: chão-espelho (`level.mirror`), fundo do palácio com relógio gigante (ponteiros para trás até o
   interruptor), música `palace` (Ré menor, 84 BPM, tique-taque).
 
+## 5c. Fase 1-3 "WHERE IS IT?" (200 × 26, telhados; a rua lá embaixo é morte)
+
+- Mecânica nova: a CAIXA DE NEON vai para onde a frase disser (`kind: 'box'`, `spots` com nome; `back` = atrás de algo,
+  não é chão, só o pulso mostra; `say` = a Echo comenta ao pousar; `find` = a Echo diz ao achar com o pulso). Os
+  desafios de altura são todos de 5 linhas (160 px): nem o pulo correndo (154) alcança; a caixa ou a gárgula parada no
+  ar viram o degrau. Palavra-mestra CITY (`c i t y`).
+- A Letreiro do HOTEL (0-44): ON c4, UNDER c7 (L16); altar1 `!` c13 "IT IS _ THE SIGN." Placa `=` c18-23 L15, caixa
+  box1 2×2 começa ON (c18-19, na ponta esquerda: a gárgula vem da direita e o Nexy sobe pela outra ponta) → UNDER
+  (c20-21 L18-19). Prédio alto c25-44 L12. Gárgula `q` c27 L10. Letra C c21 L11. Checkpoint c30. Vida escondida `v` c35 L8.
+- B Outdoor (45-83): IN c46, BEHIND c52; altar2 `@` c49 "THE BOX IS _ THE HOLE.". Outdoor sólido c60-72 L9-17,
+  corredor L18-19, BURACO c65-67 (3 colunas: com 2 dava para pular correndo com coyote). box2 3×2 começa ATRÁS do
+  outdoor (c61 L14-15, `find`), IN tapa (c65-67 L20-21), UNDER cai na rua. Outro caminho: escada de incêndio `=` c56-57
+  L17 e L14 + gárgula c62 L7 → topo do outdoor (letra I c70 L6). Checkpoint c76.
+- C Café (84-134): WALL c86, SIGN c89, HOLE c92 (L14); altar3 `%` c102 e altar3b `&` c113 (mesmo `BOX3_DOOR`, 2
+  lacunas, 7 lugares certos e 5 frases sem sentido com dica). Buraco c105-112 (8: não se pula), parapeito c113-116
+  L18, placa do CAFÉ `=` c114-116 L13, MURO (prédio) c117-134 L10. box3 3×2 começa ON THE WALL; IN THE HOLE (c107-109)
+  vira chão no meio; do parapeito, UNDER THE SIGN (c114-116 L16-17) → placa → muro. Gárgulas c108 L15 (sobre o
+  buraco: pulo correndo nela; letra T c108 L11) e c112 L9 (atrair do parapeito).
+- D Estação (135-162): estação c135-140 L16, checkpoint c137, trem `T` c141 (6 de largura, vai até c157; posição pelo
+  relógio da simulação, como os tubos), letra Y c154 L11, gárgula c148 L11. E Praça (163-199): checkpoint c165, MAPA
+  DA CIDADE `Q` c172 (porta `citymap`), cristal escondido `w` c180 L12, saída `N` c195.
+- Gárgula: `watched` = o Nexy de frente (±16 px); de costas e perto (8 colunas, 10 linhas) ela treme 0,35 s (ainda é
+  chão) e voa: primeiro até a altura da cabeça, depois reto. Longe ou a mais de 14 blocos de casa, volta ao poleiro.
+  Pedra = `plat` e não machuca; pisão = pedra por 2 s + quique; giro quebra.
+- Mapa da cidade (`CITY.map`): leitura com karaokê (BETWEEN no Grimório) → Bússola nível 1; escalada de 3 perguntas
+  (A2, A2+, B1) sobe até 4; errar encerra e guarda; reabrir deixa tentar de novo. Ao fechar pela 1ª vez com a
+  bússola: `CompassScene`. Bússola (`Save.data.heart.compass` 0-4) vale em todas as fases (`City.drawCompass`).
+- Visual novo: prédios com janelas e profundidade (face de cima do telhado, lateral), chuva em duas camadas, raios com
+  trovão, lua, outdoor, letreiros que piscam, monotrilho com faróis; música `city` (Mi menor, 108 BPM, chiado da chuva).
+
 ## 6. Testes (`node tests/run.js [filtro]`, Playwright, ~3 min)
 
 - `tests/harness.js`: `openGame(browser, {level, echo})` entra direto na fase (sem a chegada: `Game.noIntro`) e troca
@@ -148,6 +180,10 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   teletransportava); cuidado ao teleportar para colunas de buraco (morre e volta ao início); `tryHop` muda
   `Game.simTime` (lustres e tubos dependem dele); `H.noEnemies()` preserva entidades `persist` (gigantes).
 - Palácio: `HELPP` (em `tests/run.js`) limpa a apresentação da Echo e tem `HP.attempt` (Alados em várias fases do voo).
+- 1-3: `HELP13` tem `spawn` (acorda a gárgula; zera `G.hitstopN`, senão os 3 quadros congelados do pisão engolem o
+  spawn), `lure` (de costas até ela chegar, depois olha), `hop` (seta segurada só depois de alguns quadros) e `say`.
+  Depois de usar a gárgula como degrau, ande até a ponta da placa antes do pulo seguinte, como o jogador faz.
+- `City.tick` (chuva, raios) roda no tempo real (`Game.frame`); nos testes o laço é trocado, então não há raio.
 - Toda mudança: `node build.js` e a suíte inteira verde antes do push.
 
 ## 7. Próximos passos e ideias anotadas
@@ -187,8 +223,8 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   e STOP/FREEZE/FIRE/SHOOT atira.
 - **Tutoriais atualizados** (pedido do dono): tela inicial (C pulso, F tiro, V voz), linha do controle, Grimório com a
   aba **POWERS** (pulso, tiro, voz, Coração, Anel do TO BE, cartão; fechados até conquistar), texto do VOICE MODE.
-- Esperando aprovação da 1-2 (com o baú) e do TO BE PALACE. Depois: 1-3, Casa "PUSH OR PULL?" (saída secreta da 1-2),
-  forte e castelo do Mundo 1.
+- Esperando aprovação da 1-2 (com o baú), do TO BE PALACE e da 1-3. Depois: Casa "PUSH OR PULL?" (saída secreta da
+  1-2), forte e castelo do Mundo 1. A agulha da Bússola aponta para a frente (o forte) na cena da 1-3.
 - Cada fase nova: algo inédito + acréscimo ao Coração + desafio crescente acima do A1 + caminho alternativo + um passo
   a mais no visual rumo à cidade Castlevania cyberpunk.
 - Controle de verdade (gamepad) ainda não testado com aparelho físico.

@@ -80,6 +80,13 @@ const SFX = {
   // TO BE PALACE: o elmo do cavaleiro e a alavanca do interruptor do ser
   clang() { const t = AudioSys.t; for (const [f, a] of [[1240, 0.06], [1870, 0.04], [2630, 0.025]]) tone('triangle', f, t, 0.5, a, { verb: true }); noise(t, 0.05, 0.08, { freq: 5000 }); },
   lever() { const t = AudioSys.t; tone('sawtooth', 70, t, 0.5, 0.25, { to: 35, filter: { freq: 500 } }); noise(t, 0.4, 0.25, { type: 'lowpass', freq: 900 }); tone('sine', 55, t, 1.2, 0.4, { to: 30 }); },
+  // WORLD 1-3: o trovão da chuva, a buzina do trem, a gárgula virando pedra e a caixa de neon voando e pousando
+  thunder(k = 1) { const t = AudioSys.t; noise(t, 2.6, 0.32 * k, { type: 'lowpass', freq: 380, to: 90, a: 0.04, verb: true }); tone('sine', 48, t, 2.2, 0.35 * k, { to: 30, glide: 2 }); noise(t, 0.12, 0.12 * k, { type: 'bandpass', freq: 1400, q: 0.6 }); },
+  horn() { const t = AudioSys.t; for (const [f, d] of [[311, 0], [392, 0.02]]) tone('sawtooth', f, t + d, 0.7, 0.05, { a: 0.03, hold: 0.45, filter: { freq: 1400 }, verb: true }); },
+  stone() { const t = AudioSys.t; noise(t, 0.22, 0.16, { type: 'lowpass', freq: 700, to: 260 }); tone('triangle', 140, t, 0.18, 0.12, { to: 70 }); },
+  wake() { const t = AudioSys.t; noise(t, 0.3, 0.1, { type: 'bandpass', freq: 900, to: 2400, q: 1.2 }); tone('sine', 520, t, 0.25, 0.05, { to: 980 }); },
+  boxFly() { const t = AudioSys.t; tone('sine', 320, t, 0.5, 0.07, { to: 900, glide: 0.45 }); noise(t, 0.45, 0.06, { type: 'bandpass', freq: 1200, to: 3600, q: 1.4 }); },
+  boxLand() { const t = AudioSys.t; tone('sine', 110, t, 0.3, 0.4, { to: 46 }); tone('triangle', 660, t, 0.25, 0.05, { verb: true }); noise(t, 0.12, 0.14, { type: 'lowpass', freq: 900 }); },
   // o "bug" de propósito: estalos digitais e chiado
   glitch() { const t = AudioSys.t; for (let i = 0; i < 7; i++) tone('square', 80 + Math.random() * 900, t + i * 0.045, 0.04, 0.05, { filter: { freq: 2600 } }); noise(t, 0.35, 0.12, { type: 'bandpass', freq: 3200, q: 0.8 }); },
   // o tiro da Echo e o cristal que paralisa
@@ -212,11 +219,36 @@ const Music = {
         7: [[0, 73, 4], [4, 76, 4], [8, 81, 8]],
       },
     },
+    // 1-3 · a cidade na chuva: Mi menor, 108 BPM, synthwave por cima do órgão e o chiado da chuva o tempo todo
+    city: {
+      bpm: 108, bell: true, rain: true,
+      chords: [[40, 0], [48, 1], [43, 1], [50, 1], [40, 0], [48, 1], [45, 0], [47, 1]],
+      melody: {
+        4: [[0, 76, 3], [3, 79, 3], [6, 83, 2], [8, 88, 8]],
+        5: [[0, 84, 4], [4, 83, 4], [8, 79, 8]],
+        6: [[0, 81, 3], [3, 84, 3], [6, 88, 2], [8, 86, 8]],
+        7: [[0, 83, 4], [4, 78, 4], [8, 75, 8]],
+      },
+    },
   },
   setVariant(name) {
     const v = this.VARIANTS[name] || this.VARIANTS.world1;
     this.variant = name; this.bpm = v.bpm; this.cur = v;
-    this.zone({});
+    this.zone({}); this.rain(!!v.rain);
+  },
+  // chuva: um chiado contínuo (ruído filtrado em laço) enquanto a fase tem chuva
+  rain(on) {
+    const A = AudioSys, c = A.ctx; if (!c) return;
+    if (on && !this.rainNode) {
+      const s = c.createBufferSource(), f = c.createBiquadFilter(), f2 = c.createBiquadFilter(), g = c.createGain();
+      s.buffer = A.noiseBuf; s.loop = true; f.type = 'bandpass'; f.frequency.value = 2600; f.Q.value = 0.5; f2.type = 'lowpass'; f2.frequency.value = 6000;
+      g.gain.value = 0.0001; s.connect(f); f.connect(f2); f2.connect(g); g.connect(A.sfx);
+      g.gain.setTargetAtTime(0.05, c.currentTime, 0.8); s.start();
+      this.rainNode = { s, g };
+    } else if (!on && this.rainNode) {
+      const r = this.rainNode; this.rainNode = null;
+      r.g.gain.setTargetAtTime(0.0001, c.currentTime, 0.3); r.s.stop(c.currentTime + 1.5);
+    }
   },
   // zonas da fase: muffle = abafada (cripta), boost = percussão em crescendo (campanário)
   zone(z) {
@@ -234,6 +266,7 @@ const Music = {
     this.bus.pad.connect(A.verb); this.bus.organ.connect(A.verb);
     this.next = c.currentTime + 0.1; this.step = 0;
     this.timer = setInterval(() => this.tick(), 25);
+    if (this.cur && this.cur.rain) this.rain(true);
   },
   vol(k) { const v = this.cur || {}; return { bass: 1, pad: 0.9, organ: 0.75, perc: 0.7 * (v.perc != null ? v.perc : 1) * this.boost }[k]; },
   set(levels) {

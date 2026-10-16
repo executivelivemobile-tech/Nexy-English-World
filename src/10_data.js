@@ -79,7 +79,7 @@ const ca = a => lineA('34,211,238', a, LOOK.bright);    // ciano do sistema
 const cb = a => lineA('34,211,238', a, LOOK.bg);        // ciano das camadas do fundo
 
 /* ============================== WORD BANK ==============================
-   cls: noun | verb | adjective | pronoun | article | interjection
+   cls: noun | verb | adjective | pronoun | article | interjection | adverb | preposition
    Forma da cápsula: noun = cheia · verb = cheia com rastro · adjective = só contorno · outras = cheia com ponto */
 const WORDS = {
   HELLO: { cls: 'interjection', pt: 'olá', say: 'Hello', lore: 'A primeira palavra abre a primeira porta. Todas as outras vieram depois.' },
@@ -118,6 +118,16 @@ const WORDS = {
   BRIDGE:    { cls: 'noun', pt: 'ponte', say: 'bridge', lore: 'Caiu há muito tempo. Basta alguém lembrar que ela existia.' },
   YESTERDAY: { cls: 'adverb', pt: 'ontem', say: 'yesterday', lore: 'Quando ela aparece, o verbo volta no tempo: IS vira WAS, ARE vira WERE.' },
   TODAY:     { cls: 'adverb', pt: 'hoje', say: 'today', lore: 'Agora. O verbo fica no presente: AM, IS, ARE.' },
+  // 1-3 · WHERE IS IT? (as preposições de lugar: a caixa vai para onde você disser)
+  BOX:     { cls: 'noun', pt: 'caixa', say: 'box', lore: 'Uma caixa de neon que obedece a quem sabe dizer onde ela está.' },
+  ON:      { cls: 'preposition', pt: 'em cima de', say: 'on', lore: 'A caixa ON THE SIGN está apoiada em cima da placa.' },
+  UNDER:   { cls: 'preposition', pt: 'embaixo de', say: 'under', lore: 'O contrário de ON. Embaixo da placa sobra lugar para um degrau.' },
+  IN:      { cls: 'preposition', pt: 'dentro de', say: 'in', lore: 'Dentro. Uma caixa IN THE HOLE tapa o buraco e vira chão.' },
+  BEHIND:  { cls: 'preposition', pt: 'atrás de', say: 'behind', lore: 'O que está atrás some da vista. Só o pulso da Echo enxerga.' },
+  WALL:    { cls: 'noun', pt: 'muro / parede', say: 'wall', lore: 'Alto demais para pular. Mas uma parede tem um ON e um BEHIND.' },
+  SIGN:    { cls: 'noun', pt: 'placa / letreiro', say: 'sign', lore: 'A cidade fala com placas de neon. Algumas aguentam o seu peso.' },
+  HOLE:    { cls: 'noun', pt: 'buraco', say: 'hole', lore: 'Lá embaixo fica a rua. Um buraco só deixa de ser perigo quando algo fica IN THE HOLE.' },
+  BETWEEN: { cls: 'preposition', pt: 'entre', say: 'between', lore: 'No meio de duas coisas. No mapa da cidade, a torre fica entre a estação e a ponte.' },
 };
 const CREATURES = {
   CRAWLER: { pt: 'rastejante', say: 'Crawler', lore: 'Rasteja porque nunca aprendeu a falar.' },
@@ -125,6 +135,7 @@ const CREATURES = {
   FLYER:   { pt: 'alado', say: 'Flyer', lore: 'Um Rastejante que um dia ouviu a palavra UP. Sem as asas, volta a rastejar.' },
   THIEF:   { pt: 'ladrão de palavras', say: 'Word thief', lore: 'Não sabe falar, então rouba. Sempre a última palavra que você aprendeu.' },
   KNIGHT:  { pt: 'cavaleiro', say: 'Knight', lore: 'Era um guarda do palácio. Hoje é só armadura que ainda anda: pisão comum só faz o elmo tinir; com giro, ela se desfaz.' },
+  GARGOYLE: { pt: 'gárgula', say: 'Gargoyle', lore: 'Vira pedra quando você olha para ela. De costas, ela voa atrás de você. Parada no ar, serve de degrau; com giro, ela se quebra.' },
 };
 // O ECHO, o companheiro do Nexy: se apresenta na primeira partida e fala nas horas certas (frases A1 com legenda)
 const ECHO = {
@@ -147,6 +158,11 @@ const ECHO = {
     past: [{ en: 'I can see the past!', pt: 'Aqui eu enxergo o passado: aperte C (LB no controle) e eu mostro o que existia.' }],
     knight: [{ en: 'It is a knight!', pt: 'Um cavaleiro! Pisão comum só bate no elmo; pule girando (X) para quebrar a armadura.' }],
     gate: [{ en: 'The gate is open!', pt: 'O portão abriu. A saída do palácio está logo ali.' }],
+    // 1-3 · WHERE IS IT?
+    city: [{ en: 'Look! A box.', pt: 'Olha! Uma caixa em cima do letreiro. Diga onde ela fica, e ela vai para lá.' }],
+    gargoyle: [{ en: 'It is a gargoyle!', pt: 'Uma gárgula! Olhando para ela, ela vira pedra (e dá para subir nela). De costas, ela voa atrás de você.' }],
+    map: [{ en: 'Look! A map of the city.', pt: 'Olha! Um mapa da cidade. Aperte ↑ para ler: ele dá um poder novo ao Coração.' }],
+    compass: [{ en: 'Now we know where it is!', pt: 'Agora a gente sabe onde as coisas estão: a seta da bússola aponta para o que falta.' }],
   },
 };
 // A LEI DAS PALAVRAS: o prólogo da primeira partida (73_echo.js → Prologue). Quem fala é o narrador (a voz antiga);
@@ -208,6 +224,48 @@ const PALACE = {
   ring: { name: 'TO BE RING', pt: 'Anel do TO BE', reward: 'Os degraus-fantasma ficam sólidos para sempre. O Coração ganha um anel.' },
   cheer: { en: 'We were small. Now we are strong!', pt: 'Nós éramos pequenos. Agora somos fortes!' },
 };
+// WORLD 1-3 · WHERE IS IT? (16_level_1-3.js, 80_city.js): a chegada na cidade (narrador + a tabela das preposições),
+// o MAPA DA CIDADE (leitura com karaokê + escalada acima do A1) e a BÚSSOLA DAS PALAVRAS (o acréscimo ao Coração).
+const CITY = {
+  intro: [
+    { en: 'This is the city of words.', pt: 'Esta é a cidade das palavras.' },
+    { en: 'Where is the box? Say it, and it goes there.', pt: 'Onde está a caixa? Diga onde ela fica, e ela vai para lá.' },
+  ],
+  tableLine: { en: 'On. Under. In. Behind.', pt: 'ON = em cima · UNDER = embaixo · IN = dentro · BEHIND = atrás' },
+  table: [
+    { w: 'ON', pt: 'em cima de', icon: 'on' }, { w: 'UNDER', pt: 'embaixo de', icon: 'under' },
+    { w: 'IN', pt: 'dentro de', icon: 'in' }, { w: 'BEHIND', pt: 'atrás de', icon: 'behind' },
+  ],
+  // o mapa (visto de lado): a estação, a torre (a catedral atrás dela, o Nexy em cima) e a ponte (o palácio embaixo)
+  map: {
+    intro: { en: 'Read the map of the city.', pt: 'Leia o mapa da cidade. Cada frase acende uma parte do desenho.' },
+    lines: [
+      { en: 'Nexy is on the tower.', pt: 'O Nexy está em cima da torre.', k: 'nexy' },
+      { en: 'The palace is under the bridge.', pt: 'O palácio fica embaixo da ponte.', k: 'palace' },
+      { en: 'The cathedral is behind the tower.', pt: 'A catedral fica atrás da torre.', k: 'cathedral' },
+      { en: 'The tower is between the station and the bridge.', pt: 'A torre fica ENTRE a estação e a ponte. BETWEEN = entre.', k: 'tower', fresh: 'BETWEEN' },
+    ],
+    // escalada: uma tentativa por degrau; cada acerto sobe a bússola um nível
+    climb: [
+      { level: 'A2', q: 'What is between the station and the bridge?', options: ['The tower.', 'The palace.', 'The train.'], answer: 0, k: 'tower',
+        tip: 'BETWEEN = entre. No meio da estação e da ponte está a torre.' },
+      { level: 'A2+', q: 'Where is the palace?', options: ['It is on the bridge.', 'It is under the bridge.', 'It is behind the bridge.'], answer: 1, k: 'palace',
+        tip: 'O palácio está embaixo da ponte: UNDER. (ON seria em cima.)' },
+      { level: 'B1', q: 'The cathedral is behind the tower. Which one is closer to you?', options: ['The cathedral.', 'The tower.', 'The station.'], answer: 1, k: 'cathedral',
+        tip: 'BEHIND = atrás: o que está atrás fica mais longe. A torre está na frente, mais perto de você (closer).' },
+    ],
+  },
+  compass: [
+    { name: 'COMPASS OF WORDS', pt: 'Bússola das Palavras', info: 'A seta em volta do Nexy aponta a letra mais perto que ainda falta.' },
+    { name: 'SECRET SENSE', pt: 'Faro de Segredos', info: '+ aponta também os segredos escondidos (blocos invisíveis e paredes falsas).' },
+    { name: 'DISTANCE', pt: 'Distância', info: '+ mostra quantos passos (blocos) faltam.' },
+    { name: 'KEYHOLE', pt: 'Fechadura', info: '+ aponta também a saída secreta da fase.' },
+  ],
+  scene: [
+    { en: 'Where is it?', pt: 'Onde está?' },
+    { en: 'The heart knows.', pt: 'O Coração sabe. Ele ganhou uma bússola.' },
+  ],
+};
 // o tiro da Echo, nível por nível (o 1º tiro paralisa, o 2º quebra; recarrega com o tempo e nos checkpoints)
 const SHOT = [
   { name: 'STUN SHOT', pt: 'Tiro Paralisante', max: 3, every: 8, stun: 4, info: '3 tiros. O 1º paralisa o Rastejante (dá para pisar nele); o 2º quebra.' },
@@ -220,6 +278,7 @@ const MASTER_WORDS = {
   HELLO: { pt: 'olá', say: 'Hello', lore: 'Cinco letras espalhadas pelo escuro. Juntas, são a primeira coisa que o mundo responde.' },
   WORLD: { pt: 'mundo', say: 'World', lore: 'Depois do olá, o mundo inteiro. A catedral guardava cada letra num lugar mais alto.' },
   TOBE:  { pt: 'ser / estar (to be)', say: 'To be', lore: 'Quatro letras, um verbo inteiro: AM, IS, ARE, WAS, WERE. O palácio dele acendeu quando você disse quem era e quem é.' },
+  CITY:  { pt: 'cidade', say: 'City', lore: 'Quatro letras espalhadas pelos telhados, na chuva. Quem sabe dizer onde as coisas estão encontra todas.' },
 };
 const PHRASES_PT = {
   'HELLO!': 'Olá!', 'HOW ARE YOU?': 'Como você está?', 'WHAT IS THIS?': 'O que é isso?',
@@ -229,6 +288,7 @@ const PHRASES_PT = {
   'WHAT WAS HERE?': 'O que existia aqui?', 'WERE THEY BIG OR SMALL?': 'Eles eram grandes ou pequenos?',
   'HOW WAS NEXY YESTERDAY?': 'Como o Nexy estava ontem?', 'HOW IS NEXY TODAY?': 'Como o Nexy está hoje?',
   'HOW WERE THEY YESTERDAY?': 'Como eles eram ontem?', 'WHO WERE YOU? WHO ARE YOU?': 'Quem você era? Quem você é?',
+  'WHERE IS THE BOX?': 'Onde está a caixa?', 'WHERE IS IT?': 'Onde está?',
 };
 
 /* ============================== LEGENDA GLOBAL ============================== */
@@ -342,7 +402,7 @@ const WORLDS = {
       { id: '1-1', label: '1-1', name: 'HELLO WORLD', x: 150, y: 370, icon: 'gate' },
       { id: '1-2', label: '1-2', name: 'WHO ARE YOU?', x: 360, y: 300, icon: 'nave' },
       { id: 'palace', label: 'TO BE', name: 'TO BE PALACE', x: 250, y: 455, icon: 'palace' },
-      { id: '1-3', label: '1-3', name: '???', x: 560, y: 340, icon: 'tower' },
+      { id: '1-3', label: '1-3', name: 'WHERE IS IT?', x: 560, y: 340, icon: 'tower' },
       { id: 'ghost', label: 'PUSH?', name: 'PUSH OR PULL?', x: 470, y: 180, icon: 'ghost' },
       { id: 'fortress', label: 'FORT', name: 'FORTRESS', x: 700, y: 250, icon: 'fortress' },
       { id: 'castle', label: 'CASTLE', name: 'THE CASTLE', x: 840, y: 150, icon: 'castle' },
@@ -391,7 +451,7 @@ const Save = {
   defaults() {
     return {
       grimoire: { words: {}, creatures: {}, master: {} },
-      exits: {}, bestFluency: {}, letters: {}, cleared: {}, heart: { best: -1, by: {}, ring: false }, met: {}, shot: { best: -1 },
+      exits: {}, bestFluency: {}, letters: {}, cleared: {}, heart: { best: -1, by: {}, ring: false, compass: 0 }, met: {}, shot: { best: -1 },
       map: { at: '1-1', revealed: {} },
       flags: { palaces: { toBe: false } },
       assist: { slow: false, safeFall: false, freeHints: false, subtitles: false, voice: false, classic: false },
@@ -411,7 +471,7 @@ const Save = {
           Object.assign(d.exits, s.exits); Object.assign(d.bestFluency, s.bestFluency);
           Object.assign(d.letters, s.letters); Object.assign(d.cleared, s.cleared);
           Object.assign(d.met, s.met);
-          if (s.heart) { d.heart.best = s.heart.best != null ? s.heart.best : -1; Object.assign(d.heart.by, s.heart.by); d.heart.ring = !!s.heart.ring; }
+          if (s.heart) { d.heart.best = s.heart.best != null ? s.heart.best : -1; Object.assign(d.heart.by, s.heart.by); d.heart.ring = !!s.heart.ring; d.heart.compass = s.heart.compass | 0; }
           if (s.shot && s.shot.best != null) d.shot.best = s.shot.best;
           if (s.map) { if (s.map.at) d.map.at = s.map.at; Object.assign(d.map.revealed, s.map.revealed); }
           // saves da versão só com a 1-1: quem já saiu da 1-1 já tem os caminhos abertos

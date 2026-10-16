@@ -1343,6 +1343,299 @@ test('palácio: INTERRUPTOR DO SER — I WAS / I AM; frase trocada só confunde;
   expect(r.ghosts, 'na 1-1 os degraus-fantasma ficam sólidos sem as palavras');
 }, LP);
 
+const L13 = { level: '1-3' };
+// 1-3: gárgulas (atrair de costas, olhar para ela parar no ar), altares da caixa e pulos de verdade
+const HELP13 = () => {
+  const P = NEXY.P, G = NEXY.Game;
+  G.timers = []; NEXY.Save.data.met.echo = true; Echo.line = null; Echo.lines = [];
+  window.H13 = {
+    garg(c) { return NEXY.Ents.list.filter(e => e.type === 'gargoyle' && !e.dead).sort((a, b) => Math.abs(a.x - c * 32) - Math.abs(b.x - c * 32))[0]; },
+    // acorda os spawns perto de (c, r) e devolve a gárgula da coluna gc
+    spawn(c, r, gc) { H.wakeSpawns(); P.dead = false; P.pitDeath = false; G.state = 'play'; G.hitstopN = 0; NEXY.teleport(c, r); P.invuln = 999; H.set([]); H.step(3); return H13.garg(gc); },
+    // atrai a gárgula: de costas até ela chegar na altura da cabeça e perto; então olha para ela (ela vira pedra ali)
+    lure(e, maxD = 34) {
+      H.set([]);
+      for (let i = 0; i < 1200; i++) {
+        P.facing = e.x + e.w / 2 > P.cx ? -1 : 1; H.step(1);
+        if (e.state === 'fly' && Math.abs(e.x + e.w / 2 - P.cx) < maxD && Math.abs(e.y + e.h / 2 - (P.y + 6)) < 12) break;
+      }
+      P.facing = e.x + e.w / 2 > P.cx ? 1 : -1; H.step(2);
+      return e.state;
+    },
+    // pulo com a seta segurada só depois de 'delay' quadros (para cair em cima de algo bem perto)
+    hop(dir, delay, success, frames = 160) {
+      H.set(['jump']); H.press('jump');
+      for (let i = 0; i < frames; i++) { if (i === delay) H.set(['jump', dir]); H.step(1); if (i > 4 && success()) { H.set([]); P.vx = 0; return true; } if (P.dead || (i > 10 && P.onGround)) break; }
+      H.set([]); H.step(2); return false;
+    },
+    stand(rr, c0, c1) { return () => P.onGround && Math.round(P.y + P.h) === rr * 32 && P.x + P.w / 2 >= c0 * 32 && P.x + P.w / 2 <= (c1 + 1) * 32; },
+    onIt(e) { return () => P.onGround && P.riding === e && Math.abs(P.cx - (e.x + e.w / 2)) < 12; },
+    async say(c, r, words) { Echo.line = null; Echo.lines = []; await H12.panel(c, r, words); H.step(40); return Echo.line ? Echo.line.en : '-'; },
+  };
+};
+
+test('1-3: carrega com CITY, 8 palavras (BETWEEN no mapa), 4 letras, 1 saída, gárgula e Rastejante, música e fundo da cidade', async ({ page }) => {
+  const r = await page.evaluate(() => ({ T: NEXY.World.totals, word: NEXY.World.level.masterWord, music: Music.variant, bg: NEXY.World.level.bg,
+    doors: Object.keys(NEXY.World.doors).sort().join(), bar: NEXY.Game.barMax(), node: WorldMap.playable('1-3'),
+    boxes: ['box1', 'box2', 'box3'].map(id => NEXY.World.targets[id].state).join() }));
+  expect(r.word === 'CITY' && r.T.letters === 4 && r.T.exits === 1 && r.T.secrets === 2, `palavra-mestra e totais ${JSON.stringify(r.T)}`);
+  expect(r.T.wordList.sort().join() === 'BEHIND,BETWEEN,HOLE,IN,ON,SIGN,UNDER,WALL', `palavras ${r.T.wordList}`);
+  expect(r.T.creatureList.sort().join() === 'CRAWLER,GARGOYLE', `criaturas ${r.T.creatureList}`);
+  expect(r.music === 'city' && r.bg === 'city' && r.bar === 10, 'música, fundo e barra');
+  expect(r.doors === 'altar1,altar2,altar3,altar3b,citymap', `altares e mapa (${r.doors})`);
+  expect(r.boxes === 'on,behind,on-wall', `caixas no começo (${r.boxes})`);
+  expect(r.node, 'o nó da 1-3 no mapa agora é jogável');
+}, L13);
+
+test('mapa: sair da 1-2 abre a 1-3; na 1ª visita a chegada ensina ON/UNDER/IN/BEHIND (Esc pula) e não volta mais', async ({ browser }) => {
+  const { ctx, page, errors } = await openGame(browser, { realtime: true });
+  await page.evaluate(() => { NEXY.Save.data.exits = { '1-1': { normal: true }, '1-2': { normal: true } }; NEXY.Save.data.cleared = { '1-1': true, '1-2': true }; NEXY.Save.data.map = { at: '1-2', revealed: { '1-1>1-2': true } }; });
+  await page.keyboard.press('Enter');
+  for (let i = 0; i < 40; i++) { await page.waitForTimeout(150); if (await page.evaluate(() => !!NEXY.Save.data.map.revealed['1-2>1-3'] && !WorldMap.reveal.length)) break; }
+  await page.keyboard.down('ArrowRight'); await page.waitForTimeout(150); await page.keyboard.up('ArrowRight'); await page.waitForTimeout(1800);
+  const at = await page.evaluate(() => WorldMap.at);
+  await page.keyboard.press('Enter'); await page.waitForTimeout(2800);
+  const inside = await page.evaluate(() => ({ lvl: NEXY.World.level.id, intro: CityIntro.active, state: NEXY.Game.state, music: Music.variant }));
+  await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+  const after = await page.evaluate(() => ({ intro: CityIntro.active, state: NEXY.Game.state, met: !!NEXY.Save.data.met.city }));
+  await page.evaluate(() => NEXY.Game.enterLevel('1-3', true)); await page.waitForTimeout(400);
+  const again = await page.evaluate(() => CityIntro.active);
+  await ctx.close();
+  expect(!errors.length, errors.join('; '));
+  expect(at === '1-3', `andou até a 1-3 (${at})`);
+  expect(inside.lvl === '1-3' && inside.intro && inside.state === 'cinematic' && inside.music === 'city', `dentro, com a chegada (${JSON.stringify(inside)})`);
+  expect(!after.intro && after.state === 'play' && after.met, `Esc pula e entrega o controle (${JSON.stringify(after)})`);
+  expect(!again, 'na 2ª visita não repete');
+}, { ownPages: true });
+
+test('1-3 letreiro: sem a caixa não se sobe; IT IS IN THE SIGN só confunde (com dica); IT IS UNDER THE SIGN põe a caixa embaixo e dela se sobe na placa e no prédio alto', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, G = NEXY.Game, W = NEXY.World, out = {};
+    H.noEnemies();
+    H12.hit(4, 19); H12.hit(7, 19); out.bar = G.bar.join();
+    // sem a caixa: nem correndo se alcança a placa (5 linhas acima do telhado)
+    out.noBox = H12.tryHop([0], () => NEXY.teleport(15, 19), ['right', 'run'], H13.stand(15, 18, 23)) + H12.tryHop([0], () => NEXY.teleport(19, 19), [], H13.stand(15, 18, 23));
+    NEXY.give('IN');
+    out.tip = await H13.say(13, 19, ['IN']); out.still = W.targets.box1.state;
+    await H13.say(13, 19, ['UNDER']); H.step(90);
+    out.box = W.targets.box1.state; out.solid = [20, 21].every(c => W.type(c, 18) === 7 && W.type(c, 19) === 7) && W.type(20, 13) !== 7;
+    out.hops = [
+      H12.tryHop([0], () => NEXY.teleport(18, 19), ['right'], H13.stand(18, 20, 21)),
+      H12.tryHop([0], () => NEXY.teleport(20, 17), [], H13.stand(15, 18, 23)),
+      H12.tryHop([0], () => NEXY.teleport(22, 14), ['right'], H13.stand(12, 25, 44)),
+    ].join();
+    return out;
+  });
+  expect(r.bar === 'ON,UNDER', `palavras dos blocos (${r.bar})`);
+  expect(r.noBox === 0, 'sem a caixa não dá para subir');
+  expect(r.tip === 'In the sign? It is too thin!' && r.still === 'on', `IN só confunde, com dica (${r.tip})`);
+  expect(r.box === 'under' && r.solid, `a caixa voa para baixo da placa e vira chão (${r.box})`);
+  expect(r.hops === '1,1,1', `telhado → caixa → placa → prédio alto (${r.hops})`);
+}, L13);
+
+test('1-3 outdoor: o pulso acha a caixa atrás da placa; ON THE HOLE só confunde; UNDER THE HOLE ela cai (a Echo avisa); IN THE HOLE tapa o buraco e o corredor se atravessa andando', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, G = NEXY.Game, W = NEXY.World, out = {};
+    H.noEnemies();
+    H12.hit(46, 19); H12.hit(52, 19); out.bar = G.bar.join();
+    // sem a caixa, o buraco do corredor (3 colunas) não se pula, nem correndo
+    NEXY.teleport(58, 19); H.set(['right', 'run']); for (let i = 0; i < 60; i++) { H.step(1); if (P.x > 64 * 32 - 30) { H.press('jump'); H.set(['right', 'run', 'jump']); } }
+    H.set([]); H.step(60); out.noBox = !P.dead && P.x > 68 * 32 && Math.round(P.y + P.h) === 640; P.dead = false;
+    H.tp(58, 19, 999); Echo.reset(); H.step(20); Echo.line = null; Echo.lines = []; EchoPulse.cool = 0;
+    EchoPulse.fire(); H.step(2);
+    out.ping = W.targets.box2.ping > 0; out.echo = Echo.line && Echo.line.en; out.hint = !!Hints.done.boxping;
+    NEXY.give('ON', 'UNDER');
+    out.tip = await H13.say(49, 19, ['ON']);
+    await H13.say(49, 19, ['UNDER']); H.step(60); out.fell = W.targets.box2.state; out.fellLine = Echo.line && Echo.line.en;
+    out.stillHole = W.type(65, 20) === 0;
+    await H13.say(49, 19, ['IN']); H.step(90);
+    out.box = W.targets.box2.state; out.filled = [65, 66, 67].every(c => W.type(c, 20) === 7 && W.type(c, 21) === 7);
+    H.tp(58, 19, 999); H.set(['right']); H.step(200); H.set([]); H.step(5);
+    out.across = P.onGround && !P.dead && P.x > 70 * 32 && Math.round(P.y + P.h) === 640;
+    return out;
+  });
+  expect(r.bar === 'IN,BEHIND', `palavras dos blocos (${r.bar})`);
+  expect(!r.noBox, 'sem a caixa o buraco do corredor não se atravessa');
+  expect(r.ping && r.echo === 'It is behind the sign!' && r.hint, `o pulso acha a caixa (${JSON.stringify(r)})`);
+  expect(r.tip === 'On the hole? It falls in!', `ON só confunde (${r.tip})`);
+  expect(r.fell === 'under' && r.fellLine === 'Oh no! It fell down.' && r.stillHole, `UNDER: a caixa cai e o buraco fica aberto (${JSON.stringify(r)})`);
+  expect(r.box === 'in' && r.filled && r.across, `IN tapa o buraco e se atravessa (${JSON.stringify(r)})`);
+}, L13);
+
+test('1-3 café: THE BOX IS IN THE HOLE vira chão no meio do buraco; do parapeito, UNDER THE SIGN leva a caixa; subida até o muro; frases sem sentido têm dica', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, G = NEXY.Game, W = NEXY.World, out = {};
+    H.noEnemies();
+    H12.hit(86, 17); H12.hit(89, 17); H12.hit(92, 17); out.bar = G.bar.join();
+    NEXY.give('ON', 'UNDER', 'IN', 'BEHIND');
+    out.tips = [await H13.say(102, 17, ['IN', 'WALL']), await H13.say(102, 17, ['ON', 'HOLE']), await H13.say(102, 17, ['IN', 'SIGN'])].join(' | ');
+    // nem correndo se pula o buraco de 8 colunas
+    out.noBox = H12.tryHop([0], () => NEXY.teleport(101, 17), ['right', 'run'], H13.stand(18, 113, 115));
+    await H13.say(102, 17, ['IN', 'HOLE']); H.step(90);
+    out.inHole = W.targets.box3.state === 'in-hole' && [107, 108, 109].every(c => W.type(c, 18) === 7);
+    out.cross = [
+      H12.tryHop([0], () => NEXY.teleport(104, 17), ['right'], H13.stand(18, 107, 109)),
+      H12.tryHop([0], () => NEXY.teleport(109, 17), ['right'], H13.stand(18, 113, 116)),
+    ].join();
+    // sem a caixa embaixo da placa, do parapeito não se alcança a placa
+    out.noSign = H12.tryHop([0], () => NEXY.teleport(115, 17), [], H13.stand(13, 114, 116));
+    await H13.say(113, 17, ['UNDER', 'SIGN']); H.step(120);
+    out.under = W.targets.box3.state === 'under-sign' && W.type(114, 16) === 7 && W.type(108, 18) === 0;
+    out.climb = [
+      H12.tryHop([0], () => NEXY.teleport(113, 17), ['right'], H13.stand(16, 114, 116)),
+      H12.tryHop([0], () => NEXY.teleport(115, 15), [], H13.stand(13, 114, 116)),
+      H12.tryHop([0], () => NEXY.teleport(115, 12), ['right'], H13.stand(10, 117, 134)),
+    ].join();
+    return out;
+  });
+  expect(r.bar === 'WALL,SIGN,HOLE', `palavras dos blocos (${r.bar})`);
+  expect(r.tips === 'A wall has no inside! | On the hole? It falls in! | In the sign? It is too thin!', `dicas (${r.tips})`);
+  expect(r.noBox === 0 && r.noSign === 0, `sem a caixa não dá (${r.noBox}/${r.noSign})`);
+  expect(r.inHole && r.cross === '1,1', `a caixa no buraco vira chão e se atravessa (${r.cross})`);
+  expect(r.under && r.climb === '1,1,1', `UNDER THE SIGN e a subida até o muro (${JSON.stringify(r)})`);
+}, L13);
+
+test('1-3 gárgula: olhando para ela é pedra (chão, não machuca); de costas ela acorda, desce e vem; voando machuca; pisão a deixa de pedra e o Nexy quica; com giro quebra', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13);
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, G = NEXY.Game, out = {};
+    let e = H13.spawn(20, 19, 27);
+    P.facing = 1; H.step(60); out.stone = e.state === 'stone' && e.plat && Math.abs(e.y - e.hy) < 1;
+    P.facing = -1; H.step(12); out.wake = e.state; H.step(60); out.fly = e.state === 'fly' && e.y > e.hy + 20;
+    // voando, encostar machuca
+    P.invuln = 0; P.aura = false; for (let i = 0; i < 900 && !P.dead; i++) { P.facing = -1; H.step(1); }
+    out.hurt = P.dead;
+    // pisão: ela voando logo abaixo (atrás do Nexy, que olha para o outro lado); vira pedra por 2 s e ele quica alto
+    const under = spin => {
+      const g = H13.spawn(20, 19, 27); NEXY.teleport(20, 11); P.facing = 1; P.vy = 0; P.spinning = spin;
+      g.x = P.cx - 33; g.y = P.y + P.h + 30; g.state = 'fly'; g.plat = false; g.wakeT = 1; g.hx = g.x; g.hy = g.y;
+      H.set(['jump']); let bounced = false;
+      for (let i = 0; i < 90; i++) { H.step(1); if (g.state === 'dying' || g.stunT > 0) { bounced = P.vy < -300; break; } }
+      H.set([]); return { g, bounced };
+    };
+    let s1 = under(false); out.stomp = s1.bounced && s1.g.state === 'stone' && s1.g.stunT > 1.5;
+    s1 = under(true); out.spin = s1.g.state === 'dying' || s1.g.dead;
+    return out;
+  });
+  expect(r.stone, 'olhando para ela: pedra parada no poleiro, e é chão');
+  expect(r.wake === 'wake' && r.fly, `de costas: acorda e desce voando (${r.wake}/${r.fly})`);
+  expect(r.hurt, 'voando, ela machuca');
+  expect(r.stomp, 'pisão: vira pedra por 2 s e o Nexy quica alto');
+  expect(r.spin, 'com giro ela quebra');
+}, L13);
+
+test('1-3 outro caminho em cada desafio: gárgula parada no ar vira degrau (letreiro, escada de incêndio, parapeito do café); pulo correndo na gárgula do buraco', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13);
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, out = {};
+    // atrai a gárgula, olha para ela (pedra no ar), sobe nela e segue com pulos de verdade (vários tempos de pulo)
+    const route = (c, r, gc, steps) => {
+      for (const d of [8, 4, 12, 0, 16, 20]) {
+        const e = H13.spawn(c, r, gc); if (!e) return 'sem gárgula';
+        if (H13.lure(e) !== 'stone') continue;
+        if (!H13.hop(e.x + e.w / 2 > P.cx ? 'right' : 'left', d, H13.onIt(e))) continue;
+        let all = true;
+        for (const [keys, success, place] of steps) { P.facing = 1; if (!H12.tryHop([0], place || (() => {}), keys, success)) { all = false; break; } }
+        if (all) return 'ok';
+      }
+      return 'falhou';
+    };
+    // andar até a ponta (da placa) antes do pulo seguinte, como o jogador faz
+    const edge = c => () => { H.set(['right']); for (let i = 0; i < 90 && P.x + P.w < (c + 1) * 32 - 3; i++) H.step(1); H.set([]); };
+    out.sign = route(20, 19, 27, [[[], H13.stand(15, 18, 23)], [['right'], H13.stand(12, 25, 44), edge(23)]]);
+    out.billboard = route(56, 13, 62, [[['right'], H13.stand(9, 60, 72)]]);
+    out.cafe = route(114, 17, 112, [[['right'], H13.stand(13, 114, 116)], [['right'], H13.stand(10, 117, 134), edge(116)]]);
+    // a gárgula do buraco: de frente para ela (pedra), um pulo correndo cai em cima; dela, o parapeito
+    const e = H13.spawn(101, 17, 108); P.facing = 1;
+    out.pit = H12.tryHop([0], () => { NEXY.teleport(100, 17); P.facing = 1; H.set(['right', 'run']); for (let i = 0; i < 40 && P.x + P.w < 105 * 32 - 24; i++) H.step(1); }, ['right', 'run'], () => P.onGround && P.riding === e);
+    out.pit2 = out.pit ? H12.tryHop([0], () => {}, ['right'], H13.stand(18, 113, 116)) : 0;
+    return out;
+  });
+  expect(r.sign === 'ok', `letreiro pela gárgula (${r.sign})`);
+  expect(r.billboard === 'ok', `outdoor pela escada de incêndio e a gárgula (${r.billboard})`);
+  expect(r.cafe === 'ok', `parapeito do café pela gárgula (${r.cafe})`);
+  expect(r.pit && r.pit2, `buraco pela gárgula de pedra (${r.pit}/${r.pit2})`);
+}, L13);
+
+test('1-3 letras e segredos: C do alto da placa, I em cima do outdoor, T da gárgula do buraco, Y de cima do trem; vida e cristal escondidos', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13);
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, G = NEXY.Game, out = {};
+    const got = i => () => G.letters[i];
+    H.noEnemies();
+    out.C = H12.tryHop([0], () => NEXY.teleport(21, 14), [], got(0));
+    out.I = H12.tryHop([0], () => NEXY.teleport(70, 8), [], got(1));
+    const e = H13.spawn(101, 17, 108); P.facing = 1;
+    out.T = H12.tryHop([0], () => { P.x = e.x + e.w / 2 - P.w / 2; P.y = e.y - P.h; P.px = P.x; P.py = P.y; P.vx = 0; P.vy = 0; P.facing = 1; H.step(1); }, [], got(2));
+    H.noEnemies();
+    const tr = NEXY.Ents.list.find(x => x.type === 'train');
+    out.Y = H12.tryHop(H12.range(0, tr.period, 0.25), () => { Ents.types.train.place(tr); P.x = 154 * 32 + 16 - P.w / 2; P.y = tr.y - P.h; P.px = P.x; P.py = P.y; P.vx = 0; P.vy = 0; H.step(1); },
+      [], () => G.letters[3]);
+    H12.hit(35, 11); H12.hit(180, 15);
+    out.secrets = [...G.secrets].sort().join();
+    return out;
+  });
+  expect(r.C && r.I && r.T && r.Y, `as 4 letras (${JSON.stringify(r)})`);
+  expect(r.secrets === 'city-crystal,city-life', `segredos (${r.secrets})`);
+}, L13);
+
+test('1-3 trem: espera na estação, leva o Nexy até a praça (sem cair) e buzina ao sair', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13);
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, G = NEXY.Game, out = {};
+    H.noEnemies();
+    const tr = NEXY.Ents.list.find(e => e.type === 'train');
+    G.simTime = 0.2; H.tp(139, 15, 999); H.step(1); out.atStation = Math.round(tr.x) === 141 * 32;
+    H.set(['right']); for (let i = 0; i < 60 && P.riding !== tr; i++) H.step(1); H.set([]);
+    out.board = P.riding === tr; out.hint = !!Hints.done.train;
+    for (let i = 0; i < 900 && tr.k < 1; i++) H.step(1);
+    out.arrived = !P.dead && P.riding === tr && Math.round(tr.x) === 157 * 32;
+    H.set(['right']); H.step(120); H.set([]); H.step(5);
+    out.plaza = P.onGround && !P.dead && P.x > 163 * 32 && Math.round(P.y + P.h) === 512;
+    return out;
+  });
+  expect(r.atStation && r.board && r.hint, `embarca na estação (${JSON.stringify(r)})`);
+  expect(r.arrived && r.plaza, `chega na praça (${JSON.stringify(r)})`);
+}, L13);
+
+test('1-3 mapa da cidade: leitura (BETWEEN), a bússola nasce; escalada sobe a bússola, errar encerra e guarda; a cena; a seta aponta a letra que falta e, no nível 2, o segredo', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, G = NEXY.Game, S = NEXY.Save.data, out = {};
+    H.noEnemies(); S.heart.compass = 0; S.met.compass = false;
+    H.tp(172, 15, 999); H.step(5); out.near = P.interact && P.interact.kind;
+    G.openPanel(P.interact); out.state = G.state;
+    const click = sel => { const b = document.querySelector('#chest ' + sel); if (b) b.click(); return !!b; };
+    click('[data-a="learn"]'); await H.wait(50);
+    out.svg = !!document.querySelector('#chest .cmap .cm-x[data-k="tower"]');
+    out.between = G.wordsSeen.has('BETWEEN') && !!S.grimoire.words.BETWEEN;
+    click('[data-a="online"]'); await H.wait(50); out.c1 = S.heart.compass;
+    click('[data-a="climb"]'); await H.wait(50);
+    click('.copt[data-i="0"]'); await H.wait(50); out.c2 = S.heart.compass;
+    click('[data-a="up"]'); await H.wait(50);
+    click('.copt[data-i="0"]'); await H.wait(50); out.c3 = S.heart.compass; out.ev = document.getElementById('cev').textContent;
+    click('[data-a="up"]'); await H.wait(50); out.done = !!document.querySelector('#chest [data-a="close"]');
+    click('[data-a="close"]'); await H.wait(50);
+    out.scene = CompassScene.active && G.state === 'cinematic' && City.freeze;
+    for (let i = 0; i < 60 * 16 && CompassScene.active; i++) CompassScene.update(1 / 60);
+    out.after = !CompassScene.active && G.state === 'play' && !City.freeze && S.met.compass;
+    // a seta: aponta a letra que falta mais perto; no nível 2, também o bloco invisível
+    H.tp(176, 15, 999); H.step(2);
+    S.heart.compass = 1; const t1 = City.compassTarget(); out.t1 = t1 && t1.k;
+    S.heart.compass = 2; const t2 = City.compassTarget(); out.t2 = t2 && t2.k;
+    return out;
+  });
+  expect(r.near === 'citymap' && r.state === 'citymap', `↑ abre o mapa (${r.near}/${r.state})`);
+  expect(r.svg && r.between, 'o desenho do mapa e a palavra nova BETWEEN no Grimório');
+  expect(r.c1 === 1 && r.c2 === 2 && r.c3 === 2, `bússola: leitura 1, acerto 2, erro guarda 2 (${r.c1}/${r.c2}/${r.c3})`);
+  expect(/climb ends/.test(r.ev) && r.done, `errar encerra a escalada (${r.ev})`);
+  expect(r.scene && r.after, `a cena da bússola (chuva parada) e o fim (${r.scene}/${r.after})`);
+  expect(r.t1 === 'letter' && r.t2 === 'secret', `a seta (${r.t1}/${r.t2})`);
+}, L13);
+
 test('visual novo do Nexy: rascunho na 1ª partida, evolui com as fases (aviso no mapa uma vez), CLASSIC NEXY volta ao antigo; a física não muda', async ({ page }) => {
   const r = await page.evaluate(() => {
     const P = NEXY.P, G = NEXY.Game, S = NEXY.Save.data, out = {};

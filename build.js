@@ -16,6 +16,7 @@ const PARTS = [
   '10_data.js',         // legenda do mapa, CONFIG, LOOK, palavras, fases, save e flags
   '12_level_1-2.js',    // fase 1-2 · WHO ARE YOU?
   '14_level_palace.js', // TO BE PALACE (a saída secreta da 1-1)
+  '16_level_1-3.js',    // fase 1-3 · WHERE IS IT? (os telhados da cidade)
   '20_audio.js',        // efeitos, música em camadas, voz e reconhecimento de fala
   '30_input_render.js', // teclado, toque, escala e cache de brilhos
   '40_world.js',        // tiles, blocos, colisão, fundo em parallax e partículas
@@ -30,6 +31,7 @@ const PARTS = [
   '75_worldmap.js',     // transições (íris) e mapa-múndi
   '76_secret.js',       // 1-1: o segredo (tijolo do bug, WARP CARD, TO BE ENGINE, teletransporte) e o tiro da Echo
   '78_palace.js',       // TO BE PALACE: cavaleiro, interruptor do ser, alvos do passado, chão-espelho, fundo e cenas
+  '80_city.js',         // 1-3: a caixa de neon, gárgula, trem, mapa da cidade, prédios, chuva, chegada e a bússola
   '99_boot.js',         // API de teste no console e partida
 ];
 

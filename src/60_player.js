@@ -185,6 +185,8 @@ const P = {
   enemyContacts() {
     for (const e of Ents.enemies()) {
       if (e.state === 'held' || e.frozen > 0 || this.dead || !overlap(this, e)) continue;
+      // gárgula de pedra: não machuca (é chão por cima); só voando ela ataca e pode levar pisão
+      if (e.type === 'gargoyle' && e.state !== 'fly' && e.state !== 'home') continue;
       const falling = this.y - this.py > 0.01 || this.vy > 0;
       const above = this.py + this.h <= e.y + e.h * 0.5 + 3;
       // gigantes: fecham a passagem (empurram, não machucam)
@@ -227,6 +229,7 @@ const P = {
     else if (e.type === 'flyer') Ents.types.flyer.clip(e);
     else if (e.type === 'crawler' || e.type === 'thief') Enemy.kill(e, 'flat');
     else if (e.type === 'knight') Ents.types.knight.clang(e);   // o elmo só tine: com giro a armadura se desfaz
+    else if (e.type === 'gargoyle') Ents.types.gargoyle.stun(e);   // vira pedra por 2 s: com giro ela quebra
     else if (e.state === 'walk') { Ents.types.casco.toShell(e); e.immune = 0.15; Game.registerCreature('SHELL'); }
     else if (e.state === 'slide') { e.state = 'shell'; e.vx = 0; e.immune = 0.15; }
     this.y = topY - this.h;
@@ -581,7 +584,7 @@ const Doors = {
     const sub = Save.data.assist.subtitles;
     for (const id in World.doors) {
       const d = World.doors[id], x = d.x - camX, y = d.y - camY;
-      if (x > CFG.VIEW_W + 200 || x + d.w < -200 || d.kind === 'chest' || d.kind === 'engine') continue;
+      if (x > CFG.VIEW_W + 200 || x + d.w < -200 || d.kind === 'chest' || d.kind === 'engine' || d.kind === 'citymap' || d.def.quiet) continue;
       if (d.ent && d.ent.type === 'beswitch' && PalaceSwitch.active) continue;   // na cena do interruptor, só a cena
       if (d.kind === 'door' || d.kind === 'bells') this.drawArch(ctx, d, x, y, t);
       const cx = x + d.w / 2, top = d.kind === 'door' ? y - 40 : y - 92;
@@ -639,7 +642,7 @@ const Doors = {
   },
   drawPrompt(ctx, camX, camY) {
     const d = P.interact; if (!d || Game.state !== 'play') return;
-    const label = d.kind === 'pedestal' ? '↑ SPEAK' : d.kind === 'engine' ? '↑ USE' : '↑ OPEN';
+    const label = d.kind === 'pedestal' ? '↑ SPEAK' : d.kind === 'engine' ? '↑ USE' : d.kind === 'citymap' ? '↑ READ' : '↑ OPEN';
     const s = R.text(label, '600 10px Orbitron, Inter, sans-serif', '#22d3ee', 'rgba(0,217,249,0.7)', 6);
     const x = P.cx - camX, y = P.y - camY - 30 - Math.sin(Game.time * 4) * 2;
     capsulePath(ctx, x, y, s.w - 14, 20); ctx.fillStyle = 'rgba(2,2,2,0.7)'; ctx.fill(); ctx.strokeStyle = ca(0.6); ctx.lineWidth = 1; ctx.stroke();

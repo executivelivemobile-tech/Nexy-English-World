@@ -10,6 +10,7 @@ Plataforma 2D neon-noir para ensinar inglês (nível A1) a brasileiros. Tudo est
 | 1-1 · Hello World | aprovada em `3702f14`; nova abertura com o nascimento da Echo aguardando aprovação | branch |
 | 1-2 · Who are you? | aguardando aprovação | branch `claude/jolly-faraday-8mbshk` |
 | TO BE PALACE (saída secreta da 1-1) | aguardando aprovação | branch `claude/jolly-faraday-8mbshk` |
+| 1-3 · Where is it? | aguardando aprovação | branch `claude/jolly-faraday-8mbshk` |
 
 ## Como o jogo flui
 
@@ -19,6 +20,7 @@ Tela inicial → **mapa do Mundo 1** → fase → tela de fim → volta ao mapa.
 - Cada saída abre um caminho novo, que se desenha ponto a ponto. A saída normal da 1-1 abre a 1-2; a secreta abre o
   Palácio do To Be. A normal da 1-2 abre a 1-3; a secreta abre a Casa dos Falsos Amigos "PUSH OR PULL?".
 - No céu do mapa, as letras de **HELLO** (1-1) e **WORLD** (1-2) acendem como uma constelação conforme são achadas.
+  As outras fases têm a sua palavra-mestra (palácio: **TOBE**; 1-3: **CITY**), que aparece no cartão e no fim da fase.
 - Vidas e orbes atravessam as fases. Letras, saídas e a melhor Fluência ficam salvas por fase.
 - Transições: ao entrar numa fase, uma íris neon fecha sobre o Nexy e mostra o cartão da fase (nome, letras já
   achadas e "Nexy × vidas"). Ao sair pela saída secreta, a íris fecha numa **fechadura**. No fim de jogo, o Nexy volta
@@ -34,17 +36,17 @@ Tela inicial → **mapa do Mundo 1** → fase → tela de fim → volta ao mapa.
 | Shift (segurar) | X, Y, LB, RB, LT, RT | correr e carregar a carapaça |
 | Z ou Espaço | A / ✕ | pular (segure para ir mais alto); no mapa, entrar na fase |
 | X | B / ○ | pulo giratório |
-| ↑ ou W | ↑ | abrir porta / falar no pedestal ou altar |
+| ↑ ou W | ↑ | abrir porta / falar no pedestal ou altar / ler o mapa da cidade |
 | Q | SELECT / BACK | soltar o item da reserva |
 | H | Y (no painel) | dica (tradução da inscrição) |
-| C | LB | pulso da Echo (revela o escondido; no palácio, o passado) |
+| C | LB | pulso da Echo (revela o escondido; no palácio, o passado; na cidade, a caixa escondida) |
 | F | Y (depois de ganhar o tiro; antes disso Y corre) | tiro da Echo: o 1º paralisa, o 2º quebra |
 | V | | falar a frase na porta (VOICE MODE ligado); longe das portas, com o tiro: segure V e diga STOP! |
 | M | | som liga/desliga |
 | Esc ou P | START | pausa |
 
 Tudo o que o Nexy e a Echo já sabem fazer fica no **Grimório → aba POWERS** (pulso, tiro, voz, Coração, Anel do TO
-BE, cartão), com o botão e o que cada poder faz. O que ainda não foi conquistado aparece fechado.
+BE, Bússola das Palavras, cartão), com o botão e o que cada poder faz. O que ainda não foi conquistado aparece fechado.
 
 No painel das portas, com o controle: A coloca/confirma, B volta, X apaga a última palavra, Y pede dica e o
 direcional escolhe a palavra. Nos menus, o direcional navega (segurar repete).
@@ -186,6 +188,42 @@ YESTERDAY: I WAS · IT WAS · THEY WERE). O chão do salão é um espelho: o Nex
   menor, a 84 BPM, com o tique-taque do relógio; no fundo, um relógio enorme cujos ponteiros andam para trás (até o
   palácio acordar).
 
+## Fase 1-3 · WHERE IS IT? (os telhados da cidade na chuva)
+
+A primeira vez que o Nexy sai das igrejas: a **cidade Castlevania cyberpunk** vista de cima, na chuva, com raios,
+letreiros de neon, prédios com janelas acesas (agora com **profundidade**: o telhado tem face de cima e o prédio tem
+lateral), um outdoor gigante e um monotrilho. Cair entre os prédios é morte. Palavra-mestra: **C I T Y**.
+
+**A mecânica nova é a CAIXA DE NEON**: os altares perguntam WHERE IS THE BOX? e a caixa **vai para onde você disser**.
+A preposição escolhe o lugar e o substantivo escolhe a coisa; a caixa voa em arco até lá e vira degrau, tampa de buraco
+ou some atrás de algo. Na primeira visita, o narrador apresenta a cidade e a tabela ON · UNDER · IN · BEHIND com
+desenhos da caixa em cima, embaixo, dentro e atrás. As coisas da cidade têm etiqueta com o nome (SIGN, WALL, HOLE).
+
+| Lugar | Frase | O que acontece | Outro caminho (sem o inglês) |
+| --- | --- | --- | --- |
+| Letreiro do HOTEL | IT IS ___ THE SIGN. → **UNDER** | a caixa desce para baixo da placa: dela se sobe na placa e no prédio alto | atrair a gárgula e olhar para ela: parada no ar, ela vira degrau |
+| Outdoor | a caixa sumiu: o pulso da Echo acha (**It is behind the sign!**); THE BOX IS ___ THE HOLE. → **IN** | a caixa tapa o buraco do corredor | escada de incêndio + a gárgula do outdoor |
+| Café | duas lacunas: THE BOX IS ___ THE ___. → **IN THE HOLE**, depois **UNDER THE SIGN** (no outro altar) | a caixa vira chão no meio do buraco; depois sobe para baixo do letreiro do café | pulo correndo na gárgula de pedra sobre o buraco; a gárgula do muro |
+| Estação | — | o **trem** do monotrilho leva o Nexy até a praça | — |
+| Praça | o **MAPA DA CIDADE** (↑ READ) | leitura, a Bússola nasce, escalada acima do A1 | é opcional |
+
+- **Erro com retorno, sem castigo**: frase sem sentido faz a caixa tremer e a Echo diz o porquê ("In the sign? It is
+  too thin!", "A wall has no inside!", "On the hole? It falls in!"). Frase certa mas inútil também ensina: UNDER THE
+  HOLE e a caixa cai na rua ("Oh no! It fell down.").
+- **Gárgula (GARGOYLE)**, criatura nova: de pedra quando você olha para ela (não machuca e é chão); de costas, ela
+  treme, acorda e voa atrás de você. Pisão comum a deixa de pedra por 2 s e o Nexy quica alto; com giro ela quebra.
+- **O mapa da cidade**: uma cidade desenhada de lado (estação, torre com a catedral atrás e o Nexy em cima, ponte com o
+  palácio embaixo). O narrador lê quatro frases e cada uma acende a parte do desenho (BETWEEN é palavra nova). Ler já
+  dá a **BÚSSOLA DAS PALAVRAS**; a escalada (A2 → B1, uma tentativa por pergunta) deixa a bússola mais forte. Errar
+  encerra a escalada, mas a bússola fica; dá para tentar de novo.
+- **A Bússola das Palavras** (o acréscimo da 1-3 ao Coração): uma seta magenta em volta do Nexy aponta o que falta,
+  em **todas as fases**. Nível 1: a letra mais perto. 2: também os segredos (blocos invisíveis, paredes falsas). 3: a
+  distância em blocos. 4: também a saída secreta. O Coração ganha uma agulha (no mapa, no Grimório e nas cenas).
+- **A cena da bússola** (na pegada God of War): a chuva para no ar, dois tambores, um raio cai no mapa, o Coração sobe
+  e a agulha gira até apontar para a frente.
+- Palavras novas: BOX, ON, UNDER, IN, BEHIND, WALL, SIGN, HOLE e BETWEEN. Trilha em Mi menor, 108 BPM, synthwave por
+  cima do órgão, com o chiado da chuva e trovões.
+
 ## A Echo: a primeira ferramenta (nasce na 1-1)
 
 A 1-1 começa com o Nexy **sozinho**, descendo do céu num feixe de luz. Placas de dica aparecem nos lugares certos
@@ -205,7 +243,7 @@ CREATURES).
 
 As vozes são gravadas em estúdio (ElevenLabs): **a Echo** fala com a voz da Lulu, aveludada; o **narrador** (Baú da
 Memória, prólogo, palácio) e as **portas e altares** falam com a Elder Rowan, grave e antiga, com o eco da catedral.
-São 326 falas (palavras, frases das portas, a história do Baú, as perguntas, o prólogo e o palácio). Se você montar numa porta uma frase que não foi
+São 401 falas (palavras, frases das portas, a história do Baú, as perguntas, o prólogo, o palácio e a cidade). Se você montar numa porta uma frase que não foi
 gravada, a porta repete palavra por palavra. Para usar a voz do aparelho no lugar: pausa → ASSIST → **ECHO'S VOICE**
 (cada toque passa para a próxima voz; a escolha fica salva). Como gravar falas novas: `tools/voice/README.md`.
 
@@ -222,6 +260,7 @@ O jogo que vai para o jogador é só o `index.html`, autocontido. Ele é **gerad
 | `src/10_data.js` | legenda do mapa, `CFG` (física), `LOOK` (brilho), palavras, fase 1-1, mapa do mundo (`WORLDS`), save e flags |
 | `src/12_level_1-2.js` | dados da fase 1-2 (legenda extra, blocos, alvos, portas, altares, sinos) |
 | `src/14_level_palace.js` | dados do TO BE PALACE (legenda, alvos do passado, altares, relógios, interruptor) |
+| `src/16_level_1-3.js` | dados da 1-3 (legenda, as caixas e os lugares delas, altares, letreiros e etiquetas) |
 | `src/20_audio.js` | efeitos sintetizados, música em camadas com variações por fase, vozes gravadas (com a do aparelho de reserva) e reconhecimento de fala |
 | `src/30_input_render.js` | teclado, toque, controle (gamepad), escala da tela e cache dos brilhos |
 | `src/40_world.js` | tiles, blocos, runas, colisão, zonas, fundos em parallax (cidade e nave), escuridão e partículas |
@@ -234,18 +273,20 @@ O jogo que vai para o jogador é só o `index.html`, autocontido. Ele é **gerad
 | `src/74_prologue.js` | 1-1: A Lei das Palavras (o prólogo da primeira partida) |
 | `src/76_secret.js` | 1-1: o segredo, a TO BE ENGINE, o teletransporte e o tiro da Echo |
 | `src/78_palace.js` | TO BE PALACE: cavaleiro, interruptor, desenho dos alvos do passado, chão-espelho, fundo e as duas cenas |
+| `src/80_city.js` | 1-3: a caixa de neon, gárgula, trem, mapa da cidade, prédios, chuva e raios, a chegada, o desafio do mapa e a Bússola |
 | `src/62_nexy_look.js` | o visual do Nexy em 6 estágios (boneco articulado, quadros guardados em memória; folha: `tools/look_sheet.js`) |
 | `src/75_worldmap.js` | transições (íris e fechadura) e o mapa-múndi |
 | `src/99_boot.js` | API de teste no console (`NEXY`) e partida |
 | `src/levels/1-1.map` | mapa ASCII da 1-1 (23 linhas × 208 colunas) |
 | `src/levels/1-2.map` | mapa ASCII da 1-2 (40 linhas × 312 colunas) |
 | `src/levels/palace.map` | mapa ASCII do palácio (23 linhas × 150 colunas), gerado por `tools/gen_map_palace.py` |
+| `src/levels/1-3.map` | mapa ASCII da 1-3 (26 linhas × 200 colunas), gerado por `tools/gen_map_1-3.py` |
 | `build.js` | junta tudo em `index.html` |
 | `tools/gen_map_1-2.py` | gerador do mapa da 1-2 (edite e rode para regenerar `src/levels/1-2.map`) |
 | `src/voice/` | as falas gravadas (MP3) e o `manifest.json`; o build embute tudo no `index.html` |
 | `tools/voice/` | lista as falas do jogo, agrupa para a ElevenLabs e corta o áudio em uma fala por arquivo |
 | `CLAUDE.md` | contexto de trabalho (decisões, arquitetura, regras) para continuar o projeto |
-| `tests/` | testes de regressão da 1-1, da 1-2, do palácio e do mapa (Playwright + Chromium) |
+| `tests/` | testes de regressão da 1-1, da 1-2, do palácio, da 1-3 e do mapa (Playwright + Chromium) |
 
 ```
 node build.js          # gera index.html a partir de src/
@@ -256,7 +297,7 @@ npm test               # confere o build e roda os testes (precisa de: npm i && 
 Edite sempre em `src/` e rode `node build.js`. Mudanças feitas direto no `index.html` são apagadas no próximo build.
 
 Para testar uma fase direto, sem passar pelo mapa: no console do navegador, `NEXY.Game.enterLevel('1-2')` (ou
-`'palace'`).
+`'palace'`, `'1-3'`).
 
 ## Como editar as fases
 

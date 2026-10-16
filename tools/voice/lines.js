@@ -13,18 +13,18 @@ const ROOT = path.join(__dirname, '..', '..');
 const norm = s => String(s).toLowerCase().replace(/[^a-z0-9']+/g, ' ').trim();
 
 function loadData() {
-  const src = ['src/10_data.js', 'src/12_level_1-2.js', 'src/14_level_palace.js']
+  const src = ['src/10_data.js', 'src/12_level_1-2.js', 'src/14_level_palace.js', 'src/16_level_1-3.js']
     .map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n')
     .replace(/<\/?script>/g, '').replace(/\/\*MAP:[^*]*\*\//g, '""');
   const store = {};
   const ctx = { document: { getElementById: () => null }, localStorage: { getItem: () => null, setItem() {} }, window: {}, console };
   vm.createContext(ctx);
-  vm.runInContext(src + '\n;this.__ = { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE, ENGINE, PALACE };', ctx);
+  vm.runInContext(src + '\n;this.__ = { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE, ENGINE, PALACE, CITY };', ctx);
   return ctx.__;
 }
 
 function build() {
-  const { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE, ENGINE, PALACE } = loadData();
+  const { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE, ENGINE, PALACE, CITY } = loadData();
   const out = [], seen = new Set();
   const add = (who, text, prompt) => {
     if (!text || !/[A-Za-z]/.test(text)) return;
@@ -79,8 +79,15 @@ function build() {
   add('story', PALACE.tableLine.en);
   for (const l of PALACE.switch) add('story', l.en);
   add('echo', PALACE.cheer.en, '[excited] ' + PALACE.cheer.en);
+  /* ---------------- 1-3 · a cidade: a chegada, o mapa (leitura e respostas), a cena da bússola ---------------- */
+  for (const l of CITY.intro) add('story', l.en);
+  add('story', CITY.tableLine.en, '[warmly] On... Under... In... Behind.');
+  add('story', CITY.map.intro.en);
+  for (const l of CITY.map.lines) add('story', l.en);
+  for (const r of CITY.map.climb) add('echo', r.options[r.answer]);
+  for (const l of CITY.scene) add('story', l.en);
   // Grimório → PODERES: o botão de ouvir
-  for (const p of ['Echo pulse', 'Echo shot', 'Voice mode', 'Heart of words', 'To be ring', 'Warp card']) add('echo', p, alone(p));
+  for (const p of ['Echo pulse', 'Echo shot', 'Voice mode', 'Heart of words', 'To be ring', 'Warp card', 'Compass of words']) add('echo', p, alone(p));
 
   /* ---------------- portas, altares, baú ---------------- */
   for (const id in LEVELS) {
@@ -126,8 +133,11 @@ function build() {
       // palavras soltas da porta (para frases que não estão na lista: a porta repete palavra por palavra)
       for (const t of def.mold) if (t !== '_' && /[A-Z]/.test(t)) add('door', word(t), alone(word(t)));
     }
-    // o que a Echo diz ao ver o passado com o pulso (palácio)
-    for (const tid in L.targets || {}) if (L.targets[tid].past) add('echo', L.targets[tid].past.en);
+    // o que a Echo diz ao ver o passado com o pulso (palácio) e ao achar ou ver chegar a caixa (1-3)
+    for (const tid in L.targets || {}) {
+      const T = L.targets[tid]; if (T.past) add('echo', T.past.en);
+      for (const k in T.spots || {}) { const sp = T.spots[k]; if (sp.say) add('echo', sp.say.en); if (sp.find) add('echo', sp.find.en); }
+    }
     // narrador antes do Echo nascer (1-1): as palavras coletadas
     for (const w of Object.keys(WORDS)) add('story', WORDS[w].say, alone(WORDS[w].say));
   }
