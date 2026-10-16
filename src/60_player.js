@@ -369,6 +369,17 @@ const P = {
     this.drawBody(ctx, t);
     ctx.restore();
   },
+  // o visual novo (62_nexy_look.js): o mesmo esqueleto ganha camadas fase a fase; só desenho, a caixa de colisão é a mesma
+  drawLook(ctx, t) {
+    const sp = this.poseSpeed != null ? this.poseSpeed : Math.abs(this.vx) / CFG.WALK;
+    const pose = { t, phase: this.walkPhase || 0, speed: sp, air: this.onGround ? 0 : (this.vy < 0 ? -1 : 1), crouch: !!this.crouch,
+      arm: this.held ? 'hold' : this.kickT > 0 ? 'kick' : 'idle' };
+    ctx.save();
+    if (this.crouch) ctx.scale(1 / 1.06, CFG.PLAYER_H / CFG.CROUCH_H);   // P.draw achata para agachar; o boneco agacha sozinho
+    if (this.facing < 0) ctx.scale(-1, 1);
+    NexyLook.draw(ctx, pose, NexyLook.stage, R.k * Math.max(0.5, Math.abs(this.visScale * this.scale)));
+    ctx.restore();
+  },
   drawCrawlerForm(ctx, t) {
     const f = this.facing, step = Math.abs(this.vx) > 5 ? Math.sin(t * 14) * 2 : 0;
     ctx.translate(-13, -24);
@@ -379,6 +390,7 @@ const P = {
     capsulePath(ctx, 13 + f * 4, 12, 9, 3.6); ctx.fillStyle = '#f0abfc'; ctx.fill();
   },
   drawBody(ctx, t) {
+    if (!Save.data.assist.classic) return this.drawLook(ctx, t);
     const f = this.facing, lw = 1.9 / (this.visScale * this.scale);
     const wp = this.onGround ? this.walkPhase : 0.6, airborne = !this.onGround;
     // pés
@@ -602,9 +614,9 @@ const Doors = {
       R.draw(R.glow('m', 40), x + d.w / 2, y + d.h - 28, 1, 0.5 * k, true);
       ctx.save(); ctx.globalAlpha = 0.65 * k; ctx.translate(x + d.w / 2, y + d.h - 2); ctx.scale(0.95, 0.95);
       const of = P.facing, ok = P.kickT, og = P.onGround, ow = P.walkPhase, os = P.visScale, osc = P.scale;
-      P.facing = -1; P.kickT = Math.sin(Game.time * 14) > 0 ? 0.1 : 0; P.onGround = true; P.walkPhase = 0.6; P.visScale = 1; P.scale = 1;
+      P.facing = -1; P.kickT = Math.sin(Game.time * 14) > 0 ? 0.1 : 0; P.onGround = true; P.walkPhase = 0.6; P.visScale = 1; P.scale = 1; P.poseSpeed = 0;
       P.drawBody(ctx, t);
-      P.facing = of; P.kickT = ok; P.onGround = og; P.walkPhase = ow; P.visScale = os; P.scale = osc;
+      P.facing = of; P.kickT = ok; P.onGround = og; P.walkPhase = ow; P.visScale = os; P.scale = osc; P.poseSpeed = null;
       ctx.restore();
     }
   },

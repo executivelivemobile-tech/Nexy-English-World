@@ -63,7 +63,7 @@ const Transition = {
       if (c.lives != null) {
         R.draw(R.glow('m', 16), 452, 372, 1, 0.8 * k, true);
         ctx.save(); ctx.globalAlpha = k; ctx.translate(452, 380); ctx.scale(0.5, 0.5);
-        const of = P.facing, og = P.onGround, ow = P.walkPhase; P.facing = 1; P.onGround = true; P.walkPhase = 0.6; P.drawBody(ctx, time); P.facing = of; P.onGround = og; P.walkPhase = ow;
+        const of = P.facing, og = P.onGround, ow = P.walkPhase; P.facing = 1; P.onGround = true; P.walkPhase = 0.6; P.poseSpeed = 0; P.drawBody(ctx, time); P.facing = of; P.onGround = og; P.walkPhase = ow; P.poseSpeed = null;
         ctx.restore();
         R.draw(R.text('×  ' + c.lives, '700 14px JetBrains Mono, monospace', '#ffffff', null, 0), 492, 368, 1, k);
       }
@@ -316,8 +316,8 @@ const WorldMap = {
     const bob = this.walk ? Math.abs(Math.sin(this.phase * 12)) * 2 : 0, hop = Math.sin(this.hop * Math.PI) * 14;
     R.draw(R.glow('m', 24), this.x, this.y - 14 - hop, 0.9, 0.5, true);
     ctx.save(); ctx.translate(this.x, this.y - 2 - bob - hop); ctx.scale(0.62 * this.facing, 0.62);
-    const of = P.facing, og = P.onGround, ow = P.walkPhase; P.facing = 1; P.onGround = !this.hop; P.walkPhase = this.walk ? this.phase * 9 : 0.6;
-    P.drawBody(ctx, t); P.facing = of; P.onGround = og; P.walkPhase = ow;
+    const of = P.facing, og = P.onGround, ow = P.walkPhase; P.facing = 1; P.onGround = !this.hop; P.walkPhase = this.walk ? this.phase * 9 : 0.6; P.poseSpeed = this.walk ? 1 : 0;
+    P.drawBody(ctx, t); P.facing = of; P.onGround = og; P.walkPhase = ow; P.poseSpeed = null;
     ctx.restore();
     const e = this.echo;
     R.draw(R.glow('m', 16), e.x, e.y, 0.8, 0.7, true);

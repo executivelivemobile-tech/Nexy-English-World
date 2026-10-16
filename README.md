@@ -140,6 +140,24 @@ as vidas cheias e dá à Echo um poder que fica salvo:
   mais longa, luz que atravessa, luz que persegue). Com o VOICE MODE: segure **V**, o tempo desacelera, e diga
   **"STOP!"**.
 
+## O visual do Nexy evolui
+
+O Nexy é um boneco articulado desenhado em código (capuz de gato, cachecol, cauda de cabo). Ele começa como um
+**rascunho de neon** na primeira partida e ganha camadas a cada fase concluída, até a forma final com asas de fênix:
+
+| Estágio | Aparece | O que muda |
+| --- | --- | --- |
+| SKETCH · Rascunho | 1-1 | linhas de neon ainda se desenhando, sem armadura |
+| INK · Tinta | depois da 1-1 | traje escuro com circuitos que acendem |
+| GEAR · Equipamento | depois da 1-2 | manoplas com garras de luz e botas blindadas |
+| CORE · Núcleo | depois da 1-3 | peitoral com o núcleo, ombreiras de penas, cauda de placas |
+| HELM · Elmo | depois do forte | elmo com orelhas de gato, gema, fones e a lâmina de luz |
+| PHOENIX · Fênix | depois do castelo | asas de penas de fogo e a chama na cauda |
+
+Ao voltar ao mapa com um estágio novo aparece **NEXY EVOLVED**. É só desenho: a caixa de colisão e a física são as
+mesmas. O estágio atual fica no Grimório (aba POWERS); para jogar com o Nexy antigo: pausa → ASSIST → **CLASSIC NEXY**.
+Folha com os 6 estágios animados: `tools/look_sheet.js`.
+
 ## TO BE PALACE (a saída secreta da 1-1)
 
 O palácio do verbo TO BE. Ontem ele era cheio de luz; hoje está escuro. **A mecânica nova é o passado**: dizer o que
@@ -216,7 +234,7 @@ O jogo que vai para o jogador é só o `index.html`, autocontido. Ele é **gerad
 | `src/74_prologue.js` | 1-1: A Lei das Palavras (o prólogo da primeira partida) |
 | `src/76_secret.js` | 1-1: o segredo, a TO BE ENGINE, o teletransporte e o tiro da Echo |
 | `src/78_palace.js` | TO BE PALACE: cavaleiro, interruptor, desenho dos alvos do passado, chão-espelho, fundo e as duas cenas |
-| `src/62_nexy_look.js` | o visual novo do Nexy em 6 estágios (proposta, ainda fora do build; folha: `tools/look_sheet.js`) |
+| `src/62_nexy_look.js` | o visual do Nexy em 6 estágios (boneco articulado, quadros guardados em memória; folha: `tools/look_sheet.js`) |
 | `src/75_worldmap.js` | transições (íris e fechadura) e o mapa-múndi |
 | `src/99_boot.js` | API de teste no console (`NEXY`) e partida |
 | `src/levels/1-1.map` | mapa ASCII da 1-1 (23 linhas × 208 colunas) |

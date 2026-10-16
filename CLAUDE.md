@@ -65,6 +65,7 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 | `73_echo.js` | `Arrival` (chegada no feixe), `Birth` (o Echo nasce do HELLO na porta 1), `EchoPulse` (sonar, C/LB/toque), `Hints` (placas) |
 | `74_prologue.js` | `Prologue`: A Lei das Palavras (1ª partida; `Save.data.met.prologue`), entidade `floorword` |
 | `76_secret.js` | segredo da 1-1: `Glitch` (falso erro), entidades `card` e `engine`, `Engine` (tela da TO BE ENGINE no painel do baú, estado `engine`), `Warp` (teletransporte), `EchoShot` (tiro da Echo) |
+| `62_nexy_look.js` | `NexyLook` (o visual do Nexy: esqueleto `rig`, camadas por estágio `paint`, quadros em cache `sprite`, `stageFor(cleared)`), `NEXY_STAGES`. Também usado por `tools/look_sheet.js` (não pode depender do jogo) |
 | `75_worldmap.js` | `Transition` (íris/fechadura + cartão "Nexy × vidas"), `WorldMap` (andar, revelar caminhos, toque) |
 | `78_palace.js` | TO BE PALACE: entidades `knight` e `beswitch`, `Palace` (pulso vê o passado `ping`, `drawGhost`/`drawTarget`/`statue`/`drawClock`, chão-espelho `drawMirror`, `drawRing`), `PalaceIntro` (lembrança + tabela, `Save.data.met.palace`), `PalaceSwitch` (cena do interruptor), `BG.drawPalace` |
 | `99_boot.js` | `window.NEXY` (API de teste) e `Game.boot()` |
@@ -161,9 +162,12 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 - **Prólogo A Lei das Palavras** (pedido do dono: ensinar logo no início, sem chamar ninguém de burro): mostra, não
   explica; a regra em PT só aparece depois que o jogador usou SMALL. `PROLOGUE` em `10_data.js`. Lembranças: placa na
   escada-fantasma (1-1, `until: 'ghost'`), placa no altar 1 (1-2, `until: 'altar1'`; `Sentence.apply` marca o id da porta).
-- **Visual novo do Nexy** (pedido do dono, com uma arte de referência: armadura de gato, asas de fênix): proposta em
-  `src/62_nexy_look.js` + folha https://claude.ai/artifact/9GzkEvZ2PrXqBoJZHtc7qR. Começa rascunho de neon sem
-  armadura e ganha peças fase a fase. Esperando aprovação antes de entrar no build.
+- **Visual novo do Nexy: no jogo** (o dono pediu as mudanças depois de ver a folha
+  https://claude.ai/artifact/9GzkEvZ2PrXqBoJZHtc7qR). `P.drawBody` → `P.drawLook` (pose a partir de vx/vy/walkPhase/
+  crouch/held/kickT; `P.poseSpeed` força a pose no mapa e no cartão). Estágio = `NexyLook.stageFor(Save.data.cleared)`
+  (rascunho → tinta depois da 1-1 → equipamento depois da 1-2 → núcleo depois da 1-3 → elmo depois do forte → fênix
+  depois do castelo), atualizado em `loadLevel` e `toMap` (aviso NEXY EVOLVED uma vez por estágio, `Save.data.met.look`).
+  ASSIST → CLASSIC NEXY (`Save.data.assist.classic`) volta ao antigo. Só desenho: colisão e física iguais.
 - **Segredo da 1-1** (pedido do dono, "como no Donkey Kong"; só ele e quem ele contar devem saber, por isso o README
   não explica): tijolo `j` (kind `glitch`) INVISÍVEL em c103 L12, colado na torre da porta 2, acima do checkpoint c104.
   Só casco subindo bate (`solidFor`; a cabeça passa reto; o pulso só faz piscar). Casco-guarda J (c107) → segurar
@@ -180,7 +184,7 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 - **Tutoriais atualizados** (pedido do dono): tela inicial (C pulso, F tiro, V voz), linha do controle, Grimório com a
   aba **POWERS** (pulso, tiro, voz, Coração, Anel do TO BE, cartão; fechados até conquistar), texto do VOICE MODE.
 - Esperando aprovação da 1-2 (com o baú) e do TO BE PALACE. Depois: 1-3, Casa "PUSH OR PULL?" (saída secreta da 1-2),
-  forte e castelo do Mundo 1. O visual novo do Nexy pode entrar quando o dono aprovar a folha.
+  forte e castelo do Mundo 1.
 - Cada fase nova: algo inédito + acréscimo ao Coração + desafio crescente acima do A1 + caminho alternativo + um passo
   a mais no visual rumo à cidade Castlevania cyberpunk.
 - Controle de verdade (gamepad) ainda não testado com aparelho físico.

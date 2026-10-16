@@ -1343,6 +1343,33 @@ test('palácio: INTERRUPTOR DO SER — I WAS / I AM; frase trocada só confunde;
   expect(r.ghosts, 'na 1-1 os degraus-fantasma ficam sólidos sem as palavras');
 }, LP);
 
+test('visual novo do Nexy: rascunho na 1ª partida, evolui com as fases (aviso no mapa uma vez), CLASSIC NEXY volta ao antigo; a física não muda', async ({ page }) => {
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, G = NEXY.Game, S = NEXY.Save.data, out = {};
+    H.noEnemies(); H.tp(20, 19);
+    // desenha o Nexy num quadro limpo e conta os pixels acesos em volta dele
+    const lit = () => { G.render(1); const c = document.getElementById('game'), k = c.width / 960, x = c.getContext('2d');
+      const d = x.getImageData(Math.round((P.x - NEXY.Cam.x - 30) * k), Math.round((P.y - NEXY.Cam.y - 20) * k), Math.round(80 * k), Math.round(70 * k)).data;
+      let n = 0; for (let i = 0; i < d.length; i += 4) if (d[i] + d[i + 2] > 300) n++; return n; };
+    let calls = 0; const draw = NexyLook.draw; NexyLook.draw = function (...a) { calls++; return draw.apply(this, a); };
+    out.stage0 = NexyLook.stage; out.lit0 = lit(); out.calls = calls;
+    S.assist.classic = true; calls = 0; out.litClassic = lit(); out.callsClassic = calls; S.assist.classic = false;
+    S.cleared = { '1-1': true, '1-2': true }; S.met.look = 0; G.toMap(); out.stageMap = NexyLook.stage; out.met = S.met.look;
+    G.toMap(); out.metAgain = S.met.look;
+    G.enterLevel('palace'); out.stagePalace = NexyLook.stage;
+    // pulo igual ao de antes (só desenho mudou)
+    H.noEnemies(); H.tp(4, 19); H.set([]); H.step(5); const y0 = P.y + P.h; let min = y0; H.set(['jump']); H.press('jump');
+    for (let i = 0; i < 80; i++) { H.step(1); min = Math.min(min, P.y + P.h); } H.set([]);
+    out.jump = Math.round(y0 - min);
+    NexyLook.draw = draw;
+    return out;
+  });
+  expect(r.stage0 === 0 && r.calls > 0 && r.lit0 > 40, `rascunho de neon na 1ª partida (${JSON.stringify(r)})`);
+  expect(r.callsClassic === 0 && r.litClassic > 40, 'CLASSIC NEXY desenha o antigo');
+  expect(r.stageMap === 2 && r.met === 2 && r.metAgain === 2 && r.stagePalace === 2, `evolui com as fases concluídas (${JSON.stringify(r)})`);
+  expect(Math.abs(r.jump - 123) <= 6, `o pulo continua o mesmo (${r.jump})`);
+});
+
 /* ---------------- vozes gravadas (ElevenLabs) ---------------- */
 test('vozes: todas as falas gravadas tocam; a porta repete palavra por palavra; a voz do aparelho fica de reserva', async ({ page }) => {
   const r = await page.evaluate(async () => {

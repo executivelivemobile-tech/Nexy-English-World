@@ -18,6 +18,8 @@ const NEXY_STAGES = [
 
 const NexyLook = {
   stage: 0, cache: new Map(), cacheMax: 260,
+  // no jogo: o estágio sobe com as fases concluídas (cleared = Save.data.cleared). Cada estágio aparece na fase seguinte.
+  stageFor(cleared = {}) { return cleared.castle ? 5 : cleared.fortress ? 4 : cleared['1-3'] ? 3 : cleared['1-2'] ? 2 : cleared['1-1'] ? 1 : 0; },
   C: {
     mag: '#d946ef', magHi: '#f0abfc', magMid: '#e879f9', cy: '#22d3ee', cyHi: '#a5f3fc',
     ink: '#07060b', ink2: '#110c17', ink3: '#1b1324', white: '#ffffff',

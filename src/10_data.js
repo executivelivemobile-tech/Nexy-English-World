@@ -394,7 +394,7 @@ const Save = {
       exits: {}, bestFluency: {}, letters: {}, cleared: {}, heart: { best: -1, by: {}, ring: false }, met: {}, shot: { best: -1 },
       map: { at: '1-1', revealed: {} },
       flags: { palaces: { toBe: false } },
-      assist: { slow: false, safeFall: false, freeHints: false, subtitles: false, voice: false },
+      assist: { slow: false, safeFall: false, freeHints: false, subtitles: false, voice: false, classic: false },
       muted: false, voiceURI: null,
     };
   },

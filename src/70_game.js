@@ -384,6 +384,9 @@ const UI = {
     } else if (tab === 'powers') {
       // PODERES: o que o Nexy e a Echo já sabem fazer (e como usar). O que ainda não foi conquistado fica fechado.
       const S = Save.data, pad = Input.padSeen, sh = S.shot.best, hb = S.heart.best, P0 = { name: true, plain: true, locked: 'Ainda não foi conquistado.' };
+      const ls = NexyLook.stageFor(S.cleared), L0 = NEXY_STAGES[ls], L1 = NEXY_STAGES[ls + 1];
+      card('NEXY · ' + L0.name, L0.pt, 'LOOK · STAGE ' + (ls + 1) + ' OF ' + NEXY_STAGES.length,
+        L0.note + (L1 ? ' Próximo: ' + L1.pt + ' (' + L1.note.toLowerCase().replace(/\.$/, '') + '), ao concluir mais uma fase.' : ' A forma final.') + ' ASSIST › CLASSIC NEXY volta ao visual antigo.', 'Nexy', false, true, P0);
       card('ECHO PULSE', 'pulso da Echo · ' + (pad ? 'LB' : 'C') + ' (ou ECHO no toque)', 'POWER · ALWAYS WITH YOU',
         'A Echo encontra o que está escondido: blocos invisíveis, paredes falsas e a palavra dentro do bloco ?. No TO BE PALACE ela enxerga o passado: mostra o contorno do que existia.', 'Echo pulse', false, true, P0);
       card(sh >= 0 ? SHOT[sh].name : 'ECHO SHOT', sh >= 0 ? SHOT[sh].pt + ' · ' + (pad ? 'Y' : 'F') + ' (ou SHOT no toque)' : '', sh >= 0 ? 'POWER · LEVEL ' + (sh + 1) + ' OF ' + SHOT.length : 'LOCKED · A SECRET IN WORLD 1-1',
@@ -502,7 +505,7 @@ const Game = {
   // relógio da simulação (para quebra-cabeças determinísticos, como os sinos)
   later(sec, fn) { this.timers.push({ t: this.simTime + sec, fn }); },
   loadLevel(id) {
-    this.newRun(LEVELS[id].masterWord);
+    this.newRun(LEVELS[id].masterWord); NexyLook.stage = NexyLook.stageFor(Save.data.cleared);
     World.load(LEVELS[id]); Ents.clear(); FX.list = [];
     for (const s of World.statics) {
       const o = { c: s.c, r: s.r, opts: s.opts };
@@ -524,6 +527,9 @@ const Game = {
   },
   toMap() {
     UI.hideAll(); this.where = 'map'; this.state = 'map'; this.clearInput();
+    // o Nexy evolui ao concluir fases: o visual novo aparece no mapa, com aviso (só uma vez por estágio)
+    const st = NexyLook.stageFor(Save.data.cleared), seen = Save.data.met.look || 0; NexyLook.stage = st;
+    if (st > seen) { Save.data.met.look = st; Save.write(); if (!Save.data.assist.classic) setTimeout(() => { SFX.oneUp(); UI.msg('NEXY EVOLVED · ' + NEXY_STAGES[st].name + ' · ' + NEXY_STAGES[st].pt, 3600); }, 1400); }
     Music.setVariant('map'); Music.normal(); WorldMap.enter();
   },
   // viaTransition: a íris já mostrou o cartão da fase, então não repete o letreiro
