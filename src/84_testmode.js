@@ -10,7 +10,7 @@ const TestMode = {
   // para onde pular: [rótulo, coluna, linha] (cada ponto tem chão embaixo)
   LEVELS: [
     { id: '1-1', name: '1-1 · HELLO WORLD', spots: [['Início (prólogo)', 3, 19], ['Trem de Rastejantes · o cartão', 19, 19], ['Depois da porta 1', 44, 19], ['Porta 2 · checkpoint', 104, 19], ['TO BE ENGINE', 134, 19], ['Praça final', 181, 19]],
-      checks: ['Prólogo: as letras de HELLO caem; IT IS BIG / SMALL no Rastejante', 'Trem de Rastejantes: o mural acende (NOW!) e o pisão triplo dá o cartão',
+      checks: ['Prólogo: as letras de HELLO caem; IT IS BIG / SMALL no Rastejante', 'Três Rastejantes: andam soltos; a cada 19 s ficam em fila (o grafite brilha de leve) e o pisão triplo dá o cartão',
         'Portas: HELLO! · I AM FINE · IT IS A KEY', 'TO BE ENGINE com o cartão: as 7 ligações, a escalada e o teletransporte', 'Saída normal e a saída secreta (palácio)'] },
     { id: '1-2', name: '1-2 · WHO ARE YOU?', spots: [['Início', 3, 29], ['Lustres', 88, 26], ['Coro dos sinos', 140, 29], ['Cripta', 212, 35], ['Baú da Memória', 229, 35], ['Depois do muro', 246, 29], ['Campanário', 270, 29]],
       checks: ['Porta 1: WHO ARE YOU? → NEXY; porta 2: NO, NOT', 'Sinos: HOW ARE YOU? (de primeira dá vida)', 'Altar 2: THEY ARE SMALL tira os gigantes; o poço dá as palavras',

@@ -245,7 +245,7 @@ const PROLOGUE = {
   ],
 };
 // O SEGREDO DA 1-1 (76_secret.js): um tijolo invisível lá no alto, no começo da fase, que só o 3º quique seguido alcança
-// (o pisão triplo no trem de Rastejantes, quando o mural do fundo acende); a tela "trava" (falso erro) e cai o WARP CARD.
+// (o pisão triplo nos três Rastejantes, no instante em que ficam em sequência); a tela "trava" (falso erro) e cai o WARP CARD.
 // Terminar a 1-1 com pontuação máxima dá o CARTÃO DOURADO: daí em diante a 1-1 já começa com o cartão. Com ele, a TO BE ENGINE do corredor 2
 // liga: tabela completa do verbo TO BE, as 7 ligações (a errada volta no fim) e a escalada acima do A1. O teletransporte leva à praça final com as vidas
 // cheias, e a escalada decide a força do TIRO DA ECHO (fica salvo e vale nas outras fases).
@@ -499,8 +499,8 @@ const LEVELS = {
     // Entidades com parâmetros extras por caractere (sobrepõem a legenda global).
     entities: {
       'J': { entity: 'casco', respawn: 'offscreen', zone: [103, 124] },
-      // o TREM DE RASTEJANTES (o segredo do cartão): três em fila, no chão, antes da porta 1. Em fila não mordem, só empurram;
-      // o pisão vale. Por um instante eles ficam em sequência (o mural do fundo acende) e o pisão triplo leva lá no alto
+      // os TRÊS RASTEJANTES (o segredo do cartão): no chão, antes da porta 1, cada um andando do seu jeito. Não mordem, só
+      // empurram; o pisão vale. Por um instante eles ficam em sequência (o grafite do fundo brilha de leve) e o pisão triplo leva lá no alto
       '4': { entity: 'conga', i: 0, respawn: 'summon' }, '5': { entity: 'conga', i: 1, respawn: 'summon' }, '6': { entity: 'conga', i: 2, respawn: 'summon' },
       '7': { entity: 'mural' },
       'V': { entity: 'pedestal', door: 'pedestal' },

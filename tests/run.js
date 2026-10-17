@@ -416,12 +416,15 @@ test('lembranças da lei: placa na escada-fantasma (1-1) e no primeiro altar (1-
   expect(r.h12 && r.altarDone, `1-2: placa WHAT YOU SAY IS TRUE some com IT IS BIG (${JSON.stringify(r)})`);
 });
 
-test('1-1 segredo: o trem de Rastejantes empurra sem machucar; quando o mural acende, o pisão triplo (pulos de verdade) bate no tijolo lá no alto e cai o WARP CARD; o duplo não alcança', async ({ page }) => {
+test('1-1 segredo: os três Rastejantes andam soltos e empurram sem machucar; quando ficam em sequência, o pisão triplo (pulos de verdade) bate no tijolo lá no alto e cai o WARP CARD; o duplo não alcança', async ({ page }) => {
   const r = await page.evaluate(() => {
     const P = NEXY.P, G = NEXY.Game, W = NEXY.World, E = NEXY.Ents, out = {};
     G.timers = []; Echo.line = null; Echo.lines = [];
     const b = W.blockAt(28, 3); out.hidden = b && b.kind === 'glitch' && b.state === 'hidden';
     H.wakeSpawns(); H.tp(19, 19, 0); H.step(10); out.cars = Conga.cars().length;
+    // soltos: fora da fila eles param, viram e se cruzam (nada de trem amarrado)
+    let mixed = 0, cross = 0; for (let t = 0; t < Conga.C; t += 0.25) { const p = [0, 1, 2].map(i => Conga.pos(i, t)); if (new Set(p.map(q => q.dir)).size > 1 || p.some(q => q.stop)) mixed++; if (p[1].x > p[0].x || p[2].x > p[1].x) cross++; }
+    out.loose = mixed > 20 && cross > 4;
     // encostar no trem só empurra
     const c0 = Conga.cars()[0]; P.invuln = 0; P.x = c0.x - P.w - 1; P.y = 20 * 32 - P.h; P.px = P.x; P.py = P.y; P.vx = 120; H.set(['right']); H.step(6); H.set([]);
     out.push = !P.dead && P.invuln <= 0 && P.x + P.w <= c0.x + 1; H.tp(19, 19, 999); H.step(5);
@@ -450,7 +453,7 @@ test('1-1 segredo: o trem de Rastejantes empurra sem machucar; quando o mural ac
     out.card = G.card && !E.list.some(e => e.type === 'card'); out.line = Echo.line && Echo.line.en;
     return out;
   });
-  expect(r.hidden && r.cars === 3 && r.push, `o trem: 3 Rastejantes que só empurram (${JSON.stringify(r)})`);
+  expect(r.hidden && r.cars === 3 && r.push && r.loose, `3 Rastejantes soltos que só empurram (${JSON.stringify(r)})`);
   expect(r.twoMiss, `o 2º quique não alcança o tijolo (${JSON.stringify(r.three)})`);
   expect(r.three.stomps === 3 && r.glitch && r.used, `o pisão triplo bate no tijolo e a tela "dá erro" (${JSON.stringify(r)})`);
   expect(r.card && r.line === 'What is it?', `o cartão cai e a Nexy pega (${JSON.stringify(r)})`);

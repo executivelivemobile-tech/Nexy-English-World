@@ -288,11 +288,14 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   rascunho que evolui, `726c683`) "até decidirmos melhor". Para retomar: `git show 280a8da:src/62_nexy_look.js`.
   O rastro da corrida é a sombra da própria Nexy. Blender: o dono seguiu o conselho de manter o desenho em código.
 - **Segredo da 1-1** (pedido do dono, "como no Donkey Kong"; só ele e quem ele contar devem saber, por isso o README
-  não explica): o **TREM DE RASTEJANTES** logo no começo (entidade `conga`, `4 5 6` em c21/24/27, no lugar do
-  Rastejante solitário de c29): três em fila no mesmo caminho (c20-30, 40 px/s, 112 px de distância, posição pelo
-  relógio da simulação: `Conga.tri/pos`). Em fila não mordem, só empurram (`P.enemyContacts`); o pisão amassa e eles
-  voltam (`summon`). Indo para a direita com os três na mesma perna (`Conga.state().on`, ~1,75 s a cada ~14,7 s) o
-  **MURAL** do fundo (`7` em c19 L5: três Rastejantes, arcos 1x/2x/3x, seta até o tijolo; "TOGETHER"/"NOW!") acende.
+  não explica): os **TRÊS RASTEJANTES** logo no começo (entidade `conga`, `4 5 6` em c21/24/27, no lugar do
+  Rastejante solitário de c29). O dono achou a dica aparente demais e pediu que não ficassem "amarrados": agora cada um
+  anda do seu jeito (`Conga.free`: velocidade própria, para e vira, cruzam-se; sem corda nem farol) e só no trecho
+  `F0..F1` de cada ciclo de 19 s (`Conga.C`) entram no mesmo passo (40 px/s, 112 px de distância, `Conga.tri`); posição
+  pelo relógio da simulação (`Conga.pos`). Não mordem, só empurram (`P.enemyContacts`); o pisão amassa e eles voltam
+  (`summon`). Indo para a direita em sequência (`Conga.state().on`, ~1,75 s a cada 19 s) o **MURAL** do fundo (`7` em
+  c19 L5: grafite apagado, três Rastejantes, riscos I/II/III e um quadradinho onde fica o tijolo; sem texto nem seta)
+  brilha de leve.
   Pisão no de trás, no do meio e no da frente segurando o pulo: o 3º quique bate a cabeça no tijolo `j` (kind
   `glitch`) INVISÍVEL em **c28 L3** (o 2º quique para ~36 px abaixo) → `Glitch` (falso erro TO BE NOT FOUND) → WARP
   CARD (`Game.card`, por partida). Comece em c19 (de c18 o bloco HELLO corta o pulo). Histórico: o tijolo ficava em

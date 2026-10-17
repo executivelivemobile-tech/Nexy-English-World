@@ -194,7 +194,7 @@ const P = {
       if (this.starT > 0 && e.type !== 'giant') { Enemy.kill(e, 'pop', sign(e.x + e.w / 2 - this.cx) || 1); SFX.crush(); Game.addOrbs(1); continue; }
       const falling = this.y - this.py > 0.01 || this.vy > 0;
       const above = this.py + this.h <= e.y + e.h * 0.5 + 3;
-      // o trem de Rastejantes (1-1): em fila eles não mordem, só empurram (o pisão vale)
+      // os três Rastejantes do segredo (1-1): não mordem, só empurram (o pisão vale)
       if (e.type === 'conga' && !(falling && above)) {
         const left = this.cx < e.x + e.w / 2; this.x = left ? e.x - this.w : e.x + e.w; this.vx = left ? Math.min(this.vx, -60) : Math.max(this.vx, 60);
         if (e.bumpT <= 0) { e.bumpT = 0.4; SFX.thud(); }

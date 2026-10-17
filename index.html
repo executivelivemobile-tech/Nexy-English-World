@@ -817,7 +817,7 @@ const PROLOGUE = {
   ],
 };
 // O SEGREDO DA 1-1 (76_secret.js): um tijolo invisível lá no alto, no começo da fase, que só o 3º quique seguido alcança
-// (o pisão triplo no trem de Rastejantes, quando o mural do fundo acende); a tela "trava" (falso erro) e cai o WARP CARD.
+// (o pisão triplo nos três Rastejantes, no instante em que ficam em sequência); a tela "trava" (falso erro) e cai o WARP CARD.
 // Terminar a 1-1 com pontuação máxima dá o CARTÃO DOURADO: daí em diante a 1-1 já começa com o cartão. Com ele, a TO BE ENGINE do corredor 2
 // liga: tabela completa do verbo TO BE, as 7 ligações (a errada volta no fim) e a escalada acima do A1. O teletransporte leva à praça final com as vidas
 // cheias, e a escalada decide a força do TIRO DA ECHO (fica salvo e vale nas outras fases).
@@ -1093,8 +1093,8 @@ const LEVELS = {
     // Entidades com parâmetros extras por caractere (sobrepõem a legenda global).
     entities: {
       'J': { entity: 'casco', respawn: 'offscreen', zone: [103, 124] },
-      // o TREM DE RASTEJANTES (o segredo do cartão): três em fila, no chão, antes da porta 1. Em fila não mordem, só empurram;
-      // o pisão vale. Por um instante eles ficam em sequência (o mural do fundo acende) e o pisão triplo leva lá no alto
+      // os TRÊS RASTEJANTES (o segredo do cartão): no chão, antes da porta 1, cada um andando do seu jeito. Não mordem, só
+      // empurram; o pisão vale. Por um instante eles ficam em sequência (o grafite do fundo brilha de leve) e o pisão triplo leva lá no alto
       '4': { entity: 'conga', i: 0, respawn: 'summon' }, '5': { entity: 'conga', i: 1, respawn: 'summon' }, '6': { entity: 'conga', i: 2, respawn: 'summon' },
       '7': { entity: 'mural' },
       'V': { entity: 'pedestal', door: 'pedestal' },
@@ -5031,7 +5031,7 @@ const P = {
       if (this.starT > 0 && e.type !== 'giant') { Enemy.kill(e, 'pop', sign(e.x + e.w / 2 - this.cx) || 1); SFX.crush(); Game.addOrbs(1); continue; }
       const falling = this.y - this.py > 0.01 || this.vy > 0;
       const above = this.py + this.h <= e.y + e.h * 0.5 + 3;
-      // o trem de Rastejantes (1-1): em fila eles não mordem, só empurram (o pisão vale)
+      // os três Rastejantes do segredo (1-1): não mordem, só empurram (o pisão vale)
       if (e.type === 'conga' && !(falling && above)) {
         const left = this.cx < e.x + e.w / 2; this.x = left ? e.x - this.w : e.x + e.w; this.vx = left ? Math.min(this.vx, -60) : Math.max(this.vx, 60);
         if (e.bumpT <= 0) { e.bumpT = 0.4; SFX.thud(); }
@@ -8421,9 +8421,9 @@ const WorldMap = {
 };
 
 /* ============================== 1-1 · O SEGREDO (pedido do dono, "como no Donkey Kong") ==============================
-   1. O TREM DE RASTEJANTES, logo no começo (c20-30, antes da porta 1): três Rastejantes em fila, indo e voltando. Em fila
-      eles não mordem, só empurram (o iniciante não morre ali). Por um instante, indo para a direita, eles ficam em
-      sequência certinha: o MURAL no fundo acende (três Rastejantes, os arcos 1x, 2x e 3x e o tijolo lá em cima).
+   1. TRÊS RASTEJANTES logo no começo (c20-30, antes da porta 1), cada um andando do seu jeito (nada de trem amarrado:
+      o dono achou a dica aparente demais). Eles não mordem, só empurram (o iniciante não morre ali). A cada 19 s eles
+      caem no mesmo passo e, por um instante, indo para a direita, ficam em sequência certinha (o grafite apagado do MURAL no fundo brilha de leve).
       Pisão no último da fila, no do meio e no da frente, segurando o pulo: o 3º quique (≈ 16 blocos) bate a cabeça
       num tijolo INVISÍVEL lá no alto (c28, linha 3). O 2º quique não chega. Pedido do dono: antes o tijolo ficava na
       torre da porta 2 e só um casco jogado para cima alcançava; ele achou impossível e quis algo que exige atenção.
@@ -8834,87 +8834,82 @@ const Warp = {
   },
 };
 
-/* ---------- o TREM DE RASTEJANTES e o MURAL (o caminho até o cartão) ----------
-   Os três andam no mesmo caminho (vai e volta entre xa e xb), um atrás do outro com 'gap' de distância: quando a frente
-   vira, eles se embaralham; indo para a direita com os três na mesma perna, ficam em sequência (o mural acende).
+/* ---------- os TRÊS RASTEJANTES e o MURAL (o caminho até o cartão) ----------
+   Cada um anda do seu jeito (velocidade própria, para, fareja, vira, cruza com os outros). Só num trecho de cada ciclo
+   (F0..F1) eles caem no mesmo passo, um atrás do outro com 'gap' de distância; indo para a direita, por ~1,75 s ficam em
+   sequência e o pisão triplo alcança o tijolo. Nada liga um ao outro: quem não presta atenção não vê.
    A posição vem do relógio da simulação (como o trem da 1-3): o mesmo momento sempre se repete. */
 const Conga = {
   xa: 20 * TS, xb: 30 * TS - 26, v: 40, gap: 112,
+  C: 19, F0: 4, F1: 9.5,
+  // fora da fila: [tempo desde F1, x]; começa onde a fila larga cada um e termina onde ela os pega (com o mesmo sentido)
+  free: [
+    [[0, 848], [4, 720], [5, 720], [9, 920], [9.7, 920], [12.7, 760], [13.5, 800]],
+    [[0, 908], [0.65, 934], [2, 934], [6, 760], [6.8, 760], [9, 850], [12.8, 650], [13.5, 688]],
+    [[0, 796], [2.5, 896], [3.5, 896], [6.5, 770], [8, 770], [9.5, 840], [10, 840], [13.5, 704]],
+  ],
   tri(t) {
     const L = this.xb - this.xa, per = 2 * L / this.v, d = (((t % per) + per) % per) * this.v;
     return d < L ? { x: this.xa + d, dir: 1 } : { x: this.xa + 2 * L - d, dir: -1 };
   },
-  pos(i, t) { return this.tri(t - i * this.gap / this.v); },   // i = 0 é a frente; os outros seguem o mesmo caminho, atrasados
+  phase(t) { return ((t % this.C) + this.C) % this.C; },
+  // i = 0 é a frente; na fila os outros seguem o mesmo caminho, atrasados. stop = parado (fareja)
+  pos(i, t) {
+    const f = this.phase(t);
+    if (f >= this.F0 && f <= this.F1) return this.tri(f - i * this.gap / this.v);
+    const u = (f - this.F1 + this.C) % this.C, k = this.free[i];
+    for (let j = 1; j < k.length; j++) {
+      if (u > k[j][0] && j < k.length - 1) continue;
+      const [t0, x0] = k[j - 1], [t1, x1] = k[j], q = clamp((u - t0) / (t1 - t0), 0, 1);
+      if (x1 !== x0) return { x: x0 + (x1 - x0) * q, dir: sign(x1 - x0) };
+      // parado: olha para onde vinha andando e, na metade, vira para onde vai
+      const prev = j > 1 ? sign(x0 - k[j - 2][1]) : 1, next = j < k.length - 1 ? sign(k[j + 1][1] - x1) : prev;
+      return { x: x0, dir: q < 0.5 ? prev : next, stop: true };
+    }
+  },
   cars() { return Ents.list.filter(e => e.type === 'conga' && !e.dead && e.state === 'walk').sort((a, b) => a.opts.i - b.opts.i); },
-  // em sequência: os três vivos, indo para a direita, na mesma perna (k = 0..1 quanto do instante já passou; soon = quase)
+  // em sequência: os três vivos, na fila, indo para a direita, a frente já adiante (k = 0..1 quanto do instante já passou)
   state(t) {
-    const p = this.tri(t), need = this.xa + 2 * this.gap, all = this.cars().length === 3;
-    return { all, on: all && p.dir > 0 && p.x >= need, soon: all && p.dir > 0 && p.x >= need - 60 && p.x < need, k: clamp((p.x - need) / (this.xb - need), 0, 1) };
+    const f = this.phase(t), all = this.cars().length === 3, need = this.xa + 2 * this.gap;
+    if (f < this.F0 || f > this.F1) return { all, on: false, k: 0 };
+    const p = this.tri(f);
+    return { all, on: all && p.dir > 0 && p.x >= need, k: clamp((p.x - need) / (this.xb - need), 0, 1) };
   },
 };
 Ents.reg('conga', {
   layer: 'enemy',
   init(e) { e.w = 26; e.h = 24; e.enemy = true; e.kind = 'enemy'; e.state = 'walk'; e.creature = 'CRAWLER'; e.dir = 1; e.res = {}; e.dx = 0; e.dy = 0; e.bumpT = 0; this.place(e); },
-  place(e) { const p = Conga.pos(e.opts.i, Game.simTime); e.x = p.x; e.dir = p.dir; },
+  place(e) { const p = Conga.pos(e.opts.i, Game.simTime); e.x = p.x; e.dir = p.dir; e.stop = !!p.stop; },
   update(e, dt) {
     if (e.state !== 'walk') return Ents.types.crawler.update(e, dt);   // amassado ou caindo: igual a um Rastejante
     if (e.bumpT > 0) e.bumpT -= dt;
     const ox = e.x; this.place(e); e.dx = e.x - ox;
   },
-  draw(ctx, e, x, y) {
-    // a corda do trem: cada um segura o da frente (só quando estão em fila, perto um do outro)
-    if (e.state === 'walk' && e.opts.i > 0) {
-      const f = Conga.cars().find(o => o.opts.i === e.opts.i - 1), camX = e.x - x;
-      if (f && Math.abs(f.x - e.x) < Conga.gap + 8 && f.dir === e.dir) {
-        const ax = e.dir > 0 ? x + e.w - 2 : x + 2, bx = (e.dir > 0 ? f.x + 2 : f.x + f.w - 2) - camX, yy = y + e.h * 0.5;
-        ctx.beginPath(); ctx.moveTo(ax, yy); ctx.quadraticCurveTo((ax + bx) / 2, yy + 7 + Math.sin(e.t * 6) * 2, bx, yy);
-        ctx.strokeStyle = ca(0.35); ctx.lineWidth = 1.2; ctx.stroke();
-      }
-    }
-    Ents.types.crawler.draw(ctx, e, x, y);
-    // a frente do trem tem um farolzinho
-    if (e.state === 'walk' && e.opts.i === 0) { const hx = x + e.w / 2 + e.dir * 12; R.draw(R.glow('c', 14), hx, y + 6, 0.8, 0.6 + 0.3 * Math.sin(e.t * 8), true); }
-  },
+  // um Rastejante comum (parado, as pernas não mexem)
+  draw(ctx, e, x, y) { Ents.types.crawler.draw(ctx, e.stop && e.state === 'walk' ? Object.assign({}, e, { asleep: true }) : e, x, y); },
 });
-// o mural no fundo: três Rastejantes em fila, os arcos 1x, 2x, 3x e o tijolo lá no alto. Fraco quase sempre; acende quando
-// o trem está em sequência (e pisca um instante antes). Só desenho.
+// o mural no fundo: um grafite velho e apagado (três Rastejantes, riscos 1, 2 e 3 subindo e um quadradinho lá no alto).
+// Quase invisível; quando os três estão em sequência, a tinta brilha de leve, sem letreiro. Só desenho.
 Ents.reg('mural', {
   layer: 'back',
   init(e) { e.x = e.c * TS; e.y = e.r * TS; e.w = 11 * TS; e.h = 6 * TS; e.glow = 0; },
-  update(e, dt) {
-    const s = Conga.state(Game.simTime);
-    e.lit = s.on; e.soon = s.soon;
-    e.glow = approach(e.glow, s.on ? 1 : s.soon ? 0.5 : 0, dt * 4);
-  },
+  update(e, dt) { e.lit = Conga.state(Game.simTime).on; e.glow = approach(e.glow, e.lit ? 1 : 0, dt * 1.5); },
   draw(ctx, e, x, y) {
-    const t = e.t, g = e.glow, a = 0.22 + 0.7 * g + (e.soon && Math.floor(t * 8) % 2 ? 0.15 : 0), w = e.w, h = e.h;
-    ctx.save(); ctx.globalAlpha = a;
-    // a moldura do painel (um outdoor velho, pendurado no fundo)
-    rrect(ctx, x + 4, y + 4, w - 8, h - 8, 10); ctx.fillStyle = 'rgba(3,6,9,0.55)'; ctx.fill(); ctx.strokeStyle = ca(0.45); ctx.lineWidth = 1.2; ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(x + 40, y + h - 4); ctx.lineTo(x + 30, y + h + 40); ctx.moveTo(x + w - 40, y + h - 4); ctx.lineTo(x + w - 30, y + h + 40); ctx.strokeStyle = wa(0.12); ctx.stroke();
-    // o chão do desenho e os três Rastejantes em fila
-    // (x, y) do painel ↔ mundo: o 3º Rastejante e a seta ficam embaixo do tijolo de verdade (c28, linha 3)
+    const g = e.glow, w = e.w, h = e.h;
+    ctx.save(); ctx.globalAlpha = 0.1 + 0.18 * g;
+    // tinta escorrida na parede (sem moldura)
     const gy = y + h - 26, xs = [x + 136, x + 216, x + 296], bx = x + 28 * TS + TS / 2 - e.x, by = y + 3 * TS + 8 - e.y;
-    ctx.beginPath(); ctx.moveTo(x + 22, gy + 8); ctx.lineTo(x + w - 22, gy + 8); ctx.strokeStyle = ca(0.3); ctx.stroke();
-    for (const cx of xs) {
-      ctx.beginPath(); ctx.moveTo(cx - 11, gy + 7); ctx.lineTo(cx - 12, gy - 1); ctx.lineTo(cx - 6, gy - 7); ctx.lineTo(cx, gy - 10); ctx.lineTo(cx + 6, gy - 7); ctx.lineTo(cx + 12, gy - 1); ctx.lineTo(cx + 11, gy + 7); ctx.closePath();
-      ctx.fillStyle = '#05070a'; ctx.fill(); ctx.strokeStyle = ca(0.8); ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.strokeStyle = ca(0.8); ctx.lineWidth = 1.2;
+    for (const [i, cx] of xs.entries()) {
+      ctx.beginPath(); ctx.moveTo(cx - 11, gy + 7); ctx.lineTo(cx - 12, gy - 1); ctx.lineTo(cx - 6, gy - 7); ctx.lineTo(cx, gy - 10); ctx.lineTo(cx + 6, gy - 7); ctx.lineTo(cx + 12, gy - 1); ctx.lineTo(cx + 11, gy + 7); ctx.closePath(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx - 4 + i * 3, gy + 7); ctx.lineTo(cx - 4 + i * 3, gy + 13 + i * 4); ctx.stroke();   // a tinta que escorreu
+      // os riscos: 1, 2, 3, cada um mais alto
+      for (let k = 0; k <= i; k++) { const ty = gy - 22 - i * 16, tx = cx - i * 3 + k * 6; ctx.beginPath(); ctx.moveTo(tx, ty - 5); ctx.lineTo(tx, ty + 5); ctx.stroke(); }
     }
-    // os arcos dos quiques (pontilhados, magenta = a Nexy) e o 3º subindo até o tijolo
-    ctx.setLineDash([4, 4]); ctx.lineDashOffset = -t * 20; ctx.strokeStyle = 'rgba(240,171,252,0.95)'; ctx.lineWidth = 1.6;
-    ctx.beginPath(); ctx.moveTo(xs[0] - 40, gy - 4); ctx.quadraticCurveTo(xs[0] - 20, gy - 40, xs[0], gy - 12); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(xs[0], gy - 12); ctx.quadraticCurveTo((xs[0] + xs[1]) / 2, gy - 70, xs[1], gy - 12); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(xs[1], gy - 12); ctx.quadraticCurveTo((xs[1] + xs[2]) / 2, gy - 104, xs[2], gy - 12); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(xs[2], gy - 12); ctx.lineTo(bx, by + 22); ctx.stroke();
-    ctx.setLineDash([]);
-    for (const [i, cx] of xs.entries()) R.draw(R.text((i + 1) + 'x', '800 11px Orbitron, Inter, sans-serif', '#ffffff', 'rgba(217,70,239,1)', 6), cx, gy - 26 - i * 18, 1, 1);
-    // a seta para cima e o "pixel com defeito" lá no alto (o tijolo de verdade fica acima do painel)
-    ctx.beginPath(); ctx.moveTo(bx - 6, by + 18); ctx.lineTo(bx, by + 10); ctx.lineTo(bx + 6, by + 18); ctx.strokeStyle = 'rgba(240,171,252,0.95)'; ctx.stroke();
-    ctx.fillStyle = 'rgba(217,70,239,0.7)'; ctx.fillRect(bx - 9, by, 18, 2); ctx.fillStyle = 'rgba(34,211,238,0.7)'; ctx.fillRect(bx - 11, by + 4 + Math.random() * 2, 22, 1.5);
-    // o letreiro: TOGETHER (juntos) quando acende
-    R.draw(R.text(e.lit ? 'NOW!' : 'TOGETHER', '800 12px Orbitron, Inter, sans-serif', '#ffffff', e.lit ? 'rgba(217,70,239,1)' : 'rgba(34,211,238,1)', 7), x + 70, y + 24, 1, 1);
+    // o quadradinho torto lá em cima, onde fica o tijolo de verdade
+    ctx.strokeStyle = 'rgba(240,171,252,0.9)'; ctx.strokeRect(bx - 5, by + 2, 10, 10);
     ctx.restore();
-    if (g > 0.05) R.draw(R.glow('m', 64), x + w / 2, y + h / 2, w / 90, 0.25 * g, true);
+    if (g > 0.05) R.draw(R.glow('c', 64), x + w / 2, y + h - 30, w / 120, 0.1 * g, true);
   },
 });
 
@@ -11172,7 +11167,7 @@ const TestMode = {
   // para onde pular: [rótulo, coluna, linha] (cada ponto tem chão embaixo)
   LEVELS: [
     { id: '1-1', name: '1-1 · HELLO WORLD', spots: [['Início (prólogo)', 3, 19], ['Trem de Rastejantes · o cartão', 19, 19], ['Depois da porta 1', 44, 19], ['Porta 2 · checkpoint', 104, 19], ['TO BE ENGINE', 134, 19], ['Praça final', 181, 19]],
-      checks: ['Prólogo: as letras de HELLO caem; IT IS BIG / SMALL no Rastejante', 'Trem de Rastejantes: o mural acende (NOW!) e o pisão triplo dá o cartão',
+      checks: ['Prólogo: as letras de HELLO caem; IT IS BIG / SMALL no Rastejante', 'Três Rastejantes: andam soltos; a cada 19 s ficam em fila (o grafite brilha de leve) e o pisão triplo dá o cartão',
         'Portas: HELLO! · I AM FINE · IT IS A KEY', 'TO BE ENGINE com o cartão: as 7 ligações, a escalada e o teletransporte', 'Saída normal e a saída secreta (palácio)'] },
     { id: '1-2', name: '1-2 · WHO ARE YOU?', spots: [['Início', 3, 29], ['Lustres', 88, 26], ['Coro dos sinos', 140, 29], ['Cripta', 212, 35], ['Baú da Memória', 229, 35], ['Depois do muro', 246, 29], ['Campanário', 270, 29]],
       checks: ['Porta 1: WHO ARE YOU? → NEXY; porta 2: NO, NOT', 'Sinos: HOW ARE YOU? (de primeira dá vida)', 'Altar 2: THEY ARE SMALL tira os gigantes; o poço dá as palavras',
