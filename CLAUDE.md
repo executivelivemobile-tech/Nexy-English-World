@@ -139,7 +139,7 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   `Flags.set('palaces.toBe', true, true)` + `Save.data.heart.ring = true` (o acréscimo ao Coração: ANEL DO TO BE,
   `Palace.drawRing`, aparece no mapa e no Grimório); no fim o portão `gate` (c135-136 L8-19) afunda. Saída `N` c144.
   Outro caminho: Alados `U` c133 L16 + `V` c134 L11 (quique e quique por cima do portão, saindo de c130-131).
-- Erros têm `tip` da Echo ("Not today. Yesterday!", "They? Not was!", "Nexy is he!", "Yesterday is the past!").
+- Erros têm `tip` da Echo ("Not today. Yesterday!", "They? Not was!", "Nexy is she!", "Yesterday is the past!").
 - 1ª visita: `PalaceIntro` (ontem cheio de luz, hoje escuro, tabela TODAY/YESTERDAY; Esc pula). Depois a Echo lembra
   do pulso (`ECHO.lines.past`). Cavaleiro: pisão comum só tine (`clang`, quica), giro/casco/tiro duplo quebram.
 - Visual novo: chão-espelho (`level.mirror`), fundo do palácio com relógio gigante (ponteiros para trás até o
@@ -256,7 +256,7 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   criaturas e segredos menos o do cartão) grava `Save.data.goldCard`; daí em diante `loadLevel('1-1')` começa com o
   cartão (aviso na tela de fim, fala `ECHO.lines.goldCard`, Grimório GOLD CARD).
   TO BE ENGINE `T` em c136 (corredor 2): sem cartão a Echo diz "It is a machine. It needs a card."; com cartão:
-  tabela (HE = Nexy, SHE = Echo, palavras novas), as 7 ligações (errar não zera mais: a errada vai para o fim da fila), escalada de
+  tabela (HE = a voz antiga das portas, SHE = a Nexy e a Echo, palavras novas), as 7 ligações (errar não zera mais: a errada vai para o fim da fila), escalada de
   4 frases (A2 → B1) que sobe o nível do tiro. Teletransporte (`Warp`): IS/ARE da barra viram combustível, praça
   final c181 (`LEVELS['1-1'].warp`), vidas = max(vidas, 5), checkpoint ali. Conta 1 segredo a mais na Fluência da 1-1.
 - **Tiro da Echo** (`EchoShot`, `SHOT` em `10_data.js`, `Save.data.shot.best`; -1 = não tem): F / Y no controle

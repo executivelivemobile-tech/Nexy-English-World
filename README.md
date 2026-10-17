@@ -183,7 +183,7 @@ YESTERDAY: I WAS · IT WAS · THEY WERE). O chão do salão é um espelho: a Nex
 - **O pulso da Echo vê o passado** (C): perto da ponte que caiu ele mostra o contorno do que existia e a Echo diz
   "It was a bridge!". As estátuas deixam a sombra do tamanho antigo na parede.
 - **Erro com retorno, sem castigo**: frase errada só faz o alvo tremer, e a Echo aponta o porquê sem dar a frase
-  pronta ("Not today. Yesterday!", "They? Not was!", "Nexy is he!").
+  pronta ("Not today. Yesterday!", "They? Not was!", "Nexy is she!").
 - **Cavaleiro (KNIGHT)**, criatura nova: pisão comum só faz o elmo tinir (a Nexy quica e ele cambaleia); com giro a
   armadura se desfaz. O tiro da Echo também funciona nele.
 - **O INTERRUPTOR DO SER**: a frase final é em 1ª pessoa, passado e presente juntos. A cena tem pausa pesada, dois
