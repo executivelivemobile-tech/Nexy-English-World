@@ -7130,6 +7130,18 @@
    ],
    "from": "echo-3"
   },
+  "echo:n": {
+   "file": "echo/n.mp3",
+   "text": "N",
+   "dur": 0.76,
+   "b": [
+    [
+     0,
+     0.24
+    ]
+   ],
+   "from": "echo-1"
+  },
   "echo:new path": {
    "file": "echo/new-path.mp3",
    "text": "New path!",

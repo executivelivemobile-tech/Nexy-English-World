@@ -419,6 +419,7 @@ const MASTER_WORDS = {
   WORLD: { pt: 'mundo', say: 'World', lore: 'Depois do olá, o mundo inteiro. A catedral guardava cada letra num lugar mais alto.' },
   TOBE:  { pt: 'ser / estar (to be)', say: 'To be', lore: 'Quatro letras, um verbo inteiro: AM, IS, ARE, WAS, WERE. O palácio dele acendeu quando você disse quem era e quem é.' },
   CITY:  { pt: 'cidade', say: 'City', lore: 'Quatro letras espalhadas pelos telhados, na chuva. Quem sabe dizer onde as coisas estão encontra todas.' },
+  IRON:  { pt: 'ferro', say: 'Iron', lore: 'Quatro letras no forte: no pilar da ponte velha, sobre o poço, atrás do ferro rachado e na torre que o ferro derretido sobe.' },
 };
 const PHRASES_PT = {
   'HELLO!': 'Olá!', 'HOW ARE YOU?': 'Como você está?', 'WHAT IS THIS?': 'O que é isso?',

@@ -236,6 +236,11 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 - Selo da Lei (`Save.data.heart.seal` 0-4): pulo duplo só em fases com `seal: true` (o Forte e as próximas); a 1-3 e as
   aprovadas não mudam. Força `FORT.seal.tiers[n].k` (0,6 → 0,95 do pulo).
 - Modo teste: o Forte tem trechos e lista própria em `84_testmode.js`.
+- Desempenho do fundo (`BG.drawFort`): o céu, as estrelas e a lua já vêm pintados na camada longe (`makeFortFar`);
+  `BG.blitPart` desenha só o pedaço visível das camadas grandes; a aurora é feita em meia resolução a cada 2 quadros;
+  por dentro (salão, galeria, torre) o céu nem é desenhado. Fundo ≈ 4 ms dentro e ≈ 8 ms fora (a 1-3 ≈ 6 ms).
+- Mapa: marco do Forte com telhados violeta, bandeira e janelas âmbar; constelação IRON (`MASTER_WORDS.IRON`).
+- Responder na tábua antes de o Guardião acordar já o derruba (ele acorda caído).
 
 ## 6. Testes (`node tests/run.js [filtro]`, Playwright, ~3 min)
 

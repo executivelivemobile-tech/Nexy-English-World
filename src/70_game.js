@@ -427,7 +427,7 @@ const UI = {
       }
       const sl = S.heart.seal | 0, SL = FORT.seal.tiers[Math.max(0, sl - 1)];
       card(SL.name, sl ? SL.pt : '', sl ? 'POWER · LEVEL ' + sl + ' OF ' + FORT.seal.tiers.length : 'LOCKED · THE FORTRESS',
-        sl ? "Nasceu quando a lei do Guardião se quebrou (o CAN'T virou CAN). No ar, aperte o pulo de novo: pulo duplo, do Forte em diante. " + FORT.seal.tiers.slice(0, sl).map(x => x.info).join(' ') : '', 'Seal of the law', !sl, false, P0);
+        sl ? "Nasceu quando a lei do Guardião se quebrou (o CAN'T virou CAN). " + FORT.seal.tiers.slice(0, sl).map(x => x.info).join(' ') : '', 'Seal of the law', !sl, false, P0);
       const gold = S.goldCard, anyCard = gold || G.words.CARD;
       card(gold ? 'GOLD CARD' : 'WARP CARD', anyCard ? (gold ? 'cartão dourado' : 'cartão de teletransporte') : '', gold ? 'ITEM · FOREVER' : anyCard ? 'ITEM · ONE RUN' : 'LOCKED · ???',
         anyCard ? 'Liga a TO BE ENGINE: quem sabe o verbo TO BE inteiro viaja até o fim da fase com as vidas cheias. ' + (gold ? 'Dourado: ganho com a pontuação máxima na 1-1, agora a fase sempre começa com ele.' : 'Vale só na partida em que você o encontrou. Terminar a 1-1 com pontuação máxima dá o cartão dourado, que fica para sempre.') : '',

@@ -736,6 +736,11 @@
  },
  {
   "who": "echo",
+  "text": "N",
+  "prompt": "N."
+ },
+ {
+  "who": "echo",
   "text": "New path!",
   "prompt": "[excited] New path!"
  },

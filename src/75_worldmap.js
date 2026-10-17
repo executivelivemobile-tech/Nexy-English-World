@@ -419,11 +419,19 @@ const WorldMap = {
       win(-5, -16, 4, 6, true); win(7, -20, 4, 5, false);
       if (on) { const gy = -44 + Math.sin(t * 2) * 3; R.draw(R.glow('w', 14), 10, gy, 0.7, 0.35, true); }
     } else if (kind === 'fortress') {
-      ctx.beginPath(); ctx.rect(-24, -16, 48, 16); ctx.fill(); ctx.stroke();
-      spire(-22, 10, 28, 0.6); spire(22, 10, 28, 0.6);
-      ctx.beginPath(); for (let i = -16; i < 16; i += 8) ctx.rect(i, -21, 5, 5); ctx.fill(); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(-6, 0); ctx.lineTo(-6, -8); ctx.quadraticCurveTo(0, -14, 6, -8); ctx.lineTo(6, 0); ctx.stroke();
-      win(-22, -18, 3, 5, false); win(22, -18, 3, 5, false);
+      // o Forte de Ferro: muralha com ameias, duas torres de telhado violeta, a torre de menagem com a bandeira e a pedra da lei acesa na porta
+      spire(0, 13, 40, 1.1);
+      ctx.beginPath(); ctx.rect(-26, -16, 52, 16); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); for (let i = -24; i < 24; i += 8) ctx.rect(i, -21, 5, 5); ctx.fill(); ctx.stroke();
+      spire(-23, 10, 30, 0.8); spire(23, 10, 30, 0.8);
+      if (on) {
+        for (const sx of [-23, 23, 0]) { const h = sx ? 30 : 40, w = sx ? 10 : 13; ctx.beginPath(); ctx.moveTo(sx - w / 2, -h); ctx.lineTo(sx, -h - w * (sx ? 0.8 : 1.1)); ctx.lineTo(sx + w / 2, -h); ctx.closePath(); ctx.fillStyle = 'rgba(124,58,237,0.75)'; ctx.fill(); }
+        ctx.beginPath(); ctx.moveTo(0, -54); ctx.lineTo(0, -64); ctx.strokeStyle = stroke; ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, -64); ctx.lineTo(10 + Math.sin(t * 3) * 1.5, -61); ctx.lineTo(0, -58); ctx.closePath(); ctx.fillStyle = 'rgba(217,70,239,0.9)'; ctx.fill();
+        R.draw(Fort.glowA(16), 0, -6, 1.1, 0.55 + 0.2 * Math.sin(t * 2.4), true);
+        for (const [wx, wy] of [[-23, -20], [23, -20], [0, -30]]) { R.draw(Fort.glowA(8), wx, wy, 0.8, 0.8, true); ctx.fillStyle = '#fde68a'; ctx.fillRect(wx - 1.5, wy - 3, 3, 6); }
+      }
+      ctx.beginPath(); ctx.moveTo(-6, 0); ctx.lineTo(-6, -8); ctx.quadraticCurveTo(0, -14, 6, -8); ctx.lineTo(6, 0); ctx.closePath(); ctx.fillStyle = on ? 'rgba(251,191,36,0.35)' : fill; ctx.fill(); ctx.strokeStyle = on ? 'rgba(251,191,36,0.9)' : stroke; ctx.stroke();
     } else if (kind === 'castle') {
       spire(-24, 10, 34); spire(24, 10, 34); spire(-11, 11, 46); spire(11, 11, 46); spire(0, 14, 62, 1.3);
       ctx.beginPath(); ctx.rect(-28, -18, 56, 18); ctx.fill(); ctx.stroke();
@@ -462,6 +470,7 @@ const WorldMap = {
     this.constellation(ctx, t, [['1-1', 'HELLO'], ['1-2', 'WORLD']], 590, 96, 32, 18);
     if (this.reachable('palace')) this.constellation(ctx, t, [['palace', 'TOBE']], 210, 196, 22, 13);
     if (this.reachable('1-3')) this.constellation(ctx, t, [['1-3', 'CITY']], 840, 452, 22, 13);
+    if (this.reachable('fortress')) this.constellation(ctx, t, [['fortress', 'IRON']], 250, 128, 22, 13);
     for (const c of this.clouds) if (!c.front) this.cloud(ctx, c, t, 0.03);
     // raios atrás do castelo, de tempos em tempos
     const lp = t % 9, cn = this.node('castle');

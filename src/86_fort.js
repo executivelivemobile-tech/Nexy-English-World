@@ -772,6 +772,16 @@ const FortPower = {
    (salão, galeria, torre), a parede de pedra com arcos e brasas. Brasas sobem o tempo todo. */
 BG.makeFortFar = function () {
   const W = 1920, H = 700, s = R.make(W, H), x = s.x, rnd = mulberry32(31);
+  // o céu já vem pintado aqui (uma camada a menos por quadro): degradê violeta, estrelas e a lua âmbar
+  const sky = x.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, '#070414'); sky.addColorStop(0.45, '#140a26'); sky.addColorStop(1, '#1d0b24');
+  x.fillStyle = sky; x.fillRect(0, 0, W, H);
+  for (let i = 0; i < 260; i++) { x.fillStyle = `rgba(255,255,255,${(0.15 + rnd() * 0.45).toFixed(3)})`; const sz = 0.6 + rnd() * 1.3; x.fillRect(rnd() * W, rnd() * 420, sz, sz); }
+  for (const mx of [1240]) {
+    const my = 230, g = x.createRadialGradient(mx, my, 10, mx, my, 170); g.addColorStop(0, 'rgba(253,224,71,0.35)'); g.addColorStop(0.4, 'rgba(249,115,22,0.12)'); g.addColorStop(1, 'rgba(249,115,22,0)');
+    x.fillStyle = g; x.fillRect(mx - 170, my - 170, 340, 340);
+    x.beginPath(); x.arc(mx, my, 34, 0, Math.PI * 2); x.fillStyle = 'rgba(254,243,199,0.92)'; x.fill();
+    x.beginPath(); x.arc(mx + 10, my - 6, 30, 0, Math.PI * 2); x.fillStyle = 'rgba(253,230,138,0.35)'; x.fill();
+  }
   // montanhas em duas camadas
   for (const [base, amp, col, edge] of [[430, 150, '#0d0a1c', 'rgba(167,139,250,0.18)'], [520, 110, '#09070f', 'rgba(34,211,238,0.12)']]) {
     x.beginPath(); x.moveTo(0, H); let px = 0; x.lineTo(0, base);
@@ -839,35 +849,48 @@ BG.makeFortWall = function () {
   }
   return s;
 };
+// desenha só o pedaço da imagem que aparece na tela (as camadas do fundo são bem maiores que ela)
+BG.blitPart = function (ctx, s, dx, dy, dw, dh) {
+  const W = CFG.VIEW_W, H = CFG.VIEW_H, x0 = Math.max(0, dx), y0 = Math.max(0, dy), x1 = Math.min(W, dx + dw), y1 = Math.min(H, dy + dh);
+  if (x1 <= x0 || y1 <= y0) return;
+  const kx = s.c.width / dw, ky = s.c.height / dh;
+  ctx.drawImage(s.c, (x0 - dx) * kx, (y0 - dy) * ky, (x1 - x0) * kx, (y1 - y0) * ky, x0, y0, x1 - x0, y1 - y0);
+};
+// a aurora em meia resolução (pesa um quarto), refeita a cada 2 quadros
+BG.fortAurora = function (time, camY) {
+  const W = CFG.VIEW_W, A = this.aurora || (this.aurora = { s: R.make(W / 2, 160), n: 0 });
+  if (A.n++ % 2) return A.s;
+  const x = A.s.x; x.clearRect(0, 0, W / 2, 160); x.save(); x.scale(0.5, 0.5); x.globalCompositeOperation = 'lighter';
+  for (const [i, col] of [[0, '45,212,191'], [1, '167,139,250'], [2, '217,70,239']]) {
+    const base = 60 + i * 46 - camY * 0.03, ph = time * (0.25 + i * 0.07) + i * 2;
+    x.beginPath();
+    for (let xx = -20; xx <= W + 20; xx += 24) { const y = base + Math.sin(xx * 0.006 + ph) * 34 + Math.sin(xx * 0.017 - ph * 1.7) * 12; if (xx === -20) x.moveTo(xx, y); else x.lineTo(xx, y); }
+    for (let xx = W + 20; xx >= -20; xx -= 24) { const y = base + 70 + Math.sin(xx * 0.006 + ph + 0.4) * 40 + Math.sin(xx * 0.013 + ph) * 10; x.lineTo(xx, y); }
+    x.closePath();
+    const g = x.createLinearGradient(0, base - 40, 0, base + 120); g.addColorStop(0, `rgba(${col},0)`); g.addColorStop(0.45, `rgba(${col},${0.11 + 0.04 * Math.sin(time + i)})`); g.addColorStop(1, `rgba(${col},0)`);
+    x.fillStyle = g; x.fill();
+  }
+  x.restore();
+  return A.s;
+};
 BG.drawFort = function (ctx, camX, camY, time) {
   if (!this.fortFar) { this.fortFar = this.makeFortFar(); this.fortMid = this.makeFortMid(); this.fortWall = this.makeFortWall(); this.fortStars = []; const rnd = mulberry32(5); for (let i = 0; i < 120; i++) this.fortStars.push({ x: rnd() * 960, y: rnd() * 360, s: 0.5 + rnd() * 1.2, p: rnd() * 6 }); }
   const W = CFG.VIEW_W, H = CFG.VIEW_H;
-  // o céu
-  const sky = ctx.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, '#070414'); sky.addColorStop(0.55, '#140a26'); sky.addColorStop(1, '#1d0b24');
-  ctx.fillStyle = sky; ctx.fillRect(0, 0, W, H);
-  for (const s of this.fortStars) { const tw = 0.4 + 0.6 * Math.abs(Math.sin(time * 1.3 + s.p)); ctx.fillStyle = `rgba(255,255,255,${(0.5 * tw).toFixed(3)})`; ctx.fillRect(((s.x - camX * 0.02) % W + W) % W, s.y - camY * 0.02, s.s, s.s); }
-  // a aurora: três faixas que ondulam (verde-água, violeta, magenta)
-  ctx.save(); ctx.globalCompositeOperation = 'lighter';
-  for (const [i, col] of [[0, '45,212,191'], [1, '167,139,250'], [2, '217,70,239']]) {
-    const base = 90 + i * 46 - camY * 0.03, ph = time * (0.25 + i * 0.07) + i * 2;
-    ctx.beginPath();
-    for (let xx = -20; xx <= W + 20; xx += 24) { const y = base + Math.sin(xx * 0.006 + ph) * 34 + Math.sin(xx * 0.017 - ph * 1.7) * 12; if (xx === -20) ctx.moveTo(xx, y); else ctx.lineTo(xx, y); }
-    for (let xx = W + 20; xx >= -20; xx -= 24) { const y = base + 70 + Math.sin(xx * 0.006 + ph + 0.4) * 40 + Math.sin(xx * 0.013 + ph) * 10; ctx.lineTo(xx, y); }
-    ctx.closePath();
-    const g = ctx.createLinearGradient(0, base - 40, 0, base + 120); g.addColorStop(0, `rgba(${col},0)`); g.addColorStop(0.45, `rgba(${col},${0.11 + 0.04 * Math.sin(time + i)})`); g.addColorStop(1, `rgba(${col},0)`);
-    ctx.fillStyle = g; ctx.fill();
+  // por dentro do forte (salão, galeria, torre) a parede cobre o céu: aí o céu nem é desenhado
+  const cc = (camX + W / 2) / TS, kin = clamp(Math.min(cc - 44, 225 - cc) / 8, 0, 1);
+  if (kin < 0.999) {
+    // longe (com o céu, as estrelas e a lua já pintados): montanhas, a cidade lá embaixo e o castelo
+    const fW = 1920, fx = -((camX * 0.06) % fW), fy = -120 - camY * 0.08;
+    this.blitPart(ctx, this.fortFar, fx, fy, fW, 700); this.blitPart(ctx, this.fortFar, fx + fW, fy, fW, 700);
+    // a aurora (três faixas que ondulam: verde-água, violeta, magenta) e algumas estrelas que piscam
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    ctx.drawImage(this.fortAurora(time, camY).c, 0, 10, W, 320);
+    for (let i = 0; i < 24; i++) { const s = this.fortStars[i], tw = Math.max(0, Math.sin(time * 1.3 + s.p)); if (tw > 0.2) { ctx.fillStyle = `rgba(255,255,255,${(0.7 * tw).toFixed(3)})`; ctx.fillRect(((s.x - camX * 0.02) % W + W) % W, s.y * 0.5 - camY * 0.02, 1.6, 1.6); } }
+    ctx.restore();
+    // no meio: as torres do forte
+    const mW = 1600, mx2 = -((camX * 0.22) % mW), my2 = 120 - camY * 0.2;
+    this.blitPart(ctx, this.fortMid, mx2, my2, mW, 900); this.blitPart(ctx, this.fortMid, mx2 + mW, my2, mW, 900);
   }
-  // a lua âmbar
-  const mx = 760 - camX * 0.01, my = 110 - camY * 0.02;
-  R.draw(Fort.glowA(64), mx, my, 2.6, 0.45, true);
-  ctx.beginPath(); ctx.arc(mx, my, 34, 0, Math.PI * 2); ctx.fillStyle = 'rgba(254,243,199,0.9)'; ctx.fill();
-  ctx.beginPath(); ctx.arc(mx + 10, my - 6, 30, 0, Math.PI * 2); ctx.fillStyle = 'rgba(253,230,138,0.35)'; ctx.fill();
-  ctx.restore();
-  // longe: montanhas, a cidade lá embaixo e o castelo; no meio: as torres do forte
-  const fW = 1920, fx = -((camX * 0.06) % fW), fy = -120 - camY * 0.08;
-  ctx.drawImage(this.fortFar.c, fx, fy, fW, 700); ctx.drawImage(this.fortFar.c, fx + fW, fy, fW, 700);
-  const mW = 1600, mx2 = -((camX * 0.22) % mW), my2 = 120 - camY * 0.2;
-  ctx.drawImage(this.fortMid.c, mx2, my2, mW, 900); ctx.drawImage(this.fortMid.c, mx2 + mW, my2, mW, 900);
   // por baixo da terra (o esgoto): pedra escura com limo, presa ao mundo
   for (const [c0, r0, c1, r1] of World.level.caves || []) {
     const x0 = c0 * TS - camX, y0 = r0 * TS - camY, w = (c1 - c0 + 1) * TS, h = (r1 - r0 + 1) * TS;
@@ -878,18 +901,17 @@ BG.drawFort = function (ctx, camX, camY, time) {
     const g = ctx.createLinearGradient(0, y0 + h - 40, 0, y0 + h); g.addColorStop(0, 'rgba(52,211,153,0)'); g.addColorStop(1, 'rgba(52,211,153,0.14)');
     ctx.fillStyle = g; ctx.fillRect(x0, y0 + h - 40, w, 40); ctx.restore();
   }
-  // por dentro do forte (salão, galeria, torre): a parede de pedra aparece aos poucos na porta
-  const cc = (camX + W / 2) / TS, kin = clamp(Math.min(cc - 44, 225 - cc) / 8, 0, 1);
+  // a parede de pedra de dentro do forte aparece aos poucos na porta
   if (kin > 0) {
     ctx.save(); ctx.globalAlpha = kin;
     const wW = 1024, wx = -((camX * 0.5) % wW), wy = -((camY * 0.5) % 640) - 40;
-    for (let ox = wx; ox < W; ox += wW) for (let oy = wy; oy < H; oy += 640) ctx.drawImage(this.fortWall.c, ox, oy, wW, 640);
+    for (let ox = wx; ox < W; ox += wW) for (let oy = wy; oy < H; oy += 640) this.blitPart(ctx, this.fortWall, ox, oy, wW, 640);
     ctx.restore();
   }
   // brasas subindo
   ctx.save(); ctx.globalCompositeOperation = 'lighter';
   const gA = Fort.glowA(6);
-  for (let i = 0; i < 46; i++) {
+  for (let i = 0; i < 32; i++) {
     const sp = 18 + (i * 37) % 30, x = ((i * 211.7 - camX * 0.7 + Math.sin(time * 0.8 + i) * 20) % W + W) % W, y = ((H - ((time * sp + i * 97) % (H + 40))) - camY * 0.05 + 40);
     R.draw(gA, x, y, 0.6 + (i % 3) * 0.3, 0.35 + 0.3 * Math.sin(time * 3 + i), true);
   }

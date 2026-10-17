@@ -30,7 +30,9 @@ const Warden = {
   },
   // a frase certa: a lei se quebra e o Guardião cai
   answer(i) {
-    const e = this.ent; if (!e || !this.fighting(e) || e.round !== i || e.broken) return;
+    const e = this.ent; if (!e || e.state === 'dead' || e.state === 'dying' || e.round !== i || e.broken) return;
+    // respondeu na tábua antes de ele acordar: ele acorda já derrubado
+    if (e.state === 'sleep' || e.state === 'wake') { e.woke = true; e.metEcho = true; Game.registerCreature('WARDEN'); SFX.roar(); }
     e.broken = true; e.crack = 1;
     SFX.law(); SFX.shatter(); Game.shake(7); Game.hitstop(5); Hints.mark('warden');
     FX.burst(e.cx, e.cy, 50, 'm', 320, { life: 0.9, g: 300 });
