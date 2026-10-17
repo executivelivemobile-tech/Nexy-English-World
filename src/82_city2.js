@@ -2,13 +2,15 @@
    Os PODERES saem dos blocos (POWERS em 10_data.js): LASER (o braço da Nexy atira; segurar e soltar = tiro carregado),
    WINGS (segurar o pulo no ar plana; em cima do ventilador o vento levanta) e STAR (alguns segundos sem dano).
    Machucou com um poder: perde o poder (como no Mario). F / Y / SHOT atira com o LASER; sem ele, é o tiro da Echo.
+   O LASER mira em 8 direções: ↑ = para cima, ↑ + lado = diagonal; no ar, ↓ = para baixo (↓ + lado = diagonal).
+   No toque (sem setas para cima), o tiro mira sozinho no alvo mais perto à frente (em 45°).
    Criaturas novas: o DRONE (mira com uma linha fina e atira) e o SENTINELA (o chefe: diga no terminal onde o núcleo está).
    Peças novas: o emissor de laser (o feixe fecha o corredor; a caixa NA FRENTE bloqueia; tiros quebram o emissor), os
    portões que ligam e desligam e o ventilador. Os tiros dos inimigos são ciano (o sistema); os da Nexy, magenta. */
 const CHARGE_T = 0.75;   // segurar o tiro por este tempo carrega o laser
 const Power = {
-  bolts: [], cool: 0, hold: 0, charged: false, shotT: 0,
-  reset() { this.bolts = []; this.cool = 0; this.hold = 0; this.charged = false; this.shotT = 0; EnemyFire.list = []; },
+  bolts: [], cool: 0, hold: 0, charged: false, shotT: 0, aimV: { x: 1, y: 0 },
+  reset() { this.bolts = []; this.cool = 0; this.hold = 0; this.charged = false; this.shotT = 0; this.aimV = { x: 1, y: 0 }; EnemyFire.list = []; },
   respawn() { this.reset(); if (Sentinel.ent) Sentinel.sleep(Sentinel.ent); },
   give(kind, e) {
     const D = POWERS[kind]; if (!D) return;
@@ -40,11 +42,33 @@ const Power = {
   press() { return P.power === 'laser' ? this.shoot(false) : EchoShot.fire(); },
   holding() { return Input.get('shoot') || !!Input.touchHeld.shot; },
   ready() { return Game.state === 'play' && !P.dead && P.power === 'laser' && !P.held; },
+  // para onde o braço aponta: as setas seguradas (8 direções); no toque, o alvo mais perto à frente
+  aim(auto) {
+    const f = P.facing, side = Input.get('left') || Input.get('right');
+    let x = f, y = 0;
+    if (Input.get('up')) { y = -1; x = side ? f : 0; }
+    else if (Input.get('down') && !P.onGround) { y = 1; x = side ? f : 0; }
+    else if (auto && document.body.classList.contains('touch')) {
+      let best = null, bd = 1e9;
+      const ox = P.cx, oy = P.y + P.h * 0.42;
+      for (const e of Ents.list) {
+        if (e.dead || !(e.enemy || e.shootable) || e.state === 'dying' || e.state === 'flat' || e.state === 'held' || e.broken) continue;
+        const dx = e.x + e.w / 2 - ox, dy = e.y + e.h / 2 - oy, d = Math.hypot(dx, dy);
+        if (dx * f < -8 || d > 9 * TS || d >= bd) continue;
+        best = { dx, dy }; bd = d;
+      }
+      // o ângulo vira uma das 8 direções (à frente ou para cima/baixo)
+      if (best) { const a = Math.round(Math.atan2(best.dy, best.dx * f) / (Math.PI / 4)) * (Math.PI / 4); x = Math.round(Math.cos(a)) * f; y = Math.round(Math.sin(a)); }
+    }
+    const n = Math.hypot(x, y) || 1;
+    return { x: x / n, y: y / n };
+  },
   shoot(big) {
     if (!this.ready()) return false;
     if (!big && (this.cool > 0 || this.bolts.filter(b => !b.big).length >= 3)) return false;
-    const dir = P.facing, x = P.cx + dir * 16, y = P.y + P.h * (P.crouch ? 0.5 : 0.42);
-    this.bolts.push({ x, y, vx: dir * (big ? 760 : 720), life: big ? 0.95 : 0.8, big, dmg: big ? 3 : 1, hit: new Set(), trail: [] });
+    const a = this.aim(true), sp = big ? 760 : 720, x = P.cx + a.x * 16, y = P.y + P.h * (P.crouch ? 0.5 : 0.42) + a.y * 14;
+    this.aimV = a; this.aimHold = 0.25;
+    this.bolts.push({ x, y, vx: a.x * sp, vy: a.y * sp, life: big ? 0.95 : 0.8, big, dmg: big ? 3 : 1, hit: new Set(), trail: [] });
     this.cool = 0.16; this.shotT = 0.12;
     if (big) { SFX.blast(); Game.shake(2); } else SFX.laser();
     FX.burst(x, y, big ? 18 : 6, 'm', big ? 260 : 140, { life: 0.25, g: 0 });
@@ -63,6 +87,8 @@ const Power = {
     }
     if (this.cool > 0) this.cool -= dt;
     if (this.shotT > 0) this.shotT -= dt;
+    // o braço segue as setas (depois de um tiro mirado sozinho, fica um instante no alvo)
+    if (this.aimHold > 0) this.aimHold -= dt; else if (P.power === 'laser') this.aimV = this.aim(false);
     // segurando o tiro com o LASER: carrega; soltou carregado, sai o tiro forte
     if (P.power === 'laser' && this.holding() && Game.state === 'play' && !P.dead) {
       this.hold += dt;
@@ -74,9 +100,9 @@ const Power = {
     }
     for (const b of this.bolts) {
       b.trail.push({ x: b.x, y: b.y }); if (b.trail.length > (b.big ? 6 : 4)) b.trail.shift();
-      b.x += b.vx * dt; b.life -= dt;
+      b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
       if (this.wall(Math.floor(b.x / TS), Math.floor(b.y / TS))) { b.life = 0; SFX.thud(); FX.burst(b.x, b.y, b.big ? 16 : 8, 'm', 140, { life: 0.3, g: 0 }); continue; }
-      const box = b.big ? { x: b.x - 12, y: b.y - 12, w: 24, h: 24 } : { x: b.x - 8, y: b.y - 4, w: 16, h: 8 };
+      const box = b.big ? { x: b.x - 12, y: b.y - 12, w: 24, h: 24 } : b.vy ? { x: b.x - 7, y: b.y - 7, w: 14, h: 14 } : { x: b.x - 8, y: b.y - 4, w: 16, h: 8 };
       // o tiro carregado apaga os tiros inimigos no caminho
       if (b.big) for (const f of EnemyFire.list) if (f.life > 0 && overlap(box, { x: f.x - 4, y: f.y - 4, w: 8, h: 8 })) { f.life = 0; FX.burst(f.x, f.y, 6, 'c', 120, { life: 0.3, g: 0 }); }
       for (const e of Ents.list) {
@@ -92,7 +118,7 @@ const Power = {
     EnemyFire.update(dt);
   },
   hitEnemy(e, b) {
-    const dir = sign(b.vx) || 1, cx = e.x + e.w / 2, cy = e.y + e.h / 2;
+    const dir = sign(b.vx) || P.facing, cx = e.x + e.w / 2, cy = e.y + e.h / 2;
     if (e.type === 'giant') { SFX.thud(); e.shake = 0.3; FX.burst(cx, cy, 8, 'c', 120, { life: 0.3 }); return; }
     // gárgula de pedra e cavaleiro: o tiro comum só tine; o carregado quebra
     if (!b.big && e.type === 'gargoyle') { if (e.state === 'fly' || e.state === 'home') Ents.types.gargoyle.stun(e); else { SFX.clang(); FX.burst(cx, cy, 8, 'c', 120, { life: 0.3, g: 0 }); } return; }
@@ -128,14 +154,15 @@ const Power = {
       if (!blink) { R.draw(R.glow('t', 64), px + P.w / 2, py + P.h / 2, 1.2 + 0.1 * Math.sin(t * 20), 0.9, true); R.draw(R.glow(Math.floor(t * 10) % 2 ? 'm' : 'c', 48), px + P.w / 2, py + P.h / 2, 1.3, 0.5, true); }
     }
     if (P.power !== 'laser') return;
-    const dir = P.facing, hx = px + P.w / 2 + dir * (11 + (this.shotT > 0 ? -2 : 0)), hy = py + P.h * (P.crouch ? 0.5 : 0.42);
-    ctx.save(); ctx.translate(hx, hy); ctx.scale(dir, 1);
+    const dir = P.facing, av = this.aimV, ang = Math.atan2(av.y, Math.abs(av.x)), kick = this.shotT > 0 ? -2 : 0;
+    const hx = px + P.w / 2 + dir * (11 * Math.max(0.35, Math.abs(av.x)) + kick * Math.abs(av.x)), hy = py + P.h * (P.crouch ? 0.5 : 0.42) + av.y * (6 + kick);
+    ctx.save(); ctx.translate(hx, hy); ctx.scale(dir, 1); ctx.rotate(ang);
     rrect(ctx, -5, -4, 14, 8, 3); ctx.fillStyle = '#0b0610'; ctx.fill(); ctx.strokeStyle = '#f0abfc'; ctx.lineWidth = 1.2; ctx.stroke();
     ctx.beginPath(); ctx.moveTo(-1, -4); ctx.lineTo(-1, 4); ctx.strokeStyle = 'rgba(217,70,239,0.6)'; ctx.lineWidth = 1; ctx.stroke();
     ctx.restore();
-    const k = Math.min(1, this.hold / CHARGE_T), tip = hx + dir * 10;
-    R.draw(R.glow('m', 16), tip, hy, 0.6 + k * 1.2 + (this.shotT > 0 ? 0.8 : 0), 0.6 + 0.4 * k, true);
-    if (this.charged) { R.draw(R.glow(Math.floor(t * 16) % 2 ? 'w' : 'm', 24), tip, hy, 1.2, 0.8, true); ctx.beginPath(); ctx.arc(tip, hy, 9 + Math.sin(t * 30) * 1.5, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(240,171,252,0.9)'; ctx.lineWidth = 1.2; ctx.stroke(); }
+    const k = Math.min(1, this.hold / CHARGE_T), tip = hx + av.x * 10, ty = hy + av.y * 10;
+    R.draw(R.glow('m', 16), tip, ty, 0.6 + k * 1.2 + (this.shotT > 0 ? 0.8 : 0), 0.6 + 0.4 * k, true);
+    if (this.charged) { R.draw(R.glow(Math.floor(t * 16) % 2 ? 'w' : 'm', 24), tip, ty, 1.2, 0.8, true); ctx.beginPath(); ctx.arc(tip, ty, 9 + Math.sin(t * 30) * 1.5, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(240,171,252,0.9)'; ctx.lineWidth = 1.2; ctx.stroke(); }
   },
   drawBolts(ctx, camX, camY) {
     for (const b of this.bolts) {
@@ -146,7 +173,7 @@ const Power = {
         ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2); ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = '#f0abfc'; ctx.lineWidth = 2; ctx.stroke();
       } else {
         R.draw(R.glow('m', 16), x, y, 1, 0.8, true);
-        capsulePath(ctx, x - sign(b.vx) * 4, y, 18, 5); ctx.fillStyle = '#fff'; ctx.fill();
+        ctx.save(); ctx.translate(x, y); ctx.rotate(Math.atan2(b.vy, b.vx)); capsulePath(ctx, -4, 0, 18, 5); ctx.fillStyle = '#fff'; ctx.fill(); ctx.restore();
       }
     }
     EnemyFire.draw(ctx, camX, camY);

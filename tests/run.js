@@ -1705,6 +1705,32 @@ test('1-3 poderes: o LASER sai do bloco e vem até a Nexy; F atira, segurar carr
   expect(r.echo, 'sem o laser, F continua sendo o tiro da Echo');
 }, L13);
 
+test('1-3 LASER mira em ângulos: ↑ atira para cima, ↑ + lado na diagonal, ↓ no ar para baixo; acerta um drone no alto; no toque mira sozinho no alvo', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13);
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, out = {};
+    H.noEnemies(); H.tp(186, 15, 999); Power.give('laser'); P.facing = 1;
+    const shot = keys => { Power.bolts = []; Power.cool = 0; H.set(keys); H.step(1); Power.press(); const b = Power.bolts[0]; H.set([]); return b ? [Math.sign(Math.round(b.vx)), Math.sign(Math.round(b.vy))] : null; };
+    out.flat = shot([]); out.up = shot(['up']); out.diag = shot(['up', 'right']);
+    P.vy = -300; P.onGround = false; out.downAir = shot(['down']);
+    H.tp(186, 15, 999); out.downGround = shot(['down']);
+    // um drone bem em cima: só o tiro para cima pega
+    H.tp(190, 15, 999); Power.give('laser'); Power.bolts = []; Power.cool = 0;
+    const d = NEXY.Ents.spawn('drone', { x: P.cx - 15, y: P.y - 150, opts: {} }); d.hx = d.x; d.hy = d.y; d.pt = 0;
+    H.set(['up']); H.step(1); Power.press(); for (let i = 0; i < 30; i++) H.step(1); H.set([]); out.hitUp = d.state;
+    // no toque: o alvo na diagonal de cima, à frente
+    document.body.classList.add('touch'); H.tp(195, 15, 999); Power.bolts = []; Power.cool = 0;
+    const d2 = NEXY.Ents.spawn('drone', { x: P.cx + 110, y: P.y - 100, opts: {} }); d2.hx = d2.x; d2.hy = d2.y; d2.pt = 0;
+    H.step(1); Power.press(); const b = Power.bolts[0]; out.touch = b ? [Math.sign(Math.round(b.vx)), Math.sign(Math.round(b.vy))] : null;
+    document.body.classList.remove('touch');
+    return out;
+  });
+  const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  expect(eq(r.flat, [1, 0]) && eq(r.up, [0, -1]) && eq(r.diag, [1, -1]) && eq(r.downAir, [0, 1]) && eq(r.downGround, [1, 0]), `as direções (${JSON.stringify(r)})`);
+  expect(r.hitUp === 'dying', `o tiro para cima derruba o drone do alto (${r.hitUp})`);
+  expect(eq(r.touch, [1, -1]), `no toque mira sozinho na diagonal (${JSON.stringify(r.touch)})`);
+}, L13);
+
 test('1-3 beco dos lasers: o feixe fecha o corredor (pega até pulando); UNDER THE LASER só confunde (com dica); IN FRONT OF THE LASER: a caixa leva o tiro e o corredor se atravessa andando', async ({ page }) => {
   await page.evaluate(HELP12); await page.evaluate(HELP13);
   const r = await page.evaluate(async () => {

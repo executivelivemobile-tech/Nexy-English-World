@@ -175,7 +175,7 @@ const ECHO = {
     map: [{ en: 'Look! A map of the city.', pt: 'Olha! Um mapa da cidade. Aperte ↑ para ler: ele dá um poder novo ao Coração.' }],
     compass: [{ en: 'Now we know where it is!', pt: 'Agora a gente sabe onde as coisas estão: a seta da bússola aponta para o que falta.' }],
     // 1-3 · a segunda metade: poderes, lasers, drones e o Sentinela
-    laser: [{ en: 'It is a laser!', pt: 'Um LASER no seu braço! Aperte F (Y no controle) para atirar. Segure e solte: tiro carregado.' }],
+    laser: [{ en: 'It is a laser!', pt: 'Um LASER no seu braço! Aperte F (Y no controle) para atirar; segure ↑ para mirar para cima ou na diagonal. Segure o F e solte: tiro carregado.' }],
     wings: [{ en: 'Wings! Hold jump.', pt: 'Asas! No ar, segure o pulo para planar. Em cima de um ventilador, o vento te levanta.' }],
     star: [{ en: 'A star! Run!', pt: 'Uma estrela! Por alguns segundos nada te machuca, e quem você tocar explode.' }],
     drone: [{ en: 'A drone! Look out!', pt: 'Um drone! Quando aparecer a linha fina, ele vai atirar: saia da frente. Pisão ou laser derrubam.' }],
@@ -293,7 +293,7 @@ const CITY = {
 // os poderes que saem dos blocos (1-3): o nome em inglês aparece e a Echo diz a palavra. Machucou, perdeu (a estrela não protege
 // para sempre). LASER e WINGS ocupam o mesmo lugar (um troca o outro); a STAR vale por alguns segundos.
 const POWERS = {
-  laser: { word: 'LASER', pt: 'Laser', say: 'Laser!', info: 'F (Y no controle, SHOT no toque) atira para a frente. Segure e solte: o tiro carregado atravessa e vale por 3.' },
+  laser: { word: 'LASER', pt: 'Laser', say: 'Laser!', info: 'F (Y no controle, SHOT no toque) atira. Segure ↑ para mirar para cima (↑ + lado = diagonal; no ar, ↓ mira para baixo). Segure e solte: o tiro carregado atravessa e vale por 3.' },
   wings: { word: 'WINGS', pt: 'Asas', say: 'Wings!', info: 'No ar, segure o pulo para planar. Em cima de um ventilador, o vento te levanta.' },
   star:  { word: 'STAR', pt: 'Estrela', say: 'Star!', info: 'Por 9 segundos nada te machuca, nem os lasers; quem você tocar explode.', time: 9 },
 };

@@ -104,7 +104,7 @@ LEVELS['1-3'] = {
     { c: 54, r: 11, en: 'C · WHERE IS THE BOX?', pt: 'a caixa sumiu: perto do outdoor, aperte C e a Echo procura', until: 'boxping' },
     { c: 96, r: 11, en: 'WHERE? + WHAT?', pt: 'agora são duas lacunas: ONDE (on, under, in, behind) e O QUÊ (wall, sign, hole)', until: 'altar3' },
     { c: 138, r: 9, en: 'WAIT FOR THE TRAIN', pt: 'espere o trem chegar e suba nele', until: 'train' },
-    { c: 168, r: 8, en: 'LASER · F', pt: 'bata no bloco: sai o LASER. F (Y no controle) atira; segure e solte para o tiro carregado', until: 'laser' },
+    { c: 168, r: 8, en: 'LASER · F', pt: 'bata no bloco: sai o LASER. F (Y no controle) atira; com ↑ mira para cima e na diagonal; segure e solte para o tiro carregado', until: 'laser' },
     { c: 200, r: 7, en: '↑ READ THE MAP', pt: 'leia o mapa da cidade: ele dá um poder novo ao Coração', until: 'citymap' },
     { c: 219, r: 8, en: 'IN FRONT OF = NA FRENTE', pt: 'o feixe fecha o corredor: a caixa NA FRENTE do laser leva o tiro (ou destrua o emissor com tiros)', until: 'altar4' },
     { c: 252, r: 6, en: 'WAIT · GO', pt: 'esses lasers ligam e desligam: espere apagar e passe', until: 'gates' },
