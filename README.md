@@ -412,6 +412,19 @@ não é falado em voz alta: o retorno é só visual e sonoro (a partir do 8º pi
 O brilho de contornos, bordas e da luz de recorte fica num único ajuste no topo do script:
 `const LOOK = { bright: 2, bg: 1.6, rim: 1.15 }`. Valores maiores clareiam as silhuetas; `bg` vale só para o fundo.
 
+## No ar: a Vercel (produção)
+
+O site é só o `index.html`. O `vercel.json` já diz tudo para a Vercel: nada a instalar, o build roda
+`node build.js` e copia o jogo para `dist/` (só isso vai para o ar; `src/`, `tests/` e `tools/` ficam de fora).
+
+1. Na Vercel: **Add New → Project → Import Git Repository** e escolha `executivelivemobile-tech/Nexy-English-World`.
+2. Não mude nada nas configurações (Framework: Other; o resto vem do `vercel.json`) e clique em **Deploy**.
+3. A branch de produção é a branch padrão do GitHub (hoje `claude/jolly-faraday-8mbshk`): cada push nela vai para o
+   ar sozinho. As outras branches viram prévias, cada uma com seu link.
+
+O microfone (VOICE MODE) só funciona em HTTPS, que a Vercel já dá. O progresso fica salvo no navegador de cada
+jogador (localStorage), separado por endereço: o progresso do link de testes não passa para o site.
+
 ## Depois do jogo completo: versão para Android (Google Play)
 
 O jogo já nasce pensando no celular: controles de toque, toque no mapa, tela que se ajusta à largura, nada de

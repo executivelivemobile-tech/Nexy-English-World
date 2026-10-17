@@ -14,6 +14,10 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 - Publicação para ele jogar: artifact `https://claude.ai/artifact/Y7vb7ZPz386U3viy46FH38`. Gere a cópia tirando o
   esqueleto (`<!DOCTYPE html>`, `<html lang="pt-BR">`, `<head>`, `<meta charset>`, a meta viewport, `</head>`,
   `<body>`, `</body>`, `</html>`) e publique no mesmo URL.
+- Produção: **Vercel**, importando o repositório do GitHub (`vercel.json`: sem install, `node build.js`, serve só
+  `dist/index.html`, com cabeçalhos de segurança; microfone liberado para o próprio site). A produção segue a branch
+  padrão do GitHub (hoje a branch de trabalho): todo push vai para o ar. Daqui não dá para publicar direto (a rede do
+  ambiente bloqueia `api.vercel.com` e não há `VERCEL_TOKEN`); quem importa e conecta é o dono.
 
 ## 2. Visão e regras de design (decididas por ele; valem para as próximas fases)
 
