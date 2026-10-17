@@ -252,7 +252,7 @@ const P = {
     Game.comboReward(this.combo);
   },
   hurt() {
-    if (this.invuln > 0 || this.dead || this.starT > 0) return;
+    if (this.invuln > 0 || this.dead || this.starT > 0 || TestMode.god) return;
     // com um poder (LASER, WINGS), o golpe leva o poder e não a vida
     if (this.power) { Power.lose(); this.invuln = CFG.INVULN; this.dropHeld(); return; }
     if (this.aura) {

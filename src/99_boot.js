@@ -7,6 +7,7 @@ window.NEXY = {
 };
 
 Game.boot();
+TestMode.init();
 </script>
 </body>
 </html>

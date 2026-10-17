@@ -1960,6 +1960,22 @@ test('vozes: uma de cada vez; a seguinte espera a anterior terminar; um botão d
   expect(r.before === 2 && r.after.q === 0 && r.after.cur === 'echo:small.', `o corte toca na hora (${JSON.stringify(r.after)})`);
 });
 
+test('modo teste: pula para o trecho com as ajudas; a partida de teste não grava nada e, no mapa, tudo volta ao que era', async ({ page }) => {
+  const r = await page.evaluate(() => {
+    const G = NEXY.Game, before = { lives: G.lives, stored: localStorage.getItem(Save.KEY) };
+    TestMode.show(); const shown = G.state;
+    Object.assign(TestMode.opts, { lives: true, god: true, power: 'wings' }); TestMode.lvl = '1-3';
+    TestMode.go('1-3', 296, 10, 'Antena');
+    const inRun = { lvl: World.level.id, col: Math.floor(NEXY.P.cx / 32), lives: G.lives, power: NEXY.P.power, god: TestMode.god, sandbox: Save.sandbox };
+    Save.data.cleared['1-3'] = true; Save.data.heart.compass = 4; Save.write();
+    G.toMap();
+    return { shown, inRun, after: { cleared: !!Save.data.cleared['1-3'], compass: Save.data.heart.compass, lives: G.lives, god: TestMode.god, sandbox: Save.sandbox, same: localStorage.getItem(Save.KEY) === before.stored || !(localStorage.getItem(Save.KEY) || '').includes('"1-3":true') }, before };
+  });
+  expect(r.shown === 'test', `o painel abre (${r.shown})`);
+  expect(r.inRun.lvl === '1-3' && r.inRun.col === 296 && r.inRun.lives >= 99 && r.inRun.power === 'wings' && r.inRun.god && r.inRun.sandbox, `cai no trecho com as ajudas (${JSON.stringify(r.inRun)})`);
+  expect(!r.after.cleared && r.after.compass === 0 && r.after.lives === r.before.lives && !r.after.god && !r.after.sandbox && r.after.same, `nada do teste vaza para o progresso (${JSON.stringify(r.after)})`);
+});
+
 test('index.html está em dia com src/', async () => {
   execFileSync(process.execPath, [path.join(__dirname, '..', 'build.js'), '--check'], { stdio: 'pipe' });
 }, { ownPages: true });

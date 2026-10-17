@@ -74,13 +74,14 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 | `78_palace.js` | TO BE PALACE: entidades `knight` e `beswitch`, `Palace` (pulso vê o passado `ping`, `drawGhost`/`drawTarget`/`statue`/`drawClock`, chão-espelho `drawMirror`, `drawRing`), `PalaceIntro` (lembrança + tabela, `Save.data.met.palace`), `PalaceSwitch` (cena do interruptor), `BG.drawPalace` |
 | `80_city.js` | 1-3: `City` (caixa: `initBox`/`moveBox`/`land`/`flyPos`/`drawCube`, `ping` acha a caixa escondida, `drawBack` antes do terreno e `drawFront` depois dos letreiros; prédios `drawSolid`; chuva/raios `tick`/`strike`/`drawRain`; `drawDecor`, `drawAltar`, `drawMapBoard`; Bússola `compassTarget`/`drawCompass`/`drawNeedle`), entidades `gargoyle`, `train`, `citymap`, `decor`, `CityIntro` (`Save.data.met.city`), `CityMap` (painel do Baú, estado `citymap`), `CompassScene` (`Save.data.met.compass`), `BG.drawCity` |
 | `82_city2.js` | 1-3, a segunda metade: `Power` (poderes `P.power` laser/wings e `P.starT`; `give`/`lose`/`refill`; tiro da Nexy `press`/`shoot`, carga segurando F (`Input.held.shoot`, `touchHeld.shot`, `padHeld.shoot`); `drawBack` asas, `drawFront` canhão/estrela, `drawBolts`), `EnemyFire` (tiros ciano dos inimigos), entidades `powerup`, `drone`, `beam` (emissor: `left` com vida e `shootable`; `down` liga/desliga), `vent`, `sentinel`; `Sentinel` (`live` troca as regras do terminal por rodada, `answer`, `damage`, `roundOver`, `drawTerminal`), `SentinelScene` (a queda), `City2` (avisos, `drawShutter` do portão) |
+| `84_testmode.js` | `TestMode` (escondido para o dono: T na tela inicial ou na pausa, 5 toques em PAUSE, `#teste`): pula para trechos de cada fase (`LEVELS[].spots`), lista do que testar (localStorage próprio), ajudas; a partida de teste não grava (`Save.sandbox`) e `Game.toMap` chama `TestMode.end()` (volta o progresso, vidas e orbes) |
 | `99_boot.js` | `window.NEXY` (API de teste) e `Game.boot()` |
 
 - Cenas: `Game.scene()` devolve a cena ativa (`Cine`, `Birth`, `Prologue`, `Glitch`, `Warp`, `PalaceSwitch`, `PalaceIntro`, `CompassScene`, `CityIntro`, `SentinelScene`, `Arrival`); todas têm `zoom`, `sat`, `letter`,
   `timeScale`, `update`, `key`, `drawWorld`, `drawScreen`. `Game.echoBorn` = o Echo já existe nesta partida (na 1-1
   começa falso; a porta com `birth: 'echo'` dispara `Birth`).
 - Estados do `Game.state`: `title`, `map`, `play`, `panel`, `chest`, `engine`, `citymap`, `cinematic`, `pause`, `grimoire`, `assist`,
-  `clearing`, `clear`, `gameover`, `leaving`. `Game.where`: `map` | `level`.
+  `clearing`, `clear`, `gameover`, `leaving`, `test`. `Game.where`: `map` | `level`.
 - Fluxo: título → `toMap()` → `WorldMap.tryEnter` → `Transition` → `enterLevel(id, true)` → `finish(exit)` →
   `showClear` → `continueToMap()`.
 - Mapas ASCII em `src/levels/*.map` (o build troca `/*MAP:id*/`). A 1-2 é gerada por `tools/gen_map_1-2.py`

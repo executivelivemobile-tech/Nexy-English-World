@@ -550,6 +550,7 @@ const Game = {
     this.toMap();
   },
   toMap() {
+    TestMode.end();
     UI.hideAll(); this.where = 'map'; this.state = 'map'; this.clearInput();
     // a Nexy evolui ao concluir fases: o visual novo aparece no mapa, com aviso (só uma vez por estágio)
     const st = NexyLook.stageFor(Save.data.cleared), seen = Save.data.met.look || 0; NexyLook.stage = st;
@@ -607,7 +608,9 @@ const Game = {
 
   onKey(e) {
     const c = e.code;
-    if (this.state === 'title') { if (['Enter', 'Space', 'KeyZ', 'KeyX', 'NumpadEnter'].includes(c)) this.start(); return; }
+    if (this.state === 'title') { if (c === 'KeyT') return TestMode.show(); if (['Enter', 'Space', 'KeyZ', 'KeyX', 'NumpadEnter'].includes(c)) this.start(); return; }
+    if (this.state === 'test') return TestMode.key(e);
+    if (this.state === 'pause' && c === 'KeyT') return TestMode.show();
     if (c === 'KeyM') return this.toggleMute();
     if (Transition.active) return;
     const sc = this.scene(); if (sc) return sc.key(e);

@@ -501,6 +501,7 @@ const HEART = [
 const Save = {
   KEY: 'nexy-english-world.v1',
   data: null,
+  sandbox: false,   // partida do modo teste: não grava nada (TestMode.begin/end)
   defaults() {
     return {
       grimoire: { words: {}, creatures: {}, master: {} },
@@ -539,7 +540,7 @@ const Save = {
     this.data = d;
     return d;
   },
-  write() { try { window.localStorage.setItem(this.KEY, JSON.stringify(this.data)); } catch (e) { /* ignora */ } },
+  write() { if (this.sandbox) return; try { window.localStorage.setItem(this.KEY, JSON.stringify(this.data)); } catch (e) { /* ignora */ } },
 };
 
 // Flags globais de progresso. Para testar: ?toBe=1 na URL, #tobe no endereço, ou NEXY.setFlag('palaces.toBe', true) no console.

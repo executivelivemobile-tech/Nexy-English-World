@@ -157,6 +157,27 @@ button { font: inherit; color: inherit; }
 #title .echo-line { font: 300 12px var(--f-body); color: var(--txt-3); letter-spacing: .04em; }
 #title .best { font: 400 9px var(--f-mono); letter-spacing: .25em; color: var(--txt-3); }
 
+/* ---------- MODO TESTE (escondido: T, ou 5 toques em PAUSE) ---------- */
+#testbadge { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); z-index: 6; display: none; pointer-events: none;
+  font: 500 9px var(--f-mono); letter-spacing: .28em; color: var(--cyan); padding: 4px 12px; border-radius: 10px;
+  background: rgba(2,2,2,.6); border: 1px solid rgba(34,211,238,.35); }
+#testbadge.on { display: block; }
+#testmode { flex-direction: column; gap: 12px; padding: 20px 34px; z-index: 30; overflow-y: auto;
+  background: rgba(2,2,2,.9); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+#testmode .tm-head { text-align: center; }
+#testmode .tm-sub { font: 400 12px var(--f-body); color: var(--txt-2); margin-top: 6px; }
+#testmode .tm-tabs, #testmode .tm-tools, #testmode .tm-foot { display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap; }
+#testmode .btn.cur, #testmode .tm-tog.on { border-color: rgba(217,70,239,.8); box-shadow: 0 0 14px rgba(217,70,239,.45); color: #fff; }
+#testmode .tm-body { display: grid; grid-template-columns: 1.15fr 1fr; gap: 22px; }
+#testmode .tm-col { display: flex; flex-direction: column; gap: 6px; }
+#testmode .tm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+#testmode .tm-lbl { font: 500 9px var(--f-display); letter-spacing: .3em; color: var(--txt-3); }
+#testmode .tm-spot { text-align: left; font: 500 12px var(--f-body); color: var(--txt); background: rgba(10,15,18,.6);
+  border: 1px solid var(--line-2); border-radius: 10px; padding: 7px 12px; cursor: pointer; }
+#testmode .tm-spot:hover, #testmode .tm-spot:focus-visible { border-color: rgba(34,211,238,.8); box-shadow: var(--neon-cy); outline: none; }
+#testmode .tm-check { display: flex; gap: 8px; align-items: flex-start; font: 400 12px/1.35 var(--f-body); color: var(--txt-2); cursor: pointer; }
+#testmode .tm-check input { accent-color: #d946ef; margin-top: 2px; }
+
 /* ---------- PAUSE ---------- */
 #pause .menu { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
 
