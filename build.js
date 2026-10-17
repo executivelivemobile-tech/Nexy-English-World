@@ -17,6 +17,7 @@ const PARTS = [
   '12_level_1-2.js',    // fase 1-2 · WHO ARE YOU?
   '14_level_palace.js', // TO BE PALACE (a saída secreta da 1-1)
   '16_level_1-3.js',    // fase 1-3 · WHERE IS IT? (os telhados da cidade)
+  '18_level_fort.js',   // O FORTE DE FERRO · CAN YOU? (as pedras da lei)
   '20_audio.js',        // efeitos, música em camadas, voz e reconhecimento de fala
   '30_input_render.js', // teclado, toque, escala e cache de brilhos
   '40_world.js',        // tiles, blocos, colisão, fundo em parallax e partículas
@@ -34,6 +35,8 @@ const PARTS = [
   '80_city.js',         // 1-3: a caixa de neon, gárgula, trem, mapa da cidade, prédios, chuva, chegada e a bússola
   '82_city2.js',        // 1-3, a segunda metade: poderes (LASER, WINGS, STAR), drones, feixes de laser, ventilador e o Sentinela
   '84_testmode.js',     // o modo teste escondido (T ou 5 toques no título): pular para qualquer fase e trecho
+  '86_fort.js',         // o Forte: as leis, esmagadores, olhos de ferro, ferro derretido, morcegos, FIRE/HAMMER/CLOCK, o fundo
+  '88_fort2.js',        // o Forte: o Guardião de Ferro, a cena da lei quebrada e o Selo da Lei (pulo duplo)
   '99_boot.js',         // API de teste no console e partida
 ];
 

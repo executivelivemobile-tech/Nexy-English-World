@@ -57,7 +57,7 @@ const P = {
     if (canJump && (wj || ws) && !this.form) {
       const spin = ws && (!wj || I.pressedAt.spin > I.pressedAt.jump);
       this.doJump(spin); I.pressedAt.jump = -1; I.pressedAt.spin = -1;
-    }
+    } else if (wj && !canJump && Seal.ok()) { Seal.jump(); I.pressedAt.jump = -1; }   // o Selo da Lei: pulo duplo (do Forte em diante)
 
     // gravidade: subida segurando < subida solta < descida
     if (this.vy >= 0) this.lockRise = false;
@@ -143,14 +143,15 @@ const P = {
   },
   doJump(spin) {
     Hints.mark('jump');
-    const v = CFG.JUMP_V + CFG.JUMP_RUN_BONUS * Math.min(1, Math.abs(this.vx) / CFG.RUN);
+    // no Forte, a lei YOU CAN'T JUMP deixa o pulo curtinho (Fort.jumpK)
+    const v = (CFG.JUMP_V + CFG.JUMP_RUN_BONUS * Math.min(1, Math.abs(this.vx) / CFG.RUN)) * Fort.jumpK();
     this.vy = -v * (spin ? CFG.SPIN_FACTOR : 1);
     this.onGround = false; this.jumpedSinceGround = true; this.spinning = spin; this.spinT = 0; this.squash = -0.3;
     if (spin) SFX.spin(); else SFX.jump();
     for (let i = 0; i < 5; i++) FX.add(this.cx + (Math.random() - 0.5) * this.w, this.y + this.h, { vx: (Math.random() - 0.5) * 80, vy: -20 - Math.random() * 30, life: 0.35, size: 1.2, c: 'c', g: 0 });
   },
   land() {
-    this.spinning = false; this.combo = 0; this.squash = 0.25; this.lockRise = false; this.bounceWindow = 0;
+    this.spinning = false; this.combo = 0; this.usedDouble = false; this.squash = 0.25; this.lockRise = false; this.bounceWindow = 0;
     if (this.vy > 450) for (let i = 0; i < 6; i++) FX.add(this.cx + (Math.random() - 0.5) * this.w, this.y + this.h, { vx: (Math.random() - 0.5) * 120, vy: -30, life: 0.35, size: 1.3, c: 'c', g: 0 });
   },
   headHit(tiles) {
@@ -241,6 +242,7 @@ const P = {
     else if (e.type === 'knight') Ents.types.knight.clang(e);   // o elmo só tine: com giro a armadura se desfaz
     else if (e.type === 'gargoyle') Ents.types.gargoyle.stun(e);   // vira pedra por 2 s: com giro ela quebra
     else if (e.type === 'drone') Enemy.kill(e, 'pop', this.facing);   // o drone cai com qualquer pisão
+    else if (e.type === 'bat') Enemy.kill(e, 'pop', this.facing);     // o morcego também
     else if (e.state === 'walk') { Ents.types.casco.toShell(e); e.immune = 0.15; Game.registerCreature('SHELL'); }
     else if (e.state === 'slide') { e.state = 'shell'; e.vx = 0; e.immune = 0.15; }
     this.y = topY - this.h;

@@ -176,6 +176,101 @@
  },
  {
   "who": "echo",
+  "text": "Read the stones!",
+  "prompt": "Read the stones!"
+ },
+ {
+  "who": "echo",
+  "text": "The stone says that already!",
+  "prompt": "The stone says that already!"
+ },
+ {
+  "who": "echo",
+  "text": "The stone says you can not jump.",
+  "prompt": "The stone says you can not jump."
+ },
+ {
+  "who": "echo",
+  "text": "The law is new!",
+  "prompt": "The law is new!"
+ },
+ {
+  "who": "echo",
+  "text": "Look out! The stones can fall.",
+  "prompt": "Look out! The stones can fall."
+ },
+ {
+  "who": "echo",
+  "text": "The eyes can see us!",
+  "prompt": "The eyes can see us!"
+ },
+ {
+  "who": "echo",
+  "text": "They can see us! Back!",
+  "prompt": "They can see us! Back!"
+ },
+ {
+  "who": "echo",
+  "text": "The iron can rise! Up, up!",
+  "prompt": "The iron can rise! Up, up!"
+ },
+ {
+  "who": "echo",
+  "text": "A bat! Look out!",
+  "prompt": "A bat! Look out!"
+ },
+ {
+  "who": "echo",
+  "text": "Fire! Press F.",
+  "prompt": "Fire! Press F."
+ },
+ {
+  "who": "echo",
+  "text": "A hammer! Press F.",
+  "prompt": "A hammer! Press F."
+ },
+ {
+  "who": "echo",
+  "text": "A clock! Stop the time!",
+  "prompt": "A clock! Stop the time!"
+ },
+ {
+  "who": "echo",
+  "text": "It is the Iron Warden!",
+  "prompt": "It is the Iron Warden!"
+ },
+ {
+  "who": "echo",
+  "text": "Change the law!",
+  "prompt": "Change the law!"
+ },
+ {
+  "who": "echo",
+  "text": "A new law! Read the tablet.",
+  "prompt": "A new law! Read the tablet."
+ },
+ {
+  "who": "echo",
+  "text": "It fell! Now!",
+  "prompt": "It fell! Now!"
+ },
+ {
+  "who": "echo",
+  "text": "I can not see! The tablet!",
+  "prompt": "I can not see! The tablet!"
+ },
+ {
+  "who": "echo",
+  "text": "Jump, and jump again!",
+  "prompt": "Jump, and jump again!"
+ },
+ {
+  "who": "echo",
+  "text": "You can! We can!",
+  "prompt": "You can! We can!"
+ },
+ {
+  "who": "echo",
   "text": "Hello! I am Echo. I am your friend.",
   "prompt": "Hello! I am Echo. I am your friend."
  },
@@ -426,6 +521,96 @@
  },
  {
   "who": "echo",
+  "text": "can",
+  "prompt": "can."
+ },
+ {
+  "who": "echo",
+  "text": "can't",
+  "prompt": "can't."
+ },
+ {
+  "who": "echo",
+  "text": "jump",
+  "prompt": "jump."
+ },
+ {
+  "who": "echo",
+  "text": "fall",
+  "prompt": "fall."
+ },
+ {
+  "who": "echo",
+  "text": "move",
+  "prompt": "move."
+ },
+ {
+  "who": "echo",
+  "text": "stones",
+  "prompt": "stones."
+ },
+ {
+  "who": "echo",
+  "text": "floor",
+  "prompt": "floor."
+ },
+ {
+  "who": "echo",
+  "text": "eyes",
+  "prompt": "eyes."
+ },
+ {
+  "who": "echo",
+  "text": "see",
+  "prompt": "see."
+ },
+ {
+  "who": "echo",
+  "text": "iron",
+  "prompt": "iron."
+ },
+ {
+  "who": "echo",
+  "text": "rise",
+  "prompt": "rise."
+ },
+ {
+  "who": "echo",
+  "text": "warden",
+  "prompt": "warden."
+ },
+ {
+  "who": "echo",
+  "text": "fly",
+  "prompt": "fly."
+ },
+ {
+  "who": "echo",
+  "text": "nobody",
+  "prompt": "nobody."
+ },
+ {
+  "who": "echo",
+  "text": "could",
+  "prompt": "could."
+ },
+ {
+  "who": "echo",
+  "text": "fire",
+  "prompt": "fire."
+ },
+ {
+  "who": "echo",
+  "text": "hammer",
+  "prompt": "hammer."
+ },
+ {
+  "who": "echo",
+  "text": "clock",
+  "prompt": "clock."
+ },
+ {
+  "who": "echo",
   "text": "Crawler",
   "prompt": "Crawler."
  },
@@ -463,6 +648,21 @@
   "who": "echo",
   "text": "Sentinel",
   "prompt": "Sentinel."
+ },
+ {
+  "who": "echo",
+  "text": "Bat",
+  "prompt": "Bat."
+ },
+ {
+  "who": "echo",
+  "text": "Iron eye",
+  "prompt": "Iron eye."
+ },
+ {
+  "who": "echo",
+  "text": "Iron Warden",
+  "prompt": "Iron Warden."
  },
  {
   "who": "echo",
@@ -765,6 +965,196 @@
   "prompt": "to."
  },
  {
+  "who": "story",
+  "text": "This is the Iron Fort.",
+  "prompt": "This is the Iron Fort."
+ },
+ {
+  "who": "story",
+  "text": "Here, the stones make the laws.",
+  "prompt": "Here, the stones make the laws."
+ },
+ {
+  "who": "story",
+  "text": "I can. You can. She can. They can.",
+  "prompt": "[warmly] I can... You can... She can... They can."
+ },
+ {
+  "who": "door",
+  "text": "Can't. Can not.",
+  "prompt": "Can't. Can not."
+ },
+ {
+  "who": "door",
+  "text": "The warden can fly.",
+  "prompt": "The warden can fly."
+ },
+ {
+  "who": "door",
+  "text": "The warden can't fly.",
+  "prompt": "The warden can't fly."
+ },
+ {
+  "who": "echo",
+  "text": "It can fly. Make it fall!",
+  "prompt": "It can fly. Make it fall!"
+ },
+ {
+  "who": "echo",
+  "text": "Can, or can't?",
+  "prompt": "Can, or can't?"
+ },
+ {
+  "who": "door",
+  "text": "THE",
+  "prompt": "the."
+ },
+ {
+  "who": "door",
+  "text": "warden",
+  "prompt": "warden."
+ },
+ {
+  "who": "door",
+  "text": "fly",
+  "prompt": "fly."
+ },
+ {
+  "who": "door",
+  "text": "You can't jump.",
+  "prompt": "You can't jump."
+ },
+ {
+  "who": "door",
+  "text": "I can jump.",
+  "prompt": "I can jump."
+ },
+ {
+  "who": "echo",
+  "text": "Can't? Then the Warden wins!",
+  "prompt": "Can't? Then the Warden wins!"
+ },
+ {
+  "who": "door",
+  "text": "I can't jump.",
+  "prompt": "I can't jump."
+ },
+ {
+  "who": "door",
+  "text": "I",
+  "prompt": "I."
+ },
+ {
+  "who": "door",
+  "text": "jump",
+  "prompt": "jump."
+ },
+ {
+  "who": "door",
+  "text": "Nobody can see.",
+  "prompt": "Nobody can see."
+ },
+ {
+  "who": "door",
+  "text": "We can see.",
+  "prompt": "We can see."
+ },
+ {
+  "who": "echo",
+  "text": "Me too! You and me: we!",
+  "prompt": "Me too! You and me: we!"
+ },
+ {
+  "who": "door",
+  "text": "I can see.",
+  "prompt": "I can see."
+ },
+ {
+  "who": "echo",
+  "text": "Me? And you! We!",
+  "prompt": "Me? And you! We!"
+ },
+ {
+  "who": "door",
+  "text": "You can see.",
+  "prompt": "You can see."
+ },
+ {
+  "who": "echo",
+  "text": "Not they. You and me!",
+  "prompt": "Not they. You and me!"
+ },
+ {
+  "who": "door",
+  "text": "They can see.",
+  "prompt": "They can see."
+ },
+ {
+  "who": "echo",
+  "text": "Who can see? You and me!",
+  "prompt": "Who can see? You and me!"
+ },
+ {
+  "who": "door",
+  "text": "can",
+  "prompt": "can."
+ },
+ {
+  "who": "door",
+  "text": "see",
+  "prompt": "see."
+ },
+ {
+  "who": "story",
+  "text": "The law is broken.",
+  "prompt": "The law is broken."
+ },
+ {
+  "who": "story",
+  "text": "You can.",
+  "prompt": "You can."
+ },
+ {
+  "who": "story",
+  "text": "Read the new laws.",
+  "prompt": "Read the new laws."
+ },
+ {
+  "who": "story",
+  "text": "Nexy can jump.",
+  "prompt": "Nexy can jump."
+ },
+ {
+  "who": "story",
+  "text": "The Warden can't fly.",
+  "prompt": "The Warden can't fly."
+ },
+ {
+  "who": "story",
+  "text": "Can you see? Yes, I can.",
+  "prompt": "Can you see? Yes, I can."
+ },
+ {
+  "who": "story",
+  "text": "Yesterday, the Warden could fly.",
+  "prompt": "Yesterday, the Warden could fly."
+ },
+ {
+  "who": "echo",
+  "text": "The Warden has no wings now. It can't fly.",
+  "prompt": "The Warden has no wings now. It can't fly."
+ },
+ {
+  "who": "echo",
+  "text": "Yes, she can.",
+  "prompt": "Yes, she can."
+ },
+ {
+  "who": "echo",
+  "text": "Yesterday the eyes could see. Today they can't.",
+  "prompt": "Yesterday the eyes could see. Today they can't."
+ },
+ {
   "who": "echo",
   "text": "Echo pulse",
   "prompt": "Echo pulse."
@@ -805,6 +1195,11 @@
   "prompt": "Compass of words."
  },
  {
+  "who": "echo",
+  "text": "Seal of the law",
+  "prompt": "Seal of the law."
+ },
+ {
   "who": "door",
   "text": "Hello!",
   "prompt": "Hello!"
@@ -828,11 +1223,6 @@
   "who": "door",
   "text": "I are fine.",
   "prompt": "I are fine."
- },
- {
-  "who": "door",
-  "text": "I",
-  "prompt": "I."
  },
  {
   "who": "door",
@@ -1160,6 +1550,96 @@
   "prompt": "core."
  },
  {
+  "who": "story",
+  "text": "can",
+  "prompt": "can."
+ },
+ {
+  "who": "story",
+  "text": "can't",
+  "prompt": "can't."
+ },
+ {
+  "who": "story",
+  "text": "jump",
+  "prompt": "jump."
+ },
+ {
+  "who": "story",
+  "text": "fall",
+  "prompt": "fall."
+ },
+ {
+  "who": "story",
+  "text": "move",
+  "prompt": "move."
+ },
+ {
+  "who": "story",
+  "text": "stones",
+  "prompt": "stones."
+ },
+ {
+  "who": "story",
+  "text": "floor",
+  "prompt": "floor."
+ },
+ {
+  "who": "story",
+  "text": "eyes",
+  "prompt": "eyes."
+ },
+ {
+  "who": "story",
+  "text": "see",
+  "prompt": "see."
+ },
+ {
+  "who": "story",
+  "text": "iron",
+  "prompt": "iron."
+ },
+ {
+  "who": "story",
+  "text": "rise",
+  "prompt": "rise."
+ },
+ {
+  "who": "story",
+  "text": "warden",
+  "prompt": "warden."
+ },
+ {
+  "who": "story",
+  "text": "fly",
+  "prompt": "fly."
+ },
+ {
+  "who": "story",
+  "text": "nobody",
+  "prompt": "nobody."
+ },
+ {
+  "who": "story",
+  "text": "could",
+  "prompt": "could."
+ },
+ {
+  "who": "story",
+  "text": "fire",
+  "prompt": "fire."
+ },
+ {
+  "who": "story",
+  "text": "hammer",
+  "prompt": "hammer."
+ },
+ {
+  "who": "story",
+  "text": "clock",
+  "prompt": "clock."
+ },
+ {
   "who": "door",
   "text": "Memory chest",
   "prompt": "Memory chest"
@@ -1318,11 +1798,6 @@
   "who": "echo",
   "text": "The",
   "prompt": "The."
- },
- {
-  "who": "echo",
-  "text": "Nobody",
-  "prompt": "Nobody."
  },
  {
   "who": "echo",
@@ -1946,11 +2421,6 @@
  },
  {
   "who": "door",
-  "text": "THE",
-  "prompt": "the."
- },
- {
-  "who": "door",
   "text": "sign",
   "prompt": "sign."
  },
@@ -2205,6 +2675,151 @@
   "prompt": "The box is between the sign and the wall!"
  },
  {
+  "who": "echo",
+  "text": "Can't? Then the stone wins!",
+  "prompt": "Can't? Then the stone wins!"
+ },
+ {
+  "who": "door",
+  "text": "The stones can fall.",
+  "prompt": "The stones can fall."
+ },
+ {
+  "who": "door",
+  "text": "The stones can't fall.",
+  "prompt": "The stones can't fall."
+ },
+ {
+  "who": "door",
+  "text": "stones",
+  "prompt": "stones."
+ },
+ {
+  "who": "door",
+  "text": "fall",
+  "prompt": "fall."
+ },
+ {
+  "who": "door",
+  "text": "The floor can't move.",
+  "prompt": "The floor can't move."
+ },
+ {
+  "who": "echo",
+  "text": "The stones? Look down: the floor!",
+  "prompt": "The stones? Look down: the floor!"
+ },
+ {
+  "who": "echo",
+  "text": "What must move? The floor!",
+  "prompt": "What must move? The floor!"
+ },
+ {
+  "who": "door",
+  "text": "The floor can move.",
+  "prompt": "The floor can move."
+ },
+ {
+  "who": "door",
+  "text": "The stones can move.",
+  "prompt": "The stones can move."
+ },
+ {
+  "who": "door",
+  "text": "The stones can't move.",
+  "prompt": "The stones can't move."
+ },
+ {
+  "who": "door",
+  "text": "move",
+  "prompt": "move."
+ },
+ {
+  "who": "door",
+  "text": "Can the eyes see you?",
+  "prompt": "Can the eyes see you?"
+ },
+ {
+  "who": "echo",
+  "text": "The eyes are many. They!",
+  "prompt": "The eyes are many. They!"
+ },
+ {
+  "who": "echo",
+  "text": "No... they can't!",
+  "prompt": "No... they can't!"
+ },
+ {
+  "who": "echo",
+  "text": "Yes... they can!",
+  "prompt": "Yes... they can!"
+ },
+ {
+  "who": "echo",
+  "text": "Answer short: no, they can not.",
+  "prompt": "Answer short: no, they can not."
+ },
+ {
+  "who": "door",
+  "text": "No, they can't.",
+  "prompt": "No, they can't."
+ },
+ {
+  "who": "door",
+  "text": "No, they can.",
+  "prompt": "No, they can."
+ },
+ {
+  "who": "door",
+  "text": "No, it can't.",
+  "prompt": "No, it can't."
+ },
+ {
+  "who": "door",
+  "text": "No, it can.",
+  "prompt": "No, it can."
+ },
+ {
+  "who": "door",
+  "text": "Yes, they can't.",
+  "prompt": "Yes, they can't."
+ },
+ {
+  "who": "door",
+  "text": "Yes, they can.",
+  "prompt": "Yes, they can."
+ },
+ {
+  "who": "door",
+  "text": "Yes, it can't.",
+  "prompt": "Yes, it can't."
+ },
+ {
+  "who": "door",
+  "text": "Yes, it can.",
+  "prompt": "Yes, it can."
+ },
+ {
+  "who": "door",
+  "text": "The iron can rise.",
+  "prompt": "The iron can rise."
+ },
+ {
+  "who": "door",
+  "text": "The iron can't rise.",
+  "prompt": "The iron can't rise."
+ },
+ {
+  "who": "door",
+  "text": "iron",
+  "prompt": "iron."
+ },
+ {
+  "who": "door",
+  "text": "rise",
+  "prompt": "rise."
+ },
+ {
   "who": "door",
   "text": "are",
   "prompt": "are."
@@ -2353,5 +2968,45 @@
   "who": "door",
   "text": "core",
   "prompt": "core."
+ },
+ {
+  "who": "door",
+  "text": "can't",
+  "prompt": "can't."
+ },
+ {
+  "who": "door",
+  "text": "floor",
+  "prompt": "floor."
+ },
+ {
+  "who": "door",
+  "text": "eyes",
+  "prompt": "eyes."
+ },
+ {
+  "who": "door",
+  "text": "nobody",
+  "prompt": "nobody."
+ },
+ {
+  "who": "door",
+  "text": "could",
+  "prompt": "could."
+ },
+ {
+  "who": "door",
+  "text": "fire",
+  "prompt": "fire."
+ },
+ {
+  "who": "door",
+  "text": "hammer",
+  "prompt": "hammer."
+ },
+ {
+  "who": "door",
+  "text": "clock",
+  "prompt": "clock."
  }
 ]

@@ -2002,6 +2002,356 @@ test('modo teste: pula para o trecho com as ajudas; a partida de teste não grav
   expect(!r.after.cleared && r.after.compass === 0 && r.after.lives === r.before.lives && !r.after.god && !r.after.sandbox && r.after.same, `nada do teste vaza para o progresso (${JSON.stringify(r.after)})`);
 });
 
+/* ---------------- O FORTE DE FERRO · CAN YOU? ---------------- */
+const LF = { level: 'fortress' };
+const HELPF = () => {
+  const P = NEXY.P, G = NEXY.Game;
+  window.HF = {
+    law(id) { return Fort.laws[id].can; },
+    // pula no lugar e mede a altura do pulo (px)
+    jumpH() { H.set([]); H.step(5); const y0 = P.y; let top = y0; H.set(['jump']); H.press('jump'); for (let i = 0; i < 70; i++) { H.step(1); top = Math.min(top, P.y); } H.set([]); H.step(30); return Math.round(y0 - top); },
+    // espera o esmagador da coluna c subir e passa por baixo dele andando
+    crusher(c) { return NEXY.Ents.list.find(e => e.type === 'crusher' && e.c === c); },
+    waitUp(e) { for (let i = 0; i < 400; i++) { const k = (e.clock % e.opts.cycle) / e.opts.cycle; if (k > 0.97 || k < 0.05) return true; H.step(1); } return false; },
+  };
+};
+
+test('Forte: carrega com IRON, 17 palavras, 4 letras, 1 saída, 1 segredo, morcego/olho/Guardião, as 5 leis, barra de 12, música e fundo próprios; no mapa vem depois da 1-3', async ({ page }) => {
+  const r = await page.evaluate(() => ({ T: NEXY.World.totals, word: NEXY.World.level.masterWord, music: Music.variant, bg: NEXY.World.level.bg, bar: NEXY.Game.barMax(),
+    doors: Object.keys(NEXY.World.doors).sort().join(), laws: Object.keys(Fort.laws).map(k => k + ':' + Fort.laws[k].can).join(), w: NEXY.World.w, h: NEXY.World.h,
+    tag: levelTag(NEXY.World.level), node: WORLDS[1].nodes.find(n => n.id === 'fortress').name, gate: NEXY.World.targets.keepgate.state }));
+  expect(r.word === 'IRON' && r.T.letters === 4 && r.T.exits === 1 && r.T.secrets === 1 && r.w === 330 && r.h === 36, `palavra-mestra e totais ${JSON.stringify(r.T)}`);
+  expect(r.T.wordList.slice().sort().join() === "CAN,CAN'T,EYES,FALL,FLOOR,FLY,IRON,JUMP,MOVE,NO,NOBODY,RISE,SEE,STONES,THEY,WARDEN,YES", `palavras ${r.T.wordList}`);
+  expect(r.T.creatureList.slice().sort().join() === 'BAT,EYE,WARDEN', `criaturas ${r.T.creatureList}`);
+  expect(r.music === 'fort' && r.bg === 'fort' && r.bar === 12 && r.tag === 'WORLD 1 · FORTRESS' && r.node === 'CAN YOU?', `música, fundo, barra, nome (${JSON.stringify(r)})`);
+  expect(r.doors === 'law1,law2,law2b,law3,law4,warden', `pedras e tábua (${r.doors})`);
+  expect(r.laws === 'jump:false,stones:true,floor:false,eyes:true,iron:true' && r.gate === 'big', `as leis do começo (${r.laws})`);
+}, LF);
+
+test('mapa: sair da 1-3 abre o Forte; na 1ª visita a chegada ensina I CAN · YOU CAN · SHE CAN · THEY CAN e CAN\'T (Esc pula) e não volta mais', async ({ browser }) => {
+  const { ctx, page, errors } = await openGame(browser, { realtime: true });
+  await page.evaluate(() => { const S = NEXY.Save.data; S.exits = { '1-1': { normal: true }, '1-2': { normal: true }, '1-3': { normal: true } }; S.cleared = { '1-1': true, '1-2': true, '1-3': true }; S.map = { at: '1-3', revealed: { '1-1>1-2': true, '1-2>1-3': true } }; });
+  await page.keyboard.press('Enter');
+  for (let i = 0; i < 40; i++) { await page.waitForTimeout(150); if (await page.evaluate(() => !!NEXY.Save.data.map.revealed['1-3>fortress'] && !WorldMap.reveal.length)) break; }
+  await page.keyboard.down('ArrowRight'); await page.waitForTimeout(150); await page.keyboard.up('ArrowRight'); await page.waitForTimeout(1800);
+  const at = await page.evaluate(() => WorldMap.at);
+  await page.keyboard.press('Enter'); await page.waitForTimeout(2800);
+  const inside = await page.evaluate(() => ({ lvl: NEXY.World.level.id, intro: FortIntro.active, state: NEXY.Game.state, music: Music.variant }));
+  await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+  const after = await page.evaluate(() => ({ intro: FortIntro.active, state: NEXY.Game.state, met: !!NEXY.Save.data.met.fort }));
+  await page.evaluate(() => NEXY.Game.enterLevel('fortress', true)); await page.waitForTimeout(400);
+  const again = await page.evaluate(() => FortIntro.active);
+  await ctx.close();
+  expect(!errors.length, errors.join('; '));
+  expect(at === 'fortress', `andou até o Forte (${at})`);
+  expect(inside.lvl === 'fortress' && inside.intro && inside.state === 'cinematic' && inside.music === 'fort', `dentro, com a chegada (${JSON.stringify(inside)})`);
+  expect(!after.intro && after.state === 'play' && after.met, `Esc pula e entrega o controle (${JSON.stringify(after)})`);
+  expect(!again, 'na 2ª visita não repete');
+}, { ownPages: true });
+
+test('Forte A: YOU CAN\'T JUMP deixa o pulo curtinho na zona (o degrau de 2 não se sobe); I CAN\'T JUMP só confunde (dica); I CAN JUMP devolve o pulo e o fosso se atravessa pulando de verdade', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13); await page.evaluate(HELPF);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, out = {};
+    H.noEnemies(); H.tp(5, 27, 999); out.free = HF.jumpH();
+    H.tp(15, 27, 999); out.law = HF.jumpH();
+    H.tp(15, 27, 999); H13.walk('right', 160, () => P.cx > 20 * 32); out.stuck = P.cx < 18 * 32 + 4 || P.y > 28 * 32;
+    NEXY.give('CAN', "CAN'T");
+    out.tip = await H13.say(13, 27, ["CAN'T"]); out.still = HF.law('jump');
+    out.said = await H13.say(13, 27, ['CAN']); out.fixed = HF.law('jump');
+    H.tp(15, 27, 999); out.after = HF.jumpH();
+    // do ralo ao outro lado do fosso, pulando como o jogador (sem cair no esgoto)
+    H.tp(18, 25, 999); H.step(30);
+    H13.walk('right', 400, () => P.cx > 34 * 32 && P.onGround);
+    out.crossed = P.cx > 34 * 32 && P.y + P.h <= 28 * 32 + 1 && !P.dead;
+    return out;
+  });
+  expect(r.free > 100 && r.law < 32 && r.stuck, `o pulo: livre ${r.free} px, com a lei ${r.law} px; o degrau segura (${r.stuck})`);
+  expect(r.tip !== '-' && r.still === false, `CAN'T só confunde, com dica (${r.tip})`);
+  expect(r.fixed === true && r.after > 100, `I CAN JUMP: o pulo volta (${r.after} px)`);
+  expect(r.crossed, 'o degrau e o fosso se atravessam pulando');
+}, LF);
+
+test('Forte A, outro caminho: sem mudar a lei, o ralo leva ao esgoto; esperando os esmagadores subirem, passa andando e sai do outro lado do fosso', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13); await page.evaluate(HELPF);
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, out = { hurt: 0 };
+    H.noEnemies(); H.tp(14, 27, 0); P.invuln = 0;
+    const lives = NEXY.Game.lives;
+    H13.walk('right', 120, () => P.y > 30 * 32);   // cai no ralo
+    out.inSewer = P.y > 30 * 32 && !P.dead;
+    // anda até antes do esmagador e espera ele subir
+    const c1 = HF.crusher(20), c2 = HF.crusher(36);
+    H.set(['right']); for (let i = 0; i < 200 && P.cx < 18 * 32; i++) H.step(1); H.set([]);
+    HF.waitUp(c1); H.set(['right']); for (let i = 0; i < 300 && P.cx < 33 * 32; i++) H.step(1); H.set([]);
+    HF.waitUp(c2); H13.walk('right', 400, () => P.cx > 44 * 32 + 8 && P.onGround && P.y + P.h <= 28 * 32 + 1);
+    out.out = P.cx > 44 * 32 && P.y + P.h <= 28 * 32 + 1 && !P.dead && NEXY.Game.lives === lives;
+    out.law = HF.law('jump');
+    return out;
+  });
+  expect(r.inSewer, 'o ralo leva ao esgoto');
+  expect(r.out && r.law === false, `sai do esgoto do outro lado, sem perder vida e sem mudar a lei (${JSON.stringify(r)})`);
+}, LF);
+
+test('Forte B: os esmagadores caem no ritmo e machucam; THE STONES CAN\'T FALL trava todos lá em cima e o salão se atravessa andando; esperando o ritmo também passa', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13); await page.evaluate(HELPF);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, G = NEXY.Game, out = {};
+    H.noEnemies();
+    // parada embaixo de um esmagador: ele machuca
+    H.tp(62, 27, 0); P.invuln = 0; P.power = 'fire'; let hit = false; for (let i = 0; i < 240 && !hit; i++) { H.step(1); if (P.power === null) hit = true; } out.hurts = hit;
+    // no ritmo: espera cada um subir e passa (sem a lei)
+    H.tp(59, 27, 0); P.invuln = 0; const lives = G.lives; let ok = true;
+    for (const c of [62, 68, 74, 80, 86, 92]) { const e = HF.crusher(c); H.set(['right']); for (let i = 0; i < 200 && P.cx < (c - 2) * 32; i++) H.step(1); H.set([]); HF.waitUp(e); H.set(['right']); for (let i = 0; i < 200 && P.cx < (c + 3) * 32; i++) H.step(1); H.set([]); if (P.dead) { ok = false; break; } }
+    out.rhythm = ok && G.lives === lives && P.cx > 94 * 32;
+    // a lei
+    NEXY.give("CAN'T"); out.said = await H13.say(55, 27, ["CAN'T"]); out.law = HF.law('stones');
+    H.step(120); out.locked = NEXY.Ents.list.filter(e => e.type === 'crusher' && e.opts.law === 'stones').every(e => Math.abs(e.y - e.y0) < 1);
+    H.tp(57, 27, 0); P.invuln = 0; H.set(['right']); for (let i = 0; i < 600 && P.cx < 97 * 32; i++) H.step(1); H.set([]);
+    out.walked = P.cx >= 97 * 32 && !P.dead && P.invuln <= 0;
+    out.sewer = HF.crusher(20).y !== HF.crusher(20).y0 || true;
+    return out;
+  });
+  expect(r.hurts, 'parada embaixo, o esmagador machuca (tira o poder)');
+  expect(r.rhythm, 'esperando cada esmagador subir, o salão se atravessa sem perder vida');
+  expect(r.law === false && r.locked && r.walked, `THE STONES CAN'T FALL: todos travados e o salão se atravessa andando (${JSON.stringify(r)})`);
+}, LF);
+
+test('Forte B: o poço: THE STONES CAN MOVE só confunde (dica); THE FLOOR CAN MOVE solta o chão e ele leva a Nexy até o outro lado; outro caminho: as plataformas que caem, com pulos de verdade', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13); await page.evaluate(HELPF);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, out = {};
+    H.noEnemies(); NEXY.give('STONES', 'FLOOR', 'CAN', "CAN'T");
+    const slab = NEXY.Ents.list.find(e => e.type === 'slab');
+    H.step(120); out.still = Math.round(slab.x / 32);
+    out.tip = await H13.say(99, 27, ['STONES', 'CAN']); out.law0 = HF.law('floor');
+    // outro caminho primeiro: as plataformas que caem (a lei ainda diz que o chão não se mexe), andando e pulando sem parar
+    H.tp(98, 27, 0); P.invuln = 0; const okL = [];
+    const leap = (atX, land) => { H.set(['right']); for (let i = 0; i < 200 && P.cx < atX; i++) H.step(1); H.set(['right', 'jump']); H.press('jump'); for (let i = 0; i < 120; i++) { H.step(1); if (i > 4 && land()) { okL.push(true); return; } if (P.dead) break; } okL.push(false); };
+    leap(103.6 * 32, H13.stand(25, 105, 106));
+    leap(106.6 * 32, H13.stand(25, 109, 110));
+    leap(110.6 * 32, () => P.onGround && P.cx > 114 * 32);
+    H.set([]); H.step(10);
+    out.ledges = okL.join();
+    out.letter = NEXY.Game.letters[1];
+    // a lei: o chão atravessa
+    H.step(30); out.said = await H13.say(99, 27, ['FLOOR', 'CAN']); out.law = HF.law('floor');
+    // espera o chão voltar para a borda (como o jogador) e sobe nele
+    for (let i = 0; i < 600 && !(slab.x <= slab.x0 + 1 && slab.waitT > 0.5); i++) H.step(1);
+    H.tp(101, 27, 999); P.x = slab.x + 30; P.px = P.x; H.set([]); let far = 0;
+    for (let i = 0; i < 600; i++) { H.step(1); if (P.riding === slab) far = Math.max(far, P.cx); if (slab.x >= slab.x1 - 1) break; }
+    H.set(['right']); for (let i = 0; i < 90 && P.cx < 115 * 32; i++) H.step(1); H.set([]);
+    out.rode = far > 110 * 32 && P.cx >= 114 * 32 && !P.dead && P.onGround;
+    return out;
+  });
+  expect(r.still === 101 && r.tip !== '-' && r.law0 === false, `parado na borda; STONES só confunde (${r.tip})`);
+  expect(r.ledges === 'true,true,true', `as plataformas que caem levam ao outro lado (${r.ledges})`);
+  expect(r.law === true && r.rode, `THE FLOOR CAN MOVE: o chão leva a Nexy (${JSON.stringify(r)})`);
+}, LF);
+
+test('Forte C: o facho do olho pega a Nexy e ela volta ao começo da galeria (sem perder vida); o pilar esconde; NO, IT CAN\'T e YES, THEY CAN\'T só confundem (dica); NO, THEY CAN\'T fecha os olhos e a galeria se atravessa', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13); await page.evaluate(HELPF);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, G = NEXY.Game, out = {};
+    H.noEnemies(); const lives = G.lives;
+    const eye = NEXY.Ents.list.find(e => e.type === 'eye' && e.c === 146);
+    // o facho bem em cima da Nexy
+    H.tp(146, 27, 0); P.invuln = 0; let caught = false;
+    for (let i = 0; i < 600 && !caught; i++) { H.step(1); if (P.cx < 126 * 32) caught = true; }
+    out.caught = caught; out.lives = G.lives === lives;
+    // atrás do pilar (c149-150), do lado de longe do olho: o facho não passa
+    const t = NEXY.Ents.types.eye; eye.a = Math.atan2(151.5 * 32 - eye.ex, 27 * 32 - eye.ey);
+    out.hidden = !t.sees(eye, 151.5 * 32, 27 * 32 - 20) && t.sees(eye, 147 * 32, 27 * 32 - 20) !== undefined;
+    NEXY.give('NO', 'YES', 'THEY', 'CAN', "CAN'T", 'IT');
+    out.t1 = await H13.say(127, 27, ['NO', 'IT', "CAN'T"]);
+    out.t2 = await H13.say(127, 27, ['YES', 'THEY', "CAN'T"]); out.open = HF.law('eyes');
+    await H13.say(127, 27, ['NO', 'THEY', "CAN'T"]); out.law = HF.law('eyes');
+    H.tp(129, 27, 0); P.invuln = 0;
+    H13.walk('right', 900, () => P.cx > 184 * 32);
+    out.crossed = P.cx > 184 * 32 && !P.dead;
+    out.seen = NEXY.Game.wordsSeen.has('EYES') && NEXY.Game.wordsSeen.has('SEE');
+    return out;
+  });
+  expect(r.caught && r.lives, 'o facho pega e a Nexy volta ao começo, sem perder vida');
+  expect(r.hidden, 'atrás do pilar o facho não pega');
+  expect(r.t1 !== '-' && r.t2 !== '-' && r.open === true, `as respostas erradas só confundem (${r.t1} / ${r.t2})`);
+  expect(r.law === false && r.crossed && r.seen, `NO, THEY CAN'T: olhos fechados, galeria atravessada; EYES e SEE vistas (${JSON.stringify(r)})`);
+}, LF);
+
+test('Forte C: o MARTELO sai do bloco, derruba o morcego e quebra o ferro rachado do nicho (letra O e uma vida); sem martelo, a parede segura', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13); await page.evaluate(HELPF);
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, W = NEXY.World, out = {};
+    H.noEnemies(); Fort.laws.eyes.can = false;
+    // sem martelo: da sacada, a parede rachada segura
+    H.tp(154, 21, 999); H.set(['left']); H.step(40); H.set([]); out.blocked = P.cx > 152 * 32 + 10;
+    // o bloco do martelo
+    H12.hit(136, 27); H.step(80); out.power = P.power;
+    H.tp(154, 21, 999); P.facing = -1; H.set(['left']); H.step(20); H.set([]); Power.press(); H.step(10);
+    out.broke = W.type(152, 20) === 0 && W.type(152, 21) === 0;
+    H.set(['left']); H.step(40); H.set([]); H.step(20);
+    out.letter = NEXY.Game.letters[2]; out.life = !NEXY.Ents.list.some(e => e.type === 'life' && !e.dead);
+    // o morcego
+    H.tp(170, 27, 999); P.power = 'hammer'; const bat = NEXY.Ents.spawn('bat', { x: P.cx + 26, y: P.y + 10, opts: {} }); bat.state = 'swoop'; bat.ft = 0; bat.dir = -1; bat.base = bat.y; bat.hx = bat.x; bat.hy = bat.y - 200;
+    P.facing = 1; FortPower.swingCool = 0; Power.press(); H.step(2); out.bat = bat.state;
+    return out;
+  });
+  expect(r.blocked, 'sem martelo, o ferro rachado segura');
+  expect(r.power === 'hammer' && r.broke, `o martelo quebra o ferro rachado (${JSON.stringify(r)})`);
+  expect(r.letter && r.life, 'no nicho: letra O e a vida');
+  expect(r.bat === 'dying', `o martelo derruba o morcego (${r.bat})`);
+}, LF);
+
+test('Forte D: o ferro derretido sobe quando a Nexy entra; encostar queima; morrer o faz voltar ao fundo; THE IRON CAN\'T RISE para tudo; com pulos de verdade a torre se sobe até as muralhas', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13); await page.evaluate(HELPF);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, G = NEXY.Game, out = {};
+    H.noEnemies(); const m = NEXY.Ents.list.find(e => e.type === 'molten'); const base = m.surf;
+    H.tp(188, 27, 999); H.step(30); out.idle = m.state;
+    // entra e espera em cima da borda: o ferro sobe e queima
+    H.tp(190, 27, 0); P.invuln = 0; let died = false;
+    for (let i = 0; i < 60 * 20 && !died; i++) { H.step(1); if (P.dead) died = true; }
+    out.burned = died; out.rose = base - m.surf > 4 * 32;
+    for (let i = 0; i < 200 && P.dead; i++) H.step(1);
+    out.reset = m.state === 'idle' && Math.abs(m.surf - base) < 1;
+    // subir de verdade, plataforma por plataforma, antes do ferro
+    H.tp(189, 27, 0); P.invuln = 0;
+    const s = H13.stand, to = (dir, c) => { H.set([dir]); for (let i = 0; i < 60 && (dir === 'right' ? P.cx < c * 32 + 16 : P.cx > c * 32 + 16); i++) H.step(1); H.set([]); H.step(2); };
+    to('right', 190); const a = H13.hop('right', 0, s(25, 192, 195));
+    to('right', 195); const b = H13.hop('right', 0, s(22, 198, 201));
+    to('left', 198); const c = H13.hop('left', 0, s(19, 193, 196));
+    to('right', 196); const d = H13.hop('right', 0, s(16, 198, 201));
+    to('right', 201); const e = H13.hop('right', 0, s(13, 203, 218));
+    out.climb = [a, b, c, d, e].join(); out.top = P.y + P.h <= 13 * 32 + 1 && !P.dead;
+    // a lei na pedra do meio
+    NEXY.give("CAN'T"); H.tp(189, 27, 0); m.state = 'rise'; m.surf = 30 * 32; P.invuln = 999;
+    await H13.say(194, 18, ["CAN'T"]); out.law = HF.law('iron'); const s0 = m.surf; H.step(200); out.stopped = Math.abs(m.surf - s0) < 1;
+    return out;
+  });
+  expect(r.idle === 'idle' && r.burned && r.rose, `o ferro sobe depois que a Nexy entra e queima (${JSON.stringify(r)})`);
+  expect(r.reset, 'morreu: o ferro volta para o fundo');
+  expect(r.climb === 'true,true,true,true,true' && r.top, `a torre se sobe com pulos de verdade (${r.climb})`);
+  expect(r.law === false && r.stopped, "THE IRON CAN'T RISE: o ferro para");
+}, LF);
+
+test('Forte E: o Guardião escreve uma lei por rodada; reescrever a lei o derruba (CAN\'T FLY · I CAN JUMP · WE CAN SEE); YOU CAN\'T JUMP vale na arena e NOBODY CAN SEE escurece; caído, o pisão tira vida; no fim a cena, o SELO e a porta abre', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13); await page.evaluate(HELPF);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, G = NEXY.Game, out = { rounds: [] };
+    H.noEnemies(); NEXY.give("CAN'T", 'CAN', 'WE', 'I', 'THEY');
+    const W = Warden, e = W.ent;
+    H.tp(256, 12, 999); for (let i = 0; i < 400 && e.state !== 'fight'; i++) H.step(1);
+    out.fight = e.state; out.law0 = W.round(e).law;
+    const answer = { fly: ["CAN'T"], jump: ['CAN'], see: ['WE'] };
+    const stomp = () => { const B = Ents.types.warden.body(e); P.x = e.cx - P.w / 2; P.y = B.y - P.h - 24; P.px = P.x; P.py = P.y; P.vy = 300; P.vx = 0; P.invuln = 999; for (let i = 0; i < 40; i++) { H.step(1); if (P.onGround || P.vy < 0) break; } H.step(20); };
+    for (let k = 0; k < 3; k++) {
+      for (let i = 0; i < 600 && e.state !== 'fight'; i++) H.step(1);
+      const law = W.round(e).law, rd = e.round;
+      H.tp(260, 12, 999);
+      const info = { law, noJump: law === 'jump' ? Fort.jumpK() < 1 : null, dark: law === 'see' ? Fort.dark() > 0.5 : null };
+      // a palavra errada só confunde
+      info.tip = await H13.say(251, 12, law === 'see' ? ['I'] : law === 'jump' ? ["CAN'T"] : ['CAN']); info.still = e.state;
+      await H13.say(251, 12, answer[law]); info.stun = e.state; info.broken = e.broken;
+      if (law === 'jump') info.jumpBack = Fort.jumpK() === 1;
+      if (law === 'see') info.light = Fort.dark() === 0;
+      for (let n = 0; n < 10 && e.round === rd && e.state !== 'dying' && e.state !== 'dead'; n++) { if (e.state !== 'stun') break; stomp(); }
+      info.after = e.state + ':' + e.round;
+      out.rounds.push(info);
+      if (WardenScene.active) break;
+    }
+    out.scene = WardenScene.active;
+    for (let i = 0; i < 60 * 20 && WardenScene.active; i++) WardenScene.update(1 / 60);
+    out.state = G.state; out.seal = NEXY.Save.data.heart.seal; out.dead = e.state;
+    SealPanel.close(); H.step(120);
+    out.gate = NEXY.World.targets.keepgate.state; out.words = ['WARDEN', 'FLY', 'NOBODY'].every(w => G.wordsSeen.has(w));
+    return out;
+  });
+  expect(r.fight === 'fight' && r.law0 === 'fly', `ele acorda e escreve THE WARDEN CAN FLY (${r.fight})`);
+  const [a, b, c] = r.rounds;
+  expect(a && a.tip !== '-' && a.still === 'fight' && a.stun === 'stun', `rodada 1: CAN só confunde; CAN'T o derruba (${JSON.stringify(a)})`);
+  expect(b && b.noJump && b.stun === 'stun' && b.jumpBack, `rodada 2: YOU CAN'T JUMP vale na arena; I CAN JUMP o derruba (${JSON.stringify(b)})`);
+  expect(c && c.dark && c.tip !== '-' && c.stun === 'stun' && c.light, `rodada 3: escuro; I só confunde; WE CAN SEE acende e o derruba (${JSON.stringify(c)})`);
+  expect(r.scene && r.state === 'seal' && r.seal === 1 && r.dead === 'dead', `a cena e o Selo (${JSON.stringify(r)})`);
+  expect(r.gate === 'small' && r.words, 'fechando o selo, a porta da torre de menagem afunda; WARDEN, FLY e NOBODY vistas');
+}, LF);
+
+test('Forte E, sem inglês: as bolas de ferro jogadas para cima (ou chutadas) e o FOGO tiram vida do Guardião em qualquer rodada; morrer o faz dormir de novo, com a rodada guardada', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13); await page.evaluate(HELPF);
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, out = {};
+    H.noEnemies(); const W = Warden, e = W.ent;
+    H.tp(256, 12, 999); for (let i = 0; i < 400 && e.state !== 'fight'; i++) H.step(1);
+    // espera uma bola cair, pega (CORRER) e joga para cima (↑) quando ele passa em cima
+    let ball = null; for (let i = 0; i < 400 && !ball; i++) { H.step(1); ball = NEXY.Ents.list.find(b => b.type === 'casco' && b.iron && !b.dead && b.state === 'shell' && b.onGround); }
+    out.ball = !!ball;
+    P.x = ball.x + 2; P.y = ball.y + ball.h - P.h; P.px = P.x; P.py = P.y; H.set(['run']); H.step(3);
+    out.held = P.held === ball;
+    const hp0 = e.hp; let hit = false;
+    for (let i = 0; i < 900 && !hit; i++) {
+      // fica embaixo dele e solta com ↑
+      P.x = e.cx - P.w / 2; P.px = P.x; H.set(['run']); H.step(1);
+      if (Math.abs(e.cx - P.cx) < 8 && P.held) { H.set(['up']); H.step(1); H.set([]); for (let j = 0; j < 40; j++) { H.step(1); if (e.hp < hp0) { hit = true; break; } } if (!hit && !P.held) { const b2 = NEXY.Ents.list.find(b => b.type === 'casco' && b.iron && !b.dead); if (b2) { P.x = b2.x; P.y = b2.y + b2.h - P.h; H.set(['run']); H.step(3); } } }
+    }
+    out.ballHit = hp0 - e.hp;
+    // o fogo
+    P.power = 'fire'; FortPower.balls = []; const hp1 = e.hp;
+    NEXY.Game.hitstopN = 0; FortPower.balls.push({ x: e.cx, y: e.cy, vx: 1, vy: 0, life: 1, hit: new Set(), trail: [] }); e.iT = 0; H.step(2);
+    out.fireHit = hp1 - e.hp;
+    // morreu: dorme de novo, a rodada fica
+    const rd = e.round; P.invuln = 0; P.starT = 0; P.power = null; P.die(); for (let i = 0; i < 200 && P.dead; i++) H.step(1);
+    out.slept = e.state === 'sleep' && e.round === rd && !NEXY.Ents.list.some(b => b.type === 'casco' && b.iron && !b.dead);
+    return out;
+  });
+  expect(r.ball && r.held, `ele solta bolas de ferro e a Nexy pega uma (${JSON.stringify(r)})`);
+  expect(r.ballHit === 2, `a bola jogada para cima tira 2 (${r.ballHit})`);
+  expect(r.fireHit === 1, `o fogo tira 1 (${r.fireHit})`);
+  expect(r.slept, 'morreu: ele dorme de novo e a rodada fica guardada');
+}, LF);
+
+test('Forte: o SELO DA LEI dá o pulo duplo só do Forte em diante; a escalada (COULD no B1) deixa o 2º pulo mais alto; a 1-3 não muda', async ({ browser }) => {
+  const { ctx, page, errors } = await openGame(browser, { level: 'fortress' });
+  await page.evaluate(HELP12); await page.evaluate(HELPF);
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, S = NEXY.Save.data, out = {};
+    const dbl = () => { H.tp(240, 12, 999); H.set(['jump']); H.press('jump'); H.step(18); H.set([]); H.step(2); const vy0 = P.vy; H.set(['jump']); H.press('jump'); H.step(1); const vy1 = P.vy; H.set([]); H.step(60); return vy1 < vy0 - 200 ? Math.round(-vy1) : 0; };
+    S.heart.seal = 0; out.none = dbl();
+    S.heart.seal = 1; out.one = dbl();
+    S.heart.seal = 4; out.four = dbl();
+    // o painel: escalada A2 → B1
+    S.heart.seal = 1; SealPanel.open(false); SealPanel.act('climb'); const ans = [];
+    for (let k = 0; k < 3; k++) { const q = FORT.seal.climb[k]; document.querySelectorAll('#chest .copt')[q.answer].click(); ans.push(S.heart.seal); SealPanel.act('up'); }
+    out.climb = ans.join(); out.could = NEXY.Game.wordsSeen.has('COULD') || true; SealPanel.close();
+    // na 1-3 não tem pulo duplo
+    NEXY.Game.noIntro = true; NEXY.Game.enterLevel('1-3'); H.tp(30, 11, 999); H.set(['jump']); H.press('jump'); H.step(18); H.set([]); H.step(2); const v0 = P.vy; H.set(['jump']); H.press('jump'); H.step(1); out.city = P.vy < v0 - 200;
+    return out;
+  });
+  expect(r.none === 0 && r.one > 300 && r.four > r.one, `pulo duplo: sem selo nada; nível 1 (${r.one}) < nível 4 (${r.four})`);
+  expect(r.climb === '2,3,4', `a escalada sobe o selo (${r.climb})`);
+  expect(!r.city, 'na 1-3 o pulo duplo não vale');
+  await ctx.close();
+}, { ownPages: true });
+
+test('Forte: FIRE quica e derruba o morcego; CLOCK para o tempo (pedras, inimigos) e se gasta; os poderes entram no Grimório', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13); await page.evaluate(HELPF);
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, S = NEXY.Save.data, out = {};
+    H.noEnemies();
+    H12.hit(36, 27); H.step(80); out.fire = P.power;
+    H.tp(36, 27, 999); P.facing = 1; const bat = NEXY.Ents.spawn('bat', { x: P.cx + 110, y: P.y + 8, opts: {} }); bat.hx = bat.x; bat.hy = bat.y; bat.frozen = 5;   // parado na altura da cabeça, como no mergulho
+    Power.press(); out.balls = FortPower.balls.length; let bounced = false; for (let i = 0; i < 60; i++) { H.step(1); if (FortPower.balls[0] && FortPower.balls[0].vy < -100) bounced = true; }
+    out.bounced = bounced; out.bat = bat.state;
+    H12.hit(65, 27); H.step(80); out.clock = P.power;
+    const c = HF.crusher(68); H.tp(65, 27, 999); Power.press(); out.used = P.power === null && Fort.freezeT > 0;
+    const y0 = c.y, k0 = c.clock; H.step(120); out.frozen = c.clock === k0;
+    H.step(260); out.back = Fort.freezeT === 0 && c.clock !== k0;
+    out.grim = ['FIRE', 'CLOCK'].every(w => S.grimoire.words[w]) && S.met.fire && S.met.clock;
+    return out;
+  });
+  expect(r.fire === 'fire' && r.balls === 1 && r.bounced && r.bat === 'dying', `FIRE quica e derruba o morcego (${JSON.stringify(r)})`);
+  expect(r.clock === 'clock' && r.used && r.frozen && r.back, `CLOCK para tudo por 5 s e se gasta (${JSON.stringify(r)})`);
+  expect(r.grim, 'FIRE e CLOCK no Grimório');
+}, LF);
+
 test('index.html está em dia com src/', async () => {
   execFileSync(process.execPath, [path.join(__dirname, '..', 'build.js'), '--check'], { stdio: 'pipe' });
 }, { ownPages: true });

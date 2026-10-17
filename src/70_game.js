@@ -41,6 +41,7 @@ const Sentence = {
     else if (r.type === 'mirror') { d.mirror = 1.8; SFX.summon(); }
     else if (r.type === 'crawler') P.crawlerForm(r.duration || 3.5);
     else if (r.type === 'confused') { if (r.target === 'echo') Echo.act('confused'); else World.confuse(r.target); }
+    else if (r.type === 'stone') Fort.shake(r.law);   // a pedra da lei treme: a lei não mudou
     // retorno imediato: a Echo aponta o porquê do erro (tempo verbal, concordância), sem dar a frase pronta
     if (r.tip && Game.echoBorn) Game.later(0.5, () => Echo.talk([r.tip]));
   },
@@ -59,6 +60,8 @@ const Sentence = {
     else if (r.type === 'beswitch') PalaceSwitch.start(d);
     else if (r.type === 'box') City.moveBox(r.target, r.spot);   // a caixa de neon voa para o lugar dito (1-3)
     else if (r.type === 'core') Sentinel.answer(r.where);   // o terminal do Sentinela: a Echo acha o núcleo
+    else if (r.type === 'law') Fort.law(r);                 // a pedra da lei (o Forte): o mundo obedece
+    else if (r.type === 'warden') Warden.answer(r.round);   // a tábua do Guardião: a lei se quebra e ele cai
     else if (r.type === 'echo') Echo.act(r.act, r.act === 'big' ? def.ride : null);
     else if (r.type === 'we') { Echo.act(r.act); if (r.act === 'big') { P.squash = -0.5; FX.burst(P.cx, P.cy, 30, 'm', 220, { life: 0.7, g: 0 }); } }
     // Grimório: palavras usadas + palavras fixas do molde
@@ -257,6 +260,8 @@ const UI = {
       if (CityIntro.active) return CityIntro.tap();
       if (CompassScene.active) return CompassScene.tap();
       if (SentinelScene.active) return SentinelScene.tap();
+      if (FortIntro.active) return FortIntro.tap();
+      if (WardenScene.active) return WardenScene.tap();
       if (Game.state !== 'map') return;
       const st = $('stage').getBoundingClientRect(), k = st.width / CFG.VIEW_W;
       WorldMap.tap((e.clientX - st.left) / k, (e.clientY - st.top) / k);
@@ -319,7 +324,7 @@ const UI = {
     if (L.hud !== hudOn) { L.hud = hudOn; $('hud').style.opacity = hudOn ? 1 : 0; $('wordbar').style.opacity = hudOn ? 1 : 0; }
     const pingOn = g.where === 'level' && g.echoBorn && !Echo.hidden;
     if (L.ping !== pingOn) { L.ping = pingOn; $('tbping').style.display = pingOn ? '' : 'none'; }
-    const shotOn = pingOn && EchoShot.tier() >= 0 || g.where === 'level' && P.power === 'laser';
+    const shotOn = pingOn && EchoShot.tier() >= 0 || g.where === 'level' && !!P.power && P.power !== 'wings';   // LASER, FIRE, HAMMER, CLOCK
     if (L.shot !== shotOn) { L.shot = shotOn; $('tbshot').style.display = shotOn ? '' : 'none'; }
     // o poder do momento (1-3): LASER, WINGS e a STAR com os segundos que faltam
     const pw = g.where === 'level' ? [P.power ? POWERS[P.power].word : '', P.starT > 0 ? 'STAR ' + Math.ceil(P.starT) : ''].filter(Boolean).join(' + ') : '';
@@ -415,6 +420,14 @@ const UI = {
       const cp = S.heart.compass | 0, C = CITY.compass[Math.max(0, cp - 1)];
       card(C.name, cp ? C.pt : '', cp ? 'POWER · LEVEL ' + cp + ' OF ' + CITY.compass.length : 'LOCKED · WORLD 1-3',
         cp ? 'Nasceu no mapa da cidade. A seta magenta em volta da Nexy aponta o que falta encontrar. ' + CITY.compass.slice(0, cp).map(x => x.info).join(' ') : '', 'Compass of words', !cp, false, P0);
+      // os poderes do Forte e o Selo da Lei (o pulo duplo)
+      for (const k of ['fire', 'hammer', 'clock']) {
+        const D = POWERS[k], got = !!S.met[k];
+        card(D.word, got ? D.pt + ' · ' + (pad ? 'Y' : 'F') + ' (ou SHOT no toque)' : '', got ? 'POWER · FROM A BLOCK · LOST WHEN HIT' : 'LOCKED · THE FORTRESS', got ? D.info : '', D.say.replace('!', ''), !got, false, P0);
+      }
+      const sl = S.heart.seal | 0, SL = FORT.seal.tiers[Math.max(0, sl - 1)];
+      card(SL.name, sl ? SL.pt : '', sl ? 'POWER · LEVEL ' + sl + ' OF ' + FORT.seal.tiers.length : 'LOCKED · THE FORTRESS',
+        sl ? "Nasceu quando a lei do Guardião se quebrou (o CAN'T virou CAN). No ar, aperte o pulo de novo: pulo duplo, do Forte em diante. " + FORT.seal.tiers.slice(0, sl).map(x => x.info).join(' ') : '', 'Seal of the law', !sl, false, P0);
       const gold = S.goldCard, anyCard = gold || G.words.CARD;
       card(gold ? 'GOLD CARD' : 'WARP CARD', anyCard ? (gold ? 'cartão dourado' : 'cartão de teletransporte') : '', gold ? 'ITEM · FOREVER' : anyCard ? 'ITEM · ONE RUN' : 'LOCKED · ???',
         anyCard ? 'Liga a TO BE ENGINE: quem sabe o verbo TO BE inteiro viaja até o fim da fase com as vidas cheias. ' + (gold ? 'Dourado: ganho com a pontuação máxima na 1-1, agora a fase sempre começa com ele.' : 'Vale só na partida em que você o encontrou. Terminar a 1-1 com pontuação máxima dá o cartão dourado, que fica para sempre.') : '',
@@ -433,7 +446,7 @@ const UI = {
   menuKey(e) {
     const c = e.code;
     if (c === 'Escape' || c === 'KeyP') { if (Game.state === 'pause') Game.resume(); else this.back(); return; }
-    const scr = $(Game.state === 'engine' || Game.state === 'citymap' ? 'chest' : Game.state); if (!scr) return;
+    const scr = $(Game.state === 'engine' || Game.state === 'citymap' || Game.state === 'seal' ? 'chest' : Game.state); if (!scr) return;
     const items = [...scr.querySelectorAll('.btn, .tgl')].filter(b => b.offsetParent !== null && !b.disabled);
     if (!items.length) return;
     let i = items.indexOf(document.activeElement);
@@ -519,17 +532,19 @@ const Game = {
     if (typeof Palace !== 'undefined') { PalaceIntro.active = false; PalaceSwitch.active = false; Palace.reset(); }
     if (typeof City !== 'undefined') { CityIntro.active = false; CompassScene.active = false; City.reset(); }
     if (typeof City2 !== 'undefined') City2.reset();
+    if (typeof Fort !== 'undefined') { FortIntro.active = false; WardenScene.active = false; Fort.reset(); }
     this.card = false; this.goldNew = false;
   },
   // tamanho da barra de palavras: cresce nas fases com mais vocabulário (LEVELS[id].barMax)
   barMax() { return (World.level && World.level.barMax) || CFG.WORD_BAR_MAX; },
   // cena ativa (Coração, nascimento do Echo, chegada): todas têm a mesma interface
-  scene() { return Cine.active ? Cine : Birth.active ? Birth : Prologue.active ? Prologue : Glitch.active ? Glitch : Warp.active ? Warp : PalaceSwitch.active ? PalaceSwitch : PalaceIntro.active ? PalaceIntro : CompassScene.active ? CompassScene : CityIntro.active ? CityIntro : SentinelScene.active ? SentinelScene : Arrival.active ? Arrival : null; },
+  scene() { return Cine.active ? Cine : Birth.active ? Birth : Prologue.active ? Prologue : Glitch.active ? Glitch : Warp.active ? Warp : PalaceSwitch.active ? PalaceSwitch : PalaceIntro.active ? PalaceIntro : CompassScene.active ? CompassScene : CityIntro.active ? CityIntro : SentinelScene.active ? SentinelScene : FortIntro.active ? FortIntro : WardenScene.active ? WardenScene : Arrival.active ? Arrival : null; },
   // relógio da simulação (para quebra-cabeças determinísticos, como os sinos)
   later(sec, fn) { this.timers.push({ t: this.simTime + sec, fn }); },
   loadLevel(id) {
     this.newRun(LEVELS[id].masterWord); NexyLook.stage = NexyLook.stageFor(Save.data.cleared);
     World.load(LEVELS[id]); Ents.clear(); FX.list = [];
+    if (LEVELS[id].laws) Fort.setup(LEVELS[id]);   // o Forte: as leis de cada pedra
     this.card = id === '1-1' && Save.data.goldCard;   // o CARTÃO DOURADO (pontuação máxima na 1-1): já começa com ele
     for (const s of World.statics) {
       const o = { c: s.c, r: s.r, opts: s.opts };
@@ -571,6 +586,7 @@ const Game = {
     else if (!Save.data.met.echo && this.echoBorn) { Save.data.met.echo = true; Save.write(); this.later(1.4, () => Echo.talk(ECHO.lines.intro)); }
     if (id === 'palace') Palace.enter(viaTransition);
     if (id === '1-3') City.enter(viaTransition);
+    if (id === 'fortress') Fort.enter(viaTransition);
     if (LEVELS[id].intro) setTimeout(() => { if (this.where === 'level' && World.level.id === id) UI.msg(LEVELS[id].intro, 3200); }, viaTransition ? 900 : 2800);
     return true;
   },
@@ -632,6 +648,7 @@ const Game = {
       case 'chest': Chest.key(e); break;
       case 'engine': Engine.key(e); break;
       case 'citymap': CityMap.key(e); break;
+      case 'seal': SealPanel.key(e); break;
       case 'pause': case 'grimoire': case 'assist': UI.menuKey(e); break;
       case 'clear': UI.menuKey(e); break;
     }
@@ -675,12 +692,12 @@ const Game = {
     Ents.update(dt);
     // quem está em cima de uma plataforma móvel anda com ela
     if (P.riding) { const e = P.riding; if (e.dead) P.riding = null; else { World.move(P, e.dx, 0); World.move(P, 0, e.dy); } }
-    World.updateBlocks(dt); EchoPulse.update(dt); EchoShot.update(dt); Power.update(dt);
+    World.updateBlocks(dt); EchoPulse.update(dt); EchoShot.update(dt); Power.update(dt); Fort.update(dt);
     if (this.timers.length) { const due = this.timers.filter(x => x.t <= this.simTime); this.timers = this.timers.filter(x => x.t > this.simTime); for (const x of due) x.fn(); }
     // zonas: cripta escura e abafada, campanário em crescendo
     const z = World.zoneAt(P.cx, P.cy);
     if (z !== this.zone) { this.zone = z; Music.zone(z || {}); if (z && z.dark && !this.metDark) { this.metDark = true; Echo.talk(ECHO.lines.dark); } }
-    Dark.k = approach(Dark.k, z && z.dark || 0, dt * 1.5);
+    Dark.k = approach(Dark.k, Math.max(z && z.dark || 0, Fort.dark()), dt * 1.5);   // a cripta; a lei NOBODY CAN SEE
     FX.update(dt);
     Echo.update(dt);
     Cam.update(dt);
@@ -736,8 +753,10 @@ const Game = {
       const g = x.createRadialGradient(w / 2, h / 2, h * 0.35, w / 2, h / 2, w * 0.62);
       g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.3)'); x.fillStyle = g; x.fillRect(0, 0, w, h);
     }), 480, 270);
+    Fort.drawOverlay(ctx);   // o CLOCK parado (o Forte)
     Cine.drawScreen(ctx); Birth.drawScreen(ctx); Arrival.drawScreen(ctx); Prologue.drawScreen(ctx); Glitch.drawScreen(ctx); Warp.drawScreen(ctx);
     PalaceIntro.drawScreen(ctx); PalaceSwitch.drawScreen(ctx); CityIntro.drawScreen(ctx); CompassScene.drawScreen(ctx); SentinelScene.drawScreen(ctx);
+    FortIntro.drawScreen(ctx); WardenScene.drawScreen(ctx);
     Transition.draw(ctx, this.time);
   },
 
@@ -848,7 +867,7 @@ const Game = {
       return;
     }
     const cp = this.checkpoint || World.start;
-    P.reset(cp.x, cp.y); Spawns.reset(); Echo.reset(); Echo.hidden = !this.echoBorn; Cam.snap(); Music.normal(); EchoShot.refill(); EchoShot.bolts = []; Power.respawn();
+    P.reset(cp.x, cp.y); Spawns.reset(); Echo.reset(); Echo.hidden = !this.echoBorn; Cam.snap(); Music.normal(); EchoShot.refill(); EchoShot.bolts = []; Power.respawn(); Fort.respawn();
   },
   finish(exit, bonus) {
     if (this.state !== 'play') return;

@@ -87,6 +87,22 @@ const SFX = {
   wake() { const t = AudioSys.t; noise(t, 0.3, 0.1, { type: 'bandpass', freq: 900, to: 2400, q: 1.2 }); tone('sine', 520, t, 0.25, 0.05, { to: 980 }); },
   boxFly() { const t = AudioSys.t; tone('sine', 320, t, 0.5, 0.07, { to: 900, glide: 0.45 }); noise(t, 0.45, 0.06, { type: 'bandpass', freq: 1200, to: 3600, q: 1.4 }); },
   boxLand() { const t = AudioSys.t; tone('sine', 110, t, 0.3, 0.4, { to: 46 }); tone('triangle', 660, t, 0.25, 0.05, { verb: true }); noise(t, 0.12, 0.14, { type: 'lowpass', freq: 900 }); },
+  // O FORTE: a pedra reescrevendo a lei, o alarme dos olhos, o relógio, os esmagadores, os morcegos, o ferro, o fogo,
+  // o martelo, o rugido do Guardião, as bolas de ferro, o pulo duplo do selo e a bigorna
+  law() { const t = AudioSys.t; noise(t, 0.5, 0.2, { type: 'bandpass', freq: 600, to: 3200, q: 1.4 }); tone('sine', 62, t, 1.1, 0.42, { to: 40 }); for (const [f, d] of [[1568, 0.1], [2093, 0.16]]) tone('triangle', f, t + d, 0.7, 0.04, { verb: true }); },
+  siren() { const t = AudioSys.t; for (let i = 0; i < 4; i++) tone('sawtooth', i % 2 ? 660 : 880, t + i * 0.16, 0.15, 0.05, { filter: { freq: 2400 } }); },
+  clockStop() { const t = AudioSys.t; for (let i = 0; i < 3; i++) tone('square', i % 2 ? 1800 : 2400, t + i * 0.09, 0.03, 0.04, { filter: { freq: 3000 } }); tone('sine', 1400, t + 0.25, 0.9, 0.06, { to: 300, verb: true }); noise(t + 0.25, 0.6, 0.06, { type: 'bandpass', freq: 3000, to: 600, q: 2 }); },
+  unfreeze() { const t = AudioSys.t; tone('sine', 300, t, 0.4, 0.06, { to: 1200 }); noise(t, 0.3, 0.05, { type: 'bandpass', freq: 800, to: 3000, q: 1.5 }); },
+  slam() { const t = AudioSys.t; tone('sine', 80, t, 0.4, 0.45, { to: 32 }); noise(t, 0.25, 0.22, { type: 'lowpass', freq: 700, to: 200 }); tone('triangle', 620, t, 0.2, 0.04, { verb: true }); },
+  crumble() { const t = AudioSys.t; for (let i = 0; i < 5; i++) noise(t + i * 0.04, 0.08, 0.1, { type: 'lowpass', freq: 900 - i * 120 }); tone('triangle', 160, t, 0.25, 0.1, { to: 70 }); },
+  bat() { const t = AudioSys.t; for (const d of [0, 0.09]) tone('sine', 3400, t + d, 0.06, 0.03, { to: 2400 }); },
+  lava() { const t = AudioSys.t; tone('sine', 110 + Math.random() * 60, t, 0.18, 0.08, { to: 320 }); },
+  fireball() { const t = AudioSys.t; noise(t, 0.22, 0.12, { type: 'bandpass', freq: 700, to: 2200, q: 1.2 }); tone('sine', 260, t, 0.2, 0.08, { to: 620 }); },
+  swing() { const t = AudioSys.t; noise(t, 0.18, 0.16, { type: 'bandpass', freq: 400, to: 1800, q: 1.6 }); tone('triangle', 140, t + 0.08, 0.12, 0.12, { to: 80 }); },
+  roar() { const t = AudioSys.t; tone('sawtooth', 95, t, 1.1, 0.16, { to: 52, filter: { freq: 700, to: 300 }, verb: true }); tone('sawtooth', 142, t, 1, 0.08, { to: 80, filter: { freq: 900 } }); noise(t, 0.9, 0.1, { type: 'lowpass', freq: 500 }); },
+  drop() { const t = AudioSys.t; tone('triangle', 320, t, 0.2, 0.08, { to: 150 }); tone('triangle', 1240, t, 0.25, 0.025, { verb: true }); },
+  jump2() { const t = AudioSys.t; tone('square', 330, t, 0.16, 0.06, { to: 880, glide: 0.12, filter: { freq: 2400 } }); tone('sine', 990, t, 0.2, 0.06, { to: 1760 }); tone('sine', 2640, t + 0.04, 0.2, 0.02, { verb: true }); },
+  anvil() { const t = AudioSys.t; for (const [f, a] of [[880, 0.08], [1320, 0.05], [2310, 0.03], [3520, 0.015]]) tone('triangle', f, t, 1.2, a, { verb: true }); noise(t, 0.04, 0.12, { freq: 4000 }); },
   // o "bug" de propósito: estalos digitais e chiado
   glitch() { const t = AudioSys.t; for (let i = 0; i < 7; i++) tone('square', 80 + Math.random() * 900, t + i * 0.045, 0.04, 0.05, { filter: { freq: 2600 } }); noise(t, 0.35, 0.12, { type: 'bandpass', freq: 3200, q: 0.8 }); },
   // 1-3: o laser da Nexy (comum e carregado), a estrela, os tiros e a mira dos drones, o feixe ligando, o núcleo do chefe
@@ -228,6 +244,17 @@ const Music = {
         7: [[0, 73, 4], [4, 76, 4], [8, 81, 8]],
       },
     },
+    // O FORTE: Dó menor, 92 BPM, coro e a bigorna da forja nos tempos fracos
+    fort: {
+      bpm: 92, choir: true, anvil: true,
+      chords: [[48, 0], [44, 1], [51, 1], [46, 1], [48, 0], [44, 1], [41, 0], [43, 1]],
+      melody: {
+        4: [[0, 72, 4], [4, 75, 4], [8, 79, 4], [12, 84, 4]],
+        5: [[0, 80, 6], [6, 79, 2], [8, 75, 8]],
+        6: [[0, 77, 4], [4, 80, 4], [8, 79, 4], [12, 77, 4]],
+        7: [[0, 74, 4], [4, 71, 4], [8, 67, 8]],
+      },
+    },
     // 1-3 · a cidade na chuva: Mi menor, 108 BPM, synthwave por cima do órgão e o chiado da chuva o tempo todo
     city: {
       bpm: 108, bell: true, rain: true,
@@ -343,6 +370,8 @@ const Music = {
       tone('sine', midi(n + 12), t, d, 0.022, { a: 0.02, hold: d * 0.7, dest: B.organ });
       tone('sine', midi(n + 19), t, d, 0.011, { a: 0.02, hold: d * 0.7, dest: B.organ });
     }
+    // a bigorna do forte: duas batidas metálicas por compasso
+    if (V.anvil && (s === 6 || s === 14)) for (const [f, a] of [[1046, 0.02], [1568, 0.012], [2637, 0.007]]) tone('triangle', f, t, 0.5, a, { verb: true, dest: B.perc });
     // o relógio do palácio: tique-taque em semínimas
     if (V.tick && s % 4 === 0) tone('square', s % 8 === 0 ? 2400 : 1800, t, 0.025, 0.02, { filter: { freq: 3000 }, dest: B.perc });
     // percussão

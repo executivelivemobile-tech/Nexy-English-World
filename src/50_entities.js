@@ -233,6 +233,7 @@ Ents.reg('casco', {
   },
   kick(e, dir) { e.state = 'slide'; e.dir = dir; e.vx = dir * CFG.SHELL_SPEED; e.immune = 0.22; SFX.kick(); FX.burst(e.x + e.w / 2, e.y + e.h / 2, 8, 'm', 140, { life: 0.3 }); },
   draw(ctx, e, x, y) {
+    if (e.iron) return Warden.drawBall(ctx, e, x, y);   // as bolas de ferro do Guardião
     const w = e.w, t = e.t;
     Enemy.rim(x + w / 2, y + e.h * 0.5, w + 4, e.state === 'shell' ? 0.7 : 1);
     ctx.save();
@@ -535,6 +536,8 @@ Ents.reg('pedestal', {
     if (e.opts.look === 'clock') return Palace.drawClock(ctx, x, y, t, e.opts.face);
     if (e.opts.look === 'city') return City.drawAltar(ctx, x, y, t);
     if (e.opts.look === 'terminal') return Sentinel.drawTerminal(ctx, x, y, t);
+    if (e.opts.look === 'law') return Fort.drawStone(ctx, x, y, t, e);
+    if (e.opts.look === 'tablet') return Warden.drawTablet(ctx, x, y, t);
     R.draw(R.glow('c', 40), x + 16, y - 8, 1, 0.4 + 0.15 * Math.sin(t * 2), true);
     rrect(ctx, x + 6, y + 6, 20, 26, [4, 4, 0, 0]); ctx.fillStyle = 'rgba(10,15,18,0.9)'; ctx.fill(); ctx.strokeStyle = wa(0.14); ctx.lineWidth = 1; ctx.stroke();
     rrect(ctx, x + 1, y + 2, 30, 6, 3); ctx.fillStyle = 'rgba(10,15,18,0.95)'; ctx.fill(); ctx.strokeStyle = ca(0.55); ctx.stroke();

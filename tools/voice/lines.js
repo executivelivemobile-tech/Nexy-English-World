@@ -13,18 +13,18 @@ const ROOT = path.join(__dirname, '..', '..');
 const norm = s => String(s).toLowerCase().replace(/[^a-z0-9']+/g, ' ').trim();
 
 function loadData() {
-  const src = ['src/10_data.js', 'src/12_level_1-2.js', 'src/14_level_palace.js', 'src/16_level_1-3.js']
+  const src = ['src/10_data.js', 'src/12_level_1-2.js', 'src/14_level_palace.js', 'src/16_level_1-3.js', 'src/18_level_fort.js']
     .map(f => fs.readFileSync(path.join(ROOT, f), 'utf8')).join('\n')
     .replace(/<\/?script>/g, '').replace(/\/\*MAP:[^*]*\*\//g, '""');
   const store = {};
   const ctx = { document: { getElementById: () => null }, localStorage: { getItem: () => null, setItem() {} }, window: {}, console };
   vm.createContext(ctx);
-  vm.runInContext(src + '\n;this.__ = { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE, ENGINE, PALACE, CITY, POWERS, SENTINEL };', ctx);
+  vm.runInContext(src + '\n;this.__ = { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE, ENGINE, PALACE, CITY, POWERS, SENTINEL, FORT };', ctx);
   return ctx.__;
 }
 
 function build() {
-  const { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE, ENGINE, PALACE, CITY, POWERS, SENTINEL } = loadData();
+  const { WORDS, CREATURES, ECHO, MASTER_WORDS, LEVELS, PROLOGUE, ENGINE, PALACE, CITY, POWERS, SENTINEL, FORT } = loadData();
   const out = [], seen = new Set();
   const add = (who, text, prompt) => {
     if (!text || !/[A-Za-z]/.test(text)) return;
@@ -92,8 +92,22 @@ function build() {
   for (const l of SENTINEL.scene) add('story', l.en);
   // a porta repete palavra por palavra as frases que não foram gravadas: as partes de IN FRONT OF e NEXT TO
   for (const w of ['front', 'of', 'next', 'to']) add('door', w, w + '.');
+  /* ---------------- O FORTE: a chegada, as leis do Guardião (a voz das portas lê; a Echo explica o erro), a cena, o selo ---------------- */
+  for (const l of FORT.intro) add('story', l.en);
+  add('story', FORT.tableLine.en, '[warmly] I can... You can... She can... They can.');
+  add('door', FORT.neg.en);
+  for (const r of FORT.warden.rounds) {
+    add('door', inscription(r.text));
+    add('door', speakable(fill(r.mold, [r.answer])));
+    for (const k in r.tips) { add('echo', r.tips[k].en); if (k !== '*') add('door', speakable(fill(r.mold, [k]))); }
+    for (const t of r.mold) if (t !== '_' && /[A-Z]/.test(t)) add('door', word(t), alone(WORDS[t] ? word(t) : t.toLowerCase()));
+  }
+  for (const l of FORT.warden.scene) add('story', l.en);
+  add('story', FORT.seal.intro.en);
+  for (const l of FORT.seal.lines) add('story', l.en);
+  for (const r of FORT.seal.climb) add('echo', r.q.includes('___') ? r.q.replace('___', r.options[r.answer]) : r.options[r.answer]);
   // Grimório → PODERES: o botão de ouvir
-  for (const p of ['Echo pulse', 'Echo shot', 'Voice mode', 'Heart of words', 'To be ring', 'Warp card', 'Gold card', 'Compass of words']) add('echo', p, alone(p));
+  for (const p of ['Echo pulse', 'Echo shot', 'Voice mode', 'Heart of words', 'To be ring', 'Warp card', 'Gold card', 'Compass of words', 'Seal of the law']) add('echo', p, alone(p));
 
   /* ---------------- portas, altares, baú ---------------- */
   for (const id in LEVELS) {

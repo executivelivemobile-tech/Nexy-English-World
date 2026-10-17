@@ -36,7 +36,7 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 - Futuro: depois do jogo inteiro, app Android (Google Play). Mantenha tudo pensado para toque e offline.
 - Preferências já dadas: sem voz em combos e nomes de criaturas; correr com toque duplo na seta (janela medida da
   soltura); quique alto com janela antes/depois (só no ar); blocos-fantasma dependem da barra, não do Grimório.
-- **Vozes gravadas (ElevenLabs)**: 471 falas em `src/voice/` (MP3 + `manifest.json`), embutidas pelo build.
+- **Vozes gravadas (ElevenLabs)**: 602 falas em `src/voice/` (MP3 + `manifest.json`), embutidas pelo build.
   Elenco: **Echo = Lulu** (feminina e sensual, escolhida pelo dono), **narrador do Baú = Elder Rowan** (a voz antiga
   das portas, pedida pelo dono no lugar do Lawrence; `[warmly]`, 1,08×), **portas e altares = Elder Rowan** (`[slowly]`,
   acelerada 1,15× no corte). Não imitar vozes de pessoas reais (ele citou Morgan Freeman: só a referência de idoso e grave). A Echo agora é **ela** nos textos em português ("a Echo", "sua amiga").
@@ -57,6 +57,7 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 | `10_data.js` | legenda global, `CFG` (física), `LOOK` (brilho), `WORDS`, `CREATURES`, `ECHO`, `MASTER_WORDS`, `PHRASES_PT`, `LEVELS['1-1']`, `WORLDS` (mapa), `HEART`, `Save`, `Flags`, utilitários |
 | `12_level_1-2.js` | `LEVELS['1-2']`: legenda extra, blocos, entidades, zonas, alvos (runas), portas/altares/sinos/baú (com a história) |
 | `14_level_palace.js` | `LEVELS.palace` (TO BE PALACE): legenda, alvos do passado (`look`: memory/knight/gate, `ghost`, `past`), altares, relógios, interruptor |
+| `18_level_fort.js` | `LEVELS.fortress` (O FORTE · CAN YOU?, `tag` 'WORLD 1 · FORTRESS', `seal: true`): legenda, `laws` (zona em colunas, `can` do começo, `text` por estado), portas `law1..law4` (`look: 'law'`, `law`), a tábua `warden` (`live` → `Warden.live`), `caves` (fundo de pedra no esgoto), `decor` do forte |
 | `16_level_1-3.js` | `LEVELS['1-3']` (WHERE IS IT?): legenda, caixas (`kind: 'box'`, `spots` com nome), altares (`BOX3_DOOR` serve aos dois do café; `quiet` esconde a inscrição), `decor` (letreiros, outdoor, etiquetas SIGN/WALL/HOLE, enfeites) |
 | `20_audio.js` | `SFX`, `Music` (variantes `world1`/`map`/`nave`/`palace` com `chords` e `tick` próprios, zonas muffle/boost), `VoiceClips` (vozes gravadas, `/*VOICE_PACK*/`), `Voice.say(text, who, {onBoundary,onEnd})`, `Listen` |
 | `30_input_render.js` | `Input` (teclado, toque, **gamepad** em `pollPad`), `R` (escala, sprites, glow, texto) |
@@ -74,22 +75,24 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 | `78_palace.js` | TO BE PALACE: entidades `knight` e `beswitch`, `Palace` (pulso vê o passado `ping`, `drawGhost`/`drawTarget`/`statue`/`drawClock`, chão-espelho `drawMirror`, `drawRing`), `PalaceIntro` (lembrança + tabela, `Save.data.met.palace`), `PalaceSwitch` (cena do interruptor), `BG.drawPalace` |
 | `80_city.js` | 1-3: `City` (caixa: `initBox`/`moveBox`/`land`/`flyPos`/`drawCube`, `ping` acha a caixa escondida, `drawBack` antes do terreno e `drawFront` depois dos letreiros; prédios `drawSolid`; chuva/raios `tick`/`strike`/`drawRain`; `drawDecor`, `drawAltar`, `drawMapBoard`; Bússola `compassTarget`/`drawCompass`/`drawNeedle`), entidades `gargoyle`, `train`, `citymap`, `decor`, `CityIntro` (`Save.data.met.city`), `CityMap` (painel do Baú, estado `citymap`), `CompassScene` (`Save.data.met.compass`), `BG.drawCity` |
 | `82_city2.js` | 1-3, a segunda metade: `Power` (poderes `P.power` laser/wings e `P.starT`; `give`/`lose`/`refill`; tiro da Nexy `press`/`shoot`, carga segurando F (`Input.held.shoot`, `touchHeld.shot`, `padHeld.shoot`); `drawBack` asas, `drawFront` canhão/estrela, `drawBolts`), `EnemyFire` (tiros ciano dos inimigos), entidades `powerup`, `drone`, `beam` (emissor: `left` com vida e `shootable`; `down` liga/desliga), `vent`, `sentinel`; `Sentinel` (`live` troca as regras do terminal por rodada, `answer`, `damage`, `roundOver`, `drawTerminal`), `SentinelScene` (a queda), `City2` (avisos, `drawShutter` do portão) |
+| `86_fort.js` | O Forte: `Fort` (leis `laws`/`can`/`inZone`/`law` (frase certa)/`shake`/`learn`, `jumpK` (YOU CAN'T JUMP = pulo 0,42), `freezeT` do CLOCK, `caught` (o olho pega: volta a c124), `drawStone`, `drawSolid` tijolos, `drawCracked`, `drawDecor`, `drawPortcullis`, `drawOverlay`, `glowA`/`glowV` âmbar e violeta), `FortIntro` (`Save.data.met.fort`), entidades `crusher` (ciclo próprio; `law` trava em cima; machuca caindo), `slab` (o chão que se mexe), `crumble` (cai 0,42 s depois de pisar), `eye` (facho, `sees` com linha de visão), `bat`, `molten` (sobe ao entrar; queima; `calm` no respawn), `FortPower` (FIRE quica, HAMMER quebra `X`, CLOCK congela inimigos com `frozen`), `BG.drawFort` (céu, aurora, lua, montanhas e castelo, torres, parede de dentro, brasas) |
+| `88_fort2.js` | `Warden` (rodadas `FORT.warden.rounds`: fly/jump/see; `live`, `answer` (stun), `damage` (fora do stun só bola e fogo), `roundOver`, `ball` (cascos `iron`), ondas do martelo, `drawTablet`, `drawBall`), entidade `warden`, `WardenScene` (CAN'T → CAN), `SealPanel` (estado `seal`, painel do Baú: leitura com COULD + escalada; fechar 1ª vez abre `keepgate`), `Seal` (pulo duplo: `ok`/`jump`, força `FORT.seal.tiers[nível].k`) |
 | `84_testmode.js` | `TestMode` (escondido para o dono: T na tela inicial ou na pausa, 5 toques em PAUSE, `#teste`): pula para trechos de cada fase (`LEVELS[].spots`), lista do que testar (localStorage próprio), ajudas; a partida de teste não grava (`Save.sandbox`) e `Game.toMap` chama `TestMode.end()` (volta o progresso, vidas e orbes) |
 | `99_boot.js` | `window.NEXY` (API de teste) e `Game.boot()` |
 
-- Cenas: `Game.scene()` devolve a cena ativa (`Cine`, `Birth`, `Prologue`, `Glitch`, `Warp`, `PalaceSwitch`, `PalaceIntro`, `CompassScene`, `CityIntro`, `SentinelScene`, `Arrival`); todas têm `zoom`, `sat`, `letter`,
+- Cenas: `Game.scene()` devolve a cena ativa (`Cine`, `Birth`, `Prologue`, `Glitch`, `Warp`, `PalaceSwitch`, `PalaceIntro`, `CompassScene`, `CityIntro`, `SentinelScene`, `FortIntro`, `WardenScene`, `Arrival`); todas têm `zoom`, `sat`, `letter`,
   `timeScale`, `update`, `key`, `drawWorld`, `drawScreen`. `Game.echoBorn` = o Echo já existe nesta partida (na 1-1
   começa falso; a porta com `birth: 'echo'` dispara `Birth`).
 - Estados do `Game.state`: `title`, `map`, `play`, `panel`, `chest`, `engine`, `citymap`, `cinematic`, `pause`, `grimoire`, `assist`,
-  `clearing`, `clear`, `gameover`, `leaving`, `test`. `Game.where`: `map` | `level`.
+  `clearing`, `clear`, `gameover`, `leaving`, `test`, `seal`. `Game.where`: `map` | `level`.
 - Fluxo: título → `toMap()` → `WorldMap.tryEnter` → `Transition` → `enterLevel(id, true)` → `finish(exit)` →
   `showClear` → `continueToMap()`.
 - Mapas ASCII em `src/levels/*.map` (o build troca `/*MAP:id*/`). A 1-2 é gerada por `tools/gen_map_1-2.py`
   (edite o gerador e rode `python3 tools/gen_map_1-2.py src/levels/1-2.map`); o palácio por `tools/gen_map_palace.py`.
 - Frases: `accept` → `Sentence.apply` (tipos `open`, `transform`, `exit`, `target`, `targets` (vários, um de cada vez),
-  `echo`, `we`, `beswitch`, `box` (`target` + `spot`: a caixa voa para o lugar dito), `core` (o terminal do Sentinela)); uma porta com `live(def)` troca
+  `echo`, `we`, `beswitch`, `box` (`target` + `spot`: a caixa voa para o lugar dito), `core` (o terminal do Sentinela), `law` (a pedra da lei do Forte), `warden` (a tábua do Guardião)); uma porta com `live(def)` troca
   as próprias regras ao abrir o painel; `enact` → `Sentence.enact` (`morph`, `mirror`, `crawler`, `confused` com alvo único ou
-  lista); qualquer `enact` pode ter `tip: {en, pt}` = a Echo explica o erro 0,5 s depois (sem dar a frase pronta).
+  lista, `stone` (a pedra da lei treme: a lei não mudou)); qualquer `enact` pode ter `tip: {en, pt}` = a Echo explica o erro 0,5 s depois (sem dar a frase pronta).
 - Runas/alvos: `hFirst` encolhe a altura primeiro (o portão afunda); `small: {w:0,h:0}` = não existe (ponte que caiu).
 - `levelTag(L)`: 'WORLD 1-2' ou, para fases com nome (palácio), 'WORLD 1'.
 
@@ -202,6 +205,38 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 - Visual novo: prédios com janelas e profundidade (face de cima do telhado, lateral), chuva em duas camadas, raios com
   trovão, lua, outdoor, letreiros que piscam, monotrilho com faróis; música `city` (Mi menor, 108 BPM, chiado da chuva).
 
+## 5d. O FORTE DE FERRO "CAN YOU?" (330 × 36; chão de A-C na linha 28, muralhas na 13; depois da 1-3)
+
+- O dono pediu: fazer o forte, sem parecer repetitivo; fundo que muda, mais detalhes, mais power-ups, mais brilho, **mais
+  cor** (daqui em diante, além de magenta e ciano: âmbar do fogo e violeta; vitrais coloridos). Palavra-mestra IRON.
+- Mecânica nova: as PEDRAS DA LEI (CAN/CAN'T). Cada lei vale numa faixa de colunas (`laws[].zone`). Desafio crescente:
+  1 lacuna (I CAN JUMP) → 2 (THE FLOOR CAN MOVE) → resposta curta com pronome (NO, THEY CAN'T) → lei que muda por rodada
+  (Guardião) → COULD no Selo (B1). Frase que não muda nada = `stone` (a pedra treme, a Echo explica).
+- A Portão (0-49): CAN `a` c7 L24 (antes da lei); pedra 1 `!` c13; zona do pulo c12-32 (pulo × 0,42 ≈ 22 px); degrau de
+  2 c18-19; ralo c16-17; fosso c24-26/c29-31 (cair leva ao esgoto, não mata). Esgoto c15-44 L29-33 (esmagadores `U`
+  c20 e c36, 2×2), saída por baixo c42-43 (degrau 3 de altura, fora da lei). Letra I c27 L23, FIRE `x` c36, checkpoint c39.
+- B Salão (50-122): teto até L15; CAN'T `b` c52, pedra 2 `@` c55, STONES `c` c58, CLOCK `z` c65; esmagadores `u` c62,
+  68, 74, 80, 86, 92 (2×3, caem até L27, ciclo 2,9 s em onda). FLOOR `d` c96, pedra 2b `%` c99. Poço c101-113 (morte);
+  o chão `p` (3 de largura) vai de c101 até c111 quando a lei deixa; outro caminho: plataformas `t` (2 de largura, caem)
+  c105-106 e c109-110 L25; letra R c108 L21; checkpoint c117.
+- C Galeria (123-185): teto até L9; NO `e` c125, pedra 3 `&` c127 (CAN THE EYES SEE YOU?), THEY `h` c130, YES `k` c133,
+  HAMMER `y` c136; pilares (3 de altura) c140/149/158/167/176; olhos `Q` c146, c163, c180 L11; nicho c149-151 L20-21
+  (parede rachada `X` c152, sacada `=` c153-157 L22 que se alcança do pilar c158): letra O e vida. Morcego c172.
+  Pego pelo facho: volta a c124 sem perder vida (`Fort.caught`).
+- D Torre (186-219): borda c187-190 L28 (checkpoint c188, CLOCK e IRON), ferro `D` sobe 30 px/s depois de 1,6 s até L14;
+  plataformas L25 c192-195, L22 c198-201, L19 c193-196 (pedra 4 `$` c194), L16 c198-201, saída L13 c203-218 → muralhas.
+  Letra N c199 L12. Morreu: o ferro volta ao fundo.
+- E Muralhas (219-299): checkpoints c222 e c247, FIRE c228, STAR escondida c236, morcegos; tábua `K` c251, poço `m` c255
+  (CAN, CAN'T, WE), Guardião `V` c276 L6 (acorda depois de c253); porta `keepgate` c297-298 L7-12 afunda ao fechar o
+  painel do Selo. Saída `N` c321. Zona `boost` na arena.
+- Guardião (`FORT.warden`): 8 de vida por rodada; derrubado (stun 6 s) leva pisão 2, fogo 1, laser 1/3, martelo 3, bola
+  2; fora do stun só bola (2) e fogo (1). Rodadas: fly (voa, bolas a cada 2,4 s) · jump (anda; martelo a cada 3,2 s solta
+  ondas: só quem está no ar escapa; `Fort.jumpK` vale na arena) · see (escuro `Fort.dark`, mergulho a cada 3,4 s).
+  Morrer: ele dorme, a rodada fica, as bolas somem.
+- Selo da Lei (`Save.data.heart.seal` 0-4): pulo duplo só em fases com `seal: true` (o Forte e as próximas); a 1-3 e as
+  aprovadas não mudam. Força `FORT.seal.tiers[n].k` (0,6 → 0,95 do pulo).
+- Modo teste: o Forte tem trechos e lista própria em `84_testmode.js`.
+
 ## 6. Testes (`node tests/run.js [filtro]`, Playwright, ~3 min)
 
 - `tests/harness.js`: `openGame(browser, {level, echo})` entra direto na fase (sem a chegada: `Game.noIntro`) e troca
@@ -267,8 +302,10 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   e STOP/FREEZE/FIRE/SHOOT atira.
 - **Tutoriais atualizados** (pedido do dono): tela inicial (C pulso, F tiro, V voz), linha do controle, Grimório com a
   aba **POWERS** (pulso, tiro, voz, Coração, Anel do TO BE, cartão; fechados até conquistar), texto do VOICE MODE.
-- Esperando aprovação da 1-2 (com o baú), do TO BE PALACE e da 1-3 (agora com a 2ª metade: poderes, lasers, drones e o Sentinela). Depois: Casa "PUSH OR PULL?" (saída secreta da
-  1-2), forte e castelo do Mundo 1. A agulha da Bússola aponta para a frente (o forte) na cena da 1-3.
+- Esperando aprovação da 1-2 (com o baú), do TO BE PALACE, da 1-3 (agora com a 2ª metade: poderes, lasers (mira em 8 direções), drones e o Sentinela) e do FORTE. Depois: Casa "PUSH OR PULL?" (saída secreta da
+  1-2) e o castelo do Mundo 1 (o Selo da Lei: o pulo duplo já vale lá). A agulha da Bússola aponta para a frente na cena da 1-3.
+- Vozes: 602 falas gravadas (a do Forte gravou 131, ~4.700 créditos). Testes do Forte: `HELPF` em `tests/run.js`
+  (`law`, `jumpH`, `crusher`, `waitUp`); nos testes, cuidado com `G.hitstopN` (o golpe congela 2-5 quadros).
 - Cada fase nova: algo inédito + acréscimo ao Coração + desafio crescente acima do A1 + caminho alternativo + um passo
   a mais no visual rumo à cidade Castlevania cyberpunk.
 - Controle de verdade (gamepad) ainda não testado com aparelho físico.

@@ -136,6 +136,25 @@ const WORDS = {
   STAR:    { cls: 'noun', pt: 'estrela', say: 'star', lore: 'Escondida no beco dos lasers. Por alguns segundos, nada te machuca.' },
   SHIELD:  { cls: 'noun', pt: 'escudo', say: 'shield', lore: 'O Sentinela esconde o núcleo perto do escudo: embaixo, atrás ou do lado.' },
   CORE:    { cls: 'noun', pt: 'núcleo', say: 'core', lore: 'O coração da máquina. Diga onde ele está, e a Echo o encontra.' },
+  // O FORTE · CAN YOU? (CAN e CAN'T: o que pode e o que não pode; COULD, o CAN de ontem)
+  CAN:     { cls: 'verb', pt: 'pode / consegue', say: 'can', lore: 'Não muda com a pessoa: I can, she can, they can. No forte, quem diz CAN muda a lei.' },
+  "CAN'T": { cls: 'verb', pt: 'não pode / não consegue', say: "can't", lore: 'O CAN do avesso (CAN NOT). As pedras do forte adoram essa palavra.' },
+  JUMP:    { cls: 'verb', pt: 'pular', say: 'jump', lore: 'A primeira coisa que a lei do forte tirou da Nexy. A primeira que ela pegou de volta.' },
+  FALL:    { cls: 'verb', pt: 'cair', say: 'fall', lore: 'As pedras do salão caem no ritmo dos tambores, até alguém dizer que elas não podem.' },
+  MOVE:    { cls: 'verb', pt: 'mexer / mover', say: 'move', lore: 'Um chão parado vira ponte quando PODE se mexer.' },
+  STONES:  { cls: 'noun', pt: 'pedras', say: 'stones', lore: 'São muitas: THE STONES. Mas o CAN não muda: THE STONES CAN, THE STONE CAN.' },
+  FLOOR:   { cls: 'noun', pt: 'chão', say: 'floor', lore: 'Um pedaço de chão esperando licença para atravessar o poço.' },
+  EYES:    { cls: 'noun', pt: 'olhos', say: 'eyes', lore: 'Os olhos de ferro da galeria. São muitos: THEY.' },
+  SEE:     { cls: 'verb', pt: 'ver / enxergar', say: 'see', lore: 'Quem não PODE ver não acha ninguém, nem com o facho aceso.' },
+  IRON:    { cls: 'noun', pt: 'ferro', say: 'iron', lore: 'O forte inteiro é feito dele. Derretido, ele sobe pela torre.' },
+  RISE:    { cls: 'verb', pt: 'subir', say: 'rise', lore: 'O ferro derretido sobe. A não ser que a lei diga que ele não pode.' },
+  WARDEN:  { cls: 'noun', pt: 'guardião', say: 'warden', lore: 'Quem escreve as leis do forte. Escreve uma nova a cada rodada.' },
+  FLY:     { cls: 'verb', pt: 'voar', say: 'fly', lore: 'O Guardião voa porque a tábua diz que ele pode.' },
+  NOBODY:  { cls: 'pronoun', pt: 'ninguém', say: 'nobody', lore: 'A lei mais escura do Guardião: ninguém pode ver.' },
+  COULD:   { cls: 'verb', pt: 'podia / conseguia (passado de CAN)', say: 'could', lore: 'O CAN de ontem. Ontem o Guardião podia voar; hoje, não pode.' },
+  FIRE:    { cls: 'noun', pt: 'fogo', say: 'fire', lore: 'Bolas de fogo que quicam pelo chão. Os morcegos têm medo delas.' },
+  HAMMER:  { cls: 'noun', pt: 'martelo', say: 'hammer', lore: 'Golpe de perto. Quebra o ferro rachado e derruba quem estiver na frente.' },
+  CLOCK:   { cls: 'noun', pt: 'relógio', say: 'clock', lore: 'Para o tempo por alguns segundos: tudo fica parado, menos a Nexy.' },
 };
 const CREATURES = {
   CRAWLER: { pt: 'rastejante', say: 'Crawler', lore: 'Rasteja porque nunca aprendeu a falar.' },
@@ -146,6 +165,9 @@ const CREATURES = {
   GARGOYLE: { pt: 'gárgula', say: 'Gargoyle', lore: 'Vira pedra quando você olha para ela. De costas, ela voa atrás de você. Parada no ar, serve de degrau; com giro, ela se quebra.' },
   DRONE:    { pt: 'drone', say: 'Drone', lore: 'O olho voador dos telhados. Antes de atirar, ele mira (uma linha fina): saia da frente. Pisão ou laser derrubam; o tiro da Echo o deixa parado no ar.' },
   SENTINEL: { pt: 'sentinela', say: 'Sentinel', lore: 'O guarda da cidade. Esconde o núcleo perto do escudo e muda de lugar a cada rodada: quem diz onde ele está abre o escudo.' },
+  BAT:      { pt: 'morcego', say: 'Bat', lore: 'Dorme de cabeça para baixo no teto. Quando a Nexy passa embaixo, mergulha em onda. Pisão, fogo ou martelo derrubam.' },
+  EYE:      { pt: 'olho de ferro', say: 'Iron eye', lore: 'Vigia a galeria com um facho de luz. Se te vê, os guardas te põem para fora da sala. O facho não atravessa os pilares.' },
+  WARDEN:   { pt: 'guardião de ferro', say: 'Iron Warden', lore: 'Escreve as leis do forte numa tábua de ferro. Reescreva a lei e ele cai; ou jogue nele as bolas de ferro que ele mesmo solta.' },
 };
 // O ECHO, o companheiro da Nexy: se apresenta na primeira partida e fala nas horas certas (frases A1 com legenda)
 const ECHO = {
@@ -186,6 +208,25 @@ const ECHO = {
     coreMove: [{ en: 'Where is the core now?', pt: 'O núcleo mudou de lugar. Olhe bem e responda no terminal.' }],
     overheat: [{ en: 'It is hot! Now!', pt: 'Ele esquentou demais: o núcleo abriu por um instante. Atire!' }],
     victory: [{ en: 'We did it!', pt: 'Conseguimos! O Sentinela caiu e o portão abriu.' }],
+    // O FORTE · CAN YOU?
+    fort: [{ en: 'Read the stones!', pt: 'Leia as pedras: elas dizem o que pode e o que não pode. Aperte ↑ perto de uma para mudar a lei.' }],
+    lawSame: [{ en: 'The stone says that already!', pt: 'A pedra já diz isso. Para mudar a lei, diga o contrário.' }],
+    noJump: [{ en: 'The stone says you can not jump.', pt: 'A pedra diz que você NÃO PODE pular. É verdade? Aperte ↑ na pedra e mude a lei.' }],
+    law: [{ en: 'The law is new!', pt: 'A lei mudou! O forte obedece.' }],
+    stones: [{ en: 'Look out! The stones can fall.', pt: 'Cuidado! Essas pedras caem no ritmo. Passe quando elas sobem, ou mude a lei.' }],
+    eyes: [{ en: 'The eyes can see us!', pt: 'Os olhos de ferro vigiam a galeria. Se o facho te pegar, a gente volta para o começo. O facho não passa pelos pilares.' }],
+    seen: [{ en: 'They can see us! Back!', pt: 'Eles nos viram! De volta ao começo da galeria.' }],
+    iron: [{ en: 'The iron can rise! Up, up!', pt: 'O ferro derretido está subindo! Suba!' }],
+    bat: [{ en: 'A bat! Look out!', pt: 'Um morcego! Ele mergulha em onda. Pisão, fogo ou martelo derrubam.' }],
+    fire: [{ en: 'Fire! Press F.', pt: 'FOGO! Aperte F (Y no controle): as bolas de fogo quicam pelo chão.' }],
+    hammer: [{ en: 'A hammer! Press F.', pt: 'Um MARTELO! Aperte F (Y no controle) para golpear de perto. Ele quebra o ferro rachado.' }],
+    clock: [{ en: 'A clock! Stop the time!', pt: 'Um RELÓGIO! Aperte F (Y no controle): o tempo para por alguns segundos.' }],
+    warden: [{ en: 'It is the Iron Warden!', pt: 'O Guardião de Ferro! Ele escreve as leis na tábua.' }, { en: 'Change the law!', pt: 'Reescreva a lei na tábua. Ou pegue as bolas de ferro (segure CORRER) e jogue nele (↑ e solte).' }],
+    wardenLaw: [{ en: 'A new law! Read the tablet.', pt: 'Lei nova! Leia a tábua e reescreva.' }],
+    wardenDown: [{ en: 'It fell! Now!', pt: 'Ele caiu! Agora: pisão, fogo, martelo!' }],
+    wardenDark: [{ en: 'I can not see! The tablet!', pt: 'Está tudo escuro! A minha luz ainda alcança a tábua: leia a lei.' }],
+    seal: [{ en: 'Jump, and jump again!', pt: 'O SELO DA LEI: no ar, aperte o pulo de novo. Pulo duplo, do Forte em diante.' }],
+    fortWin: [{ en: 'You can! We can!', pt: 'Você pode! Nós podemos! A porta do forte abriu.' }],
   },
 };
 // A LEI DAS PALAVRAS: o prólogo da primeira partida (73_echo.js → Prologue). Quem fala é o narrador (a voz antiga);
@@ -296,6 +337,56 @@ const POWERS = {
   laser: { word: 'LASER', pt: 'Laser', say: 'Laser!', info: 'F (Y no controle, SHOT no toque) atira. Segure ↑ para mirar para cima (↑ + lado = diagonal; no ar, ↓ mira para baixo). Segure e solte: o tiro carregado atravessa e vale por 3.' },
   wings: { word: 'WINGS', pt: 'Asas', say: 'Wings!', info: 'No ar, segure o pulo para planar. Em cima de um ventilador, o vento te levanta.' },
   star:  { word: 'STAR', pt: 'Estrela', say: 'Star!', info: 'Por 9 segundos nada te machuca, nem os lasers; quem você tocar explode.', time: 9 },
+  // O FORTE: mais três (cada um com o seu jeito de usar o F)
+  fire:   { word: 'FIRE', pt: 'Fogo', say: 'Fire!', info: 'F (Y no controle, SHOT no toque) solta bolas de fogo que quicam pelo chão. Até 2 de cada vez.' },
+  hammer: { word: 'HAMMER', pt: 'Martelo', say: 'Hammer!', info: 'F (Y, SHOT) golpeia de perto: derruba quem estiver na frente e quebra o ferro rachado.' },
+  clock:  { word: 'CLOCK', pt: 'Relógio', say: 'Clock!', info: 'F (Y, SHOT) para o tempo por 5 segundos: pedras, olhos, ferro e inimigos ficam parados. Depois ele se gasta.', time: 5 },
+};
+/* ============================== O FORTE DE FERRO · CAN YOU? ==============================
+   A chegada (1ª visita) ensina CAN antes da primeira pedra. O GUARDIÃO escreve uma lei por rodada na tábua (rounds):
+   reescrever a lei o derruba por stun s; sem inglês, as bolas de ferro que ele solta (seguradas e jogadas) tiram 2.
+   Depois, o SELO DA LEI no Coração (seal): leitura + escalada A2 → B1 (COULD); o nível do selo é a força do pulo duplo. */
+const FORT = {
+  intro: [
+    { en: 'This is the Iron Fort.', pt: 'Este é o Forte de Ferro, em cima da cidade.' },
+    { en: 'Here, the stones make the laws.', pt: 'Aqui, as pedras fazem as leis: o que PODE e o que NÃO PODE acontecer.' },
+  ],
+  tableLine: { en: 'I can. You can. She can. They can.', pt: 'CAN = pode / consegue. Ele não muda com a pessoa (nada de AM, IS, ARE).' },
+  table: [{ w: 'I CAN', pt: 'eu posso' }, { w: 'YOU CAN', pt: 'você pode' }, { w: 'SHE CAN', pt: 'ela pode' }, { w: 'THEY CAN', pt: 'eles podem' }],
+  neg: { en: "Can't. Can not.", pt: "CAN'T = CAN NOT = não pode. Diga o contrário da pedra, e a lei muda." },
+  warden: {
+    hp: 8, stun: 6, ballEvery: 2.4,
+    rounds: [
+      { law: 'fly', text: 'THE WARDEN CAN FLY.', done: "THE WARDEN CAN'T FLY.", mold: ['THE', 'WARDEN', '_', 'FLY', '.'], answer: "CAN'T",
+        tips: { CAN: { en: 'It can fly. Make it fall!', pt: "Ele JÁ PODE voar. Diga que ele NÃO PODE: CAN'T." }, '*': { en: "Can, or can't?", pt: "A lacuna é PODE ou NÃO PODE: CAN ou CAN'T." } } },
+      { law: 'jump', text: "YOU CAN'T JUMP.", done: 'I CAN JUMP.', mold: ['I', '_', 'JUMP', '.'], answer: 'CAN',
+        tips: { "CAN'T": { en: "Can't? Then the Warden wins!", pt: "CAN'T = não pode. A tábua já diz isso. Diga que você PODE." }, '*': { en: "Can, or can't?", pt: "A lacuna é PODE ou NÃO PODE: CAN ou CAN'T." } } },
+      { law: 'see', text: 'NOBODY CAN SEE.', done: 'WE CAN SEE.', mold: ['_', 'CAN', 'SEE', '.'], answer: 'WE',
+        tips: { I: { en: 'Me too! You and me: we!', pt: 'A Echo também está no escuro. Você E a Echo = WE.' }, YOU: { en: 'Me? And you! We!', pt: 'Eu e você, juntas: WE.' },
+          THEY: { en: 'Not they. You and me!', pt: 'THEY são os outros. Você e a Echo = WE.' }, '*': { en: 'Who can see? You and me!', pt: 'Quem pode ver? Você e a Echo, juntas: WE.' } } },
+    ],
+    scene: [{ en: 'The law is broken.', pt: 'A lei se quebrou.' }, { en: 'You can.', pt: 'Você pode. O Coração ganhou o SELO DA LEI.' }],
+  },
+  seal: {
+    intro: { en: 'Read the new laws.', pt: 'Leia as leis novas. Depois, suba: cada acerto deixa o selo mais forte.' },
+    lines: [
+      { en: 'Nexy can jump.', pt: 'A Nexy pode pular.' },
+      { en: "The Warden can't fly.", pt: 'O Guardião não pode voar.' },
+      { en: 'Can you see? Yes, I can.', pt: 'Você consegue ver? Sim, consigo. (resposta curta: YES, I CAN)' },
+      { en: 'Yesterday, the Warden could fly.', pt: 'Ontem, o Guardião PODIA voar. COULD = o CAN de ontem.', fresh: 'COULD' },
+    ],
+    climb: [
+      { level: 'A2', q: 'The Warden has no wings now. It ___ fly.', options: ["can't", 'can', 'is'], answer: 0, tip: "Sem asas, ele NÃO PODE voar: CAN'T." },
+      { level: 'A2+', q: 'Can Nexy jump?', options: ['Yes, she can.', 'Yes, she is.', 'Yes, she cans.'], answer: 0, tip: 'Resposta curta com CAN: YES, SHE CAN. O CAN nunca ganha -S.' },
+      { level: 'B1', q: "Yesterday the eyes ___ see. Today they can't.", options: ['could', 'can', 'were'], answer: 0, tip: 'YESTERDAY = ontem: o CAN de ontem é COULD.' },
+    ],
+    tiers: [
+      { name: 'IRON SEAL', pt: 'Selo de Ferro', info: 'Pulo duplo: no ar, aperte o pulo de novo (do Forte em diante).', k: 0.6 },
+      { name: 'STEEL SEAL', pt: 'Selo de Aço', info: '+ o segundo pulo fica mais alto.', k: 0.72 },
+      { name: 'SILVER SEAL', pt: 'Selo de Prata', info: '+ mais alto ainda.', k: 0.84 },
+      { name: 'CROWN SEAL', pt: 'Selo da Coroa', info: '+ o segundo pulo é quase um pulo inteiro.', k: 0.95 },
+    ],
+  },
 };
 // o SENTINELA (o chefe da 1-3): a cada rodada o núcleo fica num lugar diferente perto do escudo.
 // Quem diz no terminal onde ele está (IT IS UNDER THE SHIELD) abre o escudo por 'open' s; sem inglês, ele esquenta
@@ -457,7 +548,7 @@ const WORLDS = {
       { id: 'palace', label: 'TO BE', name: 'TO BE PALACE', x: 250, y: 455, icon: 'palace' },
       { id: '1-3', label: '1-3', name: 'WHERE IS IT?', x: 560, y: 340, icon: 'tower' },
       { id: 'ghost', label: 'PUSH?', name: 'PUSH OR PULL?', x: 470, y: 180, icon: 'ghost' },
-      { id: 'fortress', label: 'FORT', name: 'FORTRESS', x: 700, y: 250, icon: 'fortress' },
+      { id: 'fortress', label: 'FORT', name: 'CAN YOU?', x: 700, y: 250, icon: 'fortress' },
       { id: 'castle', label: 'CASTLE', name: 'THE CASTLE', x: 840, y: 150, icon: 'castle' },
     ],
     // pts = pontos intermediários do caminho (curvas); unlock = [fase, saída]
@@ -505,7 +596,7 @@ const Save = {
   defaults() {
     return {
       grimoire: { words: {}, creatures: {}, master: {} },
-      exits: {}, bestFluency: {}, letters: {}, cleared: {}, heart: { best: -1, by: {}, ring: false, compass: 0 }, met: {}, shot: { best: -1 }, goldCard: false,
+      exits: {}, bestFluency: {}, letters: {}, cleared: {}, heart: { best: -1, by: {}, ring: false, compass: 0, seal: 0 }, met: {}, shot: { best: -1 }, goldCard: false,
       map: { at: '1-1', revealed: {} },
       flags: { palaces: { toBe: false } },
       assist: { slow: false, safeFall: false, freeHints: false, subtitles: false, voice: false, classic: false },
@@ -525,7 +616,7 @@ const Save = {
           Object.assign(d.exits, s.exits); Object.assign(d.bestFluency, s.bestFluency);
           Object.assign(d.letters, s.letters); Object.assign(d.cleared, s.cleared);
           Object.assign(d.met, s.met);
-          if (s.heart) { d.heart.best = s.heart.best != null ? s.heart.best : -1; Object.assign(d.heart.by, s.heart.by); d.heart.ring = !!s.heart.ring; d.heart.compass = s.heart.compass | 0; }
+          if (s.heart) { d.heart.best = s.heart.best != null ? s.heart.best : -1; Object.assign(d.heart.by, s.heart.by); d.heart.ring = !!s.heart.ring; d.heart.compass = s.heart.compass | 0; d.heart.seal = s.heart.seal | 0; }
           if (s.shot && s.shot.best != null) d.shot.best = s.shot.best;
           d.goldCard = !!s.goldCard;
           if (s.map) { if (s.map.at) d.map.at = s.map.at; Object.assign(d.map.revealed, s.map.revealed); }
@@ -587,4 +678,4 @@ const normalizeSentence = s => String(s).toLowerCase()
   .replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ').trim();
 const $ = id => document.getElementById(id);
 // rótulo da fase: 'WORLD 1-2'; fases com nome (o palácio) ficam só com o número do mundo
-const levelTag = L => 'WORLD ' + (/^\d/.test(L.id) ? L.id : L.world);
+const levelTag = L => L.tag || 'WORLD ' + (/^\d/.test(L.id) ? L.id : L.world);

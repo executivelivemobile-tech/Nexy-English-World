@@ -10,7 +10,7 @@
 const CHARGE_T = 0.75;   // segurar o tiro por este tempo carrega o laser
 const Power = {
   bolts: [], cool: 0, hold: 0, charged: false, shotT: 0, aimV: { x: 1, y: 0 },
-  reset() { this.bolts = []; this.cool = 0; this.hold = 0; this.charged = false; this.shotT = 0; this.aimV = { x: 1, y: 0 }; EnemyFire.list = []; },
+  reset() { this.bolts = []; this.cool = 0; this.hold = 0; this.charged = false; this.shotT = 0; this.aimV = { x: 1, y: 0 }; EnemyFire.list = []; FortPower.reset(); },
   respawn() { this.reset(); if (Sentinel.ent) Sentinel.sleep(Sentinel.ent); },
   give(kind, e) {
     const D = POWERS[kind]; if (!D) return;
@@ -39,7 +39,10 @@ const Power = {
     });
   },
   /* ---------- o tiro: F / Y / SHOT ---------- */
-  press() { return P.power === 'laser' ? this.shoot(false) : EchoShot.fire(); },
+  press() {
+    const k = P.power;
+    return k === 'laser' ? this.shoot(false) : k === 'fire' ? FortPower.fire() : k === 'hammer' ? FortPower.swing() : k === 'clock' ? FortPower.stop() : EchoShot.fire();
+  },
   holding() { return Input.get('shoot') || !!Input.touchHeld.shot; },
   ready() { return Game.state === 'play' && !P.dead && P.power === 'laser' && !P.held; },
   // para onde o braço aponta: as setas seguradas (8 direções); no toque, o alvo mais perto à frente
@@ -116,6 +119,7 @@ const Power = {
     }
     this.bolts = this.bolts.filter(b => b.life > 0);
     EnemyFire.update(dt);
+    FortPower.update(dt);   // o fogo e o martelo do Forte
   },
   hitEnemy(e, b) {
     const dir = sign(b.vx) || P.facing, cx = e.x + e.w / 2, cy = e.y + e.h / 2;
@@ -153,6 +157,7 @@ const Power = {
       const blink = P.starT < 2 && Math.floor(P.starT * 8) % 2;
       if (!blink) { R.draw(R.glow('t', 64), px + P.w / 2, py + P.h / 2, 1.2 + 0.1 * Math.sin(t * 20), 0.9, true); R.draw(R.glow(Math.floor(t * 10) % 2 ? 'm' : 'c', 48), px + P.w / 2, py + P.h / 2, 1.3, 0.5, true); }
     }
+    FortPower.drawFront(ctx, camX, camY, a);
     if (P.power !== 'laser') return;
     const dir = P.facing, av = this.aimV, ang = Math.atan2(av.y, Math.abs(av.x)), kick = this.shotT > 0 ? -2 : 0;
     const hx = px + P.w / 2 + dir * (11 * Math.max(0.35, Math.abs(av.x)) + kick * Math.abs(av.x)), hy = py + P.h * (P.crouch ? 0.5 : 0.42) + av.y * (6 + kick);
@@ -176,6 +181,7 @@ const Power = {
         ctx.save(); ctx.translate(x, y); ctx.rotate(Math.atan2(b.vy, b.vx)); capsulePath(ctx, -4, 0, 18, 5); ctx.fillStyle = '#fff'; ctx.fill(); ctx.restore();
       }
     }
+    FortPower.drawShots(ctx, camX, camY);
     EnemyFire.draw(ctx, camX, camY);
   },
   // o ícone do poder (bloco, Grimório, HUD)
@@ -185,6 +191,7 @@ const Power = {
     ctx.beginPath(); ctx.arc(0, 0, 12, 0, Math.PI * 2); ctx.fillStyle = 'rgba(12,4,16,0.95)'; ctx.fill(); ctx.strokeStyle = '#f0abfc'; ctx.lineWidth = 1.4; ctx.stroke();
     ctx.strokeStyle = '#ffffff'; ctx.fillStyle = '#ffffff'; ctx.lineWidth = 1.6; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     if (kind === 'laser') { rrect(ctx, -7, -3, 9, 6, 2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(3, 0); ctx.lineTo(8, 0); ctx.moveTo(5, -4); ctx.lineTo(8, -6); ctx.moveTo(5, 4); ctx.lineTo(8, 6); ctx.stroke(); }
+    else if (FortPower.icon(ctx, kind)) { /* FIRE, HAMMER, CLOCK */ }
     else if (kind === 'wings') { for (const d of [-1, 1]) { ctx.beginPath(); ctx.moveTo(0, 2); ctx.quadraticCurveTo(d * 5, -7, d * 9, -4); ctx.lineTo(d * 6, 0); ctx.lineTo(d * 8, 3); ctx.quadraticCurveTo(d * 3, 5, 0, 2); ctx.stroke(); } }
     else { ctx.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 3.6 : 8; ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r); } ctx.closePath(); ctx.fill(); }
     ctx.restore();

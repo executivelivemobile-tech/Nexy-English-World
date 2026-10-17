@@ -206,6 +206,78 @@
    ],
    "from": "door-5"
   },
+  "door:can": {
+   "file": "door/can.mp3",
+   "text": "can",
+   "dur": 0.78,
+   "b": [
+    [
+     0,
+     0.12
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:can the eyes see you": {
+   "file": "door/can-the-eyes-see-you.mp3",
+   "text": "Can the eyes see you?",
+   "dur": 2.15,
+   "b": [
+    [
+     0,
+     0.09
+    ],
+    [
+     4,
+     0.44
+    ],
+    [
+     8,
+     0.72
+    ],
+    [
+     13,
+     1.48
+    ],
+    [
+     17,
+     1.69
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:can't": {
+   "file": "door/cant.mp3",
+   "text": "can't",
+   "dur": 0.9,
+   "b": [
+    [
+     0,
+     0.1
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:can't can not": {
+   "file": "door/cant-can-not.mp3",
+   "text": "Can't. Can not.",
+   "dur": 3.13,
+   "b": [
+    [
+     0,
+     0.06
+    ],
+    [
+     7,
+     1.15
+    ],
+    [
+     11,
+     2.02
+    ]
+   ],
+   "from": "door-1"
+  },
   "door:card": {
    "file": "door/card.mp3",
    "text": "card",
@@ -218,6 +290,18 @@
    ],
    "from": "door-1"
   },
+  "door:clock": {
+   "file": "door/clock.mp3",
+   "text": "clock",
+   "dur": 1.47,
+   "b": [
+    [
+     0,
+     0.03
+    ]
+   ],
+   "from": "door-3"
+  },
   "door:core": {
    "file": "door/core.mp3",
    "text": "core",
@@ -229,6 +313,18 @@
     ]
    ],
    "from": "door-2"
+  },
+  "door:could": {
+   "file": "door/could.mp3",
+   "text": "could",
+   "dur": 0.79,
+   "b": [
+    [
+     0,
+     0.07
+    ]
+   ],
+   "from": "door-3"
   },
   "door:dark": {
    "file": "door/dark.mp3",
@@ -254,6 +350,30 @@
    ],
    "from": "door-4"
   },
+  "door:eyes": {
+   "file": "door/eyes.mp3",
+   "text": "eyes",
+   "dur": 1.24,
+   "b": [
+    [
+     0,
+     0.03
+    ]
+   ],
+   "from": "door-3"
+  },
+  "door:fall": {
+   "file": "door/fall.mp3",
+   "text": "fall",
+   "dur": 0.91,
+   "b": [
+    [
+     0,
+     0.2
+    ]
+   ],
+   "from": "door-2"
+  },
   "door:fine": {
    "file": "door/fine.mp3",
    "text": "fine",
@@ -265,6 +385,42 @@
     ]
    ],
    "from": "door-4"
+  },
+  "door:fire": {
+   "file": "door/fire.mp3",
+   "text": "fire",
+   "dur": 0.95,
+   "b": [
+    [
+     0,
+     0.03
+    ]
+   ],
+   "from": "door-3"
+  },
+  "door:floor": {
+   "file": "door/floor.mp3",
+   "text": "floor",
+   "dur": 1.09,
+   "b": [
+    [
+     0,
+     0.17
+    ]
+   ],
+   "from": "door-3"
+  },
+  "door:fly": {
+   "file": "door/fly.mp3",
+   "text": "fly",
+   "dur": 0.83,
+   "b": [
+    [
+     0,
+     0.1
+    ]
+   ],
+   "from": "door-2"
   },
   "door:friend": {
    "file": "door/friend.mp3",
@@ -289,6 +445,18 @@
     ]
    ],
    "from": "door-2"
+  },
+  "door:hammer": {
+   "file": "door/hammer.mp3",
+   "text": "hammer",
+   "dur": 2.13,
+   "b": [
+    [
+     0,
+     0.03
+    ]
+   ],
+   "from": "door-3"
   },
   "door:he": {
    "file": "door/he.mp3",
@@ -658,6 +826,66 @@
    ],
    "from": "door-1"
   },
+  "door:i can jump": {
+   "file": "door/i-can-jump.mp3",
+   "text": "I can jump.",
+   "dur": 1.28,
+   "b": [
+    [
+     0,
+     0.2
+    ],
+    [
+     2,
+     0.41
+    ],
+    [
+     6,
+     0.76
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:i can see": {
+   "file": "door/i-can-see.mp3",
+   "text": "I can see.",
+   "dur": 1.41,
+   "b": [
+    [
+     0,
+     0.26
+    ],
+    [
+     2,
+     0.47
+    ],
+    [
+     6,
+     0.82
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:i can't jump": {
+   "file": "door/i-cant-jump.mp3",
+   "text": "I can't jump.",
+   "dur": 1.44,
+   "b": [
+    [
+     0,
+     0.15
+    ],
+    [
+     2,
+     0.36
+    ],
+    [
+     8,
+     0.92
+    ]
+   ],
+   "from": "door-1"
+  },
   "door:i is big": {
    "file": "door/i-is-big.mp3",
    "text": "I is big.",
@@ -746,6 +974,18 @@
     [
      9,
      0.95
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:iron": {
+   "file": "door/iron.mp3",
+   "text": "iron",
+   "dur": 0.9,
+   "b": [
+    [
+     0,
+     0.19
     ]
    ],
    "from": "door-2"
@@ -1502,6 +1742,18 @@
    ],
    "from": "door-1"
   },
+  "door:jump": {
+   "file": "door/jump.mp3",
+   "text": "jump",
+   "dur": 0.74,
+   "b": [
+    [
+     0,
+     0.28
+    ]
+   ],
+   "from": "door-2"
+  },
   "door:key": {
    "file": "door/key.mp3",
    "text": "key",
@@ -1553,6 +1805,18 @@
     ]
    ],
    "from": "door-1"
+  },
+  "door:move": {
+   "file": "door/move.mp3",
+   "text": "move",
+   "dur": 0.99,
+   "b": [
+    [
+     0,
+     0.26
+    ]
+   ],
+   "from": "door-2"
   },
   "door:next": {
    "file": "door/next.mp3",
@@ -1830,6 +2094,118 @@
    ],
    "from": "door-2"
   },
+  "door:no it can": {
+   "file": "door/no-it-can.mp3",
+   "text": "No, it can.",
+   "dur": 2.71,
+   "b": [
+    [
+     0,
+     0.03
+    ],
+    [
+     4,
+     1.36
+    ],
+    [
+     7,
+     2.02
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:no it can't": {
+   "file": "door/no-it-cant.mp3",
+   "text": "No, it can't.",
+   "dur": 2.59,
+   "b": [
+    [
+     0,
+     0.03
+    ],
+    [
+     4,
+     1.23
+    ],
+    [
+     7,
+     1.89
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:no they can": {
+   "file": "door/no-they-can.mp3",
+   "text": "No, they can.",
+   "dur": 2.66,
+   "b": [
+    [
+     0,
+     0.03
+    ],
+    [
+     4,
+     1.18
+    ],
+    [
+     9,
+     1.88
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:no they can't": {
+   "file": "door/no-they-cant.mp3",
+   "text": "No, they can't.",
+   "dur": 2.37,
+   "b": [
+    [
+     0,
+     0.12
+    ],
+    [
+     4,
+     0.97
+    ],
+    [
+     9,
+     1.53
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:nobody": {
+   "file": "door/nobody.mp3",
+   "text": "nobody",
+   "dur": 1.15,
+   "b": [
+    [
+     0,
+     0.14
+    ]
+   ],
+   "from": "door-3"
+  },
+  "door:nobody can see": {
+   "file": "door/nobody-can-see.mp3",
+   "text": "Nobody can see.",
+   "dur": 1.81,
+   "b": [
+    [
+     0,
+     0.17
+    ],
+    [
+     7,
+     0.94
+    ],
+    [
+     11,
+     1.29
+    ]
+   ],
+   "from": "door-1"
+  },
   "door:not": {
    "file": "door/not.mp3",
    "text": "not",
@@ -1862,6 +2238,30 @@
     [
      0,
      0.34
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:rise": {
+   "file": "door/rise.mp3",
+   "text": "rise",
+   "dur": 1,
+   "b": [
+    [
+     0,
+     0.2
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:see": {
+   "file": "door/see.mp3",
+   "text": "see",
+   "dur": 0.86,
+   "b": [
+    [
+     0,
+     0.37
     ]
    ],
    "from": "door-2"
@@ -1922,6 +2322,18 @@
     [
      0,
      0.27
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:stones": {
+   "file": "door/stones.mp3",
+   "text": "stones",
+   "dur": 1.12,
+   "b": [
+    [
+     0,
+     0.18
     ]
    ],
    "from": "door-2"
@@ -2590,6 +3002,246 @@
    ],
    "from": "door-1"
   },
+  "door:the floor can move": {
+   "file": "door/the-floor-can-move.mp3",
+   "text": "The floor can move.",
+   "dur": 1.78,
+   "b": [
+    [
+     0,
+     0.08
+    ],
+    [
+     4,
+     0.29
+    ],
+    [
+     10,
+     0.77
+    ],
+    [
+     14,
+     1.19
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:the floor can't move": {
+   "file": "door/the-floor-cant-move.mp3",
+   "text": "The floor can't move.",
+   "dur": 1.98,
+   "b": [
+    [
+     0,
+     0.09
+    ],
+    [
+     4,
+     0.3
+    ],
+    [
+     10,
+     0.86
+    ],
+    [
+     16,
+     1.34
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:the iron can rise": {
+   "file": "door/the-iron-can-rise.mp3",
+   "text": "The iron can rise.",
+   "dur": 2.52,
+   "b": [
+    [
+     0,
+     0.22
+    ],
+    [
+     4,
+     0.5
+    ],
+    [
+     9,
+     1.33
+    ],
+    [
+     13,
+     1.75
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:the iron can't rise": {
+   "file": "door/the-iron-cant-rise.mp3",
+   "text": "The iron can't rise.",
+   "dur": 2.56,
+   "b": [
+    [
+     0,
+     0.23
+    ],
+    [
+     4,
+     0.44
+    ],
+    [
+     9,
+     1.34
+    ],
+    [
+     15,
+     1.9
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:the stones can fall": {
+   "file": "door/the-stones-can-fall.mp3",
+   "text": "The stones can fall.",
+   "dur": 1.87,
+   "b": [
+    [
+     0,
+     0.13
+    ],
+    [
+     4,
+     0.27
+    ],
+    [
+     11,
+     0.96
+    ],
+    [
+     15,
+     1.24
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:the stones can move": {
+   "file": "door/the-stones-can-move.mp3",
+   "text": "The stones can move.",
+   "dur": 1.92,
+   "b": [
+    [
+     0,
+     0.15
+    ],
+    [
+     4,
+     0.29
+    ],
+    [
+     11,
+     0.99
+    ],
+    [
+     15,
+     1.19
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:the stones can't fall": {
+   "file": "door/the-stones-cant-fall.mp3",
+   "text": "The stones can't fall.",
+   "dur": 1.87,
+   "b": [
+    [
+     0,
+     0.09
+    ],
+    [
+     4,
+     0.23
+    ],
+    [
+     11,
+     0.86
+    ],
+    [
+     17,
+     1.28
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:the stones can't move": {
+   "file": "door/the-stones-cant-move.mp3",
+   "text": "The stones can't move.",
+   "dur": 2.14,
+   "b": [
+    [
+     0,
+     0.06
+    ],
+    [
+     4,
+     0.27
+    ],
+    [
+     11,
+     0.96
+    ],
+    [
+     17,
+     1.38
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:the warden can fly": {
+   "file": "door/the-warden-can-fly.mp3",
+   "text": "The warden can fly.",
+   "dur": 2.91,
+   "b": [
+    [
+     0,
+     0.03
+    ],
+    [
+     4,
+     0.97
+    ],
+    [
+     11,
+     1.74
+    ],
+    [
+     15,
+     2.09
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:the warden can't fly": {
+   "file": "door/the-warden-cant-fly.mp3",
+   "text": "The warden can't fly.",
+   "dur": 2.17,
+   "b": [
+    [
+     0,
+     0.07
+    ],
+    [
+     4,
+     0.21
+    ],
+    [
+     11,
+     1.05
+    ],
+    [
+     17,
+     1.81
+    ]
+   ],
+   "from": "door-1"
+  },
   "door:they": {
    "file": "door/they.mp3",
    "text": "they",
@@ -2681,6 +3333,26 @@
     ]
    ],
    "from": "door-2"
+  },
+  "door:they can see": {
+   "file": "door/they-can-see.mp3",
+   "text": "They can see.",
+   "dur": 1.75,
+   "b": [
+    [
+     0,
+     0.23
+    ],
+    [
+     5,
+     0.65
+    ],
+    [
+     9,
+     1
+    ]
+   ],
+   "from": "door-1"
   },
   "door:they is big": {
    "file": "door/they-is-big.mp3",
@@ -2882,6 +3554,18 @@
    ],
    "from": "door-2"
   },
+  "door:warden": {
+   "file": "door/warden.mp3",
+   "text": "warden",
+   "dur": 0.91,
+   "b": [
+    [
+     0,
+     0.18
+    ]
+   ],
+   "from": "door-2"
+  },
   "door:was": {
    "file": "door/was.mp3",
    "text": "was",
@@ -2985,6 +3669,26 @@
     ]
    ],
    "from": "door-3"
+  },
+  "door:we can see": {
+   "file": "door/we-can-see.mp3",
+   "text": "We can see.",
+   "dur": 1.52,
+   "b": [
+    [
+     0,
+     0.23
+    ],
+    [
+     3,
+     0.58
+    ],
+    [
+     7,
+     0.93
+    ]
+   ],
+   "from": "door-1"
   },
   "door:we is big": {
    "file": "door/we-is-big.mp3",
@@ -3342,6 +4046,46 @@
    ],
    "from": "door-2"
   },
+  "door:yes it can": {
+   "file": "door/yes-it-can.mp3",
+   "text": "Yes, it can.",
+   "dur": 2.33,
+   "b": [
+    [
+     0,
+     0.17
+    ],
+    [
+     5,
+     1.36
+    ],
+    [
+     8,
+     1.7
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:yes it can't": {
+   "file": "door/yes-it-cant.mp3",
+   "text": "Yes, it can't.",
+   "dur": 2.49,
+   "b": [
+    [
+     0,
+     0.03
+    ],
+    [
+     5,
+     1.17
+    ],
+    [
+     8,
+     1.73
+    ]
+   ],
+   "from": "door-2"
+  },
   "door:yes it is": {
    "file": "door/yes-it-is.mp3",
    "text": "Yes, it is.",
@@ -3358,6 +4102,46 @@
     [
      8,
      1
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:yes they can": {
+   "file": "door/yes-they-can.mp3",
+   "text": "Yes, they can.",
+   "dur": 2.26,
+   "b": [
+    [
+     0,
+     0.06
+    ],
+    [
+     5,
+     0.91
+    ],
+    [
+     10,
+     1.5
+    ]
+   ],
+   "from": "door-2"
+  },
+  "door:yes they can't": {
+   "file": "door/yes-they-cant.mp3",
+   "text": "Yes, they can't.",
+   "dur": 2.63,
+   "b": [
+    [
+     0,
+     0.03
+    ],
+    [
+     5,
+     1.24
+    ],
+    [
+     10,
+     1.87
     ]
    ],
    "from": "door-2"
@@ -3626,6 +4410,46 @@
    ],
    "from": "door-3"
   },
+  "door:you can see": {
+   "file": "door/you-can-see.mp3",
+   "text": "You can see.",
+   "dur": 1.4,
+   "b": [
+    [
+     0,
+     0.18
+    ],
+    [
+     4,
+     0.53
+    ],
+    [
+     8,
+     0.81
+    ]
+   ],
+   "from": "door-1"
+  },
+  "door:you can't jump": {
+   "file": "door/you-cant-jump.mp3",
+   "text": "You can't jump.",
+   "dur": 1.61,
+   "b": [
+    [
+     0,
+     0.12
+    ],
+    [
+     4,
+     0.6
+    ],
+    [
+     10,
+     1.16
+    ]
+   ],
+   "from": "door-1"
+  },
   "door:you is big": {
    "file": "door/you-is-big.mp3",
    "text": "You is big.",
@@ -3677,6 +4501,58 @@
     ]
    ],
    "from": "echo-3"
+  },
+  "echo:a bat look out": {
+   "file": "echo/a-bat-look-out.mp3",
+   "text": "A bat! Look out!",
+   "dur": 1.74,
+   "b": [
+    [
+     0,
+     0.08
+    ],
+    [
+     2,
+     0.24
+    ],
+    [
+     7,
+     0.96
+    ],
+    [
+     12,
+     1.2
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:a clock stop the time": {
+   "file": "echo/a-clock-stop-the-time.mp3",
+   "text": "A clock! Stop the time!",
+   "dur": 3.14,
+   "b": [
+    [
+     0,
+     0.58
+    ],
+    [
+     2,
+     0.74
+    ],
+    [
+     9,
+     1.54
+    ],
+    [
+     14,
+     1.86
+    ],
+    [
+     18,
+     2.02
+    ]
+   ],
+   "from": "echo-1"
   },
   "echo:a door": {
    "file": "echo/a-door.mp3",
@@ -3754,6 +4630,30 @@
    ],
    "from": "echo-1"
   },
+  "echo:a hammer press f": {
+   "file": "echo/a-hammer-press-f.mp3",
+   "text": "A hammer! Press F.",
+   "dur": 2.7,
+   "b": [
+    [
+     0,
+     0.56
+    ],
+    [
+     2,
+     0.64
+    ],
+    [
+     10,
+     1.36
+    ],
+    [
+     16,
+     1.84
+    ]
+   ],
+   "from": "echo-1"
+  },
   "echo:a hole has no behind": {
    "file": "echo/a-hole-has-no-behind.mp3",
    "text": "A hole has no behind!",
@@ -3813,6 +4713,38 @@
     ]
    ],
    "from": "echo-2"
+  },
+  "echo:a new law read the tablet": {
+   "file": "echo/a-new-law-read-the-tablet.mp3",
+   "text": "A new law! Read the tablet.",
+   "dur": 3.31,
+   "b": [
+    [
+     0,
+     0.61
+    ],
+    [
+     2,
+     0.71
+    ],
+    [
+     6,
+     1.03
+    ],
+    [
+     11,
+     1.67
+    ],
+    [
+     16,
+     1.91
+    ],
+    [
+     20,
+     2.07
+    ]
+   ],
+   "from": "echo-1"
   },
   "echo:a star run": {
    "file": "echo/a-star-run.mp3",
@@ -3898,6 +4830,38 @@
    ],
    "from": "echo-4"
   },
+  "echo:answer short no they can not": {
+   "file": "echo/answer-short-no-they-can-not.mp3",
+   "text": "Answer short: no, they can not.",
+   "dur": 2.86,
+   "b": [
+    [
+     0,
+     0.26
+    ],
+    [
+     7,
+     0.66
+    ],
+    [
+     14,
+     1.38
+    ],
+    [
+     18,
+     1.94
+    ],
+    [
+     23,
+     2.1
+    ],
+    [
+     27,
+     2.26
+    ]
+   ],
+   "from": "echo-3"
+  },
   "echo:are": {
    "file": "echo/are.mp3",
    "text": "are",
@@ -3937,6 +4901,18 @@
     ]
    ],
    "from": "echo-2"
+  },
+  "echo:bat": {
+   "file": "echo/bat.mp3",
+   "text": "Bat",
+   "dur": 0.71,
+   "b": [
+    [
+     0,
+     0.26
+    ]
+   ],
+   "from": "echo-4"
   },
   "echo:because": {
    "file": "echo/because.mp3",
@@ -4142,6 +5118,106 @@
    ],
    "from": "echo-2"
   },
+  "echo:can": {
+   "file": "echo/can.mp3",
+   "text": "can",
+   "dur": 0.73,
+   "b": [
+    [
+     0,
+     0.17
+    ]
+   ],
+   "from": "echo-3"
+  },
+  "echo:can or can't": {
+   "file": "echo/can-or-cant.mp3",
+   "text": "Can, or can't?",
+   "dur": 1.48,
+   "b": [
+    [
+     0,
+     0.07
+    ],
+    [
+     5,
+     0.47
+    ],
+    [
+     8,
+     0.71
+    ]
+   ],
+   "from": "echo-2"
+  },
+  "echo:can't": {
+   "file": "echo/cant.mp3",
+   "text": "can't",
+   "dur": 1.33,
+   "b": [
+    [
+     0,
+     0.48
+    ]
+   ],
+   "from": "echo-3"
+  },
+  "echo:can't then the stone wins": {
+   "file": "echo/cant-then-the-stone-wins.mp3",
+   "text": "Can't? Then the stone wins!",
+   "dur": 2.94,
+   "b": [
+    [
+     0,
+     0.34
+    ],
+    [
+     7,
+     1.46
+    ],
+    [
+     12,
+     1.62
+    ],
+    [
+     16,
+     1.9
+    ],
+    [
+     22,
+     2.26
+    ]
+   ],
+   "from": "echo-3"
+  },
+  "echo:can't then the warden wins": {
+   "file": "echo/cant-then-the-warden-wins.mp3",
+   "text": "Can't? Then the Warden wins!",
+   "dur": 2.83,
+   "b": [
+    [
+     0,
+     0.06
+    ],
+    [
+     7,
+     1.1
+    ],
+    [
+     12,
+     1.26
+    ],
+    [
+     16,
+     1.42
+    ],
+    [
+     23,
+     1.82
+    ]
+   ],
+   "from": "echo-2"
+  },
   "echo:card": {
    "file": "echo/card.mp3",
    "text": "card",
@@ -4154,6 +5230,26 @@
    ],
    "from": "echo-1"
   },
+  "echo:change the law": {
+   "file": "echo/change-the-law.mp3",
+   "text": "Change the law!",
+   "dur": 2.02,
+   "b": [
+    [
+     0,
+     0.67
+    ],
+    [
+     7,
+     0.81
+    ],
+    [
+     11,
+     0.97
+    ]
+   ],
+   "from": "echo-1"
+  },
   "echo:city": {
    "file": "echo/city.mp3",
    "text": "city",
@@ -4162,6 +5258,18 @@
     [
      0,
      0.2
+    ]
+   ],
+   "from": "echo-4"
+  },
+  "echo:clock": {
+   "file": "echo/clock.mp3",
+   "text": "clock",
+   "dur": 1.17,
+   "b": [
+    [
+     0,
+     0.15
     ]
    ],
    "from": "echo-4"
@@ -4197,6 +5305,18 @@
     ]
    ],
    "from": "echo-2"
+  },
+  "echo:could": {
+   "file": "echo/could.mp3",
+   "text": "could",
+   "dur": 0.83,
+   "b": [
+    [
+     0,
+     0.62
+    ]
+   ],
+   "from": "echo-4"
   },
   "echo:crawler": {
    "file": "echo/crawler.mp3",
@@ -4326,6 +5446,30 @@
    ],
    "from": "echo-4"
   },
+  "echo:eyes": {
+   "file": "echo/eyes.mp3",
+   "text": "eyes",
+   "dur": 1.14,
+   "b": [
+    [
+     0,
+     0.58
+    ]
+   ],
+   "from": "echo-3"
+  },
+  "echo:fall": {
+   "file": "echo/fall.mp3",
+   "text": "fall",
+   "dur": 0.85,
+   "b": [
+    [
+     0,
+     0.28
+    ]
+   ],
+   "from": "echo-3"
+  },
   "echo:finds": {
    "file": "echo/finds.mp3",
    "text": "finds",
@@ -4349,6 +5493,62 @@
     ]
    ],
    "from": "echo-3"
+  },
+  "echo:fire": {
+   "file": "echo/fire.mp3",
+   "text": "fire",
+   "dur": 1.04,
+   "b": [
+    [
+     0,
+     0.17
+    ]
+   ],
+   "from": "echo-4"
+  },
+  "echo:fire press f": {
+   "file": "echo/fire-press-f.mp3",
+   "text": "Fire! Press F.",
+   "dur": 2.53,
+   "b": [
+    [
+     0,
+     0.45
+    ],
+    [
+     6,
+     1.17
+    ],
+    [
+     12,
+     1.73
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:floor": {
+   "file": "echo/floor.mp3",
+   "text": "floor",
+   "dur": 1.04,
+   "b": [
+    [
+     0,
+     0.62
+    ]
+   ],
+   "from": "echo-3"
+  },
+  "echo:fly": {
+   "file": "echo/fly.mp3",
+   "text": "fly",
+   "dur": 0.83,
+   "b": [
+    [
+     0,
+     0.13
+    ]
+   ],
+   "from": "echo-4"
   },
   "echo:flyer": {
    "file": "echo/flyer.mp3",
@@ -4437,6 +5637,18 @@
     ]
    ],
    "from": "echo-3"
+  },
+  "echo:hammer": {
+   "file": "echo/hammer.mp3",
+   "text": "hammer",
+   "dur": 0.87,
+   "b": [
+    [
+     0,
+     0.11
+    ]
+   ],
+   "from": "echo-4"
   },
   "echo:he": {
    "file": "echo/he.mp3",
@@ -4758,6 +5970,38 @@
    ],
    "from": "echo-1"
   },
+  "echo:i can not see the tablet": {
+   "file": "echo/i-can-not-see-the-tablet.mp3",
+   "text": "I can not see! The tablet!",
+   "dur": 2.68,
+   "b": [
+    [
+     0,
+     0.16
+    ],
+    [
+     2,
+     0.24
+    ],
+    [
+     6,
+     0.48
+    ],
+    [
+     10,
+     0.88
+    ],
+    [
+     15,
+     1.68
+    ],
+    [
+     19,
+     1.84
+    ]
+   ],
+   "from": "echo-2"
+  },
   "echo:i can see the past": {
    "file": "echo/i-can-see-the-past.mp3",
    "text": "I can see the past!",
@@ -4934,6 +6178,50 @@
    ],
    "from": "echo-1"
   },
+  "echo:iron": {
+   "file": "echo/iron.mp3",
+   "text": "iron",
+   "dur": 0.94,
+   "b": [
+    [
+     0,
+     0.34
+    ]
+   ],
+   "from": "echo-3"
+  },
+  "echo:iron eye": {
+   "file": "echo/iron-eye.mp3",
+   "text": "Iron eye",
+   "dur": 1.06,
+   "b": [
+    [
+     0,
+     0.1
+    ],
+    [
+     5,
+     0.5
+    ]
+   ],
+   "from": "echo-2"
+  },
+  "echo:iron warden": {
+   "file": "echo/iron-warden.mp3",
+   "text": "Iron Warden",
+   "dur": 1.28,
+   "b": [
+    [
+     0,
+     0.08
+    ],
+    [
+     5,
+     0.56
+    ]
+   ],
+   "from": "echo-2"
+  },
   "echo:is": {
    "file": "echo/is.mp3",
    "text": "is",
@@ -4957,6 +6245,58 @@
     ]
    ],
    "from": "echo-3"
+  },
+  "echo:it can fly make it fall": {
+   "file": "echo/it-can-fly-make-it-fall.mp3",
+   "text": "It can fly. Make it fall!",
+   "dur": 2.05,
+   "b": [
+    [
+     0,
+     0.05
+    ],
+    [
+     3,
+     0.21
+    ],
+    [
+     7,
+     0.37
+    ],
+    [
+     12,
+     1.17
+    ],
+    [
+     17,
+     1.41
+    ],
+    [
+     20,
+     1.57
+    ]
+   ],
+   "from": "echo-2"
+  },
+  "echo:it fell now": {
+   "file": "echo/it-fell-now.mp3",
+   "text": "It fell! Now!",
+   "dur": 1.92,
+   "b": [
+    [
+     0,
+     0.65
+    ],
+    [
+     3,
+     0.75
+    ],
+    [
+     9,
+     1.31
+    ]
+   ],
+   "from": "echo-1"
   },
   "echo:it is a card": {
    "file": "echo/it-is-a-card.mp3",
@@ -5230,6 +6570,34 @@
    ],
    "from": "echo-1"
   },
+  "echo:it is the iron warden": {
+   "file": "echo/it-is-the-iron-warden.mp3",
+   "text": "It is the Iron Warden!",
+   "dur": 2.64,
+   "b": [
+    [
+     0,
+     0.49
+    ],
+    [
+     3,
+     0.65
+    ],
+    [
+     6,
+     0.81
+    ],
+    [
+     10,
+     0.97
+    ],
+    [
+     15,
+     1.37
+    ]
+   ],
+   "from": "echo-1"
+  },
   "echo:it is the sentinel": {
    "file": "echo/it-is-the-sentinel.mp3",
    "text": "It is the Sentinel!",
@@ -5342,6 +6710,42 @@
     [
      9,
      0.56
+    ]
+   ],
+   "from": "echo-2"
+  },
+  "echo:jump": {
+   "file": "echo/jump.mp3",
+   "text": "jump",
+   "dur": 1.27,
+   "b": [
+    [
+     0,
+     0.35
+    ]
+   ],
+   "from": "echo-3"
+  },
+  "echo:jump and jump again": {
+   "file": "echo/jump-and-jump-again.mp3",
+   "text": "Jump, and jump again!",
+   "dur": 1.82,
+   "b": [
+    [
+     0,
+     0.06
+    ],
+    [
+     6,
+     0.62
+    ],
+    [
+     10,
+     0.86
+    ],
+    [
+     15,
+     1.1
     ]
    ],
    "from": "echo-2"
@@ -5554,6 +6958,38 @@
    ],
    "from": "echo-1"
   },
+  "echo:look out the stones can fall": {
+   "file": "echo/look-out-the-stones-can-fall.mp3",
+   "text": "Look out! The stones can fall.",
+   "dur": 2.44,
+   "b": [
+    [
+     0,
+     0.37
+    ],
+    [
+     5,
+     0.61
+    ],
+    [
+     10,
+     1.09
+    ],
+    [
+     14,
+     1.25
+    ],
+    [
+     21,
+     1.65
+    ],
+    [
+     25,
+     1.89
+    ]
+   ],
+   "from": "echo-1"
+  },
   "echo:look the cathedral": {
    "file": "echo/look-the-cathedral.mp3",
    "text": "Look! The cathedral.",
@@ -5625,6 +7061,74 @@
     ]
    ],
    "from": "echo-1"
+  },
+  "echo:me and you we": {
+   "file": "echo/me-and-you-we.mp3",
+   "text": "Me? And you! We!",
+   "dur": 2.33,
+   "b": [
+    [
+     0,
+     0.15
+    ],
+    [
+     4,
+     0.95
+    ],
+    [
+     8,
+     1.19
+    ],
+    [
+     13,
+     1.83
+    ]
+   ],
+   "from": "echo-2"
+  },
+  "echo:me too you and me we": {
+   "file": "echo/me-too-you-and-me-we.mp3",
+   "text": "Me too! You and me: we!",
+   "dur": 2.23,
+   "b": [
+    [
+     0,
+     0.06
+    ],
+    [
+     3,
+     0.42
+    ],
+    [
+     8,
+     0.94
+    ],
+    [
+     12,
+     1.1
+    ],
+    [
+     16,
+     1.34
+    ],
+    [
+     20,
+     1.74
+    ]
+   ],
+   "from": "echo-2"
+  },
+  "echo:move": {
+   "file": "echo/move.mp3",
+   "text": "move",
+   "dur": 0.84,
+   "b": [
+    [
+     0,
+     0.52
+    ]
+   ],
+   "from": "echo-3"
   },
   "echo:new path": {
    "file": "echo/new-path.mp3",
@@ -5810,6 +7314,26 @@
    ],
    "from": "echo-1"
   },
+  "echo:no they can't": {
+   "file": "echo/no-they-cant.mp3",
+   "text": "No... they can't!",
+   "dur": 1.92,
+   "b": [
+    [
+     0,
+     0.08
+    ],
+    [
+     6,
+     0.8
+    ],
+    [
+     11,
+     0.96
+    ]
+   ],
+   "from": "echo-3"
+  },
   "echo:nobody": {
    "file": "echo/nobody.mp3",
    "text": "Nobody",
@@ -5833,6 +7357,34 @@
     ]
    ],
    "from": "echo-3"
+  },
+  "echo:not they you and me": {
+   "file": "echo/not-they-you-and-me.mp3",
+   "text": "Not they. You and me!",
+   "dur": 2.47,
+   "b": [
+    [
+     0,
+     0.23
+    ],
+    [
+     4,
+     0.35
+    ],
+    [
+     10,
+     1.23
+    ],
+    [
+     14,
+     1.39
+    ],
+    [
+     18,
+     1.63
+    ]
+   ],
+   "from": "echo-2"
   },
   "echo:not today yesterday": {
    "file": "echo/not-today-yesterday.mp3",
@@ -6170,6 +7722,38 @@
    ],
    "from": "echo-4"
   },
+  "echo:read the stones": {
+   "file": "echo/read-the-stones.mp3",
+   "text": "Read the stones!",
+   "dur": 2.16,
+   "b": [
+    [
+     0,
+     0.14
+    ],
+    [
+     5,
+     0.32
+    ],
+    [
+     9,
+     0.48
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:rise": {
+   "file": "echo/rise.mp3",
+   "text": "rise",
+   "dur": 0.95,
+   "b": [
+    [
+     0,
+     0.47
+    ]
+   ],
+   "from": "echo-3"
+  },
   "echo:say stop": {
    "file": "echo/say-stop.mp3",
    "text": "Say stop!",
@@ -6197,6 +7781,42 @@
     ]
    ],
    "from": "echo-4"
+  },
+  "echo:seal of the law": {
+   "file": "echo/seal-of-the-law.mp3",
+   "text": "Seal of the law",
+   "dur": 2.22,
+   "b": [
+    [
+     0,
+     0.26
+    ],
+    [
+     5,
+     0.64
+    ],
+    [
+     8,
+     0.8
+    ],
+    [
+     12,
+     0.96
+    ]
+   ],
+   "from": "echo-3"
+  },
+  "echo:see": {
+   "file": "echo/see.mp3",
+   "text": "see",
+   "dur": 1.17,
+   "b": [
+    [
+     0,
+     0.34
+    ]
+   ],
+   "from": "echo-3"
   },
   "echo:sentinel": {
    "file": "echo/sentinel.mp3",
@@ -6361,6 +7981,18 @@
     ]
    ],
    "from": "echo-2"
+  },
+  "echo:stones": {
+   "file": "echo/stones.mp3",
+   "text": "stones",
+   "dur": 1.2,
+   "b": [
+    [
+     0,
+     0.34
+    ]
+   ],
+   "from": "echo-3"
   },
   "echo:stop crawler": {
    "file": "echo/stop-crawler.mp3",
@@ -6562,6 +8194,62 @@
    ],
    "from": "echo-2"
   },
+  "echo:the eyes are many they": {
+   "file": "echo/the-eyes-are-many-they.mp3",
+   "text": "The eyes are many. They!",
+   "dur": 2.56,
+   "b": [
+    [
+     0,
+     0.04
+    ],
+    [
+     4,
+     0.28
+    ],
+    [
+     9,
+     0.68
+    ],
+    [
+     13,
+     0.84
+    ],
+    [
+     19,
+     1.88
+    ]
+   ],
+   "from": "echo-3"
+  },
+  "echo:the eyes can see us": {
+   "file": "echo/the-eyes-can-see-us.mp3",
+   "text": "The eyes can see us!",
+   "dur": 1.77,
+   "b": [
+    [
+     0,
+     0.07
+    ],
+    [
+     4,
+     0.23
+    ],
+    [
+     9,
+     0.55
+    ],
+    [
+     13,
+     0.79
+    ],
+    [
+     17,
+     1.11
+    ]
+   ],
+   "from": "echo-1"
+  },
   "echo:the gate is open": {
    "file": "echo/the-gate-is-open.mp3",
    "text": "The gate is open!",
@@ -6582,6 +8270,38 @@
     [
      12,
      0.68
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:the iron can rise up up": {
+   "file": "echo/the-iron-can-rise-up-up.mp3",
+   "text": "The iron can rise! Up, up!",
+   "dur": 2.49,
+   "b": [
+    [
+     0,
+     0.05
+    ],
+    [
+     4,
+     0.21
+    ],
+    [
+     9,
+     0.53
+    ],
+    [
+     13,
+     0.77
+    ],
+    [
+     19,
+     1.57
+    ],
+    [
+     23,
+     2.05
     ]
    ],
    "from": "echo-1"
@@ -6610,6 +8330,126 @@
    ],
    "from": "echo-1"
   },
+  "echo:the law is new": {
+   "file": "echo/the-law-is-new.mp3",
+   "text": "The law is new!",
+   "dur": 1.42,
+   "b": [
+    [
+     0,
+     0.19
+    ],
+    [
+     4,
+     0.28
+    ],
+    [
+     8,
+     0.6
+    ],
+    [
+     11,
+     0.84
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:the stone says that already": {
+   "file": "echo/the-stone-says-that-already.mp3",
+   "text": "The stone says that already!",
+   "dur": 1.83,
+   "b": [
+    [
+     0,
+     0.04
+    ],
+    [
+     4,
+     0.22
+    ],
+    [
+     10,
+     0.62
+    ],
+    [
+     15,
+     0.94
+    ],
+    [
+     20,
+     1.18
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:the stone says you can not jump": {
+   "file": "echo/the-stone-says-you-can-not-jump.mp3",
+   "text": "The stone says you can not jump.",
+   "dur": 2.44,
+   "b": [
+    [
+     0,
+     0.09
+    ],
+    [
+     4,
+     0.25
+    ],
+    [
+     10,
+     0.65
+    ],
+    [
+     15,
+     0.97
+    ],
+    [
+     19,
+     1.13
+    ],
+    [
+     23,
+     1.37
+    ],
+    [
+     27,
+     1.69
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:the stones look down the floor": {
+   "file": "echo/the-stones-look-down-the-floor.mp3",
+   "text": "The stones? Look down: the floor!",
+   "dur": 3.22,
+   "b": [
+    [
+     0,
+     0.04
+    ],
+    [
+     4,
+     0.56
+    ],
+    [
+     12,
+     1.56
+    ],
+    [
+     17,
+     1.8
+    ],
+    [
+     23,
+     2.44
+    ],
+    [
+     27,
+     2.6
+    ]
+   ],
+   "from": "echo-3"
+  },
   "echo:the tower": {
    "file": "echo/the-tower.mp3",
    "text": "The tower.",
@@ -6625,6 +8465,50 @@
     ]
    ],
    "from": "echo-1"
+  },
+  "echo:the warden has no wings now it can't fly": {
+   "file": "echo/the-warden-has-no-wings-now-it-cant-fly.mp3",
+   "text": "The Warden has no wings now. It can't fly.",
+   "dur": 4.64,
+   "b": [
+    [
+     0,
+     0.86
+    ],
+    [
+     4,
+     1.02
+    ],
+    [
+     11,
+     1.42
+    ],
+    [
+     15,
+     1.66
+    ],
+    [
+     18,
+     1.86
+    ],
+    [
+     24,
+     2.22
+    ],
+    [
+     29,
+     2.78
+    ],
+    [
+     32,
+     2.94
+    ],
+    [
+     38,
+     3.26
+    ]
+   ],
+   "from": "echo-2"
   },
   "echo:then": {
    "file": "echo/then.mp3",
@@ -6666,6 +8550,34 @@
     [
      9,
      0.64
+    ]
+   ],
+   "from": "echo-1"
+  },
+  "echo:they can see us back": {
+   "file": "echo/they-can-see-us-back.mp3",
+   "text": "They can see us! Back!",
+   "dur": 1.87,
+   "b": [
+    [
+     0,
+     0.19
+    ],
+    [
+     5,
+     0.47
+    ],
+    [
+     9,
+     0.67
+    ],
+    [
+     13,
+     0.91
+    ],
+    [
+     17,
+     1.31
     ]
    ],
    "from": "echo-1"
@@ -6938,6 +8850,18 @@
    ],
    "from": "echo-2"
   },
+  "echo:warden": {
+   "file": "echo/warden.mp3",
+   "text": "warden",
+   "dur": 0.96,
+   "b": [
+    [
+     0,
+     0.81
+    ]
+   ],
+   "from": "echo-3"
+  },
   "echo:warp card": {
    "file": "echo/warp-card.mp3",
    "text": "Warp card",
@@ -7106,6 +9030,34 @@
    ],
    "from": "echo-1"
   },
+  "echo:what must move the floor": {
+   "file": "echo/what-must-move-the-floor.mp3",
+   "text": "What must move? The floor!",
+   "dur": 2.29,
+   "b": [
+    [
+     0,
+     0.04
+    ],
+    [
+     5,
+     0.32
+    ],
+    [
+     10,
+     0.52
+    ],
+    [
+     16,
+     1.48
+    ],
+    [
+     20,
+     1.64
+    ]
+   ],
+   "from": "echo-3"
+  },
   "echo:where is the box look at the laser": {
    "file": "echo/where-is-the-box-look-at-the-laser.mp3",
    "text": "Where is the box? Look at the laser!",
@@ -7197,6 +9149,38 @@
     ]
    ],
    "from": "echo-1"
+  },
+  "echo:who can see you and me": {
+   "file": "echo/who-can-see-you-and-me.mp3",
+   "text": "Who can see? You and me!",
+   "dur": 2.95,
+   "b": [
+    [
+     0,
+     0.65
+    ],
+    [
+     4,
+     0.8
+    ],
+    [
+     8,
+     1
+    ],
+    [
+     13,
+     1.64
+    ],
+    [
+     17,
+     1.8
+    ],
+    [
+     21,
+     1.96
+    ]
+   ],
+   "from": "echo-2"
   },
   "echo:wings": {
    "file": "echo/wings.mp3",
@@ -7326,6 +9310,26 @@
    ],
    "from": "echo-2"
   },
+  "echo:yes she can": {
+   "file": "echo/yes-she-can.mp3",
+   "text": "Yes, she can.",
+   "dur": 2.83,
+   "b": [
+    [
+     0,
+     0.94
+    ],
+    [
+     5,
+     1.18
+    ],
+    [
+     9,
+     1.42
+    ]
+   ],
+   "from": "echo-2"
+  },
   "echo:yes she is": {
    "file": "echo/yes-she-is.mp3",
    "text": "Yes, she is.",
@@ -7345,6 +9349,26 @@
     ]
    ],
    "from": "echo-1"
+  },
+  "echo:yes they can": {
+   "file": "echo/yes-they-can.mp3",
+   "text": "Yes... they can!",
+   "dur": 1.38,
+   "b": [
+    [
+     0,
+     0.34
+    ],
+    [
+     7,
+     0.56
+    ],
+    [
+     12,
+     0.72
+    ]
+   ],
+   "from": "echo-3"
   },
   "echo:yesterday": {
    "file": "echo/yesterday.mp3",
@@ -7382,6 +9406,46 @@
    ],
    "from": "echo-2"
   },
+  "echo:yesterday the eyes could see today they can't": {
+   "file": "echo/yesterday-the-eyes-could-see-today-they-cant.mp3",
+   "text": "Yesterday the eyes could see. Today they can't.",
+   "dur": 3.9,
+   "b": [
+    [
+     0,
+     0.99
+    ],
+    [
+     10,
+     1.55
+    ],
+    [
+     14,
+     1.71
+    ],
+    [
+     19,
+     2.03
+    ],
+    [
+     25,
+     2.27
+    ],
+    [
+     30,
+     2.75
+    ],
+    [
+     36,
+     3.15
+    ],
+    [
+     41,
+     3.31
+    ]
+   ],
+   "from": "echo-2"
+  },
   "echo:you": {
    "file": "echo/you.mp3",
    "text": "you",
@@ -7393,6 +9457,30 @@
     ]
    ],
    "from": "echo-3"
+  },
+  "echo:you can we can": {
+   "file": "echo/you-can-we-can.mp3",
+   "text": "You can! We can!",
+   "dur": 1.86,
+   "b": [
+    [
+     0,
+     0.14
+    ],
+    [
+     4,
+     0.3
+    ],
+    [
+     9,
+     1.1
+    ],
+    [
+     12,
+     1.34
+    ]
+   ],
+   "from": "echo-2"
   },
   "story:a": {
    "file": "story/a.mp3",
@@ -7526,6 +9614,62 @@
    ],
    "from": "story-1"
   },
+  "story:can": {
+   "file": "story/can.mp3",
+   "text": "can",
+   "dur": 0.69,
+   "b": [
+    [
+     0,
+     0.06
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:can you see yes i can": {
+   "file": "story/can-you-see-yes-i-can.mp3",
+   "text": "Can you see? Yes, I can.",
+   "dur": 3,
+   "b": [
+    [
+     0,
+     0.11
+    ],
+    [
+     4,
+     0.34
+    ],
+    [
+     8,
+     0.56
+    ],
+    [
+     13,
+     1.89
+    ],
+    [
+     18,
+     2.34
+    ],
+    [
+     20,
+     2.48
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:can't": {
+   "file": "story/cant.mp3",
+   "text": "can't",
+   "dur": 0.67,
+   "b": [
+    [
+     0,
+     0.04
+    ]
+   ],
+   "from": "story-1"
+  },
   "story:card": {
    "file": "story/card.mp3",
    "text": "card",
@@ -7538,6 +9682,18 @@
    ],
    "from": "story-1"
   },
+  "story:clock": {
+   "file": "story/clock.mp3",
+   "text": "clock",
+   "dur": 0.59,
+   "b": [
+    [
+     0,
+     0.39
+    ]
+   ],
+   "from": "story-2"
+  },
   "story:core": {
    "file": "story/core.mp3",
    "text": "core",
@@ -7549,6 +9705,18 @@
     ]
    ],
    "from": "story-1"
+  },
+  "story:could": {
+   "file": "story/could.mp3",
+   "text": "could",
+   "dur": 1.03,
+   "b": [
+    [
+     0,
+     0.09
+    ]
+   ],
+   "from": "story-2"
   },
   "story:dark": {
    "file": "story/dark.mp3",
@@ -7602,6 +9770,30 @@
    ],
    "from": "story-2"
   },
+  "story:eyes": {
+   "file": "story/eyes.mp3",
+   "text": "eyes",
+   "dur": 0.83,
+   "b": [
+    [
+     0,
+     0.13
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:fall": {
+   "file": "story/fall.mp3",
+   "text": "fall",
+   "dur": 0.84,
+   "b": [
+    [
+     0,
+     0.13
+    ]
+   ],
+   "from": "story-1"
+  },
   "story:fine": {
    "file": "story/fine.mp3",
    "text": "fine",
@@ -7614,6 +9806,42 @@
    ],
    "from": "story-2"
   },
+  "story:fire": {
+   "file": "story/fire.mp3",
+   "text": "fire",
+   "dur": 1.17,
+   "b": [
+    [
+     0,
+     0.13
+    ]
+   ],
+   "from": "story-2"
+  },
+  "story:floor": {
+   "file": "story/floor.mp3",
+   "text": "floor",
+   "dur": 0.93,
+   "b": [
+    [
+     0,
+     0.09
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:fly": {
+   "file": "story/fly.mp3",
+   "text": "fly",
+   "dur": 0.93,
+   "b": [
+    [
+     0,
+     0.04
+    ]
+   ],
+   "from": "story-2"
+  },
   "story:friend": {
    "file": "story/friend.mp3",
    "text": "friend",
@@ -7622,6 +9850,18 @@
     [
      0,
      0.07
+    ]
+   ],
+   "from": "story-2"
+  },
+  "story:hammer": {
+   "file": "story/hammer.mp3",
+   "text": "hammer",
+   "dur": 0.88,
+   "b": [
+    [
+     0,
+     0.1
     ]
    ],
    "from": "story-2"
@@ -7665,6 +9905,38 @@
     ]
    ],
    "from": "story-2"
+  },
+  "story:here the stones make the laws": {
+   "file": "story/here-the-stones-make-the-laws.mp3",
+   "text": "Here, the stones make the laws.",
+   "dur": 2.86,
+   "b": [
+    [
+     0,
+     0.05
+    ],
+    [
+     6,
+     0.86
+    ],
+    [
+     10,
+     1.08
+    ],
+    [
+     17,
+     1.75
+    ],
+    [
+     22,
+     2.05
+    ],
+    [
+     26,
+     2.2
+    ]
+   ],
+   "from": "story-1"
   },
   "story:hole": {
    "file": "story/hole.mp3",
@@ -7726,6 +9998,46 @@
     [
      2,
      0.4
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:i can you can she can they can": {
+   "file": "story/i-can-you-can-she-can-they-can.mp3",
+   "text": "I can. You can. She can. They can.",
+   "dur": 5.49,
+   "b": [
+    [
+     0,
+     0.2
+    ],
+    [
+     2,
+     0.34
+    ],
+    [
+     7,
+     1.6
+    ],
+    [
+     11,
+     1.82
+    ],
+    [
+     16,
+     3.08
+    ],
+    [
+     20,
+     3.45
+    ],
+    [
+     25,
+     4.64
+    ],
+    [
+     30,
+     5.01
     ]
    ],
    "from": "story-1"
@@ -7826,6 +10138,18 @@
    ],
    "from": "story-1"
   },
+  "story:iron": {
+   "file": "story/iron.mp3",
+   "text": "iron",
+   "dur": 1.04,
+   "b": [
+    [
+     0,
+     0.19
+    ]
+   ],
+   "from": "story-2"
+  },
   "story:is": {
    "file": "story/is.mp3",
    "text": "is",
@@ -7914,6 +10238,18 @@
    ],
    "from": "story-1"
   },
+  "story:jump": {
+   "file": "story/jump.mp3",
+   "text": "jump",
+   "dur": 0.72,
+   "b": [
+    [
+     0,
+     0.2
+    ]
+   ],
+   "from": "story-1"
+  },
   "story:key": {
    "file": "story/key.mp3",
    "text": "key",
@@ -7949,6 +10285,18 @@
     ]
    ],
    "from": "story-3"
+  },
+  "story:move": {
+   "file": "story/move.mp3",
+   "text": "move",
+   "dur": 0.92,
+   "b": [
+    [
+     0,
+     0.22
+    ]
+   ],
+   "from": "story-1"
   },
   "story:next to": {
    "file": "story/next-to.mp3",
@@ -8002,6 +10350,26 @@
     [
      18,
      1.74
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:nexy can jump": {
+   "file": "story/nexy-can-jump.mp3",
+   "text": "Nexy can jump.",
+   "dur": 1.7,
+   "b": [
+    [
+     0,
+     0.19
+    ],
+    [
+     5,
+     0.78
+    ],
+    [
+     9,
+     1.08
     ]
    ],
    "from": "story-1"
@@ -8238,6 +10606,18 @@
    ],
    "from": "story-2"
   },
+  "story:nobody": {
+   "file": "story/nobody.mp3",
+   "text": "nobody",
+   "dur": 0.98,
+   "b": [
+    [
+     0,
+     0.13
+    ]
+   ],
+   "from": "story-2"
+  },
   "story:not": {
    "file": "story/not.mp3",
    "text": "not",
@@ -8318,6 +10698,42 @@
    ],
    "from": "story-1"
   },
+  "story:read the new laws": {
+   "file": "story/read-the-new-laws.mp3",
+   "text": "Read the new laws.",
+   "dur": 2,
+   "b": [
+    [
+     0,
+     0.19
+    ],
+    [
+     5,
+     0.78
+    ],
+    [
+     9,
+     1
+    ],
+    [
+     13,
+     1.3
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:rise": {
+   "file": "story/rise.mp3",
+   "text": "rise",
+   "dur": 1,
+   "b": [
+    [
+     0,
+     0.04
+    ]
+   ],
+   "from": "story-2"
+  },
   "story:say it and it is true": {
    "file": "story/say-it-and-it-is-true.mp3",
    "text": "Say it, and it is true.",
@@ -8386,6 +10802,18 @@
     [
      32,
      2.77
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:see": {
+   "file": "story/see.mp3",
+   "text": "see",
+   "dur": 0.73,
+   "b": [
+    [
+     0,
+     0.19
     ]
    ],
    "from": "story-1"
@@ -8462,6 +10890,18 @@
     [
      0,
      0.63
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:stones": {
+   "file": "story/stones.mp3",
+   "text": "stones",
+   "dur": 1.1,
+   "b": [
+    [
+     0,
+     0.25
     ]
    ],
    "from": "story-1"
@@ -8614,6 +11054,30 @@
     [
      10,
      0.84
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:the law is broken": {
+   "file": "story/the-law-is-broken.mp3",
+   "text": "The law is broken.",
+   "dur": 1.51,
+   "b": [
+    [
+     0,
+     0.07
+    ],
+    [
+     4,
+     0.21
+    ],
+    [
+     8,
+     0.66
+    ],
+    [
+     11,
+     0.88
     ]
    ],
    "from": "story-1"
@@ -8786,6 +11250,30 @@
    ],
    "from": "story-1"
   },
+  "story:the warden can't fly": {
+   "file": "story/the-warden-cant-fly.mp3",
+   "text": "The Warden can't fly.",
+   "dur": 2.11,
+   "b": [
+    [
+     0,
+     0.08
+    ],
+    [
+     4,
+     0.22
+    ],
+    [
+     11,
+     1.04
+    ],
+    [
+     17,
+     1.48
+    ]
+   ],
+   "from": "story-1"
+  },
   "story:they": {
    "file": "story/they.mp3",
    "text": "they",
@@ -8842,6 +11330,34 @@
     [
      20,
      2.15
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:this is the iron fort": {
+   "file": "story/this-is-the-iron-fort.mp3",
+   "text": "This is the Iron Fort.",
+   "dur": 2.85,
+   "b": [
+    [
+     0,
+     0.12
+    ],
+    [
+     5,
+     0.59
+    ],
+    [
+     8,
+     1.19
+    ],
+    [
+     12,
+     1.33
+    ],
+    [
+     17,
+     2.3
     ]
    ],
    "from": "story-1"
@@ -8929,6 +11445,18 @@
     ]
    ],
    "from": "story-1"
+  },
+  "story:warden": {
+   "file": "story/warden.mp3",
+   "text": "warden",
+   "dur": 1.04,
+   "b": [
+    [
+     0,
+     0.04
+    ]
+   ],
+   "from": "story-2"
   },
   "story:was": {
    "file": "story/was.mp3",
@@ -9374,6 +11902,34 @@
    ],
    "from": "story-1"
   },
+  "story:yesterday the warden could fly": {
+   "file": "story/yesterday-the-warden-could-fly.mp3",
+   "text": "Yesterday, the Warden could fly.",
+   "dur": 3.06,
+   "b": [
+    [
+     0,
+     0.14
+    ],
+    [
+     11,
+     1.25
+    ],
+    [
+     15,
+     1.47
+    ],
+    [
+     22,
+     2.14
+    ],
+    [
+     28,
+     2.43
+    ]
+   ],
+   "from": "story-1"
+  },
   "story:yesterday this palace was full of light": {
    "file": "story/yesterday-this-palace-was-full-of-light.mp3",
    "text": "Yesterday, this palace was full of light.",
@@ -9434,6 +11990,22 @@
     [
      4,
      0.46
+    ]
+   ],
+   "from": "story-1"
+  },
+  "story:you can": {
+   "file": "story/you-can.mp3",
+   "text": "You can.",
+   "dur": 0.97,
+   "b": [
+    [
+     0,
+     0.18
+    ],
+    [
+     4,
+     0.4
     ]
    ],
    "from": "story-1"

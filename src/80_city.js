@@ -476,7 +476,7 @@ Ents.reg('citymap', {
 Ents.reg('decor', {
   layer: 'back',
   init(e) { const o = e.opts; e.x = e.c * TS; e.y = e.r * TS; e.w = (o.w || 1) * TS; e.h = (o.h || 1) * TS; if (o.legs) e.h = (o.legs - e.r) * TS; if (o.post) e.h = (o.post - e.r) * TS; },
-  draw(ctx, e, x, y) { City.drawDecor(ctx, e, x, y); },
+  draw(ctx, e, x, y) { if (World.level.bg === 'fort') Fort.drawDecor(ctx, e, x, y); else City.drawDecor(ctx, e, x, y); },
 });
 
 /* ---------- a chegada na cidade (1ª visita): o narrador e a tabela das preposições com a caixa ---------- */

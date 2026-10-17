@@ -11,6 +11,7 @@ Plataforma 2D neon-noir para ensinar inglês (nível A1) a brasileiros. Tudo est
 | 1-2 · Who are you? | aguardando aprovação | branch `claude/jolly-faraday-8mbshk` |
 | TO BE PALACE (saída secreta da 1-1) | aguardando aprovação | branch `claude/jolly-faraday-8mbshk` |
 | 1-3 · Where is it? | aguardando aprovação | branch `claude/jolly-faraday-8mbshk` |
+| FORTE · Can you? | aguardando aprovação | branch `claude/jolly-faraday-8mbshk` |
 
 ## Como o jogo flui
 
@@ -25,7 +26,8 @@ Tela inicial → **mapa do Mundo 1** → fase → tela de fim → volta ao mapa.
 - Cada saída abre um caminho novo, que se desenha ponto a ponto. A saída normal da 1-1 abre a 1-2; a secreta abre o
   Palácio do To Be. A normal da 1-2 abre a 1-3; a secreta abre a Casa dos Falsos Amigos "PUSH OR PULL?".
 - No céu do mapa, as letras de **HELLO** (1-1) e **WORLD** (1-2) acendem como uma constelação conforme são achadas.
-  As outras fases têm a sua palavra-mestra (palácio: **TOBE**; 1-3: **CITY**), que aparece no cartão e no fim da fase.
+  As outras fases têm a sua palavra-mestra (palácio: **TOBE**; 1-3: **CITY**; Forte: **IRON**), que aparece no cartão e no fim da fase.
+- A saída normal da 1-3 abre o **Forte de Ferro** (CAN YOU?); a saída do Forte abre o caminho do castelo.
 - Vidas e orbes atravessam as fases. Letras, saídas e a melhor Fluência ficam salvas por fase.
 - Transições: ao entrar numa fase, uma íris neon fecha sobre a Nexy e mostra o cartão da fase (nome, letras já
   achadas e "Nexy × vidas"). Ao sair pela saída secreta, a íris fecha numa **fechadura**. No fim de jogo, a Nexy volta
@@ -45,7 +47,7 @@ Tela inicial → **mapa do Mundo 1** → fase → tela de fim → volta ao mapa.
 | Q | SELECT / BACK | soltar o item da reserva |
 | H | Y (no painel) | dica (tradução da inscrição) |
 | C | LB | pulso da Echo (revela o escondido; no palácio, o passado; na cidade, a caixa escondida) |
-| F | Y (depois de ganhar o tiro ou o LASER; antes disso Y corre) | com o LASER (1-3): a Nexy atira; segure e solte para o tiro carregado. Sem ele: tiro da Echo (o 1º paralisa, o 2º quebra) |
+| F | Y (depois de ganhar o tiro ou o LASER; antes disso Y corre) | com o LASER (1-3): a Nexy atira; segure ↑ para mirar para cima (↑ + lado = diagonal; no ar, ↓ para baixo); segure e solte para o tiro carregado. Com FIRE, HAMMER ou CLOCK (Forte): bola de fogo, martelada, o tempo para. Sem poder: tiro da Echo (o 1º paralisa, o 2º quebra) |
 | V | | falar a frase na porta (VOICE MODE ligado); longe das portas, com o tiro: segure V e diga STOP! |
 | M | | som liga/desliga |
 | Esc ou P | START | pausa |
@@ -249,6 +251,43 @@ desenhos da caixa em cima, embaixo, dentro e atrás. As coisas da cidade têm et
   SHIELD e CORE. Trilha em Mi menor, 108 BPM, synthwave por cima do órgão, com o chiado da chuva e trovões (a
   percussão cresce na arena).
 
+## O FORTE DE FERRO · CAN YOU? (depois da 1-3)
+
+Uma fortaleza de ferro e vitrais **acima da cidade**, com cara própria: céu violeta com **aurora** (faixas verde-água,
+violeta e magenta que ondulam), lua âmbar, montanhas, a cidade acesa lá embaixo e o **castelo** no pico (a próxima
+fase). Por dentro: tijolos de castelo, **vitrais coloridos** com fachos de luz no chão, tochas com fogo de verdade,
+engrenagens girando, correntes, um canal de ferro em brasa e **brasas subindo** o tempo todo. Mais cor: além do magenta
+e do ciano, o âmbar do fogo e o violeta. Música própria (Dó menor, coro e a bigorna da forja). Palavra-mestra: **I R O N**.
+
+**A mecânica nova são as PEDRAS DA LEI**: cada pedra manda num trecho e diz o que **PODE** (CAN) e o que **NÃO PODE**
+(CAN'T) acontecer ali. A frase certa **reescreve a lei** (a pedra solta faíscas, o texto novo queima) e o mundo obedece
+na hora. As leis ficam como você deixou, mesmo depois de morrer. CAN não muda com a pessoa (I can, she can, they can):
+é o primeiro verbo do jogo que não pede AM/IS/ARE. Na primeira visita, o narrador apresenta o forte e a tabela
+I CAN · YOU CAN · SHE CAN · THEY CAN, com CAN'T = CAN NOT.
+
+| Lugar | A lei | A frase | Outro caminho (sem o inglês) |
+| --- | --- | --- | --- |
+| O portão | **YOU CAN'T JUMP.** (o pulo fica curtinho) | I ___ JUMP. → **CAN** | o ralo leva ao **esgoto**: andando, sem pular, esperando as pedras subirem |
+| Salão dos esmagadores | **THE STONES CAN FALL.** (seis esmagadores no ritmo) | THE STONES ___ FALL. → **CAN'T** (todos travam lá em cima) | passar no ritmo; ou o **CLOCK** (o tempo para) |
+| O poço | **THE FLOOR CAN'T MOVE.** | duas lacunas: THE ___ ___ MOVE. → **FLOOR CAN** (o chão atravessa) | as **plataformas que caem** logo depois que você pisa |
+| Galeria dos olhos | **CAN THE EYES SEE YOU?** (os **OLHOS DE FERRO** varrem o chão com um facho; se te pegam, você volta ao começo da sala, sem perder vida) | resposta curta: **NO, THEY CAN'T.** (os olhos fecham) | esconder-se na **sombra dos pilares** (o facho não atravessa) |
+| Torre do ferro | **THE IRON CAN RISE.** (o **ferro derretido** sobe quando você entra) | THE IRON ___ RISE. → **CAN'T** (na pedra do meio da subida) | subir mais rápido que o ferro |
+| As muralhas | o **GUARDIÃO DE FERRO** escreve uma lei nova a cada rodada | **THE WARDEN CAN'T FLY.** · **I CAN JUMP.** · **WE CAN SEE.** (a lei se quebra e ele cai por 6 s) | as **bolas de ferro** que ele solta: segure CORRER para pegar, ↑ e solte para jogar nele (ou chute); o FOGO também tira vida |
+
+- **O Guardião**: na 1ª rodada voa e solta bolas de ferro (THE WARDEN CAN FLY); na 2ª anda no chão e o martelo solta
+  ondas pelo chão, e a lei da tábua é **YOU CAN'T JUMP** (só o pulinho escapa das ondas); na 3ª, **NOBODY CAN SEE**: a
+  arena escurece, só a luz da Echo, e ele mergulha. A Echo explica o erro de cada palavra ("Me too! You and me: we!").
+- **A cena (na pegada God of War)**: tudo para, tambores, o **CAN'T** gigante racha, o **'T** se parte em cacos e sobra
+  o **CAN**, que desce até a Nexy e entra no Coração.
+- **O SELO DA LEI** (o acréscimo do Forte ao Coração): **pulo duplo** (no ar, aperte o pulo de novo), do Forte em
+  diante. Depois da cena, o painel do selo: leitura das leis novas (com **COULD**, o CAN de ontem: B1) e a escalada
+  (A2 → A2+ → B1); cada acerto deixa o segundo pulo mais alto (Selo de Ferro, de Aço, de Prata, da Coroa).
+- **Poderes novos dos blocos**: **FIRE** (bolas de fogo que quicam pelo chão), **HAMMER** (golpe de perto: derruba e
+  **quebra o ferro rachado**; atrás de uma parede rachada na galeria há a letra O e uma vida) e **CLOCK** (para o tempo
+  por 5 s: pedras, olhos, ferro, plataformas e inimigos; depois ele se gasta). A STAR também está escondida nas
+  muralhas.
+- **Criaturas novas**: o **MORCEGO** (dorme no teto e mergulha em onda), o **OLHO DE FERRO** e o **GUARDIÃO DE FERRO**.
+
 ## A Echo: a primeira ferramenta (nasce na 1-1)
 
 A 1-1 começa com a Nexy **sozinha**, descendo do céu num feixe de luz. Placas de dica aparecem nos lugares certos
@@ -286,6 +325,7 @@ O jogo que vai para o jogador é só o `index.html`, autocontido. Ele é **gerad
 | `src/12_level_1-2.js` | dados da fase 1-2 (legenda extra, blocos, alvos, portas, altares, sinos) |
 | `src/14_level_palace.js` | dados do TO BE PALACE (legenda, alvos do passado, altares, relógios, interruptor) |
 | `src/16_level_1-3.js` | dados da 1-3 (legenda, as caixas e os lugares delas, altares, letreiros e etiquetas) |
+| `src/18_level_fort.js` | dados do Forte (legenda, as leis de cada pedra, a tábua do Guardião, enfeites) |
 | `src/20_audio.js` | efeitos sintetizados, música em camadas com variações por fase, vozes gravadas (com a do aparelho de reserva) e reconhecimento de fala |
 | `src/30_input_render.js` | teclado, toque, controle (gamepad), escala da tela e cache dos brilhos |
 | `src/40_world.js` | tiles, blocos, runas, colisão, zonas, fundos em parallax (cidade e nave), escuridão e partículas |
@@ -300,6 +340,9 @@ O jogo que vai para o jogador é só o `index.html`, autocontido. Ele é **gerad
 | `src/78_palace.js` | TO BE PALACE: cavaleiro, interruptor, desenho dos alvos do passado, chão-espelho, fundo e as duas cenas |
 | `src/80_city.js` | 1-3: a caixa de neon, gárgula, trem, mapa da cidade, prédios, chuva e raios, a chegada, o desafio do mapa e a Bússola |
 | `src/82_city2.js` | 1-3, a segunda metade: poderes (LASER, WINGS, STAR), drones, feixes e portões de laser, ventilador, o Sentinela e a cena da queda |
+| `src/84_testmode.js` | o modo teste escondido (T na tela inicial ou na pausa): pular para qualquer trecho, lista do que testar; não grava nada |
+| `src/86_fort.js` | o Forte: as pedras da lei, esmagadores, o chão que se mexe, plataformas que caem, olhos de ferro, ferro derretido, morcegos, FIRE/HAMMER/CLOCK, a chegada e o fundo |
+| `src/88_fort2.js` | o Forte: o Guardião de Ferro, a cena da lei quebrada e o Selo da Lei (pulo duplo) |
 | `src/62_nexy_look.js` | o visual da Nexy em 6 estágios (boneco articulado, quadros guardados em memória; folha: `tools/look_sheet.js`) |
 | `src/75_worldmap.js` | transições (íris e fechadura) e o mapa-múndi |
 | `src/99_boot.js` | API de teste no console (`NEXY`) e partida |
@@ -307,12 +350,13 @@ O jogo que vai para o jogador é só o `index.html`, autocontido. Ele é **gerad
 | `src/levels/1-2.map` | mapa ASCII da 1-2 (40 linhas × 312 colunas) |
 | `src/levels/palace.map` | mapa ASCII do palácio (23 linhas × 150 colunas), gerado por `tools/gen_map_palace.py` |
 | `src/levels/1-3.map` | mapa ASCII da 1-3 (26 linhas × 400 colunas), gerado por `tools/gen_map_1-3.py` |
+| `src/levels/fortress.map` | mapa ASCII do Forte (36 linhas × 330 colunas), gerado por `tools/gen_map_fort.py` |
 | `build.js` | junta tudo em `index.html` |
 | `tools/gen_map_1-2.py` | gerador do mapa da 1-2 (edite e rode para regenerar `src/levels/1-2.map`) |
 | `src/voice/` | as falas gravadas (MP3) e o `manifest.json`; o build embute tudo no `index.html` |
 | `tools/voice/` | lista as falas do jogo, agrupa para a ElevenLabs e corta o áudio em uma fala por arquivo |
 | `CLAUDE.md` | contexto de trabalho (decisões, arquitetura, regras) para continuar o projeto |
-| `tests/` | testes de regressão da 1-1, da 1-2, do palácio, da 1-3 e do mapa (Playwright + Chromium) |
+| `tests/` | testes de regressão da 1-1, da 1-2, do palácio, da 1-3, do Forte e do mapa (Playwright + Chromium) |
 
 ```
 node build.js          # gera index.html a partir de src/
@@ -323,7 +367,7 @@ npm test               # confere o build e roda os testes (precisa de: npm i && 
 Edite sempre em `src/` e rode `node build.js`. Mudanças feitas direto no `index.html` são apagadas no próximo build.
 
 Para testar uma fase direto, sem passar pelo mapa: no console do navegador, `NEXY.Game.enterLevel('1-2')` (ou
-`'palace'`, `'1-3'`).
+`'palace'`, `'1-3'`, `'fortress'`). Ou o **modo teste**: T na tela inicial (no celular, na pausa: 5 toques em PAUSE).
 
 ## Como editar as fases
 

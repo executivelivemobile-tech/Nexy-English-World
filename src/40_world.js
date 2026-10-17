@@ -3,7 +3,7 @@
 const T = { AIR: 0, SOLID: 1, PLATFORM: 2, FAKE: 3, CRACKED: 4, BLOCK: 5, DOOR: 6, RUNE: 7 };
 const TS = CFG.TILE;
 // inimigos que nascem dos spawns (e o nome no Grimório)
-const CREATURE_OF = { crawler: 'CRAWLER', casco: 'SHELL', flyer: 'FLYER', thief: 'THIEF', giant: 'CRAWLER', knight: 'KNIGHT', gargoyle: 'GARGOYLE', drone: 'DRONE', sentinel: 'SENTINEL', conga: 'CRAWLER' };
+const CREATURE_OF = { crawler: 'CRAWLER', casco: 'SHELL', flyer: 'FLYER', thief: 'THIEF', giant: 'CRAWLER', knight: 'KNIGHT', gargoyle: 'GARGOYLE', drone: 'DRONE', sentinel: 'SENTINEL', conga: 'CRAWLER', bat: 'BAT', eye: 'EYE', warden: 'WARDEN' };
 
 const World = {
   level: null, w: 0, h: 0, pxW: 0, pxH: 0, tiles: null, blocks: new Map(), doorTiles: new Map(), doors: {},
@@ -44,7 +44,7 @@ const World = {
           if (b.content && b.content.letter != null) letters++;
         } else if (def.entity) {
           if (def.entity === 'start') this.start = { x: c * TS + TS / 2, y: (r + 1) * TS };
-          else if (CREATURE_OF[def.entity] && def.entity !== 'giant' && !def.boss) {
+          else if (CREATURE_OF[def.entity] && def.entity !== 'giant' && !def.boss && !def.fixed) {
             this.spawns.push({ type: def.entity, c, r, opts: def, state: 'waiting', ent: null, seen: false, timer: 0 });
             creatures.add(CREATURE_OF[def.entity]);
           } else {
@@ -372,6 +372,7 @@ const World = {
       const x = rc.c0 * TS - camX + sx, y = rc.r0 * TS - camY, w = t.cur.w * TS, h = t.cur.h * TS;
       if (x > CFG.VIEW_W + 40 || x + w < -40 || y > CFG.VIEW_H + 40 || y + h < -40) continue;
       if (t.look === 'shutter') { City2.drawShutter(ctx, t, x, y, w, h, time); continue; }   // o portão do fim da 1-3
+      if (t.look === 'portcullis') { Fort.drawPortcullis(ctx, t, x, y, w, h, time); continue; }   // a porta da torre de menagem
       if (t.look && Palace.drawTarget(ctx, t, x, y, w, h, time)) continue;
       const p = 0.5 + 0.5 * Math.sin(time * 2 + t.c);
       R.draw(R.glow('c', 48), x + w / 2, y + Math.min(h, 40) / 2, Math.max(1, w / 64), 0.18 + 0.12 * p + t.glow * 0.6, true);
@@ -416,6 +417,7 @@ const World = {
   },
   drawSolid(x, c, r, x0, y0) {
     if (this.level.bg === 'city') return City.drawSolid(x, c, r, x0, y0);   // a cidade: prédios com janelas e profundidade
+    if (this.level.bg === 'fort') return Fort.drawSolid(x, c, r, x0, y0);   // o forte: tijolos de castelo
     const S = (cc, rr) => { const t = this.type(cc, rr); return t === T.SOLID || t === T.FAKE; };
     const up = r === 0 ? true : S(c, r - 1), dn = r === this.h - 1 ? true : S(c, r + 1), lf = S(c - 1, r), rt = S(c + 1, r);
     const RAD = 9, tl = !up && !lf ? RAD : 0, tr = !up && !rt ? RAD : 0, br = !dn && !rt ? RAD : 0, bl = !dn && !lf ? RAD : 0;
@@ -550,6 +552,7 @@ const World = {
     ctx.strokeStyle = wa(0.12); ctx.stroke();
   },
   drawCracked(ctx, c, r, x, y, time) {
+    if (this.level.bg === 'fort') return Fort.drawCracked(ctx, c, r, x, y, time);
     rrect(ctx, x + 1, y + 1, TS - 2, TS - 2, 6);
     ctx.fillStyle = 'rgba(10,15,18,0.7)'; ctx.fill(); ctx.fillStyle = 'rgba(34,211,238,' + (0.05 + 0.03 * Math.sin(time * 2 + r)) + ')'; ctx.fill();
     ctx.strokeStyle = wa(0.2); ctx.lineWidth = 1; ctx.stroke();
@@ -757,6 +760,7 @@ const BG = {
     if (World.level.bg === 'nave') return this.drawNave(ctx, camX, camY, time);
     if (World.level.bg === 'palace') return this.drawPalace(ctx, camX, camY, time);
     if (World.level.bg === 'city') return this.drawCity(ctx, camX, camY, time);
+    if (World.level.bg === 'fort') return this.drawFort(ctx, camX, camY, time);
     // camada 1: grade e partículas ciano bem apagadas
     ctx.save();
     ctx.strokeStyle = cb(0.05); ctx.lineWidth = 1;
