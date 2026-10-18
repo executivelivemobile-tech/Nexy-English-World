@@ -5357,7 +5357,13 @@ const P = {
 
     ctx.save(); ctx.globalAlpha = alpha;
     ctx.translate(fx, fy);
-    if (this.dead) { ctx.translate(0, -23 * s); ctx.rotate(Math.min(this.deathT, 0.5) * 6); ctx.translate(0, 23 * s); }
+    // derrubada: um tremido no golpe (parada no ar) e, ao ser jogada, um mortal de costas de verdade: devagar no começo,
+    // rápido no meio (encolhida, NexyLook.hurtPose), devagar ao abrir; termina tombando de costas na queda
+    if (this.dead && !this.pitDeath) {
+      const t = this.deathT, u = Math.min(1, Math.max(0, (t - 0.45) / 0.9)), e = u * u * u * (u * (u * 6 - 15) + 10);
+      const a = t < 0.45 ? 0.25 * (1 - Math.pow(1 - t / 0.45, 3)) : 0.25 + (Math.PI * 2 + 0.9) * e + Math.max(0, t - 1.35) * 0.8;
+      ctx.translate(t < 0.45 ? Math.sin(t * 70) * 1.2 * (1 - t / 0.45) * s : 0, -21 * s); ctx.rotate(-this.facing * a); ctx.translate(0, 21 * s);
+    }
     let sx = 1 + this.squash * 0.6, sy = 1 - this.squash * 0.6;
     if (this.spinning) sx *= Math.cos(this.spinT * 26);
     ctx.scale(sx * s, sy * s);
@@ -5369,6 +5375,7 @@ const P = {
   // o visual novo (62_nexy_look.js): o mesmo esqueleto ganha camadas fase a fase; só desenho, a caixa de colisão é a mesma
   // a pose do momento, contínua (NexyLook.frame arredonda para os quadros guardados)
   pose(t) {
+    if (this.dead && !this.pitDeath) return { t, phase: 0, speed: 0, air: -1, lift: 1, av: this.deathT < 0.45 ? -0.5 : clamp(this.vy / 600, -1, 1), crouch: false, crouchK: 0, push: 0, land: 0, arm: 'idle', hurt: this.deathT };
     const sp = this.poseSpeed != null ? this.poseSpeed : Math.abs(this.vx) / CFG.WALK, forced = this.poseSpeed != null;
     const lift = forced ? (this.onGround ? 0 : 1) : this.liftK != null ? this.liftK : this.onGround ? 0 : 1;
     return { t, phase: this.walkPhase || 0, speed: sp, air: lift > 0 ? (this.vy < 0 ? -1 : 1) : 0, lift, av: forced ? (this.vy < 0 ? -1 : 1) : this.avK || 0,
@@ -5681,11 +5688,14 @@ const NexyLook = {
   /* ---------- esqueleto: a pose vira posições das juntas (pés na origem, de frente para a direita) ----------
      pose: { t, phase (ciclo da passada), speed (0 parado, 1 andando, 1.6 correndo), air (0 chão, -1 subindo, 1 caindo),
              crouch, arm ('idle' | 'hold' | 'kick' | 'reach' | 'slash'), boil (0..2, o tremido do rascunho),
-             push (1 → 0 logo depois de pular: o impulso), land (1 → 0 logo depois de pousar: os joelhos amortecem) } */
+             push (1 → 0 logo depois de pular: o impulso), land (1 → 0 logo depois de pousar: os joelhos amortecem),
+             hurt (segundos desde que levou o golpe que a derrubou; só quando morre) } */
   rig(p) {
     const TAU = Math.PI * 2;
     const mv = Math.min(1, p.speed || 0), run = Math.min(1, Math.max(0, ((p.speed || 0) - 1) / 0.6)), gr = !p.air;
     const cr = p.crouch ? 1 : 0, land = gr ? p.land || 0 : 0, push = gr ? 0 : p.push || 0, avC = p.avC != null ? p.avC : p.air || 0;
+    // derrubada (pedido do dono: a pirueta tem que ser de verdade, não o desenho inteiro girando duro): ver hurtPose
+    const hurt = p.hurt != null ? p.hurt : -1, HP = hurt >= 0 ? this.hurtPose(hurt) : null, hk = HP ? HP.eyes : 0;
     const br = Math.sin(p.t * 2.4) * (1 - mv) * (gr ? 1 : 0);                  // respiração parado
     const sway = gr ? Math.sin(p.t * 2.4 + 1.1) * (1 - mv) * (1 - cr) : 0;    // parada, o peso passa de uma perna para a outra
     // a passada (pedido do dono: nada de robô, quadris e joelhos): cada perna tem o apoio (o pé no chão vai da frente
@@ -5700,16 +5710,17 @@ const NexyLook = {
     };
     const moving = gr && mv >= 0.05 && !cr;
     const bob = moving ? Math.cos(2 * TAU * (f0 - D / 2)) * (-0.75 * mv * (1 - run) + 1.2 * run) : 0;
-    const lean = gr ? mv * 1.1 + run * 2.6 + land * 1.6 : 1 - avC * 0.4 - push * 0.4;
+    const lean = HP ? HP.lean : gr ? mv * 1.1 + run * 2.6 + land * 1.6 : 1 - avC * 0.4 - push * 0.4;
     const hip = { x: sway * 0.45 - land * 0.6, y: -18.4 + bob + (moving ? run * 0.9 : 0) + cr * 7.2 + land * 4.6 + Math.abs(sway) * 0.2 };
     const chest = { x: lean - cr * 0.6 + sway * 0.2, y: -30.4 + bob * 0.85 + (moving ? run * 0.9 : 0) + cr * 9.6 + land * 4.2 + br * 0.35 - push * 0.3 };
     const neck = { x: chest.x * 1.1 + 0.5, y: chest.y - 2.4 };
     // a cabeça balança menos que o corpo (o olhar fica firme)
-    const head = { x: chest.x * 1.15 + 1.2 - land * 0.3, y: neck.y - 6.8 + br * 0.2 - bob * 0.25 };
+    const head = { x: chest.x * 1.15 + 1.2 - land * 0.3 + (HP ? HP.hx : 0), y: neck.y - 6.8 + br * 0.2 - bob * 0.25 + (HP ? HP.hy : 0) };
     const air = gr ? null : this.airPose(avC, push, run);
     const legs = [0, 1].map(i => {
       let f, tilt;
-      if (cr) { f = { x: i ? -4.2 : 4.6, y: 0 }; tilt = 0; }
+      if (HP) { f = HP.f[i]; tilt = HP.f[i].tilt; }
+      else if (cr) { f = { x: i ? -4.2 : 4.6, y: 0 }; tilt = 0; }
       else if (air) { f = air.f[i]; tilt = air.f[i].tilt; }
       else if (!moving) { f = { x: (i ? -2.2 : 2.6) + sway * 0.25 + land * (i ? -0.9 : 0.9), y: 0 }; tilt = 0; }
       else { const s = step((f0 + (i ? 0.5 : 0)) % 1); f = { x: s.x + land * (i ? -0.6 : 0.6), y: s.y * (1 - land * 0.6) }; tilt = s.tilt; }
@@ -5722,7 +5733,8 @@ const NexyLook = {
     const arms = [0, 1].map(i => {
       const s0 = sh[i];
       let h;
-      if (p.arm === 'hold' || p.arm === 'kick') h = { x: s0.x + (i ? 8.6 : 10.2), y: s0.y + (i ? 4.6 : 3.2) };
+      if (HP) h = { x: s0.x + HP.h[i].x, y: s0.y + HP.h[i].y };
+      else if (p.arm === 'hold' || p.arm === 'kick') h = { x: s0.x + (i ? 8.6 : 10.2), y: s0.y + (i ? 4.6 : 3.2) };
       else if (p.arm === 'reach' && !i) h = { x: s0.x + 12.4, y: s0.y - 0.6 };
       else if (p.arm === 'slash' && !i) h = { x: s0.x + 9.6, y: s0.y - 5.5 };
       else if (cr) h = { x: s0.x + (i ? 3.5 : 5.5), y: s0.y + 7.4 };
@@ -5748,7 +5760,7 @@ const NexyLook = {
       return pts;
     });
     const ear = Math.max(0, Math.sin(p.t * 1.3) - 0.92) * 9;   // uma tremidinha de orelha de vez em quando
-    return { hip, chest, neck, head, legs, arms, scarf, ear, mv, run, gr, cr, br };
+    return { hip, chest, neck, head, legs, arms, scarf, ear, mv, run, gr, cr, br, hurt: hk };
   },
   // as poses do pulo (pés absolutos, quadril em (0, -18,6); mãos relativas ao ombro): impulso (pernas esticadas, pontas
   // dos pés para baixo, braços para cima) → subida (o joelho da frente sobe, a perna de trás fica esticada) → ápice
@@ -5758,6 +5770,29 @@ const NexyLook = {
     rise: { f: [{ x: 5.2, y: -8.2, tilt: 0.35 }, { x: -3.4, y: -1.2, tilt: 0.6 }], h: [{ x: 4.6, y: -11.5 }, { x: -6.2, y: 5.5 }] },
     apex: { f: [{ x: 3.2, y: -8.8, tilt: 0.2 }, { x: -1.6, y: -6.4, tilt: 0.3 }], h: [{ x: 7, y: -2.5 }, { x: -6.4, y: 0 }] },
     fall: { f: [{ x: 3.6, y: -1.6, tilt: -0.15 }, { x: -2.2, y: -0.8, tilt: 0.1 }], h: [{ x: 5.8, y: -6.5 }, { x: -5.6, y: -5 }] },
+  },
+  // a derrubada, como um mortal de costas de verdade: o golpe (o corpo vai para trás, braços jogados, olhos fechados,
+  // 0,45 s parada no ar) → encolhe (abraça os joelhos: encolhida ela gira mais rápido) → abre na queda (braços e
+  // pernas soltos, se debatendo). O giro do desenho inteiro fica em P.draw, no mesmo tempo (o mais rápido no meio).
+  // pés absolutos, mãos relativas ao ombro, lean = inclinação do tronco, hx/hy = a cabeça
+  HURT: {
+    hit: { lean: -2.4, hx: -1.3, hy: 0.5, f: [{ x: 3.6, y: -6.4, tilt: 0.5 }, { x: -2.6, y: -2.6, tilt: 0.7 }], h: [{ x: -1.2, y: -10 }, { x: -6.5, y: -6.5 }] },
+    tuck: { lean: 2.2, hx: 1, hy: 1.4, f: [{ x: 3.2, y: -12.2, tilt: 0.4 }, { x: 1.2, y: -11, tilt: 0.5 }], h: [{ x: 5.2, y: 6.5 }, { x: 3.8, y: 7.5 }] },
+    open: { lean: -0.8, hx: -0.6, hy: 0.4, f: [{ x: 4.4, y: -3.4, tilt: 0.3 }, { x: -3.6, y: -1.6, tilt: 0.6 }], h: [{ x: 2.5, y: -9.5 }, { x: -6.5, y: -4.5 }] },
+  },
+  hurtPose(t) {
+    const K = this.HURT, ease = x => x * x * (3 - 2 * x);
+    let o;
+    if (t < 0.45) { o = this.mix(K.open, K.hit, Math.min(1, t / 0.12)); const w = Math.sin(t * 40) * 0.4 * (1 - t / 0.45); o.h[0].y += w; o.f[0].y -= w; }
+    else {
+      const u = Math.min(1, (t - 0.45) / 0.9);
+      o = u < 0.5 ? this.mix(K.hit, K.tuck, ease(u / 0.5)) : this.mix(K.tuck, K.open, ease((u - 0.5) / 0.5));
+      // aberta, caindo: braços e pernas se debatem
+      const fl = Math.sin(t * 15) * ease(Math.max(0, (u - 0.5) / 0.5));
+      o.h[0].x += fl * 2.2; o.h[0].y += Math.abs(fl) * 1.6; o.h[1].y += fl; o.f[0].y -= fl * 1.5; o.f[1].x -= fl;
+    }
+    o.eyes = 1;
+    return o;
   },
   airPose(av, push, run) {
     const K = this.AIR, o = av < 0 ? this.mix(K.rise, K.apex, av + 1) : this.mix(K.apex, K.fall, av);
@@ -6007,7 +6042,7 @@ const NexyLook = {
       ctx.restore();
     }
     // o olho: oval de luz magenta com brilho branco (o ponto mais vivo do personagem)
-    const ex = h.x + 4.1, ey = h.y + 0.2, sq = R0.run * 0.5 + (p.arm === 'slash' ? 0.5 : 0);
+    const ex = h.x + 4.1, ey = h.y + 0.2, sq = Math.min(1, R0.run * 0.5 + (p.arm === 'slash' ? 0.5 : 0) + (R0.hurt || 0) * 0.95);   // o golpe fecha os olhos
     this.glowDot(ctx, ex, ey, 3, 'rgba(240,120,250,A)', S === 0 ? 0.2 : 0.28);
     ctx.save(); ctx.shadowColor = 'rgba(240,171,252,1)'; ctx.shadowBlur = 2.2 * this.gk;
     ctx.beginPath(); ctx.ellipse(ex, ey + sq * 0.3, 1.2, 1.65 - sq * 0.45, 0.15, 0, Math.PI * 2);
@@ -6093,6 +6128,7 @@ const NexyLook = {
       const u = Math.floor(((q.phase % TAU) + TAU) % TAU / TAU * 16) / 16;
       q.air = 0; q.phase = u * TAU; q.speed = Math.max(0.2, st(Math.min(1.6, q.speed))); q.t = u * TAU / 2.4; q.sw = u * TAU * 2;
     }
+    q.hurt = p.hurt != null ? Math.min(2.2, Math.round(p.hurt * 20) / 20) : null;
     q.boil = Math.floor(p.t * 3) % 3;
     return q;
   },
@@ -6100,7 +6136,7 @@ const NexyLook = {
   W: 112, H: 104, OX: 62, OY: 84,
   sprite(p, stage, k) {
     const q = this.frame(p);
-    const key = [stage, q.speed, q.phase.toFixed(2), q.av, q.lift.toFixed(2), q.crouchK, q.push.toFixed(2), q.land, q.arm || 'idle', q.t.toFixed(2), stage === 0 ? q.boil : 0, k.toFixed(2)].join('|');
+    const key = [stage, q.speed, q.phase.toFixed(2), q.av, q.lift.toFixed(2), q.crouchK, q.push.toFixed(2), q.land, q.hurt, q.arm || 'idle', q.t.toFixed(2), stage === 0 ? q.boil : 0, k.toFixed(2)].join('|');
     let c = this.cache.get(key);
     // guarda os mais usados (o último usado vai para o fim); o limite cabe na memória do celular em qualquer tela
     if (c) { this.cache.delete(key); this.cache.set(key, c); return c; }

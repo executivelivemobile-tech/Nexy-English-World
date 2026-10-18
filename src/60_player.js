@@ -392,7 +392,13 @@ const P = {
 
     ctx.save(); ctx.globalAlpha = alpha;
     ctx.translate(fx, fy);
-    if (this.dead) { ctx.translate(0, -23 * s); ctx.rotate(Math.min(this.deathT, 0.5) * 6); ctx.translate(0, 23 * s); }
+    // derrubada: um tremido no golpe (parada no ar) e, ao ser jogada, um mortal de costas de verdade: devagar no começo,
+    // rápido no meio (encolhida, NexyLook.hurtPose), devagar ao abrir; termina tombando de costas na queda
+    if (this.dead && !this.pitDeath) {
+      const t = this.deathT, u = Math.min(1, Math.max(0, (t - 0.45) / 0.9)), e = u * u * u * (u * (u * 6 - 15) + 10);
+      const a = t < 0.45 ? 0.25 * (1 - Math.pow(1 - t / 0.45, 3)) : 0.25 + (Math.PI * 2 + 0.9) * e + Math.max(0, t - 1.35) * 0.8;
+      ctx.translate(t < 0.45 ? Math.sin(t * 70) * 1.2 * (1 - t / 0.45) * s : 0, -21 * s); ctx.rotate(-this.facing * a); ctx.translate(0, 21 * s);
+    }
     let sx = 1 + this.squash * 0.6, sy = 1 - this.squash * 0.6;
     if (this.spinning) sx *= Math.cos(this.spinT * 26);
     ctx.scale(sx * s, sy * s);
@@ -404,6 +410,7 @@ const P = {
   // o visual novo (62_nexy_look.js): o mesmo esqueleto ganha camadas fase a fase; só desenho, a caixa de colisão é a mesma
   // a pose do momento, contínua (NexyLook.frame arredonda para os quadros guardados)
   pose(t) {
+    if (this.dead && !this.pitDeath) return { t, phase: 0, speed: 0, air: -1, lift: 1, av: this.deathT < 0.45 ? -0.5 : clamp(this.vy / 600, -1, 1), crouch: false, crouchK: 0, push: 0, land: 0, arm: 'idle', hurt: this.deathT };
     const sp = this.poseSpeed != null ? this.poseSpeed : Math.abs(this.vx) / CFG.WALK, forced = this.poseSpeed != null;
     const lift = forced ? (this.onGround ? 0 : 1) : this.liftK != null ? this.liftK : this.onGround ? 0 : 1;
     return { t, phase: this.walkPhase || 0, speed: sp, air: lift > 0 ? (this.vy < 0 ? -1 : 1) : 0, lift, av: forced ? (this.vy < 0 ? -1 : 1) : this.avK || 0,

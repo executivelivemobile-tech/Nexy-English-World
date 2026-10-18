@@ -313,6 +313,11 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   queda (pernas descem para o pouso); correndo, as pernas abrem em tesoura. Pouso: os joelhos amortecem (`P.landK`,
   0,24 s, conforme a queda) e o achatar do desenho inteiro diminuiu (parecia borracha). Braço erguido passa por trás da
   cabeça (na frente tapava o rosto). Só desenho: física igual.
+  **Derrubada** (o dono achou feia a "pirueta dura" ao morrer e pediu uma pirueta de verdade): `NexyLook.HURT`/`hurtPose`
+  (pose `hurt` = segundos desde o golpe, `P.pose` quando `P.dead`): o golpe (corpo e cabeça para trás, braços jogados,
+  olhos fechados, tremido; 0,45 s parada no ar) → mortal de costas: encolhe abraçando os joelhos e gira (P.draw: uma
+  volta e 0,9 rad em 0,9 s, rápido no meio, em torno do meio do corpo) → abre braços e pernas, que se debatem, e tomba
+  de costas caindo. Cair no buraco não gira.
   **Nada que lembre um ser diabólico** (chegou ao dono que ela parecia um diabinho): sem cauda (era fina com ponta de
   flecha), orelhas do capuz baixas e redondas (as altas e pontudas pareciam chifres), luvas com luzes redondas em vez
   de garras e menos brilho em volta do olho. Vale para qualquer desenho novo dela.
