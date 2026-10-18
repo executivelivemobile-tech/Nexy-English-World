@@ -457,11 +457,10 @@ const Conga = {
 };
 Ents.reg('conga', {
   layer: 'enemy',
-  init(e) { e.w = 26; e.h = 24; e.enemy = true; e.kind = 'enemy'; e.state = 'walk'; e.creature = 'CRAWLER'; e.dir = 1; e.res = {}; e.dx = 0; e.dy = 0; e.bumpT = 0; this.place(e); },
+  init(e) { e.w = 26; e.h = 24; e.enemy = true; e.kind = 'enemy'; e.state = 'walk'; e.creature = 'CRAWLER'; e.dir = 1; e.res = {}; e.dx = 0; e.dy = 0; this.place(e); },
   place(e) { const p = Conga.pos(e.opts.i, Game.simTime); e.x = p.x; e.dir = p.dir; e.stop = !!p.stop; },
   update(e, dt) {
     if (e.state !== 'walk') return Ents.types.crawler.update(e, dt);   // amassado ou caindo: igual a um Rastejante
-    if (e.bumpT > 0) e.bumpT -= dt;
     const ox = e.x; this.place(e); e.dx = e.x - ox;
   },
   // um Rastejante comum (parado, as pernas não mexem)

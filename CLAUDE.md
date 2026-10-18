@@ -321,7 +321,7 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   Rastejante solitário de c29). O dono achou a dica aparente demais e pediu que não ficassem "amarrados": agora cada um
   anda do seu jeito (`Conga.free`: velocidade própria, para e vira, cruzam-se; sem corda nem farol) e só no trecho
   `F0..F1` de cada ciclo de 19 s (`Conga.C`) entram no mesmo passo (40 px/s, 112 px de distância, `Conga.tri`); posição
-  pelo relógio da simulação (`Conga.pos`). Não mordem, só empurram (`P.enemyContacts`); o pisão amassa e eles voltam
+  pelo relógio da simulação (`Conga.pos`). Machucam de lado como qualquer Rastejante (antes só empurravam e o dono viu que isso ensinava errado: o jogador achava que Rastejante não machuca); o pisão amassa e eles voltam
   (`summon`). Indo para a direita em sequência (`Conga.state().on`, ~1,75 s a cada 19 s) o **MURAL** do fundo (`7` em
   c19 L5: grafite apagado, três Rastejantes, riscos I/II/III e um quadradinho onde fica o tijolo; sem texto nem seta)
   brilha de leve.
