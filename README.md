@@ -252,6 +252,8 @@ desenhos da caixa em cima, embaixo, dentro e atrás. As coisas da cidade têm et
   vida por rodada. Errar o lugar: a Echo diz
   "Look again!" e explica a palavra. A rodada fica guardada se a Nexy morrer. Na queda: tudo para, rachaduras de luz,
   três tambores, explosão em câmera lenta, SENTINEL DOWN, e o portão do fim afunda.
+  A luta tem **trilha de chefe** própria (Mi menor, 144 BPM, baixo galopando, metais, coro e tambores de guerra) que
+  acelera e ganha camadas a cada rodada.
 - Palavras novas: BOX, ON, UNDER, IN, BEHIND, WALL, SIGN, HOLE, BETWEEN, IN FRONT OF, NEXT TO, LASER, WINGS, STAR,
   SHIELD e CORE. Trilha em Mi menor, 108 BPM, synthwave por cima do órgão, com o chiado da chuva e trovões (a
   percussão cresce na arena).

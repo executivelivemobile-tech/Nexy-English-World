@@ -2390,6 +2390,7 @@ const SFX = {
    Darksynth gótico em Lá menor, 96 BPM. Camadas: baixo em arpejo, pad grave, órgão, percussão. */
 const Music = {
   bpm: 96, step: 0, next: 0, timer: null, bus: {}, target: { bass: 1, pad: 1, organ: 1, perc: 0.8 }, drone: null, variant: 'world1', lp: null, boost: 1,
+  home: 'world1', heat: 0,   // home = a música da fase (para onde a trilha de chefe volta); heat = a rodada do chefe (0..2)
   // progressão de 8 compassos: Am F C G | Am F Dm E
   chords: [[45, 0], [41, 1], [48, 1], [43, 1], [45, 0], [41, 1], [38, 0], [40, 1]],
   // melodia curta de órgão nos compassos 5–8: [passo, nota MIDI, duração em passos]
@@ -2436,6 +2437,22 @@ const Music = {
         7: [[0, 74, 4], [4, 71, 4], [8, 67, 8]],
       },
     },
+    // o SENTINELA (chefe da 1-3): Mi menor, 144 BPM (+6 a cada rodada). Baixo galopando em semicolcheias, tambores de
+    // guerra, metais em síncope, coro e o tema do chefe por cima; a chuva continua. Toca em bossPlay.
+    sentinel: {
+      bpm: 144, heatBpm: 6, boss: true, rain: true, perc: 0.9,
+      chords: [[40, 0], [36, 1], [38, 1], [35, 1], [40, 0], [36, 1], [45, 0], [35, 1]],
+      melody: {
+        0: [[0, 76, 6], [6, 79, 2], [8, 78, 4], [12, 76, 4]],
+        1: [[0, 79, 6], [6, 76, 2], [8, 72, 8]],
+        2: [[0, 74, 4], [4, 78, 4], [8, 81, 6], [14, 79, 2]],
+        3: [[0, 78, 8], [8, 75, 4], [12, 71, 4]],
+        4: [[0, 76, 3], [3, 76, 3], [6, 79, 2], [8, 83, 8]],
+        5: [[0, 84, 6], [6, 83, 2], [8, 79, 8]],
+        6: [[0, 81, 4], [4, 79, 4], [8, 76, 4], [12, 72, 4]],
+        7: [[0, 75, 6], [6, 78, 2], [8, 83, 8]],
+      },
+    },
     // 1-3 · a cidade na chuva: Mi menor, 108 BPM, synthwave por cima do órgão e o chiado da chuva o tempo todo
     city: {
       bpm: 108, bell: true, rain: true,
@@ -2450,8 +2467,19 @@ const Music = {
   },
   setVariant(name) {
     const v = this.VARIANTS[name] || this.VARIANTS.world1;
-    this.variant = name; this.bpm = v.bpm; this.cur = v;
+    this.variant = name; this.home = name; this.heat = 0; this.bpm = v.bpm; this.cur = v;
     this.zone({}); this.rain(!!v.rain);
+  },
+  // trilha de chefe: troca a variação sem mexer na zona (a arena tem boost) e recomeça do 1º compasso, com o tambor;
+  // fight(null) volta à música da fase. heat = a rodada (mais rápida e com mais camadas)
+  fight(name, heat = 0) {
+    const want = name || this.home;
+    if (want !== this.variant) {
+      const v = this.VARIANTS[want] || this.VARIANTS.world1, c = AudioSys.ctx;
+      this.variant = want; this.cur = v; this.step = 0; this.rain(!!v.rain);
+      if (c) this.next = Math.max(this.next, c.currentTime + 0.05);
+    }
+    this.heat = name ? heat : 0; this.bpm = this.cur.bpm + (this.cur.heatBpm || 0) * this.heat;
   },
   // chuva: um chiado contínuo (ruído filtrado em laço) enquanto a fase tem chuva
   rain(on) {
@@ -2524,6 +2552,7 @@ const Music = {
     while (this.next < c.currentTime + (AudioSys.lite ? 0.4 : 0.15)) { this.play(this.step, this.next, sp); this.next += sp; this.step = (this.step + 1) % 128; }
   },
   play(step, t, sp) {
+    if (this.cur && this.cur.boss) return this.bossPlay(step, t, sp);
     const bar = Math.floor(step / 16), s = step % 16, [root, maj] = ((this.cur && this.cur.chords) || this.chords)[bar], third = maj ? 4 : 3;
     const B = this.bus;
     // baixo em arpejo (colcheias)
@@ -2561,6 +2590,47 @@ const Music = {
     if (s === 4 || s === 12) { noise(t, 0.14, 0.16, { type: 'bandpass', freq: 1700, q: 0.9, dest: B.perc }); tone('triangle', 190, t, 0.06, 0.1, { to: 120, dest: B.perc }); }
     if (s % 2 === 0) noise(t, 0.035, s % 4 === 2 ? 0.05 : 0.025, { freq: 7500, dest: B.perc });
   },
+};
+
+/* a trilha de chefe, passo a passo (cada passo é uma semicolcheia). heat 0..2 acrescenta camadas: o tema dobrado
+   na oitava e os tons da virada a partir da 2ª rodada; o arpejo de alarme e o tambor em todo compasso na 3ª. */
+Music.bossPlay = function (step, t, sp) {
+  const V = this.cur, B = this.bus, h = this.heat, bar = Math.floor(step / 16), s = step % 16, [root, maj] = V.chords[bar], third = maj ? 4 : 3;
+  // no celular (AudioSys.lite) uma voz só onde aqui vão duas desafinadas, com o volume somado
+  const lite = AudioSys.lite, pair = lite ? [0] : [-1, 1], k = lite ? 2 : 1;
+  // baixo galopando, com a oitava e a quinta; o grave nos tempos fortes
+  const bp = [0, 0, 12, 0, 0, 0, 12, 0, 0, 0, 12, 0, 7, 7, 12, 7][s];
+  tone('sawtooth', midi(root + bp), t, sp * 0.95, s % 4 === 0 ? 0.15 : 0.1, { filter: { freq: 420, to: 1500, q: 5 }, dest: B.bass });
+  if (s === 0 || s === 8) tone('sine', midi(root - 12), t, sp * 6, 0.26, { dest: B.bass });
+  // pad e coro
+  if (s === 0) {
+    for (const iv of [0, third, 7, 12]) for (const d of pair) tone('sawtooth', midi(root + 12 + iv), t, sp * 16, 0.02 * k, { a: 0.4, hold: sp * 11, filter: { freq: 900 }, detune: d * 7, dest: B.pad });
+    for (const iv of [0, 7, 12 + third]) for (const d of pair) tone('triangle', midi(root + 24 + iv), t, sp * 16, 0.014 * k, { a: 0.8, hold: sp * 10, filter: { freq: 1600 }, detune: d * 5, dest: B.pad });
+  }
+  // metais: acordes curtos em síncope (DUN . . DUN . . DUN nos compassos pares; o 1 e o "e" do 3 nos ímpares)
+  if (bar % 2 === 0 ? s === 0 || s === 3 || s === 6 : s === 0 || s === 10) {
+    for (const iv of [0, third, 7, 12]) for (const d of pair) tone('sawtooth', midi(root + 24 + iv), t, 0.32, 0.016 * k, { a: 0.006, filter: { freq: 3200, to: 600 }, detune: d * 9, dest: B.organ });
+    tone('sawtooth', midi(root + 12), t, 0.3, 0.03, { filter: { freq: 1400, to: 300 }, dest: B.organ });
+  }
+  // o tema do chefe
+  const mel = V.melody[bar];
+  if (mel) for (const [ms, n, len] of mel) if (ms === s) {
+    const d = len * sp;
+    for (const dd of pair) tone('sawtooth', midi(n), t, d, 0.022 * k, { a: 0.03, hold: d * 0.6, filter: { freq: 2600, to: 1100 }, detune: dd * 6, dest: B.organ });
+    if (!lite) tone('sine', midi(n - 12), t, d, 0.03, { a: 0.02, hold: d * 0.6, dest: B.organ });
+    if (h >= 1) tone('sine', midi(n + 12), t, d, 0.018, { a: 0.02, hold: d * 0.5, dest: B.organ });
+  }
+  if (h >= 2) tone('square', midi(root + 36 + [0, third, 7, 12][s % 4]), t, sp * 0.8, 0.01, { filter: { freq: 4200 }, dest: B.organ });
+  // bateria: bumbo nos tempos (mais batidas nas rodadas seguintes), caixa no 2 e no 4, chimbal em semicolcheias
+  if (s % 4 === 0 || (s === 14 && h >= 1) || (s === 7 && h >= 2)) tone('sine', 150, t, 0.26, 0.6, { to: 40, glide: 0.1, dest: B.perc });
+  if (s === 4 || s === 12) { noise(t, 0.2, 0.22, { type: 'bandpass', freq: 1800, q: 0.8, dest: B.perc }); tone('triangle', 210, t, 0.09, 0.14, { to: 130, dest: B.perc }); }
+  if (!lite || s % 2 === 0) noise(t, 0.03, s % 4 === 2 ? 0.05 : 0.022, { freq: 8000, dest: B.perc });
+  // tambor de guerra e prato no começo de cada metade
+  if (s === 0 && (bar % 4 === 0 || h >= 2)) { tone('sine', 70, t, 0.9, 0.5, { to: 34, glide: 0.5, dest: B.perc }); noise(t, 0.3, 0.2, { type: 'lowpass', freq: 500, dest: B.perc }); }
+  if (s === 0 && bar % 4 === 0) noise(t, 1.1, 0.06, { freq: 5500, dest: B.perc, verb: true });
+  // viradas: rufo de caixa no fim do ciclo; tons descendo no fim da 1ª metade
+  if (bar === 7 && s >= 8) noise(t, 0.08, 0.06 + (s - 8) * 0.018, { type: 'bandpass', freq: 1900, q: 0.9, dest: B.perc });
+  if (bar === 3 && s >= 12 && h >= 1) tone('sine', [220, 185, 155, 125][s - 12], t, 0.22, 0.32, { to: 70, dest: B.perc });
 };
 
 /* ============================== VOZ: gravada em estúdio (ElevenLabs) e, de reserva, a do aparelho ============================== */
@@ -10919,8 +10989,9 @@ const Sentinel = {
     e.state = 'fight'; e.fireT = SENTINEL.fire.every[0]; e.aimT = 0; e.heat = 0; e.droneT = SENTINEL.drones.every; Game.registerCreature('SENTINEL');
     for (const w of ['SHIELD', 'CORE']) { if (!Game.wordsSeen.has(w)) { Game.wordsSeen.add(w); Game.learnedOrder.push(w); } Game.grimoireWord(w, null); }
     if (!quiet) { SFX.rumble(1.4); SFX.warDrum(); Game.shake(5); }
+    Music.fight('sentinel', e.round);
   },
-  sleep(e) { if (e.state === 'dead' || e.state === 'dying') return; e.state = 'sleep'; e.stateT = 0; e.cage = 1; e.burst = 0; e.aimT = 0; e.woke = false; },
+  sleep(e) { if (e.state === 'dead' || e.state === 'dying') return; e.state = 'sleep'; e.stateT = 0; e.cage = 1; e.burst = 0; e.aimT = 0; e.woke = false; Music.fight(null); },
   damage(e, n) {
     if (e.iT > 0 || !this.exposed(e)) return false;
     e.hp -= n; e.iT = 0.3; e.hitT = 0.18; SFX.bossHit(); Game.hitstop(2); Game.shake(2);
@@ -10933,7 +11004,7 @@ const Sentinel = {
     if (e.round >= SENTINEL.rounds.length - 1) return SentinelScene.start(e);
     // o núcleo foge para outro lugar; o Sentinela sobe e luta mais rápido
     e.from = { x: e.core.x, y: e.core.y }; e.round++; e.hp = SENTINEL.hp; e.moveK = 0;
-    e.state = 'rise'; e.stateT = 1.1; e.cage = 1; e.heat = 0;
+    e.state = 'rise'; e.stateT = 1.1; e.cage = 1; e.heat = 0; Music.fight('sentinel', e.round);
     SFX.crush(); SFX.riser(1); Game.shake(6); FX.burst(e.cx, e.cy, 40, 'c', 300, { life: 0.8, g: 300 });
     if (Game.echoBorn) Game.later(1.2, () => Echo.talk(ECHO.lines.coreMove));
   },
@@ -10977,7 +11048,7 @@ Ents.reg('sentinel', {
     let tx = e.hx, ty = e.hy + Math.sin(e.t * 1.3) * 10;
     if (e.state === 'sleep') {
       ty = e.hy + Math.sin(e.t * 0.8) * 6;
-      if (!P.dead && P.cx > (e.c - 15) * TS) { e.state = 'wake'; e.stateT = 1.6; SFX.rumble(1.6); SFX.warDrum(); Game.shake(4); }
+      if (!P.dead && P.cx > (e.c - 15) * TS) { e.state = 'wake'; e.stateT = 1.6; SFX.rumble(1.6); SFX.warDrum(); Game.shake(4); Music.fight('sentinel', e.round); }
     } else if (e.state === 'wake') {
       e.stateT -= dt; ty = e.hy - 10;
       if (e.stateT <= 0) { S.wake(e, true); if (Game.echoBorn && !e.met) { e.met = true; Echo.talk(ECHO.lines.sentinel); } }
@@ -11172,7 +11243,7 @@ const SentinelScene = {
     const e = this.e;
     if (e.state !== 'dead') { e.state = 'dead'; Save.data.met.sentinel = true; Save.write(); }
     this.active = false; this.letter = 0; this.zoom = 1; this.sat = 0;
-    Music.setDrone(false); Music.normal();
+    Music.fight(null); Music.setDrone(false); Music.normal();
     if (Game.state === 'cinematic') Game.state = 'play';
     Game.clearInput();
     World.setTarget('bossgate', 'small'); SFX.doorOpen(); Game.shake(3);

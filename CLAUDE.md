@@ -63,7 +63,7 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 | `14_level_palace.js` | `LEVELS.palace` (TO BE PALACE): legenda, alvos do passado (`look`: memory/knight/gate, `ghost`, `past`), altares, relógios, interruptor |
 | `18_level_fort.js` | `LEVELS.fortress` (O FORTE · CAN YOU?, `tag` 'WORLD 1 · FORTRESS', `seal: true`): legenda, `laws` (zona em colunas, `can` do começo, `text` por estado), portas `law1..law4` (`look: 'law'`, `law`), a tábua `warden` (`live` → `Warden.live`), `caves` (fundo de pedra no esgoto), `decor` do forte |
 | `16_level_1-3.js` | `LEVELS['1-3']` (WHERE IS IT?): legenda, caixas (`kind: 'box'`, `spots` com nome), altares (`BOX3_DOOR` serve aos dois do café; `quiet` esconde a inscrição), `decor` (letreiros, outdoor, etiquetas SIGN/WALL/HOLE, enfeites) |
-| `20_audio.js` | `SFX`, `Music` (variantes `world1`/`map`/`nave`/`palace` com `chords` e `tick` próprios, zonas muffle/boost), `VoiceClips` (vozes gravadas, `/*VOICE_PACK*/`), `Voice.say(text, who, {onBoundary,onEnd})`, `Listen` |
+| `20_audio.js` | `SFX`, `Music` (variantes `world1`/`map`/`nave`/`palace` com `chords` e `tick` próprios, zonas muffle/boost; trilha de chefe `sentinel` tocada por `Music.bossPlay`, ligada com `Music.fight(nome, rodada)` e desligada com `Music.fight(null)`), `VoiceClips` (vozes gravadas, `/*VOICE_PACK*/`), `Voice.say(text, who, {onBoundary,onEnd})`, `Listen` |
 | `30_input_render.js` | `Input` (teclado, toque, **gamepad** em `pollPad`), `R` (escala, sprites, glow, texto) |
 | `40_world.js` | `World` (tiles, blocos, runas `setTarget`, zonas, veils, colisão `move`), `BG` (cidade e nave), `Dark`, `FX` |
 | `50_entities.js` | `Ents`, `Spawns`, `Enemy`, crawler, casco, orb, letter, capsule, crystal, lantern, checkpoint, goal, pedestal |
@@ -199,6 +199,11 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   última rodada) a 190 px/s, a cada 3,4/3/2,6 s, sempre depois da mira (`fire.aim` 0,7 s; trava `fire.lock` 0,22 s antes:
   dá para desviar); um drone só, da 2ª rodada, a cada 12 s (`drones`).
   Sem inglês: a cada 8 s de luta esquenta (aviso 1,2 s) e abre 3,4 s.
+- Trilha de chefe (pedido do dono: "algo digno de um boss"): `Music.VARIANTS.sentinel`, Mi menor, 144 BPM (+6 por rodada),
+  baixo galopando, metais em síncope, coro, tema próprio, tambor de guerra, viradas; a chuva continua e o `boost` da
+  arena vale. Entra quando o Sentinela acorda, `heat` = rodada (2ª: tema dobrado e tons; 3ª: arpejo de alarme e
+  tambor em todo compasso), volta à cidade quando ele dorme (a Nexy morreu) e no fim da cena da queda. No celular
+  (`AudioSys.lite`) toca com metade das vozes.
   Morrer: ele dorme de novo, a rodada fica. Aberto, o casco deixa o tiro passar (senão o núcleo de trás ficava imune).
 - Poderes: tomar dano com poder = perde o poder (`P.hurt`), STAR ignora tudo e mata no toque (menos gigantes). Morreu ou
   trocou de fase: `P.reset` zera. O poder sai do bloco, mostra o nome 0,9 s e vem até a Nexy (o bloco fica alto demais

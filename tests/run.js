@@ -1967,6 +1967,32 @@ test('1-3 Sentinela mais fácil: 5 de vida, aberto 8 s; mira antes da rajada (2 
   expect(r.d0 === 0 && r.d1 === 1, `drones: nenhum na 1ª rodada, no máximo um depois (${JSON.stringify(r)})`);
 }, L13);
 
+test('1-3 trilha de chefe: entra quando o Sentinela acorda, acelera a cada rodada, volta à cidade quando a Nexy morre e depois da queda; toca os 8 compassos sem erro (também no modo leve do celular)', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13);
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, out = {};
+    H.noEnemies();
+    const S = NEXY.Ents.list.find(e => e.type === 'sentinel');
+    out.before = Music.variant;
+    H.tp(341, 15, 999); for (let i = 0; i < 200 && S.state !== 'fight'; i++) H.step(1);
+    out.fight = [Music.variant, Music.heat, Music.bpm].join();
+    Sentinel.roundOver(S); out.round2 = [Music.variant, Music.heat, Music.bpm].join();
+    Power.respawn(); out.dead = Music.variant;
+    H.tp(341, 15, 999); for (let i = 0; i < 200 && S.state !== 'fight'; i++) H.step(1);
+    out.again = [Music.variant, Music.heat].join();
+    S.round = 2; Sentinel.roundOver(S); for (let i = 0; i < 60 * 16 && SentinelScene.active; i++) SentinelScene.update(1 / 60);
+    out.after = Music.variant;
+    // os 8 compassos da trilha, em cada rodada, no computador e no modo leve
+    AudioSys.init(); let err = null;
+    try { for (const lite of [false, true]) { AudioSys.lite = lite; Music.fight('sentinel', 0); for (const h of [0, 1, 2]) { Music.heat = h; for (let st = 0; st < 128; st++) Music.bossPlay(st, AudioSys.t + 0.05, 0.1); } } } catch (e) { err = String(e); }
+    Music.fight(null); out.err = err;
+    return out;
+  });
+  expect(r.before === 'city' && r.fight === 'sentinel,0,144' && r.round2 === 'sentinel,1,150', `entra e acelera (${JSON.stringify(r)})`);
+  expect(r.dead === 'city' && r.again === 'sentinel,1' && r.after === 'city', `volta à cidade (${JSON.stringify(r)})`);
+  expect(!r.err, `toca sem erro (${r.err})`);
+}, L13);
+
 test('visual novo da Nexy: rascunho na 1ª partida, evolui com as fases (aviso no mapa uma vez), CLASSIC NEXY volta ao antigo; a física não muda', async ({ page }) => {
   const r = await page.evaluate(() => {
     const P = NEXY.P, G = NEXY.Game, S = NEXY.Save.data, out = {};

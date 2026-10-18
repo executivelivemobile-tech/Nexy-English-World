@@ -462,8 +462,9 @@ const Sentinel = {
     e.state = 'fight'; e.fireT = SENTINEL.fire.every[0]; e.aimT = 0; e.heat = 0; e.droneT = SENTINEL.drones.every; Game.registerCreature('SENTINEL');
     for (const w of ['SHIELD', 'CORE']) { if (!Game.wordsSeen.has(w)) { Game.wordsSeen.add(w); Game.learnedOrder.push(w); } Game.grimoireWord(w, null); }
     if (!quiet) { SFX.rumble(1.4); SFX.warDrum(); Game.shake(5); }
+    Music.fight('sentinel', e.round);
   },
-  sleep(e) { if (e.state === 'dead' || e.state === 'dying') return; e.state = 'sleep'; e.stateT = 0; e.cage = 1; e.burst = 0; e.aimT = 0; e.woke = false; },
+  sleep(e) { if (e.state === 'dead' || e.state === 'dying') return; e.state = 'sleep'; e.stateT = 0; e.cage = 1; e.burst = 0; e.aimT = 0; e.woke = false; Music.fight(null); },
   damage(e, n) {
     if (e.iT > 0 || !this.exposed(e)) return false;
     e.hp -= n; e.iT = 0.3; e.hitT = 0.18; SFX.bossHit(); Game.hitstop(2); Game.shake(2);
@@ -476,7 +477,7 @@ const Sentinel = {
     if (e.round >= SENTINEL.rounds.length - 1) return SentinelScene.start(e);
     // o núcleo foge para outro lugar; o Sentinela sobe e luta mais rápido
     e.from = { x: e.core.x, y: e.core.y }; e.round++; e.hp = SENTINEL.hp; e.moveK = 0;
-    e.state = 'rise'; e.stateT = 1.1; e.cage = 1; e.heat = 0;
+    e.state = 'rise'; e.stateT = 1.1; e.cage = 1; e.heat = 0; Music.fight('sentinel', e.round);
     SFX.crush(); SFX.riser(1); Game.shake(6); FX.burst(e.cx, e.cy, 40, 'c', 300, { life: 0.8, g: 300 });
     if (Game.echoBorn) Game.later(1.2, () => Echo.talk(ECHO.lines.coreMove));
   },
@@ -520,7 +521,7 @@ Ents.reg('sentinel', {
     let tx = e.hx, ty = e.hy + Math.sin(e.t * 1.3) * 10;
     if (e.state === 'sleep') {
       ty = e.hy + Math.sin(e.t * 0.8) * 6;
-      if (!P.dead && P.cx > (e.c - 15) * TS) { e.state = 'wake'; e.stateT = 1.6; SFX.rumble(1.6); SFX.warDrum(); Game.shake(4); }
+      if (!P.dead && P.cx > (e.c - 15) * TS) { e.state = 'wake'; e.stateT = 1.6; SFX.rumble(1.6); SFX.warDrum(); Game.shake(4); Music.fight('sentinel', e.round); }
     } else if (e.state === 'wake') {
       e.stateT -= dt; ty = e.hy - 10;
       if (e.stateT <= 0) { S.wake(e, true); if (Game.echoBorn && !e.met) { e.met = true; Echo.talk(ECHO.lines.sentinel); } }
@@ -715,7 +716,7 @@ const SentinelScene = {
     const e = this.e;
     if (e.state !== 'dead') { e.state = 'dead'; Save.data.met.sentinel = true; Save.write(); }
     this.active = false; this.letter = 0; this.zoom = 1; this.sat = 0;
-    Music.setDrone(false); Music.normal();
+    Music.fight(null); Music.setDrone(false); Music.normal();
     if (Game.state === 'cinematic') Game.state = 'play';
     Game.clearInput();
     World.setTarget('bossgate', 'small'); SFX.doorOpen(); Game.shake(3);
