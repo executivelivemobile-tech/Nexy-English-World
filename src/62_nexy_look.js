@@ -17,7 +17,7 @@ const NEXY_STAGES = [
 ];
 
 const NexyLook = {
-  stage: 0, cache: new Map(), cacheMax: 260,
+  stage: 0, cache: new Map(), cacheMax: 260, cacheMB: 48,
   // no jogo: o estágio sobe com as fases concluídas (cleared = Save.data.cleared). Cada estágio aparece na fase seguinte.
   stageFor(cleared = {}) { return cleared.castle ? 5 : cleared.fortress ? 4 : cleared['1-3'] ? 3 : cleared['1-2'] ? 2 : cleared['1-1'] ? 1 : 0; },
   C: {
@@ -70,7 +70,7 @@ const NexyLook = {
     let a = Math.PI - 1.05 + run * 0.55 + (gr ? 0 : -0.3 * p.air);
     const curl = 0.25 - run * 0.1;
     for (let j = 1; j <= 9; j++) {
-      a += curl + Math.sin(p.t * 2.6 - j * 0.6) * 0.07 * (0.6 + mv);
+      a += curl + Math.sin((p.tw != null ? p.tw : p.t * 2.6) - j * 0.6) * 0.07 * (0.6 + mv);
       const q = tail[j - 1]; tail.push({ x: q.x + Math.cos(a) * 2.2, y: q.y + Math.sin(a) * 2.2 });
     }
     // cachecol: duas fitas presas no pescoço, voando para trás com a velocidade
@@ -78,13 +78,28 @@ const NexyLook = {
       const pts = [{ x: neck.x - 2.6, y: neck.y + 1.6 + k * 0.5 }];
       const fly = Math.min(1.6, mv + run * 0.8 + (gr ? 0 : 0.7));
       for (let j = 1; j <= 6; j++) {
-        const q = pts[j - 1], w = Math.sin(p.t * 7 - j * 0.85 + k * 1.7) * j * 0.3 * (0.35 + fly);
+        const q = pts[j - 1], w = Math.sin((p.sw != null ? p.sw : p.t * 7) - j * 0.85 + k * 1.7) * j * 0.3 * (0.35 + fly);
         pts.push({ x: q.x - (0.9 + fly * 1.15) * (k ? 0.85 : 1), y: q.y + (1.3 - fly * 0.6) + w * 0.4 + (p.air < 0 ? 0.5 : 0) });
       }
       return pts;
     });
     const ear = Math.max(0, Math.sin(p.t * 1.3) - 0.92) * 9;   // uma tremidinha de orelha de vez em quando
     return { hip, chest, neck, head, legs, arms, tail, scarf, ear, mv, run, gr, cr, br };
+  },
+  // pose contínua (pedido do dono: movimentos mais fluidos): em vez de saltar entre poses, mistura os esqueletos.
+  // av = -1 subindo … 1 caindo (o ápice fica no meio), lift = 0 no chão … 1 no ar (decolar/pousar), crouchK = 0 … 1.
+  mix(a, b, k) {
+    if (typeof a === 'number') return a + (b - a) * k;
+    if (Array.isArray(a)) return a.map((v, i) => this.mix(v, b[i], k));
+    if (a && typeof a === 'object') { const o = {}; for (const key in a) o[key] = this.mix(a[key], b[key], k); return o; }
+    return k < 0.5 ? a : b;
+  },
+  rigP(p) {
+    const lift = p.lift != null ? p.lift : p.air ? 1 : 0, av = p.av != null ? p.av : p.air || 0;
+    const air = q => av <= -1 ? this.rig({ ...q, air: -1 }) : av >= 1 ? this.rig({ ...q, air: 1 }) : this.mix(this.rig({ ...q, air: -1 }), this.rig({ ...q, air: 1 }), (av + 1) / 2);
+    const full = q => lift <= 0 ? this.rig({ ...q, air: 0 }) : lift >= 1 ? air(q) : this.mix(this.rig({ ...q, air: 0 }), air(q), lift);
+    const c = p.crouchK != null ? p.crouchK : p.crouch ? 1 : 0;
+    return c <= 0 ? full({ ...p, crouch: false }) : c >= 1 ? full({ ...p, crouch: true }) : this.mix(full({ ...p, crouch: false }), full({ ...p, crouch: true }), c);
   },
   // dois ossos (coxa e canela, braço e antebraço): onde fica o joelho/cotovelo
   ik(a, b, l1, l2, dir) {
@@ -142,7 +157,7 @@ const NexyLook = {
 
   /* ---------- o desenho, camada por camada ---------- */
   paint(ctx, p, stage, k = 1) {
-    const C = this.C, R0 = this.rig(p), S = stage;
+    const C = this.C, R0 = this.rigP(p), S = stage;
     this.gk = k * 0.5;   // brilho: unidades do jogo → pixels da tela
     const st = {
       sketch: S === 0, boilSeed: 1 + (p.boil || 0) * 131,
@@ -417,13 +432,22 @@ const NexyLook = {
   },
 
   /* ---------- quadros guardados (o jogo só carimba) ---------- */
-  // a pose contínua vira um quadro: 12 por passada, 8 de respiração, 3 de tremido do rascunho
+  // a pose contínua vira um quadro: 16 por passada, velocidade de 0,2 em 0,2 (acelerar e frear passam por poses do meio),
+  // no ar 5 alturas (subindo → ápice → caindo) e 4 passos de decolagem/pouso, agachar em 4 passos, 8 de respiração.
+  // Andando, o tempo do cachecol e da cauda segue a passada (uma onda por passo): os quadros se repetem a cada passo.
   frame(p) {
     const q = Object.assign({}, p);
-    const TAU = Math.PI * 2;
-    if (q.air) { q.speed = Math.min(1.6, q.speed || 0); q.phase = 0; q.air = q.air < 0 ? -1 : 1; q.t = Math.floor(q.t * 10) / 10; }
-    else if ((q.speed || 0) < 0.05) { q.speed = 0; q.phase = 0; q.t = Math.floor((q.t % (TAU / 2.4)) / (TAU / 2.4) * 8) / 8 * (TAU / 2.4); }
-    else { q.phase = Math.floor(((q.phase % TAU) + TAU) % TAU / TAU * 12) / 12 * TAU; q.speed = q.speed > 1.3 ? 1.6 : 1; q.t = Math.floor(q.t * 8) / 8; }
+    const TAU = Math.PI * 2, st = v => Math.round(v * 5) / 5;
+    q.lift = Math.round((p.lift != null ? p.lift : p.air ? 1 : 0) * 3) / 3;
+    q.av = Math.round((p.av != null ? p.av : p.air || 0) * 2) / 2;
+    q.crouchK = Math.round((p.crouchK != null ? p.crouchK : p.crouch ? 1 : 0) * 4) / 4;
+    q.crouch = q.crouchK >= 0.5;
+    if (q.lift > 0) { q.air = q.av < 0 ? -1 : 1; q.speed = st(Math.min(1.6, q.speed || 0)); q.phase = 0; q.t = (Math.floor(q.t * 10) / 10) % 12; }
+    else if ((q.speed || 0) < 0.1) { q.air = 0; q.speed = 0; q.phase = 0; q.t = Math.floor((q.t % (TAU / 2.4)) / (TAU / 2.4) * 8) / 8 * (TAU / 2.4); }
+    else {
+      const u = Math.floor(((q.phase % TAU) + TAU) % TAU / TAU * 16) / 16;
+      q.air = 0; q.phase = u * TAU; q.speed = Math.max(0.2, st(Math.min(1.6, q.speed))); q.t = u * TAU / 2.4; q.tw = u * TAU; q.sw = u * TAU * 2;
+    }
     q.boil = Math.floor(p.t * 3) % 3;
     return q;
   },
@@ -431,10 +455,12 @@ const NexyLook = {
   W: 112, H: 104, OX: 62, OY: 84,
   sprite(p, stage, k) {
     const q = this.frame(p);
-    const key = [stage, q.speed, q.phase.toFixed(2), q.air, q.crouch ? 1 : 0, q.arm || 'idle', q.t.toFixed(2), stage === 0 ? q.boil : 0, k.toFixed(2)].join('|');
+    const key = [stage, q.speed, q.phase.toFixed(2), q.av, q.lift.toFixed(2), q.crouchK, q.arm || 'idle', q.t.toFixed(2), stage === 0 ? q.boil : 0, k.toFixed(2)].join('|');
     let c = this.cache.get(key);
-    if (c) return c;
-    if (this.cache.size > this.cacheMax) this.cache.clear();
+    // guarda os mais usados (o último usado vai para o fim); o limite cabe na memória do celular em qualquer tela
+    if (c) { this.cache.delete(key); this.cache.set(key, c); return c; }
+    const max = Math.max(60, Math.min(this.cacheMax, Math.floor(this.cacheMB * 1e6 / (this.W * this.H * k * k * 4))));
+    while (this.cache.size >= max) this.cache.delete(this.cache.keys().next().value);
     c = document.createElement('canvas'); c.width = Math.ceil(this.W * k); c.height = Math.ceil(this.H * k);
     const x = c.getContext('2d'); x.setTransform(k, 0, 0, k, this.OX * k, this.OY * k);
     this.paint(x, q, stage, k);

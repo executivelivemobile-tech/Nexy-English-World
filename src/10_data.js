@@ -55,6 +55,8 @@ const CFG = {
   JUMP_V: 620, JUMP_RUN_BONUS: 73, SPIN_FACTOR: 0.9,
   G_UP: 1500, G_CUT: 3600, G_DOWN: 2400, MAX_FALL: 700,
   COYOTE: 0.10, BUFFER: 0.12,
+  // só desenho: quanto dura o giro ao virar de lado (s)
+  TURN_T: 0.1,
   // pisão (quique). Com o pulo segurado o quique é um pulo completo (e um pouco mais).
   BOUNCE: 380, BOUNCE_HELD: 800, SPIN_BOUNCE: 330, SPIN_BOUNCE_HELD: 560, HITSTOP_FRAMES: 3,
   // facilidade do quique alto: apertar o pulo pouco antes (EARLY) ou logo depois (LATE, ainda no ar) do pisão vale como segurar

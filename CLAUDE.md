@@ -287,6 +287,11 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   botas grandes, asas de fênix) foi feita no commit `280a8da`; o dono pediu para **voltar ao visual anterior** (o
   rascunho que evolui, `726c683`) "até decidirmos melhor". Para retomar: `git show 280a8da:src/62_nexy_look.js`.
   O rastro da corrida é a sombra da própria Nexy. Blender: o dono seguiu o conselho de manter o desenho em código.
+  **Movimento fluido** (pedido do dono): só desenho, a física não mudou. `NexyLook.rigP` mistura esqueletos (`mix`):
+  chão ↔ ar (`P.liftK`, 0,09 s), subida → ápice → queda (`P.avK` pela vy), de pé ↔ agachada (`P.crouchK`, 0,08 s);
+  `frame` guarda 16 quadros por passada, velocidade de 0,2 em 0,2, cachecol e cauda presos à passada (`tw`/`sw`: os
+  quadros se repetem), cache LRU limitado por memória (`cacheMB`). `P.squash` virou mola (`sqV`), pouso achata conforme
+  a queda, virar de lado gira o desenho (`P.turnT`, `CFG.TURN_T`) e no ar o corpo inclina. `P.pose(t)` monta a pose.
 - **Segredo da 1-1** (pedido do dono, "como no Donkey Kong"; só ele e quem ele contar devem saber, por isso o README
   não explica): os **TRÊS RASTEJANTES** logo no começo (entidade `conga`, `4 5 6` em c21/24/27, no lugar do
   Rastejante solitário de c29). O dono achou a dica aparente demais e pediu que não ficassem "amarrados": agora cada um

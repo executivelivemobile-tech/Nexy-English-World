@@ -17,6 +17,7 @@ const P = {
     this.aura = false; this.invuln = 0; this.dead = false; this.deathT = 0; this.combo = 0; this.held = null;
     this.giant = false; this.trail = []; this.interact = null; this.lastSafe = { x: footX, y: footY }; this.jumpedSinceGround = true; this.bounceWindow = 0; this.lockRise = false; this.comboGlow = 0;
     this.riding = null; this.form = null; this.power = null; this.starT = 0;   // morreu ou trocou de fase: os poderes (1-3) se perdem
+    this.squash = 0; this.sqV = 0; this.liftK = 0; this.avK = 0; this.crouchK = 0; this.turnT = 0;
   },
 
   update(dt) {
@@ -48,6 +49,7 @@ const P = {
       if (this.vx * dir < 0) this.vx += dir * acc * 1.3 * dt;
       else if (av < maxV) this.vx = dir * Math.min(av + acc * dt, maxV);
     } else this.vx = approach(this.vx, 0, 50 * dt);
+    if (dir && dir !== this.facing) this.turnT = CFG.TURN_T;   // virar: um giro rápido no desenho
     if (dir) this.facing = dir;
 
     if (this.bounceWindow > 0) this.lateBounce(dt);
@@ -92,7 +94,16 @@ const P = {
 
     if (this.invuln > 0) this.invuln -= dt;
     if (this.spinning) this.spinT += dt;
-    if (this.squash) this.squash = approach(this.squash, 0, dt * 2.2);
+    // o achatar/esticar é uma mola (volta passando um pouco do ponto): pousar e pular ficam elásticos
+    if (this.squash || this.sqV) {
+      this.sqV = (this.sqV || 0) + (-260 * this.squash - 19 * this.sqV) * dt; this.squash += this.sqV * dt;
+      if (Math.abs(this.squash) < 0.002 && Math.abs(this.sqV) < 0.05) { this.squash = 0; this.sqV = 0; }
+    }
+    // a pose desliza entre chão e ar, subida e queda, de pé e agachada (só desenho)
+    this.liftK = approach(this.liftK || 0, this.onGround ? 0 : 1, dt / 0.09);
+    this.avK = approach(this.avK || 0, clamp(this.vy / 380, -1, 1), dt * 7);
+    this.crouchK = approach(this.crouchK || 0, this.crouch ? 1 : 0, dt / 0.08);
+    if (this.turnT > 0) this.turnT -= dt;
     if (this.kickT > 0) this.kickT -= dt;
     this.comboGlow = approach(this.comboGlow || 0, this.onGround ? 0 : Math.min(this.combo, 4), dt * (this.onGround ? 3 : 8));
     if (this.scaleT < 1) { this.scaleT = Math.min(1, this.scaleT + dt / 0.6); this.visScale = lerp(this.scaleFrom, this.scale, this.easeBack(this.scaleT)); }
@@ -151,7 +162,7 @@ const P = {
     for (let i = 0; i < 5; i++) FX.add(this.cx + (Math.random() - 0.5) * this.w, this.y + this.h, { vx: (Math.random() - 0.5) * 80, vy: -20 - Math.random() * 30, life: 0.35, size: 1.2, c: 'c', g: 0 });
   },
   land() {
-    this.spinning = false; this.combo = 0; this.usedDouble = false; this.squash = 0.25; this.lockRise = false; this.bounceWindow = 0;
+    this.spinning = false; this.combo = 0; this.usedDouble = false; this.squash = 0.1 + 0.22 * clamp(this.vy / CFG.MAX_FALL, 0, 1); this.sqV = 0; this.lockRise = false; this.bounceWindow = 0;
     if (this.vy > 450) for (let i = 0; i < 6; i++) FX.add(this.cx + (Math.random() - 0.5) * this.w, this.y + this.h, { vx: (Math.random() - 0.5) * 120, vy: -30, life: 0.35, size: 1.3, c: 'c', g: 0 });
   },
   headHit(tiles) {
@@ -356,7 +367,7 @@ const P = {
       R.draw(R.glow('m', 24), tx, ty, (0.5 + 0.6 * k) * s, a2 * 0.6, true);
       if (!Save.data.assist.classic && !this.form) {   // visual novo: o rastro é a sombra da própria Nexy
         ctx.save(); ctx.globalAlpha = a2 * 0.32; ctx.globalCompositeOperation = 'lighter'; ctx.translate(tx, ty + this.h / 2); ctx.scale(this.facing * s, s);
-        NexyLook.draw(ctx, { t, phase: this.walkPhase || 0, speed: Math.abs(this.vx) / CFG.WALK, air: this.onGround ? 0 : (this.vy < 0 ? -1 : 1) }, NexyLook.stage, R.k * s);
+        NexyLook.draw(ctx, this.pose(t), NexyLook.stage, R.k * s);
         ctx.restore(); continue;
       }
       rrect(ctx, tx - 8 * s, ty - hh / 2, 16 * s, hh, 8 * s);
@@ -393,13 +404,23 @@ const P = {
     ctx.restore();
   },
   // o visual novo (62_nexy_look.js): o mesmo esqueleto ganha camadas fase a fase; só desenho, a caixa de colisão é a mesma
-  drawLook(ctx, t) {
-    const sp = this.poseSpeed != null ? this.poseSpeed : Math.abs(this.vx) / CFG.WALK;
-    const pose = { t, phase: this.walkPhase || 0, speed: sp, air: this.onGround ? 0 : (this.vy < 0 ? -1 : 1), crouch: !!this.crouch,
+  // a pose do momento, contínua (NexyLook.frame arredonda para os quadros guardados)
+  pose(t) {
+    const sp = this.poseSpeed != null ? this.poseSpeed : Math.abs(this.vx) / CFG.WALK, forced = this.poseSpeed != null;
+    const lift = forced ? (this.onGround ? 0 : 1) : this.liftK != null ? this.liftK : this.onGround ? 0 : 1;
+    return { t, phase: this.walkPhase || 0, speed: sp, air: lift > 0 ? (this.vy < 0 ? -1 : 1) : 0, lift, av: forced ? (this.vy < 0 ? -1 : 1) : this.avK || 0,
+      crouch: !!this.crouch, crouchK: forced ? (this.crouch ? 1 : 0) : this.crouchK != null ? this.crouchK : this.crouch ? 1 : 0,
       arm: this.held ? 'hold' : this.kickT > 0 ? 'kick' : 'idle' };
+  },
+  drawLook(ctx, t) {
+    const pose = this.pose(t);
     ctx.save();
     if (this.crouch) ctx.scale(1 / 1.06, CFG.PLAYER_H / CFG.CROUCH_H);   // P.draw achata para agachar; o boneco agacha sozinho
-    if (this.facing < 0) ctx.scale(-1, 1);
+    // virar: o desenho gira (encolhe e abre do outro lado) em vez de trocar de lado num quadro só
+    const turn = this.turnT > 0 && this.poseSpeed == null ? 1 - 2 * this.turnT / CFG.TURN_T : 1;
+    ctx.scale(this.facing * (Math.sign(turn) || 1) * Math.max(0.22, Math.abs(turn)), 1);
+    // no ar o corpo inclina para onde vai (pela altura do quadril)
+    if (!this.onGround && this.poseSpeed == null) { const tilt = clamp(this.vx * this.facing / CFG.RUN, -1, 1) * 0.07 + clamp(this.vy / CFG.MAX_FALL, -1, 1) * 0.03; ctx.translate(0, -18); ctx.rotate(tilt); ctx.translate(0, 18); }
     NexyLook.draw(ctx, pose, NexyLook.stage, R.k * Math.max(0.5, Math.abs(this.visScale * this.scale)));
     ctx.restore();
   },
