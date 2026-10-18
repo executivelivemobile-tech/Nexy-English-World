@@ -17,7 +17,7 @@ const P = {
     this.aura = false; this.invuln = 0; this.dead = false; this.deathT = 0; this.combo = 0; this.held = null;
     this.giant = false; this.trail = []; this.interact = null; this.lastSafe = { x: footX, y: footY }; this.jumpedSinceGround = true; this.bounceWindow = 0; this.lockRise = false; this.comboGlow = 0;
     this.riding = null; this.form = null; this.power = null; this.starT = 0;   // morreu ou trocou de fase: os poderes (1-3) se perdem
-    this.squash = 0; this.sqV = 0; this.liftK = 0; this.avK = 0; this.crouchK = 0; this.turnT = 0;
+    this.squash = 0; this.sqV = 0; this.liftK = 0; this.avK = 0; this.crouchK = 0; this.turnT = 0; this.pushK = 0; this.landK = 0;
   },
 
   update(dt) {
@@ -103,6 +103,8 @@ const P = {
     this.liftK = approach(this.liftK || 0, this.onGround ? 0 : 1, dt / 0.09);
     this.avK = approach(this.avK || 0, clamp(this.vy / 380, -1, 1), dt * 7);
     this.crouchK = approach(this.crouchK || 0, this.crouch ? 1 : 0, dt / 0.08);
+    // o impulso do pulo (pernas esticando) e o pouso (joelhos amortecendo) duram um instante
+    this.pushK = approach(this.pushK || 0, 0, dt / 0.18); this.landK = approach(this.landK || 0, 0, dt / 0.24);
     if (this.turnT > 0) this.turnT -= dt;
     if (this.kickT > 0) this.kickT -= dt;
     this.comboGlow = approach(this.comboGlow || 0, this.onGround ? 0 : Math.min(this.combo, 4), dt * (this.onGround ? 3 : 8));
@@ -157,12 +159,14 @@ const P = {
     // no Forte, a lei YOU CAN'T JUMP deixa o pulo curtinho (Fort.jumpK)
     const v = (CFG.JUMP_V + CFG.JUMP_RUN_BONUS * Math.min(1, Math.abs(this.vx) / CFG.RUN)) * Fort.jumpK();
     this.vy = -v * (spin ? CFG.SPIN_FACTOR : 1);
-    this.onGround = false; this.jumpedSinceGround = true; this.spinning = spin; this.spinT = 0; this.squash = -0.3;
+    this.onGround = false; this.jumpedSinceGround = true; this.spinning = spin; this.spinT = 0; this.squash = -0.18; this.pushK = 1; this.landK = 0;
     if (spin) SFX.spin(); else SFX.jump();
     for (let i = 0; i < 5; i++) FX.add(this.cx + (Math.random() - 0.5) * this.w, this.y + this.h, { vx: (Math.random() - 0.5) * 80, vy: -20 - Math.random() * 30, life: 0.35, size: 1.2, c: 'c', g: 0 });
   },
   land() {
-    this.spinning = false; this.combo = 0; this.usedDouble = false; this.squash = 0.1 + 0.22 * clamp(this.vy / CFG.MAX_FALL, 0, 1); this.sqV = 0; this.lockRise = false; this.bounceWindow = 0;
+    // o pouso: os joelhos dobram (landK) conforme a queda; o achatar do desenho inteiro ficou pequeno (parecia borracha)
+    this.spinning = false; this.combo = 0; this.usedDouble = false; this.squash = 0.05 + 0.12 * clamp(this.vy / CFG.MAX_FALL, 0, 1); this.sqV = 0; this.lockRise = false; this.bounceWindow = 0;
+    this.landK = 0.4 + 0.6 * clamp(this.vy / CFG.MAX_FALL, 0, 1); this.pushK = 0;
     if (this.vy > 450) for (let i = 0; i < 6; i++) FX.add(this.cx + (Math.random() - 0.5) * this.w, this.y + this.h, { vx: (Math.random() - 0.5) * 120, vy: -30, life: 0.35, size: 1.3, c: 'c', g: 0 });
   },
   headHit(tiles) {
@@ -183,7 +187,7 @@ const P = {
     // quique fraco: abre uma janela curta para apertar o pulo logo em seguida
     this.bounceWindow = held || early ? 0 : CFG.BOUNCE_LATE;
     this.bounceFrom = this.y + this.h; this.bounceStrong = strong; this.stompT = now;
-    this.onGround = false; this.jumpedSinceGround = true; this.squash = -0.25;
+    this.onGround = false; this.jumpedSinceGround = true; this.squash = -0.15; this.pushK = 0.8;
   },
   // pulo apertado logo depois do pisão, ainda no ar: vira o quique alto,
   // com o mesmo ápice de quem segurou o botão no impacto (a janela fecha ao tocar o chão)
@@ -410,6 +414,7 @@ const P = {
     const lift = forced ? (this.onGround ? 0 : 1) : this.liftK != null ? this.liftK : this.onGround ? 0 : 1;
     return { t, phase: this.walkPhase || 0, speed: sp, air: lift > 0 ? (this.vy < 0 ? -1 : 1) : 0, lift, av: forced ? (this.vy < 0 ? -1 : 1) : this.avK || 0,
       crouch: !!this.crouch, crouchK: forced ? (this.crouch ? 1 : 0) : this.crouchK != null ? this.crouchK : this.crouch ? 1 : 0,
+      push: forced ? 0 : this.pushK || 0, land: forced ? 0 : this.landK || 0,
       arm: this.held ? 'hold' : this.kickT > 0 ? 'kick' : 'idle' };
   },
   drawLook(ctx, t) {

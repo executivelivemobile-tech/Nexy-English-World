@@ -29,40 +29,60 @@ const NexyLook = {
 
   /* ---------- esqueleto: a pose vira posições das juntas (pés na origem, de frente para a direita) ----------
      pose: { t, phase (ciclo da passada), speed (0 parado, 1 andando, 1.6 correndo), air (0 chão, -1 subindo, 1 caindo),
-             crouch, arm ('idle' | 'hold' | 'kick' | 'reach' | 'slash'), boil (0..2, o tremido do rascunho) } */
+             crouch, arm ('idle' | 'hold' | 'kick' | 'reach' | 'slash'), boil (0..2, o tremido do rascunho),
+             push (1 → 0 logo depois de pular: o impulso), land (1 → 0 logo depois de pousar: os joelhos amortecem) } */
   rig(p) {
+    const TAU = Math.PI * 2;
     const mv = Math.min(1, p.speed || 0), run = Math.min(1, Math.max(0, ((p.speed || 0) - 1) / 0.6)), gr = !p.air;
-    const br = Math.sin(p.t * 2.4) * (1 - mv) * (gr ? 1 : 0);        // respiração parado
-    const bob = gr ? -Math.abs(Math.cos(p.phase)) * (0.8 + run * 0.9) * mv : 0;
-    const cr = p.crouch ? 1 : 0;
-    const lean = gr ? mv * 1.1 + run * 2.4 : (p.air < 0 ? 1.4 : 0.3);
-    const hip = { x: 0, y: -18.6 + bob + cr * 7.2 };
-    const chest = { x: lean - cr * 0.6, y: -30.4 + bob + cr * 9.6 + br * 0.35 };
+    const cr = p.crouch ? 1 : 0, land = gr ? p.land || 0 : 0, push = gr ? 0 : p.push || 0, avC = p.avC != null ? p.avC : p.air || 0;
+    const br = Math.sin(p.t * 2.4) * (1 - mv) * (gr ? 1 : 0);                  // respiração parado
+    const sway = gr ? Math.sin(p.t * 2.4 + 1.1) * (1 - mv) * (1 - cr) : 0;    // parada, o peso passa de uma perna para a outra
+    // a passada (pedido do dono: nada de robô, quadris e joelhos): cada perna tem o apoio (o pé no chão vai da frente
+    // para trás) e o balanço (o pé sobe, o joelho dobra e volta para a frente). Correndo o balanço é mais longo, o
+    // calcanhar sobe atrás e o quadril desce (joelhos mais dobrados); andando o quadril sobe no meio do apoio.
+    const D = 0.58 - run * 0.18, A = 2.2 + mv * 1.4 + run * 3, H = mv * 2.4 + run * 5;
+    const f0 = ((p.phase / TAU) % 1 + 1) % 1;
+    const step = s => {
+      if (s < D) { const w = s / D; return { x: A * (1 - 2 * w), y: 0, tilt: (w < 0.18 ? -0.3 * (1 - w / 0.18) : w > 0.7 ? 0.6 * (w - 0.7) / 0.3 : 0) * mv }; }
+      const w = (s - D) / (1 - D), e = 0.5 - 0.5 * Math.cos(Math.PI * Math.pow(w, 1 + run * 0.35));
+      return { x: -A + 2 * A * e, y: -H * Math.sin(Math.PI * Math.pow(w, 0.75 + run * 0.1)), tilt: (0.55 * (1 - w) - 0.3 * w) * mv };
+    };
+    const moving = gr && mv >= 0.05 && !cr;
+    const bob = moving ? Math.cos(2 * TAU * (f0 - D / 2)) * (-0.75 * mv * (1 - run) + 1.2 * run) : 0;
+    const lean = gr ? mv * 1.1 + run * 2.6 + land * 1.6 : 1 - avC * 0.4 - push * 0.4;
+    const hip = { x: sway * 0.45 - land * 0.6, y: -18.4 + bob + (moving ? run * 0.9 : 0) + cr * 7.2 + land * 4.6 + Math.abs(sway) * 0.2 };
+    const chest = { x: lean - cr * 0.6 + sway * 0.2, y: -30.4 + bob * 0.85 + (moving ? run * 0.9 : 0) + cr * 9.6 + land * 4.2 + br * 0.35 - push * 0.3 };
     const neck = { x: chest.x * 1.1 + 0.5, y: chest.y - 2.4 };
-    const head = { x: chest.x * 1.15 + 1.2, y: neck.y - 6.8 + br * 0.2 };
+    // a cabeça balança menos que o corpo (o olhar fica firme)
+    const head = { x: chest.x * 1.15 + 1.2 - land * 0.3, y: neck.y - 6.8 + br * 0.2 - bob * 0.25 };
+    const air = gr ? null : this.airPose(avC, push, run);
     const legs = [0, 1].map(i => {
-      const u = p.phase + (i ? Math.PI : 0);
-      let f;
-      if (cr) f = { x: i ? -4.2 : 4.6, y: 0 };
-      else if (!gr) f = p.air < 0 ? { x: i ? -3.2 : 5, y: i ? -2.5 : -7 } : { x: i ? -3 : 3.4, y: i ? -0.5 : -2.6 };
-      else if (mv < 0.05) f = { x: i ? -2.3 : 2.7, y: 0 };
-      else { const st = 3.6 + run * 3.6; f = { x: Math.sin(u) * st, y: -Math.max(0, Math.cos(u)) * (2 + run * 2.8) }; }
-      const knee = this.ik(hip, f, 9.8, 9.2, 1);
-      const foot = this.reach(knee, f, 9.2);
-      const tilt = gr ? (mv > 0.05 ? -Math.max(0, Math.cos(u)) * 0.35 * mv : 0) : (p.air < 0 ? -0.4 : 0.25);
-      return { knee, foot, tilt };
+      let f, tilt;
+      if (cr) { f = { x: i ? -4.2 : 4.6, y: 0 }; tilt = 0; }
+      else if (air) { f = air.f[i]; tilt = air.f[i].tilt; }
+      else if (!moving) { f = { x: (i ? -2.2 : 2.6) + sway * 0.25 + land * (i ? -0.9 : 0.9), y: 0 }; tilt = 0; }
+      else { const s = step((f0 + (i ? 0.5 : 0)) % 1); f = { x: s.x + land * (i ? -0.6 : 0.6), y: s.y * (1 - land * 0.6) }; tilt = s.tilt; }
+      // a bacia gira: o quadril da perna que vai para a frente avança um pouco
+      const hx = moving ? f.x * 0.08 : 0, hj = { x: hip.x + (i ? -1.2 : 0.8) + hx, y: hip.y };
+      const knee = this.ik(hj, f, 9.8, 9.2, 1);
+      return { knee, foot: this.reach(knee, f, 9.2), tilt, hx };
     });
     const sh = [{ x: chest.x + 0.6, y: chest.y + 1.3 }, { x: chest.x - 1.4, y: chest.y + 1 }];
     const arms = [0, 1].map(i => {
-      const s0 = sh[i], u = p.phase + (i ? 0 : Math.PI);
+      const s0 = sh[i];
       let h;
       if (p.arm === 'hold' || p.arm === 'kick') h = { x: s0.x + (i ? 8.6 : 10.2), y: s0.y + (i ? 4.6 : 3.2) };
       else if (p.arm === 'reach' && !i) h = { x: s0.x + 12.4, y: s0.y - 0.6 };
       else if (p.arm === 'slash' && !i) h = { x: s0.x + 9.6, y: s0.y - 5.5 };
       else if (cr) h = { x: s0.x + (i ? 3.5 : 5.5), y: s0.y + 7.4 };
-      else if (!gr) h = p.air < 0 ? (i ? { x: s0.x - 6, y: s0.y + 7 } : { x: s0.x + 6.4, y: s0.y - 5.5 }) : (i ? { x: s0.x - 5.5, y: s0.y + 3 } : { x: s0.x + 6.8, y: s0.y + 1.5 });
-      else if (mv < 0.05) h = { x: s0.x + (i ? -1 : 1.6), y: s0.y + 12.4 + br * 0.4 };
-      else { const sw = Math.sin(u) * (4 + run * 4.8); h = { x: s0.x + sw + run * 1.5, y: s0.y + 12.2 - run * 3.2 - Math.abs(sw) * 0.25 }; }
+      else if (air) h = { x: s0.x + air.h[i].x, y: s0.y + air.h[i].y };
+      else if (!moving) h = { x: s0.x + (i ? -1 : 1.6) + land * 4.5 - sway * 0.3, y: s0.y + 12.4 + br * 0.4 - land * 3 };
+      else {
+        // o braço vai ao contrário da perna do mesmo lado; correndo o cotovelo dobra e a mão sobe na frente
+        const lx = step((f0 + (i ? 0.5 : 0)) % 1).x / A, k = 0.5 - 0.5 * lx;
+        const fwd = { x: s0.x + 4.6 + run * 2.4, y: s0.y + 9.6 - run * 4.6 }, back = { x: s0.x - 4 - run * 2.6, y: s0.y + 10.4 - run * 3.2 };
+        h = { x: back.x + (fwd.x - back.x) * k + land * 3, y: back.y + (fwd.y - back.y) * k + (1 - lx * lx) * (1.4 - run) - land * 2 };
+      }
       const elbow = this.ik(s0, h, 7, 6.6, -1);
       return { sh: s0, elbow, hand: this.reach(elbow, h, 6.6) };
     });
@@ -79,6 +99,22 @@ const NexyLook = {
     const ear = Math.max(0, Math.sin(p.t * 1.3) - 0.92) * 9;   // uma tremidinha de orelha de vez em quando
     return { hip, chest, neck, head, legs, arms, scarf, ear, mv, run, gr, cr, br };
   },
+  // as poses do pulo (pés absolutos, quadril em (0, -18,6); mãos relativas ao ombro): impulso (pernas esticadas, pontas
+  // dos pés para baixo, braços para cima) → subida (o joelho da frente sobe, a perna de trás fica esticada) → ápice
+  // (joelhos recolhidos, braços abertos para equilibrar) → queda (as pernas descem para o pouso, braços para cima)
+  AIR: {
+    push: { f: [{ x: 1, y: 0.8, tilt: 0.75 }, { x: -1.8, y: 0.4, tilt: 0.8 }], h: [{ x: 3, y: -12.5 }, { x: 0.6, y: -11.5 }] },
+    rise: { f: [{ x: 5.2, y: -8.2, tilt: 0.35 }, { x: -3.4, y: -1.2, tilt: 0.6 }], h: [{ x: 4.6, y: -11.5 }, { x: -6.2, y: 5.5 }] },
+    apex: { f: [{ x: 3.2, y: -8.8, tilt: 0.2 }, { x: -1.6, y: -6.4, tilt: 0.3 }], h: [{ x: 7, y: -2.5 }, { x: -6.4, y: 0 }] },
+    fall: { f: [{ x: 3.6, y: -1.6, tilt: -0.15 }, { x: -2.2, y: -0.8, tilt: 0.1 }], h: [{ x: 5.8, y: -6.5 }, { x: -5.6, y: -5 }] },
+  },
+  airPose(av, push, run) {
+    const K = this.AIR, o = av < 0 ? this.mix(K.rise, K.apex, av + 1) : this.mix(K.apex, K.fall, av);
+    const q = push > 0 ? this.mix(o, K.push, push) : o;
+    const sp = run * (1 - Math.max(0, av) * 0.6) * (1 - push);   // correndo, as pernas abrem em tesoura
+    q.f[0].x += sp * 2.4; q.f[1].x -= sp * 2.6;
+    return q;
+  },
   // pose contínua (pedido do dono: movimentos mais fluidos): em vez de saltar entre poses, mistura os esqueletos.
   // av = -1 subindo … 1 caindo (o ápice fica no meio), lift = 0 no chão … 1 no ar (decolar/pousar), crouchK = 0 … 1.
   mix(a, b, k) {
@@ -89,7 +125,7 @@ const NexyLook = {
   },
   rigP(p) {
     const lift = p.lift != null ? p.lift : p.air ? 1 : 0, av = p.av != null ? p.av : p.air || 0;
-    const air = q => av <= -1 ? this.rig({ ...q, air: -1 }) : av >= 1 ? this.rig({ ...q, air: 1 }) : this.mix(this.rig({ ...q, air: -1 }), this.rig({ ...q, air: 1 }), (av + 1) / 2);
+    const air = q => this.rig({ ...q, air: av < 0 ? -1 : 1, avC: Math.max(-1, Math.min(1, av)) });
     const full = q => lift <= 0 ? this.rig({ ...q, air: 0 }) : lift >= 1 ? air(q) : this.mix(this.rig({ ...q, air: 0 }), air(q), lift);
     const c = p.crouchK != null ? p.crouchK : p.crouch ? 1 : 0;
     return c <= 0 ? full({ ...p, crouch: false }) : c >= 1 ? full({ ...p, crouch: true }) : this.mix(full({ ...p, crouch: false }), full({ ...p, crouch: true }), c);
@@ -168,8 +204,11 @@ const NexyLook = {
     this.torso(ctx, R0, st, S, p);
     this.leg(ctx, R0, R0.legs[0], st, S, null, 0);
     if (S >= 5) this.wings(ctx, R0, p, 0, k);
+    // braço erguido (no pulo) passa por trás da cabeça: na frente ele tapava o rosto (o truque dos desenhos de perfil)
+    const up = R0.arms[0].hand.y < R0.chest.y - 1;
+    if (up) this.arm(ctx, R0, R0.arms[0], st, S, null, p);
     this.headDraw(ctx, R0, p, st, S, k);
-    this.arm(ctx, R0, R0.arms[0], st, S, null, p);
+    if (!up) this.arm(ctx, R0, R0.arms[0], st, S, null, p);
     if (p.arm === 'slash' && S >= 4) this.blade(ctx, R0, p, k);
     ctx.restore();
   },
@@ -194,7 +233,7 @@ const NexyLook = {
     });
   },
   leg(ctx, R0, L, st, S, far, k) {
-    const C = this.C, hip = { x: R0.hip.x + (k ? -1.2 : 0.8), y: R0.hip.y }, o = far || {};
+    const C = this.C, hip = { x: R0.hip.x + (k ? -1.2 : 0.8) + (L.hx || 0), y: R0.hip.y }, o = far || {};
     this.shape(ctx, st, a => this.smooth(ctx, this.limbPts(hip, L.knee, 4.4, 3.4).map(q => this.j(q, a)), true), { k: 30 + k, line: o.line, fill: o.fill });
     this.shape(ctx, st, a => this.smooth(ctx, this.limbPts(L.knee, L.foot, 3.4, 2.5).map(q => this.j(q, a)), true), { k: 32 + k, line: o.line, fill: o.fill });
     // pé: tênis no começo, bota blindada a partir do equipamento
@@ -392,7 +431,9 @@ const NexyLook = {
     const q = Object.assign({}, p);
     const TAU = Math.PI * 2, st = v => Math.round(v * 5) / 5;
     q.lift = Math.round((p.lift != null ? p.lift : p.air ? 1 : 0) * 3) / 3;
-    q.av = Math.round((p.av != null ? p.av : p.air || 0) * 2) / 2;
+    q.av = Math.round((p.av != null ? p.av : p.air || 0) * 4) / 4;
+    q.push = q.lift > 0 ? Math.round((p.push || 0) * 3) / 3 : 0;
+    q.land = q.lift < 1 ? Math.round((p.land || 0) * 4) / 4 : 0;
     q.crouchK = Math.round((p.crouchK != null ? p.crouchK : p.crouch ? 1 : 0) * 4) / 4;
     q.crouch = q.crouchK >= 0.5;
     if (q.lift > 0) { q.air = q.av < 0 ? -1 : 1; q.speed = st(Math.min(1.6, q.speed || 0)); q.phase = 0; q.t = (Math.floor(q.t * 10) / 10) % 12; }
@@ -408,7 +449,7 @@ const NexyLook = {
   W: 112, H: 104, OX: 62, OY: 84,
   sprite(p, stage, k) {
     const q = this.frame(p);
-    const key = [stage, q.speed, q.phase.toFixed(2), q.av, q.lift.toFixed(2), q.crouchK, q.arm || 'idle', q.t.toFixed(2), stage === 0 ? q.boil : 0, k.toFixed(2)].join('|');
+    const key = [stage, q.speed, q.phase.toFixed(2), q.av, q.lift.toFixed(2), q.crouchK, q.push.toFixed(2), q.land, q.arm || 'idle', q.t.toFixed(2), stage === 0 ? q.boil : 0, k.toFixed(2)].join('|');
     let c = this.cache.get(key);
     // guarda os mais usados (o último usado vai para o fim); o limite cabe na memória do celular em qualquer tela
     if (c) { this.cache.delete(key); this.cache.set(key, c); return c; }

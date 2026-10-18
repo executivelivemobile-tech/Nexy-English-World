@@ -479,7 +479,7 @@ const Seal = {
   },
   jump() {
     const lv = Math.min(FORT.seal.tiers.length, Save.data.heart.seal | 0), k = FORT.seal.tiers[lv - 1].k;
-    P.vy = -CFG.JUMP_V * k; P.usedDouble = true; P.spinning = false; P.squash = -0.3; P.combo = 0;
+    P.vy = -CFG.JUMP_V * k; P.usedDouble = true; P.spinning = false; P.squash = -0.18; P.pushK = 1; P.combo = 0;
     SFX.jump2(); FX.burst(P.cx, P.y + P.h, 22, 'm', 200, { life: 0.5, g: 0 }); FX.burst(P.cx, P.y + P.h, 10, 'w', 120, { life: 0.4, g: 0 });
   },
 };

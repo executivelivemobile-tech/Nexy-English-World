@@ -304,6 +304,15 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   `frame` guarda 16 quadros por passada, velocidade de 0,2 em 0,2, cachecol preso à passada (`sw`: os quadros se
   repetem), cache LRU limitado por memória (`cacheMB`). `P.squash` virou mola (`sqV`), pouso achata conforme
   a queda, virar de lado gira o desenho (`P.turnT`, `CFG.TURN_T`) e no ar o corpo inclina. `P.pose(t)` monta a pose.
+  **Movimento humano** (o dono ainda achou "duro como robô"; pediu quadris e joelhos): a passada (`rig` → `step`) tem
+  apoio (o pé no chão vai da frente para trás) e balanço (o pé sobe e o joelho dobra), 58% de apoio andando e 40%
+  correndo, calcanhar subindo atrás na corrida; o quadril sobe no meio do apoio andando e desce (amortece) correndo; a
+  bacia gira (`legs[].hx`), braços em contraposição com o cotovelo dobrando na corrida, cabeça balança menos que o
+  corpo, parada o peso passa de uma perna para a outra. Pulo em fases (`AIR`/`airPose`): impulso (`P.pushK`, 0,18 s:
+  pernas esticadas, pontas dos pés, braços para cima) → subida (joelho da frente sobe) → ápice (joelhos recolhidos) →
+  queda (pernas descem para o pouso); correndo, as pernas abrem em tesoura. Pouso: os joelhos amortecem (`P.landK`,
+  0,24 s, conforme a queda) e o achatar do desenho inteiro diminuiu (parecia borracha). Braço erguido passa por trás da
+  cabeça (na frente tapava o rosto). Só desenho: física igual.
   **Nada que lembre um ser diabólico** (chegou ao dono que ela parecia um diabinho): sem cauda (era fina com ponta de
   flecha), orelhas do capuz baixas e redondas (as altas e pontudas pareciam chifres), luvas com luzes redondas em vez
   de garras e menos brilho em volta do olho. Vale para qualquer desenho novo dela.
