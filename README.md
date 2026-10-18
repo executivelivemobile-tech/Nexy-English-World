@@ -245,9 +245,11 @@ desenhos da caixa em cima, embaixo, dentro e atrás. As coisas da cidade têm et
   O poder atual aparece no HUD (POWER).
 - **Drone (DRONE)**, criatura nova: patrulha no ar; perto, mira (uma linha fina ciano, que trava um instante antes) e
   atira. Pisão ou laser derrubam; o tiro da Echo o deixa parado no ar.
-- **O Sentinela (SENTINEL)**, o primeiro chefe: dorme até a Nexy entrar na arena; paira atirando rajadas e, a partir da
-  2ª rodada, solta drones. O núcleo fica perto do escudo (embaixo, atrás, do lado). No terminal, a frase do lugar certo
-  faz a luz da Echo achar o núcleo; atire nele (tiro 1, carregado 3) ou pule no casco (2). Errar o lugar: a Echo diz
+- **O Sentinela (SENTINEL)**, o primeiro chefe: dorme até a Nexy entrar na arena; paira atirando rajadas curtas (antes de
+  cada uma, uma linha tracejada mira a Nexy e trava: saia da frente) e, a partir da 2ª rodada, solta um drone. O núcleo
+  fica perto do escudo (embaixo, atrás, do lado). No terminal, a frase do lugar certo faz a luz da Echo achar o núcleo,
+  apaga os tiros no ar e deixa o escudo aberto por 8 s; atire nele (tiro 1, carregado 3) ou pule no casco (2): 5 de
+  vida por rodada. Errar o lugar: a Echo diz
   "Look again!" e explica a palavra. A rodada fica guardada se a Nexy morrer. Na queda: tudo para, rachaduras de luz,
   três tambores, explosão em câmera lenta, SENTINEL DOWN, e o portão do fim afunda.
 - Palavras novas: BOX, ON, UNDER, IN, BEHIND, WALL, SIGN, HOLE, BETWEEN, IN FRONT OF, NEXT TO, LASER, WINGS, STAR,

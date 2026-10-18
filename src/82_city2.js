@@ -430,7 +430,9 @@ Ents.reg('vent', {
    a cada rodada (SENTINEL.rounds: embaixo, atrás, do lado). No terminal: IT IS UNDER THE SHIELD → a luz da Echo acha o
    núcleo, o Sentinela cai atordoado e fica aberto SENTINEL.open s. Sem inglês: a cada SENTINEL.heat.every s de luta ele
    esquenta e fica aberto um instante (mais difícil). SENTINEL.hp por rodada: tiro 1, carregado 3, pisão 2.
-   A rodada fica guardada se a Nexy morrer. Depois da 3ª: a cena (SentinelScene) e o portão do fim afunda. */
+   A rodada fica guardada se a Nexy morrer. Depois da 3ª: a cena (SentinelScene) e o portão do fim afunda.
+   Antes de cada rajada ele mira (linha tracejada, SENTINEL.fire.aim s) e a mira trava: quem sai da frente desvia.
+   A resposta certa no terminal apaga os tiros que estão no ar (o escudo abrindo solta uma onda). */
 const CORE_AT = { UNDER: { x: 0, y: 64 }, BEHIND: { x: 0, y: 8 }, 'NEXT TO': { x: 82, y: 8 } };
 const Sentinel = {
   ent: null,
@@ -449,17 +451,19 @@ const Sentinel = {
   answer(where) {
     const e = this.ent; if (!e || e.state === 'dead' || e.state === 'dying' || this.where(e) !== where) return;
     if (e.state === 'sleep' || e.state === 'wake') this.wake(e, true);
-    e.ray = 0.8; this.open(e, SENTINEL.open, 'open');
+    e.ray = 0.8; this.open(e, SENTINEL.open, 'open'); e.aimT = 0; e.burst = 0;
+    for (const b of EnemyFire.list) FX.burst(b.x, b.y, 8, 'm', 140, { life: 0.35, g: 0 });
+    EnemyFire.list = [];
     SFX.zap(); SFX.glass(); SFX.impact(); Game.shake(6); Hints.mark('core');
     if (Game.echoBorn) Game.later(0.4, () => Echo.talk(ECHO.lines.coreOpen));
   },
   open(e, sec, st) { e.state = st; e.stateT = sec; e.cage = 0; },
   wake(e, quiet) {
-    e.state = 'fight'; e.fireT = 2.4; e.heat = 0; e.droneT = 8; Game.registerCreature('SENTINEL');
+    e.state = 'fight'; e.fireT = SENTINEL.fire.every[0]; e.aimT = 0; e.heat = 0; e.droneT = SENTINEL.drones.every; Game.registerCreature('SENTINEL');
     for (const w of ['SHIELD', 'CORE']) { if (!Game.wordsSeen.has(w)) { Game.wordsSeen.add(w); Game.learnedOrder.push(w); } Game.grimoireWord(w, null); }
     if (!quiet) { SFX.rumble(1.4); SFX.warDrum(); Game.shake(5); }
   },
-  sleep(e) { if (e.state === 'dead' || e.state === 'dying') return; e.state = 'sleep'; e.stateT = 0; e.cage = 1; e.burst = 0; e.woke = false; },
+  sleep(e) { if (e.state === 'dead' || e.state === 'dying') return; e.state = 'sleep'; e.stateT = 0; e.cage = 1; e.burst = 0; e.aimT = 0; e.woke = false; },
   damage(e, n) {
     if (e.iT > 0 || !this.exposed(e)) return false;
     e.hp -= n; e.iT = 0.3; e.hitT = 0.18; SFX.bossHit(); Game.hitstop(2); Game.shake(2);
@@ -497,7 +501,7 @@ Ents.reg('sentinel', {
   init(e) {
     e.hx = e.c * TS + TS / 2; e.hy = e.r * TS + 18; e.cx = e.hx; e.cy = e.hy;
     e.persist = true; e.shootable = true; e.state = 'sleep'; e.round = 0; e.hp = SENTINEL.hp; e.heat = 0; e.stateT = 0;
-    e.fireT = 2.4; e.burst = 0; e.burstT = 0; e.droneT = 8; e.hitT = 0; e.iT = 0; e.cage = 1; e.ray = 0; e.mx = 0; e.from = null; e.moveK = 1;
+    e.fireT = SENTINEL.fire.every[0]; e.aimT = 0; e.tx = 0; e.ty = 0; e.burst = 0; e.burstT = 0; e.droneT = SENTINEL.drones.every; e.hitT = 0; e.iT = 0; e.cage = 1; e.ray = 0; e.mx = 0; e.from = null; e.moveK = 1;
     e.core = Object.assign({}, CORE_AT.UNDER); e.dx = 0; e.dy = 0;
     Sentinel.ent = e; this.box(e);
   },
@@ -522,23 +526,29 @@ Ents.reg('sentinel', {
       if (e.stateT <= 0) { S.wake(e, true); if (Game.echoBorn && !e.met) { e.met = true; Echo.talk(ECHO.lines.sentinel); } }
     } else if (e.state === 'fight') {
       e.mx += dt * (0.45 + e.round * 0.12); tx = e.hx + Math.sin(e.mx) * 9 * TS;
-      // rajada: 3 tiros mirando a Nexy (5 em leque na última rodada)
-      e.fireT -= dt;
-      if (e.fireT <= 0 && !P.dead) { e.burst = e.round >= 2 ? 5 : 3; e.burstT = 0; e.fireT = [2.4, 2, 1.6][e.round]; }
+      // rajada: primeiro a mira (linha tracejada que trava um instante antes), depois 2 tiros (3 em leque na última
+      // rodada) no ponto travado: quem sai da frente desvia
+      const F = SENTINEL.fire, n = F.shots[e.round];
+      if (e.burst <= 0 && !P.dead) {
+        e.fireT -= dt;
+        if (e.fireT <= F.aim && e.aimT <= 0) { e.aimT = F.aim; SFX.aim(); }
+        if (e.aimT > 0) { e.aimT -= dt; if (e.aimT > F.lock) { e.tx = P.cx; e.ty = P.cy; } }
+        if (e.fireT <= 0) { e.burst = n; e.burstT = 0; e.aimT = 0; e.fireT = F.every[e.round]; }
+      }
       if (e.burst > 0) {
         e.burstT -= dt;
         if (e.burstT <= 0) {
-          const c = S.corePos(e), mx = e.cx, my = e.cy + 30, a0 = Math.atan2(P.cy - my, P.cx - mx), n = e.round >= 2 ? 5 : 3, i = n - e.burst;
-          const a = a0 + (e.round >= 2 ? (i - 2) * 0.12 : 0);
-          EnemyFire.add(mx + Math.cos(a) * 20, my + Math.sin(a) * 20, Math.cos(a) * (240 + e.round * 25), Math.sin(a) * (240 + e.round * 25)); SFX.enemyShot();
-          e.burst--; e.burstT = 0.16; e.flash = 0.1; void c;
+          const mx = e.cx, my = e.cy + 30, a = Math.atan2(e.ty - my, e.tx - mx) + (n > 2 ? (n - e.burst - 1) * 0.14 : 0), v = F.speed + e.round * F.speedUp;
+          EnemyFire.add(mx + Math.cos(a) * 20, my + Math.sin(a) * 20, Math.cos(a) * v, Math.sin(a) * v); SFX.enemyShot();
+          e.burst--; e.burstT = 0.2; e.flash = 0.1;
         }
       }
-      // drones de ajuda (a partir da 2ª rodada)
-      if (e.round >= 1) { e.droneT -= dt; if (e.droneT <= 0) { e.droneT = 9; if (Ents.list.filter(d => d.type === 'drone' && d.summoned && !d.dead).length < e.round) { Ents.spawn('drone', { x: e.cx - 15, y: e.cy + 26, summoned: true, opts: {} }); SFX.summon(); } } }
+      // um drone de ajuda (a partir da 2ª rodada, no máximo um por vez)
+      const D = SENTINEL.drones;
+      if (e.round >= D.from) { e.droneT -= dt; if (e.droneT <= 0) { e.droneT = D.every; if (Ents.list.filter(d => d.type === 'drone' && d.summoned && !d.dead).length < D.max) { Ents.spawn('drone', { x: e.cx - 15, y: e.cy + 26, summoned: true, opts: {} }); SFX.summon(); } } }
       // sem inglês: depois de um tempo lutando, ele esquenta e se abre um instante
       e.heat += dt;
-      if (e.heat >= SENTINEL.heat.every) { e.state = 'warn'; e.stateT = SENTINEL.heat.warn; e.heat = 0; SFX.wake(); }
+      if (e.heat >= SENTINEL.heat.every) { e.state = 'warn'; e.stateT = SENTINEL.heat.warn; e.heat = 0; e.aimT = 0; e.burst = 0; SFX.wake(); }
     } else if (e.state === 'warn') {
       e.stateT -= dt; tx = e.cx; ty = e.cy;
       if (Math.random() < 0.7) FX.add(e.cx + (Math.random() - 0.5) * 100, e.cy - 30, { vy: -80, vx: (Math.random() - 0.5) * 40, life: 0.8, size: 1.8, c: 'c', g: -40 });
@@ -549,7 +559,7 @@ Ents.reg('sentinel', {
       if (e.stateT <= 0) { e.state = 'rise'; e.stateT = 0.9; e.cage = 1; }
     } else if (e.state === 'rise') {
       e.stateT -= dt; tx = e.cx;
-      if (e.stateT <= 0) { e.state = 'fight'; e.fireT = 1.2; }
+      if (e.stateT <= 0) { e.state = 'fight'; e.fireT = 1.6; }
     }
     const k = 1 - Math.exp(-dt * (Sentinel.low(e) ? 6 : 2.6));
     e.cx = lerp(e.cx, tx, k); e.cy = lerp(e.cy, ty, k);
@@ -588,6 +598,13 @@ Ents.reg('sentinel', {
       ctx.strokeStyle = `rgba(217,70,239,${(0.5 * a).toFixed(3)})`; ctx.lineWidth = 8; ctx.stroke(); ctx.strokeStyle = `rgba(255,255,255,${a.toFixed(3)})`; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
     }
     R.draw(R.glow('c', 64), cx, cy, 2.2, (hot ? 0.55 : 0.28) + 0.1 * Math.sin(t * 3), true);
+    // a mira antes da rajada: linha tracejada até a Nexy e um anel que fecha (trava um instante antes do tiro)
+    if (e.aimT > 0 && e.state === 'fight') {
+      const k = clamp(1 - e.aimT / SENTINEL.fire.aim, 0, 1), gx = cx, gy = cy + 30, tx = e.tx - camX, ty = e.ty - camY;
+      ctx.save(); ctx.setLineDash([6, 5]); ctx.lineDashOffset = -t * 40; ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(tx, ty);
+      ctx.strokeStyle = `rgba(34,211,238,${(0.2 + 0.6 * k).toFixed(3)})`; ctx.lineWidth = 1 + k; ctx.stroke(); ctx.restore();
+      ctx.beginPath(); ctx.arc(tx, ty, 14 - 7 * k, 0, Math.PI * 2); ctx.strokeStyle = `rgba(165,243,252,${(0.3 + 0.6 * k).toFixed(3)})`; ctx.lineWidth = 1.2; ctx.stroke();
+    }
     const drawCore = () => {
       const behind = Sentinel.where(e) === 'BEHIND' && !open && e.moveK >= 1;
       const pulse = 0.5 + 0.5 * Math.sin(t * (open ? 10 : 4));

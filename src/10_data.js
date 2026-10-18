@@ -393,9 +393,13 @@ const FORT = {
 // o SENTINELA (o chefe da 1-3): a cada rodada o núcleo fica num lugar diferente perto do escudo.
 // Quem diz no terminal onde ele está (IT IS UNDER THE SHIELD) abre o escudo por 'open' s; sem inglês, ele esquenta
 // a cada 'heat.every' s de luta e fica aberto 'heat.open' s (outro caminho, mais difícil).
+// O dono achou a luta difícil demais: menos vida por rodada, janela aberta maior, rajadas curtas e mais lentas com
+// aviso (a linha da mira trava 'fire.lock' s antes: dá para sair da frente) e no máximo um drone, só da 2ª rodada.
 const SENTINEL = {
   rounds: [{ where: 'UNDER' }, { where: 'BEHIND' }, { where: 'NEXT TO' }],
-  hp: 8, open: 6, heat: { every: 10, warn: 1.2, open: 2.6 },
+  hp: 5, open: 8, heat: { every: 8, warn: 1.2, open: 3.4 },
+  fire: { every: [3.4, 3, 2.6], shots: [2, 2, 3], speed: 190, speedUp: 20, aim: 0.7, lock: 0.22 },
+  drones: { from: 1, max: 1, every: 12 },
   // o porquê da Echo quando a resposta é outra (sem dar a frase pronta)
   tips: {
     UNDER: { en: 'Look again!', pt: 'UNDER = embaixo. O núcleo está embaixo do escudo? Olhe de novo.' },

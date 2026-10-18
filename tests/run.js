@@ -1935,6 +1935,38 @@ test('1-3 Sentinela sem inglês: ele superaquece e abre sozinho; a rodada fica g
   expect(r.won, `vence sem o terminal (${r.time} s)`);
 }, L13);
 
+test('1-3 Sentinela mais fácil: 5 de vida, aberto 8 s; mira antes da rajada (2 tiros mais lentos no ponto travado); a resposta certa apaga os tiros no ar; no máximo um drone, só da 2ª rodada', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, G = NEXY.Game, out = {};
+    H.noEnemies(); NEXY.give('UNDER', 'BEHIND');
+    const S = NEXY.Ents.list.find(e => e.type === 'sentinel');
+    out.hp = S.hp; out.cfg = SENTINEL.hp === 5 && SENTINEL.open === 8;
+    H.tp(341, 15, 999); for (let i = 0; i < 200 && S.state !== 'fight'; i++) H.step(1);
+    // a mira acende antes da rajada e trava; depois saem 2 tiros, mais lentos que antes (240)
+    let aimF = 0, before = EnemyFire.list.length;
+    for (let i = 0; i < 60 * 5 && EnemyFire.list.length === before; i++) { H.step(1); P.invuln = 999; if (S.aimT > 0) aimF++; }
+    out.aimF = aimF;
+    for (let i = 0; i < 30; i++) { H.step(1); P.invuln = 999; }
+    out.shots = EnemyFire.list.length - before; out.speed = Math.round(Math.hypot(EnemyFire.list[0].vx, EnemyFire.list[0].vy));
+    // tiros no ar + a resposta certa: o escudo abre e os tiros somem
+    EnemyFire.add(P.cx - 300, P.cy, 100, 0);
+    await H12.panel(335, 15, ['UNDER']);
+    out.open = S.state === 'open' && S.stateT > 6.5; out.cleared = EnemyFire.list.length === 0;   // o painel anda ~1 s depois da resposta
+    // na 1ª rodada não chama drone; na 2ª, no máximo um por vez
+    const drones = () => NEXY.Ents.list.filter(d => d.type === 'drone' && d.summoned && !d.dead).length;
+    out.d0 = drones();
+    Sentinel.roundOver(S); for (let i = 0; i < 120 && S.state !== 'fight'; i++) H.step(1);
+    let most = 0; for (let i = 0; i < 60 * 40; i++) { H.step(1); P.invuln = 999; most = Math.max(most, drones()); }
+    out.d1 = most;
+    return out;
+  });
+  expect(r.cfg && r.hp === 5, `5 de vida e 8 s aberto (${JSON.stringify(r)})`);
+  expect(r.aimF >= 35 && r.shots === 2 && r.speed <= 200, `mira ~0,7 s, 2 tiros lentos (${JSON.stringify(r)})`);
+  expect(r.open && r.cleared, `a resposta certa abre e apaga os tiros (${JSON.stringify(r)})`);
+  expect(r.d0 === 0 && r.d1 === 1, `drones: nenhum na 1ª rodada, no máximo um depois (${JSON.stringify(r)})`);
+}, L13);
+
 test('visual novo da Nexy: rascunho na 1ª partida, evolui com as fases (aviso no mapa uma vez), CLASSIC NEXY volta ao antigo; a física não muda', async ({ page }) => {
   const r = await page.evaluate(() => {
     const P = NEXY.P, G = NEXY.Game, S = NEXY.Save.data, out = {};

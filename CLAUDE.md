@@ -193,9 +193,12 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 - H Arena (331-372) e saída: checkpoint c333, terminal `K` c335 ("WHERE IS THE CORE?" → IT IS _ THE SHIELD), poço `m`
   c342 L12 (UNDER/BEHIND/NEXT TO que faltarem), LASER `8` c345, Sentinela `S` c353 L7 (acorda com a Nexy depois de
   c338), portão `bossgate` c372-373 L9-15 (`look: 'shutter'`, afunda no fim da cena), saída `N` c392. Zona `boost`.
-- Sentinela (`SENTINEL` em `10_data.js`): rodadas UNDER → BEHIND → NEXT TO (`CORE_AT`), 8 de vida por rodada (tiro 1,
-  carregado 3, pisão no casco 2, i-frames 0,3 s). Resposta certa: 6 s aberto e baixo (o núcleo na altura do tiro).
-  Sem inglês: a cada 10 s de luta esquenta (aviso 1,2 s) e abre 2,6 s (vencer só assim leva ~1,5 min jogando perfeito).
+- Sentinela (`SENTINEL` em `10_data.js`): rodadas UNDER → BEHIND → NEXT TO (`CORE_AT`), 5 de vida por rodada (tiro 1,
+  carregado 3, pisão no casco 2, i-frames 0,3 s). Resposta certa: 8 s aberto e baixo (o núcleo na altura do tiro) e os
+  tiros no ar somem. O dono achou difícil demais (jogando na produção) e pediu menos: rajadas de 2 tiros (3 em leque na
+  última rodada) a 190 px/s, a cada 3,4/3/2,6 s, sempre depois da mira (`fire.aim` 0,7 s; trava `fire.lock` 0,22 s antes:
+  dá para desviar); um drone só, da 2ª rodada, a cada 12 s (`drones`).
+  Sem inglês: a cada 8 s de luta esquenta (aviso 1,2 s) e abre 3,4 s.
   Morrer: ele dorme de novo, a rodada fica. Aberto, o casco deixa o tiro passar (senão o núcleo de trás ficava imune).
 - Poderes: tomar dano com poder = perde o poder (`P.hurt`), STAR ignora tudo e mata no toque (menos gigantes). Morreu ou
   trocou de fase: `P.reset` zera. O poder sai do bloco, mostra o nome 0,9 s e vem até a Nexy (o bloco fica alto demais
