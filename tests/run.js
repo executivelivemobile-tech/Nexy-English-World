@@ -1935,14 +1935,14 @@ test('1-3 Sentinela sem inglês: ele superaquece e abre sozinho; a rodada fica g
   expect(r.won, `vence sem o terminal (${r.time} s)`);
 }, L13);
 
-test('1-3 Sentinela mais fácil: 5 de vida, aberto 8 s; mira antes da rajada (2 tiros mais lentos no ponto travado); a resposta certa apaga os tiros no ar; no máximo um drone, só da 2ª rodada', async ({ page }) => {
+test('1-3 Sentinela mais fácil: 4 de vida, aberto 8 s; mira antes da rajada (2 tiros mais lentos no ponto travado); a resposta certa apaga os tiros no ar; no máximo um drone, só da 2ª rodada', async ({ page }) => {
   await page.evaluate(HELP12); await page.evaluate(HELP13);
   const r = await page.evaluate(async () => {
     const P = NEXY.P, G = NEXY.Game, out = {};
     H.noEnemies(); NEXY.give('UNDER', 'BEHIND');
     const S = NEXY.Ents.list.find(e => e.type === 'sentinel');
-    out.hp = S.hp; out.cfg = SENTINEL.hp === 5 && SENTINEL.open === 8;
-    H.tp(341, 15, 999); for (let i = 0; i < 200 && S.state !== 'fight'; i++) H.step(1);
+    out.hp = S.hp; out.cfg = SENTINEL.hp === 4 && SENTINEL.open === 8;
+    H.tp(345, 15, 999); for (let i = 0; i < 200 && S.state !== 'fight'; i++) H.step(1);
     // a mira acende antes da rajada e trava; depois saem 2 tiros, mais lentos que antes (240)
     let aimF = 0, before = EnemyFire.list.length;
     for (let i = 0; i < 60 * 5 && EnemyFire.list.length === before; i++) { H.step(1); P.invuln = 999; if (S.aimT > 0) aimF++; }
@@ -1950,7 +1950,7 @@ test('1-3 Sentinela mais fácil: 5 de vida, aberto 8 s; mira antes da rajada (2 
     for (let i = 0; i < 30; i++) { H.step(1); P.invuln = 999; }
     out.shots = EnemyFire.list.length - before; out.speed = Math.round(Math.hypot(EnemyFire.list[0].vx, EnemyFire.list[0].vy));
     // tiros no ar + a resposta certa: o escudo abre e os tiros somem
-    EnemyFire.add(P.cx - 300, P.cy, 100, 0);
+    EnemyFire.add(P.cx + 400, P.cy - 100, 100, 0);
     await H12.panel(335, 15, ['UNDER']);
     out.open = S.state === 'open' && S.stateT > 6.5; out.cleared = EnemyFire.list.length === 0;   // o painel anda ~1 s depois da resposta
     // na 1ª rodada não chama drone; na 2ª, no máximo um por vez
@@ -1961,10 +1961,46 @@ test('1-3 Sentinela mais fácil: 5 de vida, aberto 8 s; mira antes da rajada (2 
     out.d1 = most;
     return out;
   });
-  expect(r.cfg && r.hp === 5, `5 de vida e 8 s aberto (${JSON.stringify(r)})`);
+  expect(r.cfg && r.hp === 4, `4 de vida e 8 s aberto (${JSON.stringify(r)})`);
   expect(r.aimF >= 35 && r.shots === 2 && r.speed <= 200, `mira ~0,7 s, 2 tiros lentos (${JSON.stringify(r)})`);
   expect(r.open && r.cleared, `a resposta certa abre e apaga os tiros (${JSON.stringify(r)})`);
   expect(r.d0 === 0 && r.d1 === 1, `drones: nenhum na 1ª rodada, no máximo um depois (${JSON.stringify(r)})`);
+}, L13);
+
+test('1-3 Sentinela, o inglês é a arma: perto do terminal os tiros somem e ele não mira; a resposta certa fere o núcleo e o puxa para perto; andando de verdade, encostar no núcleo aberto (UNDER) ou pular no casco (BEHIND) fecha a rodada; quem morre na luta volta com o escudo da Echo', async ({ page }) => {
+  await page.evaluate(HELP12); await page.evaluate(HELP13);
+  const r = await page.evaluate(async () => {
+    const P = NEXY.P, G = NEXY.Game, out = {};
+    H.noEnemies(); NEXY.give('UNDER', 'BEHIND');
+    const S = NEXY.Ents.list.find(e => e.type === 'sentinel');
+    H.tp(341, 15, 999); for (let i = 0; i < 200 && S.state !== 'fight'; i++) H.step(1);
+    // de volta à cúpula: ele não mira, e um tiro que vem para ela some antes de chegar
+    H.tp(335, 15, 0); P.invuln = 0; H.step(2);
+    out.inSafe = Sentinel.inSafe(P.cx, P.cy); let aimed = 0;
+    EnemyFire.add(P.cx + 360, P.cy - 20, -260, 0);
+    for (let i = 0; i < 60 * 6; i++) { H.step(1); if (S.aimT > 0) aimed++; }
+    out.aimed = aimed; out.alive = !P.dead && EnemyFire.list.length === 0;
+    // a resposta certa: a luz fere (4 → 2) e ele cai perto do terminal
+    await H12.panel(335, 15, ['UNDER']);
+    out.hp = S.hp; out.near = Math.abs(S.cx - (SENTINEL.land * 32 + 16)) < 24 && S.state === 'open';
+    // andando de verdade a partir do terminal (sem teletransporte): encostar no núcleo aberto, embaixo do casco, fecha a rodada
+    H13.walk('right', 240, () => S.round === 1, true);
+    out.round = S.round;
+    // BEHIND: o núcleo fica atrás do escudo; do terminal, andando e pulando quando o casco trava, o pisão fecha a rodada
+    for (let i = 0; i < 120 && S.state !== 'fight'; i++) H.step(1);
+    await H12.panel(335, 15, ['BEHIND']); out.hp2 = S.hp; let stomp = false;
+    H13.walk('right', 300, () => { if (P.vy < 0 && P.combo > 0) stomp = true; return S.round === 2; }, true);
+    out.round2 = S.round; out.stomp = stomp;
+    // morrer na luta: ele dorme e a Nexy volta com o escudo da Echo, que segura um tiro
+    for (let i = 0; i < 120 && S.state !== 'fight'; i++) H.step(1);
+    P.invuln = 0; P.aura = false; P.hurt(); for (let i = 0; i < 200 && P.dead; i++) H.step(1);
+    out.respawned = !P.dead; out.aura = P.aura && S.state === 'sleep'; P.invuln = 0; P.hurt(); out.held = !P.dead && !P.aura;
+    return out;
+  });
+  expect(r.inSafe && r.aimed === 0 && r.alive, `a cúpula do terminal (${JSON.stringify(r)})`);
+  expect(r.hp === 2 && r.near, `a resposta fere e puxa (${JSON.stringify(r)})`);
+  expect(r.round === 1 && r.hp2 === 2 && r.round2 === 2 && r.stomp, `andando e pulando de verdade, as rodadas fecham (${JSON.stringify(r)})`);
+  expect(r.respawned && r.aura && r.held, `o escudo da Echo depois de morrer (${JSON.stringify(r)})`);
 }, L13);
 
 test('1-3 trilha de chefe: entra quando o Sentinela acorda, acelera a cada rodada, volta à cidade quando a Nexy morre e depois da queda; toca os 8 compassos sem erro (também no modo leve do celular)', async ({ page }) => {

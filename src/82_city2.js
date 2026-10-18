@@ -208,6 +208,7 @@ const EnemyFire = {
       b.trail.push({ x: b.x, y: b.y }); if (b.trail.length > 5) b.trail.shift();
       b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt;
       if (Power.wall(Math.floor(b.x / TS), Math.floor(b.y / TS))) { b.life = 0; FX.burst(b.x, b.y, 6, 'c', 110, { life: 0.3, g: 0 }); continue; }
+      if (Sentinel.inSafe(b.x, b.y)) { b.life = 0; Sentinel.domeHit = 0.5; FX.burst(b.x, b.y, 10, 'c', 150, { life: 0.4, g: 0 }); SFX.clang(); continue; }   // a cúpula do terminal
       if (!P.dead && overlap({ x: b.x - 4, y: b.y - 4, w: 8, h: 8 }, P)) { b.life = 0; FX.burst(b.x, b.y, 10, 'c', 160, { life: 0.35, g: 0 }); P.hurt(); }
     }
     this.list = this.list.filter(b => b.life > 0);
@@ -435,7 +436,14 @@ Ents.reg('vent', {
    A resposta certa no terminal apaga os tiros que estão no ar (o escudo abrindo solta uma onda). */
 const CORE_AT = { UNDER: { x: 0, y: 64 }, BEHIND: { x: 0, y: 8 }, 'NEXT TO': { x: 82, y: 8 } };
 const Sentinel = {
-  ent: null,
+  ent: null, domeHit: 0,
+  // a cúpula do terminal (SENTINEL.safe): meia elipse sobre o chão; só existe enquanto o Sentinela está de pé
+  dome() { const S = SENTINEL.safe; return { x: S.c * TS + TS / 2, y: S.floor * TS, rx: S.rx * TS, ry: S.ry * TS }; },
+  inSafe(x, y) {
+    const e = this.ent; if (!e || e.state === 'dead' || e.state === 'dying') return false;
+    const d = this.dome(), dx = (x - d.x) / d.rx, dy = (y - d.y) / d.ry;
+    return y <= d.y && dx * dx + dy * dy <= 1;
+  },
   where(e) { return SENTINEL.rounds[Math.min(e.round, SENTINEL.rounds.length - 1)].where; },
   exposed(e) { return e.state === 'open' || e.state === 'heat'; },
   low(e) { return e.state === 'open' || e.state === 'heat'; },
@@ -451,11 +459,13 @@ const Sentinel = {
   answer(where) {
     const e = this.ent; if (!e || e.state === 'dead' || e.state === 'dying' || this.where(e) !== where) return;
     if (e.state === 'sleep' || e.state === 'wake') this.wake(e, true);
-    e.ray = 0.8; this.open(e, SENTINEL.open, 'open'); e.aimT = 0; e.burst = 0;
+    e.ray = 0.8; this.open(e, SENTINEL.open, 'open'); e.aimT = 0; e.burst = 0; e.pull = true;
     for (const b of EnemyFire.list) FX.burst(b.x, b.y, 8, 'm', 140, { life: 0.35, g: 0 });
     EnemyFire.list = [];
     SFX.zap(); SFX.glass(); SFX.impact(); Game.shake(6); Hints.mark('core');
-    if (Game.echoBorn) Game.later(0.4, () => Echo.talk(ECHO.lines.coreOpen));
+    // a luz da Echo fere o núcleo (só na 1ª resposta de cada rodada: o resto é com a Nexy)
+    if (e.lit !== e.round) { e.lit = e.round; e.iT = 0; this.damage(e, SENTINEL.light); e.iT = 0; }
+    if (Game.echoBorn && e.state === 'open') Game.later(0.4, () => Echo.talk(ECHO.lines.coreOpen));
   },
   open(e, sec, st) { e.state = st; e.stateT = sec; e.cage = 0; },
   wake(e, quiet) {
@@ -464,7 +474,13 @@ const Sentinel = {
     if (!quiet) { SFX.rumble(1.4); SFX.warDrum(); Game.shake(5); }
     Music.fight('sentinel', e.round);
   },
-  sleep(e) { if (e.state === 'dead' || e.state === 'dying') return; e.state = 'sleep'; e.stateT = 0; e.cage = 1; e.burst = 0; e.aimT = 0; e.woke = false; Music.fight(null); },
+  sleep(e) {
+    if (e.state === 'dead' || e.state === 'dying') return;
+    const fought = e.state !== 'sleep';
+    e.state = 'sleep'; e.stateT = 0; e.cage = 1; e.burst = 0; e.aimT = 0; e.woke = false; e.pull = false; Music.fight(null);
+    // a Nexy caiu na luta: volta com o escudo da Echo (aguenta um tiro)
+    if (fought) { P.aura = true; if (Game.echoBorn) Game.later(0.8, () => Echo.talk(ECHO.lines.shield)); }
+  },
   damage(e, n) {
     if (e.iT > 0 || !this.exposed(e)) return false;
     e.hp -= n; e.iT = 0.3; e.hitT = 0.18; SFX.bossHit(); Game.hitstop(2); Game.shake(2);
@@ -477,13 +493,31 @@ const Sentinel = {
     if (e.round >= SENTINEL.rounds.length - 1) return SentinelScene.start(e);
     // o núcleo foge para outro lugar; o Sentinela sobe e luta mais rápido
     e.from = { x: e.core.x, y: e.core.y }; e.round++; e.hp = SENTINEL.hp; e.moveK = 0;
-    e.state = 'rise'; e.stateT = 1.1; e.cage = 1; e.heat = 0; Music.fight('sentinel', e.round);
+    e.state = 'rise'; e.stateT = 1.1; e.cage = 1; e.heat = 0; e.pull = false; Music.fight('sentinel', e.round);
     SFX.crush(); SFX.riser(1); Game.shake(6); FX.burst(e.cx, e.cy, 40, 'c', 300, { life: 0.8, g: 300 });
     if (Game.echoBorn) Game.later(1.2, () => Echo.talk(ECHO.lines.coreMove));
   },
   corePos(e) { return { x: e.cx + e.core.x, y: e.cy + e.core.y }; },
+  // a cúpula do terminal: meia elipse de luz ciano (acende quando um tiro bate nela). x, y = o canto do terminal na tela
+  drawDome(ctx, x, y, t) {
+    const e = this.ent; if (!e || e.state === 'dead' || e.state === 'dying') return;
+    if (this.domeHit > 0) this.domeHit = Math.max(0, this.domeHit - 1 / 60);
+    const d = this.dome(), S = SENTINEL.safe, ox = x + 16 + (d.x - (S.c * TS + TS / 2)), oy = y + (S.floor - 15) * TS;
+    const a = 0.16 + 0.05 * Math.sin(t * 2) + this.domeHit * 0.9;
+    ctx.save();
+    const g = ctx.createRadialGradient(ox, oy, d.rx * 0.2, ox, oy, d.ry);
+    g.addColorStop(0, 'rgba(34,211,238,0)'); g.addColorStop(1, `rgba(34,211,238,${(a * 0.35).toFixed(3)})`);
+    ctx.beginPath(); ctx.ellipse(ox, oy, d.rx, d.ry, 0, Math.PI, Math.PI * 2); ctx.closePath(); ctx.fillStyle = g; ctx.fill();
+    ctx.beginPath(); ctx.ellipse(ox, oy, d.rx, d.ry, 0, Math.PI, Math.PI * 2); ctx.strokeStyle = `rgba(165,243,252,${Math.min(0.9, a).toFixed(3)})`; ctx.lineWidth = 1.4; ctx.stroke();
+    // as linhas da cúpula (hexágonos em faixas)
+    ctx.strokeStyle = `rgba(34,211,238,${(a * 0.45).toFixed(3)})`; ctx.lineWidth = 1;
+    for (const k of [0.35, 0.7]) { ctx.beginPath(); ctx.ellipse(ox, oy, d.rx * k, d.ry, 0, Math.PI, Math.PI * 2); ctx.stroke(); }
+    for (const k of [0.4, 0.75]) { ctx.beginPath(); ctx.ellipse(ox, oy, d.rx, d.ry * k, 0, Math.PI, Math.PI * 2); ctx.stroke(); }
+    ctx.restore();
+  },
   // o terminal: uma tela com o escudo e o núcleo (onde está ele agora?)
   drawTerminal(ctx, x, y, t) {
+    this.drawDome(ctx, x, y, t);
     const cx = x + 16, p = 0.5 + 0.5 * Math.sin(t * 2), e = this.ent;
     R.draw(R.glow('c', 40), cx, y - 14, 1.1, 0.35 + 0.15 * p, true);
     rrect(ctx, x + 9, y - 2, 14, 34, [2, 2, 0, 0]); ctx.fillStyle = 'rgba(10,15,18,0.96)'; ctx.fill(); ctx.strokeStyle = wa(0.18); ctx.lineWidth = 1; ctx.stroke();
@@ -529,9 +563,10 @@ Ents.reg('sentinel', {
       e.mx += dt * (0.45 + e.round * 0.12); tx = e.hx + Math.sin(e.mx) * 9 * TS;
       // rajada: primeiro a mira (linha tracejada que trava um instante antes), depois 2 tiros (3 em leque na última
       // rodada) no ponto travado: quem sai da frente desvia
-      const F = SENTINEL.fire, n = F.shots[e.round];
+      const F = SENTINEL.fire, n = F.shots[e.round], safe = S.inSafe(P.cx, P.cy);
+      if (safe && !e.metSafe && Game.echoBorn) { e.metSafe = true; Echo.talk(ECHO.lines.safe); }
       if (e.burst <= 0 && !P.dead) {
-        e.fireT -= dt;
+        if (!(safe && e.aimT <= 0 && e.fireT <= F.aim + 0.05)) e.fireT -= dt;   // na cúpula ele espera para mirar
         if (e.fireT <= F.aim && e.aimT <= 0) { e.aimT = F.aim; SFX.aim(); }
         if (e.aimT > 0) { e.aimT -= dt; if (e.aimT > F.lock) { e.tx = P.cx; e.ty = P.cy; } }
         if (e.fireT <= 0) { e.burst = n; e.burstT = 0; e.aimT = 0; e.fireT = F.every[e.round]; }
@@ -553,11 +588,11 @@ Ents.reg('sentinel', {
     } else if (e.state === 'warn') {
       e.stateT -= dt; tx = e.cx; ty = e.cy;
       if (Math.random() < 0.7) FX.add(e.cx + (Math.random() - 0.5) * 100, e.cy - 30, { vy: -80, vx: (Math.random() - 0.5) * 40, life: 0.8, size: 1.8, c: 'c', g: -40 });
-      if (e.stateT <= 0) { S.open(e, SENTINEL.heat.open, 'heat'); SFX.crush(); if (Game.echoBorn && !e.metHeat) { e.metHeat = true; Echo.talk(ECHO.lines.overheat); } }
+      if (e.stateT <= 0) { S.open(e, SENTINEL.heat.open, 'heat'); e.pull = false; SFX.crush(); if (Game.echoBorn && !e.metHeat) { e.metHeat = true; Echo.talk(ECHO.lines.overheat); } }
     } else if (e.state === 'open' || e.state === 'heat') {
-      e.stateT -= dt; tx = clamp(e.cx, e.hx - 9 * TS, e.hx + 9 * TS); ty = 16 * TS - 30 - e.core.y;
+      e.stateT -= dt; tx = e.pull ? SENTINEL.land * TS + TS / 2 : clamp(e.cx, e.hx - 9 * TS, e.hx + 9 * TS); ty = 16 * TS - 30 - e.core.y;
       if (Math.random() < 0.4) FX.add(e.cx + (Math.random() - 0.5) * 110, e.cy + (Math.random() - 0.5) * 50, { vy: -60, vx: (Math.random() - 0.5) * 80, life: 0.5, size: 1.4, c: e.state === 'heat' ? 'c' : 'm', g: 200 });
-      if (e.stateT <= 0) { e.state = 'rise'; e.stateT = 0.9; e.cage = 1; }
+      if (e.stateT <= 0) { e.state = 'rise'; e.stateT = 0.9; e.cage = 1; e.pull = false; }
     } else if (e.state === 'rise') {
       e.stateT -= dt; tx = e.cx;
       if (e.stateT <= 0) { e.state = 'fight'; e.fireT = 1.6; }
@@ -565,13 +600,14 @@ Ents.reg('sentinel', {
     const k = 1 - Math.exp(-dt * (Sentinel.low(e) ? 6 : 2.6));
     e.cx = lerp(e.cx, tx, k); e.cy = lerp(e.cy, ty, k);
     e.dx = e.cx - ox; e.dy = e.cy - oy; this.box(e);
-    // baixo e aberto: dá para pisar no casco (o pisão vale 2); dos lados, ele empurra
+    // baixo e aberto: dá para pisar no casco (o pisão vale 2) ou encostar no núcleo, que fica na altura da Nexy (vale 2
+    // e ela é jogada para trás); dos lados, o casco empurra. Embaixo (UNDER) o casco fica alto demais para o pulo parado:
+    // por isso o núcleo aberto também fere no toque.
     if (Sentinel.low(e) && !P.dead) {
-      const hull = { x: e.cx - 58, y: e.cy - 34, w: 116, h: 64 };
-      if (overlap(P, hull)) {
-        if (P.vy > 0 && P.py + P.h <= hull.y + 14) { P.y = hull.y - P.h; P.combo++; P.bounce(false); SFX.stomp(P.combo); Sentinel.damage(e, 2); }
-        else { const left = P.cx < e.cx; P.x = left ? hull.x - P.w : hull.x + hull.w; P.vx = left ? -160 : 160; }
-      }
+      const hull = { x: e.cx - 58, y: e.cy - 34, w: 116, h: 64 }, c = Sentinel.corePos(e), core = { x: c.x - 14, y: c.y - 14, w: 28, h: 28 };
+      if (overlap(P, hull) && P.vy > 0 && P.py + P.h <= hull.y + 14) { P.y = hull.y - P.h; P.combo++; P.bounce(false); SFX.stomp(P.combo); Sentinel.damage(e, 2); }
+      else if (overlap(P, core)) { const d = P.cx < c.x ? -1 : 1; if (Sentinel.damage(e, 2)) SFX.stomp(1); P.vx = d * 230; P.vy = -280; P.onGround = false; }
+      else if (overlap(P, hull)) { const left = P.cx < e.cx; P.x = left ? hull.x - P.w : hull.x + hull.w; P.vx = left ? -160 : 160; }
     }
   },
   // os tiros: no núcleo aberto tira vida; no casco, no escudo e na grade do núcleo só soltam faíscas

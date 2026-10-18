@@ -247,9 +247,10 @@ desenhos da caixa em cima, embaixo, dentro e atrás. As coisas da cidade têm et
   atira. Pisão ou laser derrubam; o tiro da Echo o deixa parado no ar.
 - **O Sentinela (SENTINEL)**, o primeiro chefe: dorme até a Nexy entrar na arena; paira atirando rajadas curtas (antes de
   cada uma, uma linha tracejada mira a Nexy e trava: saia da frente) e, a partir da 2ª rodada, solta um drone. O núcleo
-  fica perto do escudo (embaixo, atrás, do lado). No terminal, a frase do lugar certo faz a luz da Echo achar o núcleo,
-  apaga os tiros no ar e deixa o escudo aberto por 8 s; atire nele (tiro 1, carregado 3) ou pule no casco (2): 5 de
-  vida por rodada. Errar o lugar: a Echo diz
+  fica perto do escudo (embaixo, atrás, do lado). **O inglês é a arma**: perto do terminal uma cúpula de luz apaga os
+  tiros e ele nem mira; a frase do lugar certo faz a luz da Echo ferir o núcleo (metade da vida) e puxa o Sentinela para
+  o chão ali perto, aberto por 8 s. Um pisão no casco ou um toque no núcleo termina a rodada (o laser também serve:
+  tiro 1, carregado 3). Quem morre na luta volta com o escudo da Echo. Errar o lugar: a Echo diz
   "Look again!" e explica a palavra. A rodada fica guardada se a Nexy morrer. Na queda: tudo para, rachaduras de luz,
   três tambores, explosão em câmera lenta, SENTINEL DOWN, e o portão do fim afunda.
   A luta tem **trilha de chefe** própria (Mi menor, 144 BPM, baixo galopando, metais, coro e tambores de guerra) que

@@ -193,12 +193,16 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 - H Arena (331-372) e saída: checkpoint c333, terminal `K` c335 ("WHERE IS THE CORE?" → IT IS _ THE SHIELD), poço `m`
   c342 L12 (UNDER/BEHIND/NEXT TO que faltarem), LASER `8` c345, Sentinela `S` c353 L7 (acorda com a Nexy depois de
   c338), portão `bossgate` c372-373 L9-15 (`look: 'shutter'`, afunda no fim da cena), saída `N` c392. Zona `boost`.
-- Sentinela (`SENTINEL` em `10_data.js`): rodadas UNDER → BEHIND → NEXT TO (`CORE_AT`), 5 de vida por rodada (tiro 1,
-  carregado 3, pisão no casco 2, i-frames 0,3 s). Resposta certa: 8 s aberto e baixo (o núcleo na altura do tiro) e os
-  tiros no ar somem. O dono achou difícil demais (jogando na produção) e pediu menos: rajadas de 2 tiros (3 em leque na
-  última rodada) a 190 px/s, a cada 3,4/3/2,6 s, sempre depois da mira (`fire.aim` 0,7 s; trava `fire.lock` 0,22 s antes:
-  dá para desviar); um drone só, da 2ª rodada, a cada 12 s (`drones`).
-  Sem inglês: a cada 8 s de luta esquenta (aviso 1,2 s) e abre 3,4 s.
+- Sentinela (`SENTINEL` em `10_data.js`): rodadas UNDER → BEHIND → NEXT TO (`CORE_AT`), 4 de vida por rodada (tiro 1,
+  carregado 3, pisão no casco 2, encostar no núcleo aberto 2 com empurrão, i-frames 0,3 s). O dono achou difícil demais
+  duas vezes; a 2ª resposta foi **o inglês vira a arma**: (1) cúpula do terminal (`safe`, meia elipse de 4,2 × 5 tiles
+  sobre o chão em c335, `Sentinel.inSafe`/`drawDome`): tiros somem nela e ele não mira em quem está lá; (2) a 1ª resposta
+  certa de cada rodada já fere (`light` 2, `e.lit`) e puxa o Sentinela para o chão em c342 (`land`, `e.pull`), 8 s
+  aberto, tiros no ar somem; (3) morreu na luta: volta com o escudo da Echo (`P.aura`, aguenta um tiro; `Sentinel.sleep`).
+  Então cada rodada = responder no terminal + um pisão ou um toque no núcleo. Embaixo (UNDER) o casco fica 128 px acima
+  do chão (mais que o pulo parado): por isso o núcleo aberto fere no toque. Rajadas de 2 tiros a 190 px/s, a cada
+  3,6/3,2/2,8 s, sempre depois da mira (`fire.aim` 0,7 s; trava `fire.lock` 0,22 s antes); um drone só, da 2ª rodada.
+  Sem inglês: a cada 8 s de luta esquenta (aviso 1,2 s) e abre 3,4 s onde estiver (não é puxado).
 - Trilha de chefe (pedido do dono: "algo digno de um boss"): `Music.VARIANTS.sentinel`, Mi menor, 144 BPM (+6 por rodada),
   baixo galopando, metais em síncope, coro, tema próprio, tambor de guerra, viradas; a chuva continua e o `boost` da
   arena vale. Entra quando o Sentinela acorda, `heat` = rodada (2ª: tema dobrado e tons; 3ª: arpejo de alarme e

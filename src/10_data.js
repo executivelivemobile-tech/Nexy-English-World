@@ -206,9 +206,11 @@ const ECHO = {
     beam: [{ en: 'The laser is on!', pt: 'O feixe fecha o corredor. Leia o altar: onde a caixa precisa ficar? (Ou destrua o emissor com tiros.)' }],
     gates: [{ en: 'Wait... now go!', pt: 'Esses lasers ligam e desligam. Espere apagar e passe.' }],
     sentinel: [{ en: 'It is the Sentinel!', pt: 'O Sentinela! O núcleo dele fica perto do escudo.' }, { en: 'Where is the core?', pt: 'Diga no terminal onde o núcleo está, e eu abro o escudo.' }],
-    coreOpen: [{ en: 'The core is open! Shoot!', pt: 'O núcleo está aberto! Atire nele (ou pule em cima do Sentinela).' }],
+    coreOpen: [{ en: 'The core is open! Shoot!', pt: 'O núcleo está aberto! Atire, encoste nele ou pule em cima do Sentinela.' }],
     coreMove: [{ en: 'Where is the core now?', pt: 'O núcleo mudou de lugar. Olhe bem e responda no terminal.' }],
     overheat: [{ en: 'It is hot! Now!', pt: 'Ele esquentou demais: o núcleo abriu por um instante. Atire!' }],
+    safe: [{ en: 'You are safe here.', pt: 'Perto do terminal os tiros não te pegam. Responda aqui: onde está o núcleo?' }],
+    shield: [{ en: 'I am with you!', pt: 'Eu te protejo: o próximo tiro não te derruba.' }],
     victory: [{ en: 'We did it!', pt: 'Conseguimos! O Sentinela caiu e o portão abriu.' }],
     // O FORTE · CAN YOU?
     fort: [{ en: 'Read the stones!', pt: 'Leia as pedras: elas dizem o que pode e o que não pode. Aperte ↑ perto de uma para mudar a lei.' }],
@@ -393,13 +395,17 @@ const FORT = {
 // o SENTINELA (o chefe da 1-3): a cada rodada o núcleo fica num lugar diferente perto do escudo.
 // Quem diz no terminal onde ele está (IT IS UNDER THE SHIELD) abre o escudo por 'open' s; sem inglês, ele esquenta
 // a cada 'heat.every' s de luta e fica aberto 'heat.open' s (outro caminho, mais difícil).
-// O dono achou a luta difícil demais: menos vida por rodada, janela aberta maior, rajadas curtas e mais lentas com
-// aviso (a linha da mira trava 'fire.lock' s antes: dá para sair da frente) e no máximo um drone, só da 2ª rodada.
+// O dono achou a luta difícil demais (duas vezes). Primeiro: menos vida, janela aberta maior, rajadas curtas e lentas com
+// aviso (a linha da mira trava 'fire.lock' s antes: dá para sair da frente), um drone só. Depois, o inglês virou a arma:
+// perto do terminal (safe: elipse sobre o chão, em tiles) os tiros somem e ele não mira; a 1ª resposta certa de cada
+// rodada já fere o núcleo ('light') e puxa o Sentinela para o chão na coluna 'land', perto do terminal (um pisão termina
+// a rodada); quem morre na luta volta com o escudo da Echo (aguenta um tiro).
 const SENTINEL = {
   rounds: [{ where: 'UNDER' }, { where: 'BEHIND' }, { where: 'NEXT TO' }],
-  hp: 5, open: 8, heat: { every: 8, warn: 1.2, open: 3.4 },
-  fire: { every: [3.4, 3, 2.6], shots: [2, 2, 3], speed: 190, speedUp: 20, aim: 0.7, lock: 0.22 },
+  hp: 4, open: 8, heat: { every: 8, warn: 1.2, open: 3.4 },
+  fire: { every: [3.6, 3.2, 2.8], shots: [2, 2, 2], speed: 190, speedUp: 20, aim: 0.7, lock: 0.22 },
   drones: { from: 1, max: 1, every: 12 },
+  light: 2, land: 342, safe: { c: 335, floor: 16, rx: 4.2, ry: 5 },
   // o porquê da Echo quando a resposta é outra (sem dar a frase pronta)
   tips: {
     UNDER: { en: 'Look again!', pt: 'UNDER = embaixo. O núcleo está embaixo do escudo? Olhe de novo.' },
