@@ -334,7 +334,7 @@ const CITY = {
 // os poderes que saem dos blocos (1-3): o nome em inglês aparece e a Echo diz a palavra. Machucou, perdeu (a estrela não protege
 // para sempre). LASER e WINGS ocupam o mesmo lugar (um troca o outro); a STAR vale por alguns segundos.
 const POWERS = {
-  laser: { word: 'LASER', pt: 'Laser', say: 'Laser!', info: 'F (Y no controle, SHOT no toque) atira. Segure ↑ para mirar para cima (↑ + lado = diagonal; no ar, ↓ mira para baixo). Segure e solte: o tiro carregado atravessa e vale por 3.' },
+  laser: { word: 'LASER', pt: 'Laser', say: 'Laser!', info: 'F (Y no controle, SHOT no toque) atira. Segure ↑ para mirar para cima (↑ + lado = diagonal; no ar, ↓ mira para baixo; no toque, arraste o dedo no direcional). Segure e solte: o tiro carregado atravessa e vale por 3.' },
   wings: { word: 'WINGS', pt: 'Asas', say: 'Wings!', info: 'No ar, segure o pulo para planar. Em cima de um ventilador, o vento te levanta.' },
   star:  { word: 'STAR', pt: 'Estrela', say: 'Star!', info: 'Por 9 segundos nada te machuca, nem os lasers; quem você tocar explode.', time: 9 },
   // O FORTE: mais três (cada um com o seu jeito de usar o F)

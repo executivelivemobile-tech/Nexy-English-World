@@ -681,7 +681,7 @@ const Game = {
     P.px = P.x; P.py = P.y; Ents.save(); Cam.px = Cam.x; Cam.py = Cam.y; Echo.px = Echo.x; Echo.py = Echo.y;
     // cena: o jogo controla a Nexy (investida)
     if (this.forceInput) { Input.touchHeld = Object.assign({}, this.forceInput); for (const k in Input.held) Input.held[k] = false; Input.padHeld = {}; Input.pressedAt.jump = -1; Input.pressedAt.spin = -1; Input.queue.length = 0; }
-    for (const k of Input.queue) { if (k === 'up' && this.state === 'play') P.tryInteract(); if (k === 'ping' && EchoPulse.fire()) Hints.mark('ping'); if (k === 'shot') Power.press(); }
+    for (const k of Input.queue) { if (k === 'up' && this.state === 'play' && !Input.touchHeld.left && !Input.touchHeld.right) P.tryInteract(); if (k === 'ping' && EchoPulse.fire()) Hints.mark('ping'); if (k === 'shot') Power.press(); }
     Input.queue.length = 0;
     if (this.state !== 'play' && this.state !== 'clearing') return;
     if (P.dead) { P.update(dt); FX.update(dt); Echo.update(dt); Cam.update(dt); return; }

@@ -1734,6 +1734,34 @@ test('1-3 LASER mira em ângulos: ↑ atira para cima, ↑ + lado na diagonal, �
   expect(eq(r.touch, [1, -1]), `no toque mira sozinho na diagonal (${JSON.stringify(r.touch)})`);
 }, L13);
 
+test('celular: o direcional de toque tem ↑ e as diagonais (arrastar o dedo mira o LASER em 8 direções); o áudio entra no modo leve', async ({ browser }) => {
+  const { ctx, page, errors } = await openGame(browser, { level: '1-3', context: { viewport: { width: 844, height: 390 }, hasTouch: true, isMobile: true } });
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, out = {}, pad = document.getElementById('dpad'), rc = pad.getBoundingClientRect();
+    const cx = rc.left + rc.width / 2, cy = rc.top + rc.height / 2, R = rc.width * 0.4;
+    const ev = (type, deg) => { const a = deg * Math.PI / 180, x = cx + Math.cos(a) * R, y = cy - Math.sin(a) * R;
+      (type === 'pointerdown' ? document.elementFromPoint(x, y) : window).dispatchEvent(new PointerEvent(type, { pointerId: 7, clientX: x, clientY: y, bubbles: true, cancelable: true })); };
+    const held = () => ['up', 'down', 'left', 'right'].filter(k => Input.touchHeld[k]).join('+');
+    out.visible = rc.width > 100 && getComputedStyle(document.getElementById('touch')).display !== 'none';
+    H.noEnemies(); H.tp(186, 15, 999); Power.give('laser'); P.facing = 1;
+    const shot = () => { Power.bolts = []; Power.cool = 0; H.step(1); Power.press(); const b = Power.bolts[0]; return b ? [Math.sign(Math.round(b.vx)), Math.sign(Math.round(b.vy))] : null; };
+    ev('pointerdown', 90); out.up = held(); out.shotUp = shot();
+    ev('pointermove', 45); out.diag = held(); out.shotDiag = shot();
+    ev('pointermove', 10); out.right = held();
+    ev('pointermove', 135); out.upLeft = held();
+    ev('pointermove', 270); out.down = held();
+    ev('pointerup', 270); out.none = held();
+    out.lite = AudioSys.lite; out.cap = VoiceClips.cap();
+    return out;
+  });
+  await ctx.close();
+  const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  expect(!errors.length, errors.join('; '));
+  expect(r.visible && r.up === 'up' && r.diag === 'up+right' && r.right === 'right' && r.upLeft === 'up+left' && r.down === 'down' && r.none === '', `as 8 direções do direcional (${JSON.stringify(r)})`);
+  expect(eq(r.shotUp, [0, -1]) && eq(r.shotDiag, [1, -1]), `o laser mira para cima e na diagonal pelo toque (${JSON.stringify(r)})`);
+  expect(r.lite && r.cap < 100, `áudio leve no celular (${JSON.stringify(r)})`);
+});
+
 test('1-3 beco dos lasers: o feixe fecha o corredor (pega até pulando); UNDER THE LASER só confunde (com dica); IN FRONT OF THE LASER: a caixa leva o tiro e o corredor se atravessa andando', async ({ page }) => {
   await page.evaluate(HELP12); await page.evaluate(HELP13);
   const r = await page.evaluate(async () => {

@@ -1,13 +1,21 @@
 
 /* ============================== ÁUDIO: EFEITOS (Web Audio) ============================== */
+// No celular (navegador) o som estalava e falhava: o processador de áudio não dava conta (reverb longo, muitas vozes da
+// música, 600 falas decodificadas na memória) e o agendador atrasava quando a tela pesava. Lá ('lite'): buffer maior,
+// reverb curto, música com metade dos osciladores, agenda mais adiantada e só as falas recentes na memória.
 const AudioSys = {
   ctx: null, master: null, sfx: null, music: null, duckNode: null, verb: null, noiseBuf: null, muted: false,
+  lite: !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches) || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent),
   init() {
-    if (this.ctx) { if (this.ctx.state === 'suspended') this.ctx.resume(); return; }
+    if (this.ctx) { this.wake(); return; }
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
-    try { this.ctx = new AC(); } catch (e) { this.ctx = null; return; }
+    try { this.ctx = new AC({ latencyHint: this.lite ? 'playback' : 'interactive' }); } catch (e) { try { this.ctx = new AC(); } catch (e2) { this.ctx = null; return; } }
     const c = this.ctx;
+    // o celular suspende (ou "interrompe", no iPhone) o áudio ao trocar de app ou receber chamada: volta no próximo toque
+    const wake = () => this.wake();
+    for (const ev of ['pointerdown', 'touchend', 'keydown']) window.addEventListener(ev, wake, { passive: true });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) wake(); });
     this.master = c.createGain(); this.master.gain.value = this.muted ? 0 : 0.9;
     const comp = c.createDynamicsCompressor();
     comp.threshold.value = -16; comp.knee.value = 12; comp.ratio.value = 4; comp.attack.value = 0.004; comp.release.value = 0.2;
@@ -20,7 +28,7 @@ const AudioSys = {
     const d = this.noiseBuf.getChannelData(0);
     for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
     // reverb gótico (impulso sintético)
-    const len = Math.floor(c.sampleRate * 2.6), ir = c.createBuffer(2, len, c.sampleRate);
+    const len = Math.floor(c.sampleRate * (this.lite ? 1.2 : 2.6)), ir = c.createBuffer(2, len, c.sampleRate);
     for (let ch = 0; ch < 2; ch++) {
       const b = ir.getChannelData(ch);
       for (let i = 0; i < len; i++) b[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6);
@@ -29,6 +37,7 @@ const AudioSys = {
     const wet = c.createGain(); wet.gain.value = 0.32; this.verb.connect(wet); wet.connect(this.master);
     Music.init();
   },
+  wake() { const c = this.ctx; if (c && c.state !== 'running' && c.state !== 'closed') { try { const p = c.resume(); if (p && p.catch) p.catch(() => {}); } catch (e) { /* ignora */ } } },
   get t() { return this.ctx ? this.ctx.currentTime : 0; },
   setMuted(m) {
     this.muted = m;
@@ -301,7 +310,7 @@ const Music = {
     }
     this.bus.pad.connect(A.verb); this.bus.organ.connect(A.verb);
     this.next = c.currentTime + 0.1; this.step = 0;
-    this.timer = setInterval(() => this.tick(), 25);
+    this.timer = setInterval(() => this.tick(), AudioSys.lite ? 50 : 25);
     if (this.cur && this.cur.rain) this.rain(true);
   },
   vol(k) { const v = this.cur || {}; return { bass: 1, pad: 0.9, organ: 0.75, perc: 0.7 * (v.perc != null ? v.perc : 1) * this.boost }[k]; },
@@ -340,7 +349,7 @@ const Music = {
     if (c.state !== 'running') { this.next = c.currentTime + 0.05; return; }
     const sp = 60 / this.bpm / 4;
     if (this.next < c.currentTime - 0.5) this.next = c.currentTime + 0.05;
-    while (this.next < c.currentTime + 0.15) { this.play(this.step, this.next, sp); this.next += sp; this.step = (this.step + 1) % 128; }
+    while (this.next < c.currentTime + (AudioSys.lite ? 0.4 : 0.15)) { this.play(this.step, this.next, sp); this.next += sp; this.step = (this.step + 1) % 128; }
   },
   play(step, t, sp) {
     const bar = Math.floor(step / 16), s = step % 16, [root, maj] = ((this.cur && this.cur.chords) || this.chords)[bar], third = maj ? 4 : 3;
@@ -354,6 +363,7 @@ const Music = {
     // pad grave
     if (s === 0) {
       for (const iv of [0, third, 7, 12]) {
+        if (AudioSys.lite) { tone('sawtooth', midi(root + 12 + iv), t, sp * 16, 0.04, { a: 0.6, hold: sp * 11, filter: { freq: 750 }, detune: iv % 2 ? 6 : -6, dest: B.pad }); continue; }
         tone('sawtooth', midi(root + 12 + iv), t, sp * 16, 0.022, { a: 0.6, hold: sp * 11, filter: { freq: 750 }, detune: 7, dest: B.pad });
         tone('sawtooth', midi(root + 12 + iv), t, sp * 16, 0.022, { a: 0.6, hold: sp * 11, filter: { freq: 750 }, detune: -7, dest: B.pad });
       }
@@ -361,14 +371,14 @@ const Music = {
     const V = this.cur || {};
     // sino no começo de cada ciclo de 8 compassos e coro suave (variações)
     if (V.bell && step === 0) { const f = midi(81); tone('sine', f, t, 3.2, 0.05, { verb: true, dest: B.pad }); tone('sine', f * 2.76, t, 1.6, 0.018, { verb: true, dest: B.pad }); }
-    if (V.choir && s === 0) for (const iv of [0, 7, 12 + third]) for (const dt of [-5, 5]) tone('triangle', midi(root + 24 + iv), t, sp * 16, 0.012, { a: 1.1, hold: sp * 10, filter: { freq: 1500 }, detune: dt, dest: B.pad });
+    if (V.choir && s === 0) for (const iv of [0, 7, 12 + third]) for (const dt of AudioSys.lite ? [0] : [-5, 5]) tone('triangle', midi(root + 24 + iv), t, sp * 16, AudioSys.lite ? 0.02 : 0.012, { a: 1.1, hold: sp * 10, filter: { freq: 1500 }, detune: dt, dest: B.pad });
     // órgão
     const mel = (V.melody || this.melody)[bar];
     if (mel) for (const [ms, n, len] of mel) if (ms === s) {
       const d = len * sp;
       tone('sine', midi(n), t, d, 0.05, { a: 0.02, hold: d * 0.7, dest: B.organ });
       tone('sine', midi(n + 12), t, d, 0.022, { a: 0.02, hold: d * 0.7, dest: B.organ });
-      tone('sine', midi(n + 19), t, d, 0.011, { a: 0.02, hold: d * 0.7, dest: B.organ });
+      if (!AudioSys.lite) tone('sine', midi(n + 19), t, d, 0.011, { a: 0.02, hold: d * 0.7, dest: B.organ });
     }
     // a bigorna do forte: duas batidas metálicas por compasso
     if (V.anvil && (s === 6 || s === 14)) for (const [f, a] of [[1046, 0.02], [1568, 0.012], [2637, 0.007]]) tone('triangle', f, t, 0.5, a, { verb: true, dest: B.perc });
@@ -387,25 +397,33 @@ const Music = {
 // As marcas de tempo vêm da transcrição (ElevenLabs Scribe) e acendem o karaokê da leitura.
 const VoiceClips = {
   pack: /*VOICE_PACK*/null,
-  bufs: {}, pending: {}, sources: [], timers: [], out: null,
+  bufs: {}, pending: {}, sources: [], timers: [], out: null, order: [],
+  // quantas falas decodificadas ficam na memória (cada uma ocupa ~0,3 MB; todas juntas passam de 150 MB)
+  cap() { return AudioSys.lite ? 48 : 1e9; },
+  keep(k) {
+    const i = this.order.indexOf(k); if (i >= 0) this.order.splice(i, 1);
+    this.order.push(k);
+    while (this.order.length > this.cap()) delete this.bufs[this.order.shift()];
+  },
   key(who, text) { return who + ':' + String(text).toLowerCase().replace(/[^a-z0-9']+/g, ' ').trim(); },
   has() { return !!(this.pack && this.pack.clips && Object.keys(this.pack.clips).length); },
   name(who) { const c = this.pack && this.pack.cast && this.pack.cast[who]; return c ? c.name : 'Studio'; },
   load(k) {
-    if (this.bufs[k]) return Promise.resolve(this.bufs[k]);
+    if (this.bufs[k]) { this.keep(k); return Promise.resolve(this.bufs[k]); }
     if (this.pending[k]) return this.pending[k];
     const c = AudioSys.ctx, e = this.pack && this.pack.clips[k];
     if (!c || !e) return Promise.resolve(null);
     const bin = atob(e[0]), u8 = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
     return (this.pending[k] = new Promise(res => {
-      const ok = b => { this.bufs[k] = b; delete this.pending[k]; res(b); }, bad = () => { delete this.pending[k]; res(null); };
+      const ok = b => { this.bufs[k] = b; this.keep(k); delete this.pending[k]; res(b); }, bad = () => { delete this.pending[k]; res(null); };
       try { const p = c.decodeAudioData(u8.buffer, ok, bad); if (p && p.catch) p.catch(bad); } catch (err) { bad(); }
     }));
   },
   // decodifica tudo aos poucos, em segundo plano, para a primeira fala não atrasar
   warm() {
-    if (!this.has() || !AudioSys.ctx || this.warming) return;
+    // no celular, não: decodificar tudo pesa e ocupa memória demais (cada fala decodifica na hora, em ~50 ms)
+    if (!this.has() || !AudioSys.ctx || this.warming || AudioSys.lite) return;
     this.warming = true;
     const ks = Object.keys(this.pack.clips); let i = 0;
     const step = () => { const n = Math.min(ks.length, i + 4); for (; i < n; i++) this.load(ks[i]); if (i < ks.length) setTimeout(step, 80); };
@@ -442,7 +460,7 @@ const VoiceClips = {
       let t = c.currentTime + 0.03;
       plan.forEach((p, i) => {
         const src = c.createBufferSource(); src.buffer = bufs[i]; src.playbackRate.value = rate; src.connect(out); src.start(t);
-        this.sources.push(src);
+        this.sources.push(src); src.onended = () => { const i = this.sources.indexOf(src); if (i >= 0) this.sources.splice(i, 1); };
         if (opts.onBoundary) for (const [ci, s] of (this.pack.clips[p.k][1] || [[0, 0]])) {
           this.timers.push(setTimeout(() => { if (live()) opts.onBoundary(p.off + ci); }, (t - c.currentTime + s / rate) * 1000));
         }

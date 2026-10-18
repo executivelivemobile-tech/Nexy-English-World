@@ -321,3 +321,10 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 - Cada fase nova: algo inédito + acréscimo ao Coração + desafio crescente acima do A1 + caminho alternativo + um passo
   a mais no visual rumo à cidade Castlevania cyberpunk.
 - Controle de verdade (gamepad) ainda não testado com aparelho físico.
+- **Toque (celular)**: o direcional é um disco só (`#dpad`, `Input.initTouch` → `padKeys`): 8 direções pelo ângulo do
+  dedo (lados com 60°, diagonais 35°, cima/baixo 50°; o dedo pode sair do disco), então ↑ e ↑ + lado existem no toque
+  (mira do LASER, casco para cima). ↑ com lado segurado no toque não abre porta (o botão OPEN continua).
+- **Áudio no celular** (`AudioSys.lite`, ponteiro grosso ou UA móvel; o dono reclamou que falhava e estalava): contexto
+  com `latencyHint: 'playback'`, reverb de 1,2 s (não 2,6), música com metade dos osciladores, agenda 0,4 s adiantada
+  a cada 50 ms, sem `VoiceClips.warm` (decodificar as 600 falas passa de 150 MB) e no máximo 48 falas na memória
+  (`VoiceClips.cap/keep`); `AudioSys.wake` retoma o áudio suspenso ao tocar ou voltar para o app.

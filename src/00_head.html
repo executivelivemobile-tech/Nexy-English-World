@@ -288,6 +288,21 @@ body.touch #touch { display: block; }
 .tb .ar.l { border-right: 13px solid var(--txt-2); }
 .tb .ar.r { border-left: 13px solid var(--txt-2); }
 .tb .ar.d { border-left: 9px solid transparent; border-right: 9px solid transparent; border-top: 13px solid var(--txt-2); border-bottom: 0; }
+/* o direcional: um disco só, 8 direções pelo ângulo do dedo (deslizar sem levantar; ↗ mira o laser na diagonal) */
+#dpad { pointer-events: auto; position: relative; width: 156px; height: 156px; border-radius: 50%; touch-action: none;
+  border: 1px solid rgba(255,255,255,.14); background: rgba(10,15,18,.42); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+#dpad .arm { position: absolute; width: 52px; height: 52px; border-radius: 26px; display: grid; place-items: center; pointer-events: none; }
+#dpad .arm[data-arm="up"] { left: 52px; top: 4px; } #dpad .arm[data-arm="down"] { left: 52px; bottom: 4px; }
+#dpad .arm[data-arm="left"] { left: 4px; top: 52px; } #dpad .arm[data-arm="right"] { right: 4px; top: 52px; }
+#dpad .arm.on { background: rgba(217,70,239,.22); box-shadow: 0 0 18px rgba(217,70,239,.45); }
+#dpad .arm.on .ar.l { border-right-color: #fff; } #dpad .arm.on .ar.r { border-left-color: #fff; }
+#dpad .arm.on .ar.u { border-bottom-color: #fff; } #dpad .arm.on .ar.d { border-top-color: #fff; }
+#dpad .hub { position: absolute; left: 66px; top: 66px; width: 24px; height: 24px; border-radius: 12px; border: 1px solid rgba(255,255,255,.12); pointer-events: none; }
+#dpad .ar { width: 0; height: 0; border-top: 9px solid transparent; border-bottom: 9px solid transparent; }
+#dpad .ar.l { border-right: 13px solid var(--txt-2); } #dpad .ar.r { border-left: 13px solid var(--txt-2); }
+#dpad .ar.d { border-left: 9px solid transparent; border-right: 9px solid transparent; border-top: 13px solid var(--txt-2); border-bottom: 0; }
+#dpad .ar.u { border-top: 0; }
+.ar.u { width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent; border-bottom: 13px solid var(--txt-2); }
 #tcr .col { display: flex; flex-direction: column; gap: 12px; align-items: center; }
 #tbopen { position: absolute; right: max(18px, env(safe-area-inset-right, 0px)); bottom: calc(166px + env(safe-area-inset-bottom, 0px)); width: 92px;
   border-color: rgba(34,211,238,.6); color: var(--cy); text-shadow: var(--glow-text-cy); display: none; }
@@ -558,9 +573,7 @@ body.touch #touch { display: block; }
 
 <div id="touch">
   <div class="tc" id="tcl">
-    <div class="tb" data-k="left"><span class="ar l"></span></div>
-    <div class="tb" data-k="down"><span class="ar d"></span></div>
-    <div class="tb" data-k="right"><span class="ar r"></span></div>
+    <div id="dpad"><span class="arm" data-arm="up"><span class="ar u"></span></span><span class="arm" data-arm="left"><span class="ar l"></span></span><span class="arm" data-arm="right"><span class="ar r"></span></span><span class="arm" data-arm="down"><span class="ar d"></span></span><span class="hub"></span></div>
   </div>
   <div class="tc" id="tcr">
     <div class="tb wide" data-k="run">RUN</div>

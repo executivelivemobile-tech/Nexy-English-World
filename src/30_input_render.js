@@ -94,11 +94,11 @@ const Input = {
     this.pad.prev = now;
   },
   initTouch() {
-    const root = $('touch');
-    const active = new Map(); // pointerId → key
+    const root = $('touch'), pad = $('dpad');
+    const active = new Map(); // pointerId → tecla do botão, ou { pad: [teclas] } para o direcional
     const refresh = () => {
       const now = {};
-      for (const k of active.values()) if (k) now[k] = true;
+      for (const v of active.values()) { if (v && v.pad) for (const k of v.pad) now[k] = true; else if (v) now[v] = true; }
       const before = this.touchHeld;
       for (const k of ['left', 'right', 'down', 'up', 'run', 'jump', 'spin', 'ping', 'shot']) {
         if (now[k] && !before[k]) this.edge(k);
@@ -106,10 +106,23 @@ const Input = {
       this.touchHeld = now;
       for (const k of ['left', 'right']) if (before[k] && !now[k]) this.release(k);
       root.querySelectorAll('.tb').forEach(b => b.classList.toggle('on', !!now[b.dataset.k]));
+      pad.querySelectorAll('.arm').forEach(b => b.classList.toggle('on', !!now[b.dataset.arm]));
     };
     const keyAt = (x, y) => { const el = document.elementFromPoint(x, y); const b = el && el.closest && el.closest('.tb'); return b ? b.dataset.k : null; };
+    // o direcional: o ângulo do dedo a partir do centro (o dedo pode sair do disco: vale a direção). Os lados ganham uma
+    // fatia maior (60°) para quem só quer andar não agachar nem olhar para cima sem querer; as diagonais ficam com 35°.
+    const padKeys = (x, y) => {
+      const r = pad.getBoundingClientRect(), dx = x - (r.left + r.width / 2), dy = y - (r.top + r.height / 2);
+      if (Math.hypot(dx, dy) < r.width * 0.11) return [];
+      const a = (Math.atan2(-dy, dx) * 180 / Math.PI + 360) % 360;
+      return a < 30 || a >= 330 ? ['right'] : a < 65 ? ['up', 'right'] : a < 115 ? ['up'] : a < 150 ? ['up', 'left']
+        : a < 210 ? ['left'] : a < 245 ? ['down', 'left'] : a < 295 ? ['down'] : ['down', 'right'];
+    };
+    const same = (a, b) => a.length === b.length && a.every(k => b.includes(k));
     const onDown = e => {
       document.body.classList.add('touch');
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      if (el && el.closest && el.closest('#dpad')) { e.preventDefault(); active.set(e.pointerId, { pad: padKeys(e.clientX, e.clientY) }); refresh(); return; }
       const k = keyAt(e.clientX, e.clientY);
       if (!k) return;
       e.preventDefault(); active.set(e.pointerId, k); refresh();
@@ -117,9 +130,11 @@ const Input = {
     const onMove = e => {
       if (!active.has(e.pointerId)) return;
       e.preventDefault();
+      const v = active.get(e.pointerId);
+      if (v && v.pad) { const ks = padKeys(e.clientX, e.clientY); if (!same(ks, v.pad)) { v.pad = ks; refresh(); } return; }
       const k = keyAt(e.clientX, e.clientY);
-      // permite deslizar entre ◀ e ▶ sem levantar o dedo
-      if (k !== active.get(e.pointerId)) { active.set(e.pointerId, k); refresh(); }
+      // permite deslizar de um botão para outro sem levantar o dedo
+      if (k !== v) { active.set(e.pointerId, k); refresh(); }
     };
     const onUp = e => { if (active.has(e.pointerId)) { active.delete(e.pointerId); refresh(); } };
     root.addEventListener('pointerdown', onDown, { passive: false });
