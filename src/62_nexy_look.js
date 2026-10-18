@@ -1,19 +1,20 @@
 
 /* ============================== O VISUAL DA NEXY: uma boneca articulada que evolui ==============================
-   A Nexy é desenhado em código sobre um esqueleto (quadril, tronco, pescoço, cabeça, braços, pernas, cauda e
-   cachecol). Cada estágio põe camadas por cima do mesmo esqueleto: rascunho de neon → tinta → equipamento →
-   núcleo → elmo → fênix (a forma final, a da arte de referência). A caixa de colisão nunca muda: orelhas, cauda,
-   cachecol e asas são só desenho, então a física e as fases continuam iguais.
+   A Nexy é desenhada em código sobre um esqueleto (quadril, tronco, pescoço, cabeça, braços, pernas e cachecol).
+   Cada estágio põe camadas por cima do mesmo esqueleto: rascunho de neon → tinta → equipamento → núcleo → elmo →
+   fênix (a forma final). A caixa de colisão nunca muda: orelhas, cachecol e asas são só desenho, então a física e as
+   fases continuam iguais. Nada de traço que lembre um ser diabólico (o dono pediu): as orelhas do capuz são baixas e
+   redondas, não há cauda e as luvas têm luzes redondas, não garras.
    Para não pesar, cada quadro de animação é desenhado uma única vez, com o brilho de neon embutido, numa tela
    guardada em memória (NexyLook.sprite); o jogo só carimba a imagem pronta, como os sprites dos jogos antigos.
    Este arquivo não depende do resto do jogo: a folha de evolução (tools/look_sheet.js) usa o mesmo código. */
 const NEXY_STAGES = [
-  { id: 'sketch', name: 'SKETCH', pt: 'Rascunho', from: '1-1', note: 'Linhas de neon ainda se desenhando, sem armadura: o capuz de gato, o cachecol e a cauda de cabo.' },
+  { id: 'sketch', name: 'SKETCH', pt: 'Rascunho', from: '1-1', note: 'Linhas de neon ainda se desenhando, sem armadura: o capuz de orelhas redondas e o cachecol.' },
   { id: 'ink', name: 'INK', pt: 'Tinta', from: '1-2', note: 'As linhas viram corpo: traje escuro com circuitos que acendem.' },
-  { id: 'gear', name: 'GEAR', pt: 'Equipamento', from: '1-3', note: 'Manoplas com garras de luz e botas blindadas.' },
-  { id: 'core', name: 'CORE', pt: 'Núcleo', from: 'FORTRESS', note: 'Peitoral com o núcleo, ombreiras de penas e a cauda de placas.' },
-  { id: 'helm', name: 'HELM', pt: 'Elmo', from: 'CASTLE', note: 'Elmo com orelhas de gato, gema na testa, fones e a lâmina de luz nas costas.' },
-  { id: 'phoenix', name: 'PHOENIX', pt: 'Fênix', from: 'FINAL', note: 'Asas de penas de fogo e a chama na cauda: a forma final.' },
+  { id: 'gear', name: 'GEAR', pt: 'Equipamento', from: '1-3', note: 'Luvas com luzes nos dedos e botas blindadas.' },
+  { id: 'core', name: 'CORE', pt: 'Núcleo', from: 'FORTRESS', note: 'Peitoral com o núcleo e ombreiras de penas.' },
+  { id: 'helm', name: 'HELM', pt: 'Elmo', from: 'CASTLE', note: 'Elmo de orelhas redondas, gema na testa, fones e a lâmina de luz nas costas.' },
+  { id: 'phoenix', name: 'PHOENIX', pt: 'Fênix', from: 'FINAL', note: 'Asas de penas de fogo: a forma final.' },
 ];
 
 const NexyLook = {
@@ -65,14 +66,6 @@ const NexyLook = {
       const elbow = this.ik(s0, h, 7, 6.6, -1);
       return { sh: s0, elbow, hand: this.reach(elbow, h, 6.6) };
     });
-    // cauda: sai das costas para trás e enrola para cima; balança com o tempo e se estica correndo
-    const tail = [{ x: hip.x - 4.1, y: hip.y + 0.6 }];
-    let a = Math.PI - 1.05 + run * 0.55 + (gr ? 0 : -0.3 * p.air);
-    const curl = 0.25 - run * 0.1;
-    for (let j = 1; j <= 9; j++) {
-      a += curl + Math.sin((p.tw != null ? p.tw : p.t * 2.6) - j * 0.6) * 0.07 * (0.6 + mv);
-      const q = tail[j - 1]; tail.push({ x: q.x + Math.cos(a) * 2.2, y: q.y + Math.sin(a) * 2.2 });
-    }
     // cachecol: duas fitas presas no pescoço, voando para trás com a velocidade
     const scarf = [0, 1].map(k => {
       const pts = [{ x: neck.x - 2.6, y: neck.y + 1.6 + k * 0.5 }];
@@ -84,7 +77,7 @@ const NexyLook = {
       return pts;
     });
     const ear = Math.max(0, Math.sin(p.t * 1.3) - 0.92) * 9;   // uma tremidinha de orelha de vez em quando
-    return { hip, chest, neck, head, legs, arms, tail, scarf, ear, mv, run, gr, cr, br };
+    return { hip, chest, neck, head, legs, arms, scarf, ear, mv, run, gr, cr, br };
   },
   // pose contínua (pedido do dono: movimentos mais fluidos): em vez de saltar entre poses, mistura os esqueletos.
   // av = -1 subindo … 1 caindo (o ápice fica no meio), lift = 0 no chão … 1 no ar (decolar/pousar), crouchK = 0 … 1.
@@ -170,7 +163,6 @@ const NexyLook = {
     if (S === 0) this.guides(ctx, R0, p);
     if (S >= 5) this.wings(ctx, R0, p, 1, k);
     if (S < 5) this.scarf(ctx, R0, p, st, S);
-    this.tail(ctx, R0, p, st, S, k);
     this.arm(ctx, R0, R0.arms[1], st, S, far, p);
     this.leg(ctx, R0, R0.legs[1], st, S, far, 1);
     this.torso(ctx, R0, st, S, p);
@@ -200,30 +192,6 @@ const NexyLook = {
       this.shape(ctx, st, a => { this.smooth(ctx, L.map(q => this.j(q, a)), false); for (const q of Rr) ctx.lineTo(q.x + (a ? this.rnd() * a : 0), q.y); ctx.closePath(); },
         { fill, line: k ? 'rgba(232,121,249,0.6)' : st.line, lw: 0.9, k: 10 + k });
     });
-  },
-  tail(ctx, R0, p, st, S, k) {
-    const C = this.C, T = R0.tail, n = T.length;
-    const w = i => (S >= 3 ? 2.6 : 1.9) * (1 - i / n * 0.55);
-    // corpo da cauda: uma fita afinando ao longo da curva
-    const side = s => T.map((q, i) => { const a = T[Math.min(n - 1, i + 1)], b = T[Math.max(0, i - 1)], dx = a.x - b.x, dy = a.y - b.y, d = Math.hypot(dx, dy) || 1; return { x: q.x - dy / d * w(i) / 2 * s, y: q.y + dx / d * w(i) / 2 * s }; });
-    const A = side(1), B = side(-1).reverse();
-    this.shape(ctx, st, a => { this.smooth(ctx, A.map(q => this.j(q, a)), false); for (const q of B) ctx.lineTo(q.x, q.y); ctx.closePath(); }, { k: 20, fill: S === 0 ? 'rgba(10,6,16,0.4)' : C.ink2 });
-    if (S >= 3) {   // placas: anéis ao longo da cauda, com juntas acesas
-      ctx.save(); ctx.shadowBlur = 1.5 * this.gk; ctx.strokeStyle = C.magHi; ctx.lineWidth = 0.6;
-      for (let i = 1; i < n - 1; i += 1) { ctx.beginPath(); ctx.moveTo(A[i].x, A[i].y); ctx.lineTo(B[n - 1 - i].x, B[n - 1 - i].y); ctx.stroke(); }
-      ctx.restore();
-    } else if (S >= 1) {   // circuito ao longo do cabo
-      ctx.save(); ctx.shadowColor = 'rgba(34,211,238,0.8)'; ctx.strokeStyle = 'rgba(34,211,238,0.75)'; ctx.lineWidth = 0.5; ctx.beginPath(); this.smooth(ctx, T.slice(1, n - 1), false); ctx.stroke(); ctx.restore();
-    }
-    const tip = T[n - 1], pre = T[n - 2], ang = Math.atan2(tip.y - pre.y, tip.x - pre.x);
-    if (S >= 5) this.flame(ctx, tip.x, tip.y, ang, 7.5 + Math.sin(p.t * 9) * 0.8, p, k);
-    else {   // a faísca da ponta (vira chama na forma final)
-      ctx.save(); ctx.translate(tip.x, tip.y); ctx.rotate(ang);
-      ctx.shadowColor = 'rgba(34,211,238,0.9)'; ctx.shadowBlur = 2 * this.gk;
-      ctx.beginPath(); ctx.moveTo(3.2, 0); ctx.lineTo(0, 1.5); ctx.lineTo(-1.6, 0); ctx.lineTo(0, -1.5); ctx.closePath();
-      ctx.fillStyle = S === 0 ? 'rgba(34,211,238,0.35)' : C.cy; ctx.fill(); ctx.strokeStyle = C.cyHi; ctx.lineWidth = 0.6; ctx.stroke();
-      ctx.restore();
-    }
   },
   leg(ctx, R0, L, st, S, far, k) {
     const C = this.C, hip = { x: R0.hip.x + (k ? -1.2 : 0.8), y: R0.hip.y }, o = far || {};
@@ -288,14 +256,12 @@ const NexyLook = {
     this.shape(ctx, st, a => this.smooth(ctx, this.limbPts(A.elbow, A.hand, 2.7, 2.3).map(q => this.j(q, a)), true), { k: 52 + i, line: o.line, fill: o.fill });
     const h = A.hand, dx = h.x - A.elbow.x, dy = h.y - A.elbow.y, d = Math.hypot(dx, dy) || 1, ux = dx / d, uy = dy / d;
     if (S >= 2) {
-      // manopla: placa que alarga no punho + três garras de luz
+      // luva: placa que alarga no punho + três luzes redondas nos dedos
       const g = this.limbPts({ x: A.elbow.x + ux * 1.2, y: A.elbow.y + uy * 1.2 }, h, 3.2, 4.6);
       this.shape(ctx, st, a => this.poly(ctx, [g[0], g[1], g[3], g[4]]), { k: 54 + i, fill: C.ink3, line: o.line || C.mag });
       ctx.save(); ctx.strokeStyle = far ? 'rgba(240,171,252,0.45)' : C.magHi; ctx.lineWidth = 0.7; ctx.shadowColor = 'rgba(217,70,239,1)'; ctx.shadowBlur = 3 * this.gk;
-      for (let c = -1; c <= 1; c++) {
-        const bx = h.x + ux * 1.4 - uy * c * 1.1, by = h.y + uy * 1.4 + ux * c * 1.1;
-        ctx.beginPath(); ctx.moveTo(bx, by); ctx.quadraticCurveTo(bx + ux * 1.8, by + uy * 1.8, bx + ux * 2.4 + uy * 0.8, by + uy * 2.4 - ux * 0.8); ctx.stroke();
-      }
+      ctx.fillStyle = far ? 'rgba(240,171,252,0.45)' : C.magHi;
+      for (let c = -1; c <= 1; c++) { ctx.beginPath(); ctx.arc(h.x + ux * 1.9 - uy * c * 1.15, h.y + uy * 1.9 + ux * c * 1.15, 0.62, 0, Math.PI * 2); ctx.fill(); }
       ctx.strokeStyle = far ? 'rgba(34,211,238,0.45)' : C.cy; ctx.shadowColor = 'rgba(34,211,238,1)';
       ctx.beginPath(); ctx.moveTo(g[1].x, g[1].y); ctx.lineTo(g[3].x, g[3].y); ctx.stroke();
       ctx.restore();
@@ -317,15 +283,14 @@ const NexyLook = {
   },
   headDraw(ctx, R0, p, st, S, k) {
     const C = this.C, h = R0.head, helm = S >= 4, ear = R0.ear, P = (x, y) => ({ x: h.x + x, y: h.y + y });
-    // orelhas de gato (do capuz e, depois, do elmo): a de trás primeiro, mais escura
-    const earPts = (dx, tip, lean) => helm
-      ? [P(-5 + dx, -4.6), P(-4.8 + dx - lean, -15.4 - tip), P(0.2 + dx, -7.6)]
-      : [P(-5.2 + dx, -4.4), P(-4.4 + dx - lean, -13.8 - tip), P(-0.4 + dx, -7)];
-    const farEar = earPts(-2.3, -0.5, 1.3 + ear * 0.2), nearEar = earPts(0.4, 0, 0.5 + ear * 0.3);
-    const earShape = (pts, o) => this.shape(ctx, st, a => helm ? this.poly(ctx, pts.map(q => this.j(q, a)))
-      : this.smooth(ctx, [pts[0], { x: (pts[0].x + pts[1].x) / 2 - 0.7, y: (pts[0].y + pts[1].y) / 2 }, pts[1], { x: (pts[1].x + pts[2].x) / 2 + 0.5, y: (pts[1].y + pts[2].y) / 2 }, pts[2]].map(q => this.j(q, a)), true), o);
+    // orelhas do capuz (e, depois, do elmo): baixas, largas e redondas, como de um bicho de pelúcia (pontudas e
+    // altas pareciam chifres). A de trás primeiro, mais escura. [base de trás, lado, topo, topo, lado, base da frente]
+    const earPts = (dx, tip, lean) => [P(-6 + dx, -4.4), P(-6.6 + dx - lean * 0.3, -7.6), P(-5.3 + dx - lean * 0.5, -10 - tip),
+      P(-2.9 + dx - lean * 0.4, -10.3 - tip), P(-0.9 + dx, -8.6), P(-0.3 + dx, -6.8)];
+    const farEar = earPts(-2.3, -0.3, 0.8 + ear * 0.15), nearEar = earPts(0.4, 0, 0.3 + ear * 0.2);
+    const earShape = (pts, o) => this.shape(ctx, st, a => this.smooth(ctx, pts.map(q => this.j(q, a)), true), o);
     earShape(farEar, { k: 60, line: 'rgba(217,70,239,0.55)', fill: S === 0 ? 'rgba(10,6,16,0.4)' : C.ink2 });
-    // o rosto de perfil: testa, nariz, boca e queixo (um menino, não um gato: os traços de gato são do capuz)
+    // o rosto de perfil: testa, nariz, boca e queixo (uma menina; as orelhas são do capuz)
     const face = [P(1.4, -6.6), P(4.8, -4.9), P(5.8, -2.6), P(6.1, -1), P(7.3, 0.7), P(6.2, 1.5), P(6.5, 2.4), P(6, 3), P(6.2, 3.6), P(5.5, 5), P(3.6, 6.4), P(0.6, 6.1), P(-1.6, 2.6), P(-1.6, -3.4)];
     this.shape(ctx, st, a => this.smooth(ctx, face.map(q => this.j(q, a)), true), { k: 61, fill: S === 0 ? 'rgba(24,12,30,0.5)' : '#170f20', lw: 0.85 });
     if (!helm) {
@@ -353,19 +318,19 @@ const NexyLook = {
     }
     // o olho: oval de luz magenta com brilho branco (o ponto mais vivo do personagem)
     const ex = h.x + 4.1, ey = h.y + 0.2, sq = R0.run * 0.5 + (p.arm === 'slash' ? 0.5 : 0);
-    this.glowDot(ctx, ex, ey, 4.5, 'rgba(240,120,250,A)', S === 0 ? 0.3 : 0.5);
+    this.glowDot(ctx, ex, ey, 3, 'rgba(240,120,250,A)', S === 0 ? 0.2 : 0.28);
     ctx.save(); ctx.shadowColor = 'rgba(240,171,252,1)'; ctx.shadowBlur = 2.2 * this.gk;
-    ctx.beginPath(); ctx.ellipse(ex, ey + sq * 0.3, 1.05, 1.5 - sq * 0.45, 0.15, 0, Math.PI * 2);
+    ctx.beginPath(); ctx.ellipse(ex, ey + sq * 0.3, 1.2, 1.65 - sq * 0.45, 0.15, 0, Math.PI * 2);
     ctx.fillStyle = S === 0 ? 'rgba(240,171,252,0.85)' : C.magHi; ctx.fill();
     ctx.beginPath(); ctx.arc(ex + 0.35, ey - 0.45, 0.42, 0, Math.PI * 2); ctx.fillStyle = '#fff'; ctx.fill();
-    ctx.shadowBlur = 0; ctx.strokeStyle = S === 0 ? 'rgba(232,121,249,0.8)' : '#fff'; ctx.lineWidth = 0.55;   // a linha dos cílios: o olhar decidido
-    ctx.beginPath(); ctx.moveTo(ex - 1.3, ey - 1.1 + sq * 0.3); ctx.lineTo(ex + 1.6, ey - 1.9 + sq * 0.4); ctx.stroke();
+    ctx.shadowBlur = 0; ctx.strokeStyle = S === 0 ? 'rgba(232,121,249,0.8)' : '#fff'; ctx.lineWidth = 0.55;   // os cílios: uma curva suave sobre o olho
+    ctx.beginPath(); ctx.moveTo(ex - 1.3, ey - 1.3 + sq * 0.3); ctx.quadraticCurveTo(ex + 0.1, ey - 2.5 + sq * 0.35, ex + 1.7, ey - 1.6 + sq * 0.4); ctx.stroke();
     ctx.restore();
     earShape(nearEar, { k: 66, fill: helm ? '#1a1226' : undefined });
     // interior da orelha aceso
     ctx.save(); ctx.shadowColor = 'rgba(217,70,239,1)'; ctx.shadowBlur = 1.5 * this.gk; ctx.strokeStyle = helm ? C.magHi : 'rgba(240,171,252,0.6)'; ctx.lineWidth = helm ? 0.8 : 0.55;
-    const e0 = nearEar[0], e1 = nearEar[1], e2 = nearEar[2];
-    ctx.beginPath(); ctx.moveTo(e0.x + (e2.x - e0.x) * 0.3, e0.y + (e2.y - e0.y) * 0.3 - 0.6); ctx.lineTo(e1.x + 0.5, e1.y + 2.6); ctx.lineTo(e0.x + (e2.x - e0.x) * 0.72, e0.y + (e2.y - e0.y) * 0.72 - 0.6); ctx.stroke();
+    const c0 = { x: (nearEar[0].x + nearEar[5].x) / 2, y: (nearEar[0].y + nearEar[5].y) / 2 };
+    this.smooth(ctx, nearEar.slice(1, 5).map(q => ({ x: c0.x + (q.x - c0.x) * 0.55, y: c0.y + (q.y - c0.y) * 0.62 })), false); ctx.stroke();
     ctx.restore();
     if (S >= 4) {   // o cabo da lâmina de luz nas costas
       const c0 = R0.chest;
@@ -403,18 +368,6 @@ const NexyLook = {
     }
     ctx.restore();
   },
-  // chama: três línguas de fogo (ponta da cauda da fênix)
-  flame(ctx, x, y, ang, len, p, k) {
-    const C = this.C;
-    ctx.save(); ctx.translate(x, y); ctx.rotate(ang); ctx.shadowColor = 'rgba(255,140,60,1)'; ctx.shadowBlur = 6 * this.gk;
-    [[1, 0, 1], [0.75, -1.6, 0.7], [0.7, 1.6, 0.75]].forEach(([s, off, w], i) => {
-      const L = len * s, wob = Math.sin(p.t * 11 + i * 2) * 0.9;
-      ctx.beginPath(); ctx.moveTo(0, -1.6 * w); ctx.quadraticCurveTo(L * 0.5, off - 2.6 * w + wob, L, off + wob); ctx.quadraticCurveTo(L * 0.45, off + 2.4 * w + wob, 0, 1.6 * w); ctx.closePath();
-      const g = ctx.createLinearGradient(0, 0, L, 0); g.addColorStop(0, C.fire[1]); g.addColorStop(0.5, C.fire[2]); g.addColorStop(1, C.fire[4]);
-      ctx.fillStyle = g; ctx.globalAlpha = i ? 0.8 : 1; ctx.fill();
-    });
-    ctx.restore();
-  },
   // a lâmina de luz (golpe): chama violeta-magenta saindo da mão
   blade(ctx, R0, p, k) {
     const A = R0.arms[0], h = A.hand, ang = -0.5;
@@ -434,7 +387,7 @@ const NexyLook = {
   /* ---------- quadros guardados (o jogo só carimba) ---------- */
   // a pose contínua vira um quadro: 16 por passada, velocidade de 0,2 em 0,2 (acelerar e frear passam por poses do meio),
   // no ar 5 alturas (subindo → ápice → caindo) e 4 passos de decolagem/pouso, agachar em 4 passos, 8 de respiração.
-  // Andando, o tempo do cachecol e da cauda segue a passada (uma onda por passo): os quadros se repetem a cada passo.
+  // Andando, o tempo do cachecol segue a passada (uma onda por passo): os quadros se repetem a cada passo.
   frame(p) {
     const q = Object.assign({}, p);
     const TAU = Math.PI * 2, st = v => Math.round(v * 5) / 5;
@@ -446,7 +399,7 @@ const NexyLook = {
     else if ((q.speed || 0) < 0.1) { q.air = 0; q.speed = 0; q.phase = 0; q.t = Math.floor((q.t % (TAU / 2.4)) / (TAU / 2.4) * 8) / 8 * (TAU / 2.4); }
     else {
       const u = Math.floor(((q.phase % TAU) + TAU) % TAU / TAU * 16) / 16;
-      q.air = 0; q.phase = u * TAU; q.speed = Math.max(0.2, st(Math.min(1.6, q.speed))); q.t = u * TAU / 2.4; q.tw = u * TAU; q.sw = u * TAU * 2;
+      q.air = 0; q.phase = u * TAU; q.speed = Math.max(0.2, st(Math.min(1.6, q.speed))); q.t = u * TAU / 2.4; q.sw = u * TAU * 2;
     }
     q.boil = Math.floor(p.t * 3) % 3;
     return q;

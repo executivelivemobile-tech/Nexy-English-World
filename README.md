@@ -152,21 +152,24 @@ as vidas cheias e dá à Echo um poder que fica salvo:
 
 ## O visual da Nexy evolui
 
-A Nexy é uma boneca articulada desenhada em código (capuz de gato, cachecol, cauda de cabo). Ela começa como um
+A Nexy é uma boneca articulada desenhada em código (capuz de orelhas redondas e cachecol). Ela começa como um
 **rascunho de neon** na primeira partida e ganha camadas a cada fase concluída, até a forma final com asas de fênix:
 
 | Estágio | Aparece | O que muda |
 | --- | --- | --- |
 | SKETCH · Rascunho | 1-1 | linhas de neon ainda se desenhando, sem armadura |
 | INK · Tinta | depois da 1-1 | traje escuro com circuitos que acendem |
-| GEAR · Equipamento | depois da 1-2 | manoplas com garras de luz e botas blindadas |
-| CORE · Núcleo | depois da 1-3 | peitoral com o núcleo, ombreiras de penas, cauda de placas |
-| HELM · Elmo | depois do forte | elmo com orelhas de gato, gema, fones e a lâmina de luz |
-| PHOENIX · Fênix | depois do castelo | asas de penas de fogo e a chama na cauda |
+| GEAR · Equipamento | depois da 1-2 | luvas com luzes nos dedos e botas blindadas |
+| CORE · Núcleo | depois da 1-3 | peitoral com o núcleo e ombreiras de penas |
+| HELM · Elmo | depois do forte | elmo de orelhas redondas, gema, fones e a lâmina de luz |
+| PHOENIX · Fênix | depois do castelo | asas de penas de fogo |
 
 Ao voltar ao mapa com um estágio novo aparece **NEXY EVOLVED**. É só desenho: a caixa de colisão e a física são as
 mesmas. O estágio atual fica no Grimório (aba POWERS); para jogar com a Nexy antiga: pausa → ASSIST → **CLASSIC NEXY**.
 Folha com os 6 estágios animados: `tools/look_sheet.js`.
+
+Nada no desenho pode lembrar um ser diabólico: sem cauda, sem chifres (as orelhas do capuz são baixas e redondas),
+sem garras.
 
 ## TO BE PALACE (a saída secreta da 1-1)
 
