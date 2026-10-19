@@ -110,7 +110,7 @@ const World = {
   ghostWanted(b) { return Flags.get(b.flag) || (typeof Game !== 'undefined' && Game.bar.includes(b.word)); },
   blockSolid(b) {
     switch (b.kind) {
-      case 'question': return true;
+      case 'question': case 'info': return true;
       case 'glass': return b.state !== 'broken';
       case 'invisible': return b.state === 'revealed';
       case 'ghost': return !!b.solid;
@@ -220,6 +220,11 @@ const World = {
       if (b.secret) Game.foundSecret(b.secret);
       this.release(b, by === 'player');
     } else if (b.kind === 'glass') { if (by === 'shell') this.breakGlass(b, 'shell'); else { b.wob = 1; SFX.thud(); } }
+    else if (b.kind === 'info') {
+      // bloco de informação: nunca se gasta; pula, brilha e abre a página (o jogo pausa enquanto ela está aberta)
+      b.bump = 1; b.flash = 1; SFX.bump(); FX.burst(cx, r * TS + 4, 12, 'c', 160, { up: 60, life: 0.5 });
+      if (by === 'player') Game.later(0.22, () => { if (Game.state === 'play') Legal.open(b.content.page); });
+    }
     else if (b.kind === 'glitch' && b.state === 'hidden') { if (by === 'shell' || by === 'player') Glitch.start(b, by === 'shell' ? ent : null); }
     else { b.bump = 0.6; SFX.thud(); }
     Ents.bumpFrom(c, r);
@@ -275,6 +280,7 @@ const World = {
       if (b.bump > 0) b.bump = Math.max(0, b.bump - dt * 5.5);
       if (b.wob > 0) b.wob = Math.max(0, b.wob - dt * 4);
       if (b.ping > 0) b.ping -= dt; if (b.peek > 0) b.peek -= dt; if (b.flick > 0) b.flick -= dt;
+      if (b.kind === 'info' && b.flash > 0) b.flash = Math.max(0, b.flash - dt * 2.5);
       if (b.kind !== 'ghost') continue;
       if (b.flash > 0) b.flash = Math.max(0, b.flash - dt * 0.9);
       const want = this.ghostWanted(b), cx = b.c * TS + TS / 2, cy = b.r * TS + TS / 2;
@@ -455,6 +461,33 @@ const World = {
       else if (t === T.CRACKED) this.drawCracked(ctx, c, r, c * TS - camX, r * TS - camY, time);
     }
   },
+  // os blocos SOBRE e TERMOS (1-1): vidro escuro com o ícone em ciano (sistema), o nome aparece quando a Nexy chega perto
+  drawInfo(ctx, b, x, y, time) {
+    y += b.bump > 0 ? -Math.sin((1 - b.bump) * Math.PI) * 6 : 0;
+    const near = clamp(1 - (Math.abs(P.cx - (b.c * TS + TS / 2)) - TS) / (3 * TS), 0, 1);
+    if (b.flash > 0) R.draw(R.glow('c', 30), x + TS / 2, y + TS / 2, 1.2, 0.6 * b.flash, true);
+    rrect(ctx, x + 1, y + 1, TS - 2, TS - 2, 7);
+    ctx.fillStyle = 'rgba(8,12,15,0.94)'; ctx.fill(); ctx.strokeStyle = ca(0.35 + 0.35 * near); ctx.lineWidth = 1; ctx.stroke();
+    const g = ctx.createLinearGradient(x, y, x, y + TS); g.addColorStop(0, wa(0.06)); g.addColorStop(1, wa(0));
+    ctx.fillStyle = g; rrect(ctx, x + 2, y + 2, TS - 4, TS / 2, 6); ctx.fill();
+    const cx = x + TS / 2, cy = y + TS / 2, col = ca(0.75 + 0.25 * near);
+    ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+    if (b.content.page === 'about') {
+      // "i" num círculo
+      ctx.beginPath(); ctx.arc(cx, cy, 8.5, 0, Math.PI * 2); ctx.lineWidth = 1.2; ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx, cy - 4, 1.3, 0, Math.PI * 2); ctx.fill();
+      ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(cx, cy - 0.5); ctx.lineTo(cx, cy + 4.5); ctx.stroke();
+    } else {
+      // uma folha com a ponta dobrada e linhas de texto
+      ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(cx - 6, cy - 8.5); ctx.lineTo(cx + 2.5, cy - 8.5); ctx.lineTo(cx + 6.5, cy - 4.5); ctx.lineTo(cx + 6.5, cy + 8.5); ctx.lineTo(cx - 6, cy + 8.5); ctx.closePath(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx + 2.5, cy - 8.5); ctx.lineTo(cx + 2.5, cy - 4.5); ctx.lineTo(cx + 6.5, cy - 4.5); ctx.stroke();
+      ctx.lineWidth = 1.3; for (const [dy, w] of [[-1.5, 8], [1.8, 8], [5, 5]]) { ctx.beginPath(); ctx.moveTo(cx - 3.5, cy + dy); ctx.lineTo(cx - 3.5 + w, cy + dy); ctx.stroke(); }
+    }
+    ctx.lineCap = 'butt';
+    // o nome só do bloco mais perto (os dois são vizinhos: os nomes se cobririam)
+    const d = Math.abs(P.cx - (b.c * TS + TS / 2)), closer = [-1, 1].some(k => { const o = this.blockAt(b.c + k, b.r); return o && o.kind === 'info' && Math.abs(P.cx - (o.c * TS + TS / 2)) < d; });
+    if (near > 0.02 && !closer) R.draw(R.text(b.content.label, '600 9px Orbitron, Inter, sans-serif', wa(0.9), ca(0.8), 4), cx, y - 11, 1, near);
+  },
   drawBlock(ctx, b, x, y, time) {
     const k = b.kind;
     // pulso do Echo: o bloco invisível aparece tracejado por alguns segundos; o "?" deixa ouvir a palavra de dentro
@@ -477,6 +510,7 @@ const World = {
       return;
     }
     if (k === 'glass' && b.state === 'broken') return;
+    if (k === 'info') return this.drawInfo(ctx, b, x, y, time);
     const off = b.bump > 0 ? -Math.sin((1 - b.bump) * Math.PI) * 6 : 0;
     const wob = b.wob > 0 ? Math.sin(b.wob * 30) * 1.5 * b.wob : 0;
     y += off; x += wob;

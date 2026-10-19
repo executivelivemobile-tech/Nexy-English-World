@@ -449,6 +449,21 @@ test('abertura e páginas legais: o aceite fica salvo com a versão ao jogar; #p
   expect(r2.open && r2.consent && r2.splash && r2.state === 'legal', `#privacidade abre a política direto (${JSON.stringify(r2)})`);
 });
 
+test('1-1: os blocos SOBRE e TERMOS no começo abrem as páginas com um pulo de verdade, pausam o jogo e não se gastam', async ({ page }) => {
+  const r = await page.evaluate(() => {
+    const P = NEXY.P, G = NEXY.Game, W = NEXY.World, out = {};
+    const hit = (c) => { H.noEnemies(); H.tp(c, 19, 999); P.x = c * 32 + 5; H.step(3); const t0 = G.simTime; H.set(['jump']); H.press('jump'); for (let i = 0; i < 60 && G.state === 'play'; i++) H.step(1); H.set([]); return { st: G.state, tab: Legal.tab, frozen: G.simTime - t0 < 1.5 }; };
+    out.about = hit(1); out.paused = G.state === 'legal';   // o laço real só anda em 'play'
+    Legal.close(); out.back = G.state;
+    out.terms = hit(2); Legal.close();
+    out.again = hit(1); Legal.close();
+    out.kinds = [W.blockAt(1, 16).kind, W.blockAt(2, 16).kind, W.blockAt(1, 16).state];
+    return out;
+  });
+  expect(r.about.st === 'legal' && r.about.tab === 'about' && r.paused && r.back === 'play', `SOBRE abre e pausa (${JSON.stringify(r)})`);
+  expect(r.terms.tab === 'terms' && r.again.st === 'legal' && r.kinds.join() === 'info,info,ready', `TERMOS abre e os blocos não se gastam (${JSON.stringify(r)})`);
+});
+
 test('1-1 segredo: os três Rastejantes andam soltos e machucam de lado como qualquer Rastejante (o pisão vale); quando ficam em sequência, o pisão triplo (pulos de verdade) bate no tijolo lá no alto e cai o WARP CARD; o duplo não alcança', async ({ page }) => {
   const r = await page.evaluate(() => {
     const P = NEXY.P, G = NEXY.Game, W = NEXY.World, E = NEXY.Ents, out = {};

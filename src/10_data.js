@@ -498,6 +498,8 @@ const LEVELS = {
       's': { block: 'invisible', content: { word: 'SMALL' }, secret: 'invisible-small' },
       'l': { block: 'glass', content: { letter: 3 } },
       'v': { block: 'invisible', content: { life: 1 }, secret: 'echo-secret' },   // o 1º segredo que o pulso do Echo revela
+      // os dois blocos de informação logo no começo (pedido do dono): batida por baixo abre Sobre / Termos e Privacidade
+      '[': { block: 'info', content: { page: 'about', label: 'SOBRE' } }, ']': { block: 'info', content: { page: 'terms', label: 'TERMOS' } },
       'j': { block: 'glitch', content: { card: true }, secret: 'glitch' },          // o "bug" de propósito: invisível, lá no alto; só o 3º quique seguido (o trem) alcança
     },
     // Placas de dica: aparecem quando a Nexy chega perto e somem depois que a ação foi feita (until).

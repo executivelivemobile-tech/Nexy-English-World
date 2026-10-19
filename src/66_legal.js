@@ -151,6 +151,7 @@ const Legal = {
     $('legal').classList.remove('on'); SFX.ui();
     Game.state = this.from || 'title'; this.from = null;
     if (Game.state === 'pause') UI.show('pause');
+    if (Game.state === 'play') Game.clearInput();   // voltou de um bloco SOBRE/TERMOS: o pulo que abriu não vale de novo
     try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* file:// */ }
   },
 };

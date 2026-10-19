@@ -365,6 +365,9 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
   troque `LEGAL.v` e a data. Logo em `src/brand/logo.svg` (redesenhado em vetor da imagem que ele mandou).
   Fontes embutidas (`src/fonts`, OFL): nada de Google Fonts. Faltou ele dizer cidade/estado (o foro ficou o do
   domicílio do consumidor) e um advogado deve revisar antes de cobrar ou ir para o Google Play.
+  **Blocos SOBRE e TERMOS** (pedido do dono: acesso às informações dentro do jogo): `[` e `]` na 1-1, c1-c2 L16, logo
+  à esquerda do início (kind `info`, `World.drawInfo`): batida por baixo abre `Legal` (Sobre / Termos), o jogo pausa,
+  nunca se gastam, o nome aparece só no bloco mais perto. Não contam como palavra nem segredo.
 - **Toque (celular)**: o direcional é um disco só (`#dpad`, `Input.initTouch` → `padKeys`): 8 direções pelo ângulo do
   dedo (lados com 60°, diagonais 35°, cima/baixo 50°; o dedo pode sair do disco), então ↑ e ↑ + lado existem no toque
   (mira do LASER, casco para cima). ↑ com lado segurado no toque não abre porta (o botão OPEN continua).
