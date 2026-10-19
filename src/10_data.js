@@ -614,6 +614,7 @@ const Save = {
       flags: { palaces: { toBe: false } },
       assist: { slow: false, safeFall: false, freeHints: false, subtitles: false, voice: false, classic: false },
       muted: false, voiceURI: null,
+      legal: null,   // aceite dos termos: { v: versão (LEGAL.v), at: data ISO }
     };
   },
   load() {
@@ -638,6 +639,7 @@ const Save = {
           if (s.flags && s.flags.palaces) Object.assign(d.flags.palaces, s.flags.palaces);
           Object.assign(d.assist, s.assist);
           d.muted = !!s.muted; d.voiceURI = s.voiceURI || null;
+          if (s.legal && s.legal.v) d.legal = { v: String(s.legal.v), at: String(s.legal.at || '') };
         }
       }
     } catch (e) { /* sem armazenamento: segue com os padrões */ }

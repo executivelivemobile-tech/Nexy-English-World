@@ -416,6 +416,39 @@ test('lembranças da lei: placa na escada-fantasma (1-1) e no primeiro altar (1-
   expect(r.h12 && r.altarDone, `1-2: placa WHAT YOU SAY IS TRUE some com IT IS BIG (${JSON.stringify(r)})`);
 });
 
+test('abertura e páginas legais: o aceite fica salvo com a versão ao jogar; #privacidade abre a política direto; o microfone pede licença antes do navegador; fontes embutidas', async ({ browser }) => {
+  const { ctx, page, errors } = await openGame(browser, { realtime: true });
+  const before = await page.evaluate(() => !!NEXY.Save.data.legal);
+  await page.keyboard.press('Enter'); await page.waitForTimeout(300);   // PRESS START = "ao jogar, você concorda"
+  const r = await page.evaluate(async () => {
+    const out = {}, S = NEXY.Save;
+    out.accepted = !!(S.data.legal && S.data.legal.v === LEGAL.v) && /^\d{4}-/.test(S.data.legal.at);
+    out.noGoogle = ![...document.querySelectorAll('link[href]')].some(l => /googleapis|gstatic/.test(l.href));
+    out.fonts = document.fonts.check('700 12px Orbitron') && [...document.styleSheets].some(ss => { try { return [...ss.cssRules].some(r => /font-face/.test(r.cssText) && /data:font\/woff2/.test(r.cssText)); } catch (e) { return false; } });
+    // as páginas: abrem, trocam de aba, fecham voltando ao estado anterior
+    const st0 = NEXY.Game.state; Legal.open('terms'); out.terms = NEXY.Game.state === 'legal' && /Termos de Uso/.test($('lgbody').textContent) && /consultoria@nexytutors\.com/.test($('lgbody').innerHTML);
+    Legal.show('about'); out.about = /Mauricio Castro/.test($('lgbody').textContent) && /Nexy Tecnologias/.test($('lgbody').textContent);
+    Legal.close(); out.back = NEXY.Game.state === st0 && !$('legal').classList.contains('on');
+    // microfone: na 1ª vez o aviso aparece e o navegador só é chamado depois do Continuar
+    let called = 0; Listen.SR = function () { called++; this.start = () => {}; this.stop = () => {}; };
+    delete S.data.met.mic; const ok = Listen.start(() => {}, () => {});
+    out.mic = ok && $('micnote').classList.contains('on') && called === 0;
+    MicNote.done(true); out.micAfter = called === 1 && S.data.met.mic === true && !$('micnote').classList.contains('on');
+    return out;
+  });
+  await ctx.close();
+  // um jogador novo: o aviso de aceite aparece no título; #privacidade abre a política sem passar pelo jogo
+  const c2 = await browser.newContext({ viewport: { width: 900, height: 600 } }); const p2 = await c2.newPage();
+  await p2.goto('file://' + require('path').resolve(__dirname, '..', 'index.html') + '#privacidade'); await p2.waitForTimeout(500);
+  const r2 = await p2.evaluate(() => ({ open: $('legal').classList.contains('on') && Legal.tab === 'privacy', consent: !$('consent').hidden, splash: !document.getElementById('splash'), state: NEXY.Game.state }));
+  await c2.close();
+  expect(!errors.length, errors.join('; '));
+  expect(!before && r.accepted && r.noGoogle && r.fonts, `aceite salvo, sem Google Fonts, fontes embutidas (${JSON.stringify(r)})`);
+  expect(r.terms && r.about && r.back, `as páginas abrem e fecham (${JSON.stringify(r)})`);
+  expect(r.mic && r.micAfter, `o aviso do microfone vem antes do navegador (${JSON.stringify(r)})`);
+  expect(r2.open && r2.consent && r2.splash && r2.state === 'legal', `#privacidade abre a política direto (${JSON.stringify(r2)})`);
+});
+
 test('1-1 segredo: os três Rastejantes andam soltos e machucam de lado como qualquer Rastejante (o pisão vale); quando ficam em sequência, o pisão triplo (pulos de verdade) bate no tijolo lá no alto e cai o WARP CARD; o duplo não alcança', async ({ page }) => {
   const r = await page.evaluate(() => {
     const P = NEXY.P, G = NEXY.Game, W = NEXY.World, E = NEXY.Ents, out = {};

@@ -11,6 +11,7 @@ const GAME = 'file://' + path.resolve(__dirname, '..', 'index.html');
 async function openGame(browser, { hash = '', realtime = false, context = {}, level = '1-1', echo = true } = {}) {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 }, ...context });
   const page = await ctx.newPage();
+  await page.addInitScript(() => { window.NEXY_SKIP_SPLASH = true; });   // o selo do estúdio fica fora dos testes
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   page.on('console', m => { if (m.type() === 'error' && !/fonts\.(googleapis|gstatic)/.test(m.text())) errors.push(m.text()); });

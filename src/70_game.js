@@ -268,7 +268,8 @@ const UI = {
     });
     $('itemslot').addEventListener('click', () => { if (Game.state === 'play') Game.dropReserve(); });
     $('startbtn').addEventListener('click', () => Game.start());
-    $('title').addEventListener('click', () => Game.start());
+    $('title').addEventListener('click', e => { if (!e.target.closest('.tfoot, .consent, .ngask, #newgame')) Game.start(); });
+    this.initTitle();
     $('pause').querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', () => {
       const a = b.dataset.act;
       if (a === 'resume') Game.resume();
@@ -276,6 +277,8 @@ const UI = {
       else if (a === 'map') { this.hideAll(); Game.iris(() => Game.toMap(), { to: 'map' }); }
       else if (a === 'grimoire') this.openGrimoire('words');
       else if (a === 'assist') this.openAssist();
+      else if (a === 'controls') { Game.menuFrom = Game.state; Game.state = 'controls'; this.show('controls'); }
+      else if (a === 'about') { this.hideAll(); Legal.open('about'); }
     }));
     $('grimoire').querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => this.openGrimoire(b.dataset.tab)));
     document.querySelectorAll('[data-act="back"]').forEach(b => b.addEventListener('click', () => this.back()));
@@ -369,11 +372,30 @@ const UI = {
     const t = $('toast'); t.querySelector('.t1').textContent = levelTag(World.level); t.querySelector('.t2').textContent = World.level.name;
     t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2600);
   },
-  hideAll() { ['pause', 'grimoire', 'assist', 'clear', 'gameover'].forEach(id => $(id).classList.remove('on')); },
+  // título: CONTINUE + NEW GAME (com confirmação) quando há progresso; o aviso de aceite até aceitar esta versão dos termos
+  initTitle() {
+    document.body.classList.add('titling');
+    const S = Save.data, has = Object.keys(S.cleared).length || Object.keys(S.exits).length || S.met.prologue;
+    $('startbtn').textContent = has ? 'CONTINUE' : 'PRESS START';
+    $('newgame').hidden = !has; $('consent').hidden = Legal.accepted();
+    $('tfmark').innerHTML = BRAND_LOGO; $('tfver').textContent = LEGAL.version;
+    const ask = on => { $('ngask').hidden = !on; $('newgame').hidden = on; $('startbtn').hidden = on; };
+    $('newgame').addEventListener('click', e => { e.stopPropagation(); SFX.ui(); ask(true); $('ngno').focus(); });
+    $('ngno').addEventListener('click', e => { e.stopPropagation(); SFX.ui(); ask(false); });
+    // apagar: só o progresso; termos aceitos, ajustes de ASSIST, som e voz ficam
+    $('ngyes').addEventListener('click', e => {
+      e.stopPropagation();
+      const k = { legal: S.legal, assist: S.assist, muted: S.muted, voiceURI: S.voiceURI };
+      Save.data = Object.assign(Save.defaults(), k); Save.write();
+      try { sessionStorage.setItem('nexy.splash', '1'); } catch (err) { /* sem armazenamento */ }
+      location.reload();
+    });
+  },
+  hideAll() { ['pause', 'grimoire', 'assist', 'controls', 'clear', 'gameover'].forEach(id => $(id).classList.remove('on')); },
   show(id) { this.hideAll(); $(id).classList.add('on'); const f = $(id).querySelector('.btn, .tgl'); if (f) setTimeout(() => f.focus({ preventScroll: true }), 30); },
   back() {
     SFX.ui();
-    if (Game.state === 'grimoire' || Game.state === 'assist') { Game.state = Game.menuFrom || 'pause'; if (Game.state === 'pause') this.show('pause'); else if (Game.state === 'clear') this.show('clear'); }
+    if (Game.state === 'grimoire' || Game.state === 'assist' || Game.state === 'controls') { Game.state = Game.menuFrom || 'pause'; if (Game.state === 'pause') this.show('pause'); else if (Game.state === 'clear') this.show('clear'); }
   },
   openGrimoire(tab) {
     Game.menuFrom = Game.state === 'grimoire' ? Game.menuFrom : Game.state; Game.state = 'grimoire'; this.show('grimoire');
@@ -512,7 +534,7 @@ const Game = {
 
   boot() {
     Save.load(); Flags.readURL(); AudioSys.muted = Save.data.muted;
-    R.init(); Input.init(); Voice.init(); UI.init();
+    R.init(); Input.init(); Voice.init(); UI.init(); Legal.init(); MicNote.init(); Splash.start();
     this.loadLevel('1-1'); // a fase fica carregada atrás do mapa até o jogador escolher outra
     WorldMap.init();
     document.addEventListener('visibilitychange', () => { if (document.hidden && this.state === 'play' && !P.dead && !this.scene()) this.pause(); });
@@ -561,6 +583,8 @@ const Game = {
   start() {
     if (this.state !== 'title') return;
     AudioSys.init(); Voice.enabled = true; VoiceClips.warm();
+    document.body.classList.remove('titling');
+    Legal.accept();   // "Ao jogar, você concorda...": o aceite fica guardado com a data e a versão dos termos
     $('title').classList.remove('on'); this.last = performance.now(); this.acc = 0; this.clearInput();
     this.toMap();
   },
@@ -624,6 +648,9 @@ const Game = {
 
   onKey(e) {
     const c = e.code;
+    if (Splash.active) return Splash.key();
+    if (MicNote.pending) { if (c === 'Escape') MicNote.done(false); else if (c === 'Enter' || c === 'NumpadEnter') MicNote.done(true); return; }
+    if (this.state === 'legal') { if (c === 'Escape') Legal.close(); return; }
     if (this.state === 'title') { if (c === 'KeyT') return TestMode.show(); if (['Enter', 'Space', 'KeyZ', 'KeyX', 'NumpadEnter'].includes(c)) this.start(); return; }
     if (this.state === 'test') return TestMode.key(e);
     if (this.state === 'pause' && c === 'KeyT') return TestMode.show();
@@ -649,7 +676,7 @@ const Game = {
       case 'engine': Engine.key(e); break;
       case 'citymap': CityMap.key(e); break;
       case 'seal': SealPanel.key(e); break;
-      case 'pause': case 'grimoire': case 'assist': UI.menuKey(e); break;
+      case 'pause': case 'grimoire': case 'assist': case 'controls': UI.menuKey(e); break;
       case 'clear': UI.menuKey(e); break;
     }
   },

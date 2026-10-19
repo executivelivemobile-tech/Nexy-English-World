@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 2015" role="img" aria-label="Nexy Tecnologias">
+  <defs>
+    <linearGradient id="nxW" x1="200" y1="0" x2="1795" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#df3a8f"/><stop offset=".5" stop-color="#e74a8d"/><stop offset="1" stop-color="#cf2a88"/></linearGradient>
+    <linearGradient id="nxH" x1="0" y1="1100" x2="680" y2="600" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#c92a8a"/><stop offset=".55" stop-color="#da1f7a"/><stop offset="1" stop-color="#e2416c"/></linearGradient>
+    <linearGradient id="nxT" x1="900" y1="1180" x2="560" y2="1900" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#6e0d45"/><stop offset=".45" stop-color="#e2456f"/><stop offset="1" stop-color="#e5307a"/></linearGradient>
+    <linearGradient id="nxS" x1="780" y1="700" x2="420" y2="920" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#b01e6c"/><stop offset="1" stop-color="#7e124d"/></linearGradient>
+  </defs>
+  <path fill="url(#nxS)" d="M325 925C400 850 590 700 780 695L520 885C470 865 400 870 325 925Z"/>
+  <path fill="url(#nxT)" d="M475 1238C440 1260 425 1300 455 1345C510 1430 600 1500 600 1500C610 1510 618 1495 621 1489C650 1420 680 1350 682 1300C690 1260 690 1220 690 1200L965 1180C970 1300 960 1440 905 1550C905 1470 910 1430 880 1355C885 1600 830 1780 745 1890C770 1800 770 1740 757 1705C700 1900 600 1995 558 2012C600 1890 560 1790 440 1670C400 1630 360 1580 345 1565C300 1500 270 1440 280 1380C290 1300 340 1270 475 1238Z"/>
+  <path fill="url(#nxH)" d="M170 590C230 615 228 735 228 735C340 630 470 585 600 580C640 578 670 583 677 588C600 592 575 615 557 632C700 635 760 680 780 695L520 885C470 865 400 870 325 925L105 1130C60 1170 50 1210 48 1235C10 1220-20 1150 25 1050C-5 960 15 890 90 810C130 750 180 730 170 590Z"/>
+  <path fill="url(#nxW)" d="M1735 0C1755 25 1755 80 1750 140C1740 300 1560 430 1400 520L878 812L612 968L888 826L1792 382C1780 580 1600 730 1430 795L938 968L595 1090L945 1000L1533 858C1450 1030 1250 1180 965 1180L690 1200C620 1210 560 1215 475 1238C340 1270 290 1300 280 1380C270 1440 300 1500 345 1565L310 1535C250 1500 200 1400 200 1290C200 1200 250 1090 375 990L780 695Z"/>
+</svg>

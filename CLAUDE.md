@@ -69,6 +69,7 @@ Leia isto antes de mexer. O README é para pessoas; este arquivo é o mapa de tr
 | `50_entities.js` | `Ents`, `Spawns`, `Enemy`, crawler, casco, orb, letter, capsule, crystal, lantern, checkpoint, goal, pedestal |
 | `55_entities2.js` | chandelier, pipe, flyer, thief, giant, bell + `Bells`, life, moon, bigbell, echoride, `drawAltar` |
 | `60_player.js` | `P` (plataformas móveis `riding`, forma de Rastejante), `Echo` (fala/balão, luz, alvo YOU), `Cam`, `Doors` |
+| `66_legal.js` | `LEGAL` (estúdio, versão dos termos `v`, textos de Sobre/Termos/Privacidade em `pages`), `BRAND_LOGO` (SVG do logo), `Splash` (selo de abertura), `Legal` (páginas, `accept`/`accepted`, `#sobre/#termos/#privacidade`), `MicNote` (aviso antes do 1º pedido de microfone) |
 | `70_game.js` | `Sentence`, `Panel`, `UI`, `Game` (estados, `later()` no tempo da simulação, laço, render com zoom da cena) |
 | `72_chest.js` | Baú da Memória (`Chest`), ícones, `HEART_LOOK`, `drawHeart`, cena épica (`Cine`) |
 | `73_echo.js` | `Arrival` (chegada no feixe), `Birth` (o Echo nasce do HELLO na porta 1), `EchoPulse` (sonar, C/LB/toque), `Hints` (placas) |
@@ -355,6 +356,15 @@ confortáveis = 3 linhas (96 px). Gigante = 44×92 px e quebra `X` (vidro rachad
 - Cada fase nova: algo inédito + acréscimo ao Coração + desafio crescente acima do A1 + caminho alternativo + um passo
   a mais no visual rumo à cidade Castlevania cyberpunk.
 - Controle de verdade (gamepad) ainda não testado com aparelho físico.
+- **Abertura e páginas legais** (pedido do dono; estúdio **Nexy Tecnologias**, desenvolvedor Mauricio Castro,
+  consultoria@nexytutors.com; ele pediu visual de designer profissional, sem cara de IA): selo do estúdio 2,8 s (o
+  toque que pula já libera o som; `NEXY_SKIP_SPLASH` nos testes), título sem a lista de teclas (foi para PAUSE →
+  CONTROLS), CONTINUE/NEW GAME (apaga só o progresso, com confirmação), linha de aceite até aceitar a versão atual
+  (`Save.data.legal = {v, at}`, gravado no PRESS START), rodapé © + Sobre/Termos/Privacidade + versão. As páginas e o
+  aviso do microfone ficam fora do `#stage` (texto em tamanho real no celular). Mudou o texto dos termos/política:
+  troque `LEGAL.v` e a data. Logo em `src/brand/logo.svg` (redesenhado em vetor da imagem que ele mandou).
+  Fontes embutidas (`src/fonts`, OFL): nada de Google Fonts. Faltou ele dizer cidade/estado (o foro ficou o do
+  domicílio do consumidor) e um advogado deve revisar antes de cobrar ou ir para o Google Play.
 - **Toque (celular)**: o direcional é um disco só (`#dpad`, `Input.initTouch` → `padKeys`): 8 direções pelo ângulo do
   dedo (lados com 60°, diagonais 35°, cima/baixo 50°; o dedo pode sair do disco), então ↑ e ↑ + lado existem no toque
   (mira do LASER, casco para cima). ↑ com lado segurado no toque não abre porta (o botão OPEN continua).

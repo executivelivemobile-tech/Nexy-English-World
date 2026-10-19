@@ -662,6 +662,12 @@ const Listen = {
   available() { return !!this.SR; },
   start(onResult, onDone) {
     if (!this.SR || this.active) return false;
+    // na 1ª vez, antes do pedido do navegador: o que acontece com a voz (MicNote, 66_legal.js)
+    if (typeof MicNote !== 'undefined' && MicNote.needed()) {
+      if (MicNote.pending) return false;
+      MicNote.ask(() => { if (!this.start(onResult, onDone)) onDone(false); }, () => onDone(false));
+      return true;
+    }
     try {
       const r = new this.SR(); this.rec = r;
       r.lang = 'en-US'; r.interimResults = false; r.maxAlternatives = 4; r.continuous = false;

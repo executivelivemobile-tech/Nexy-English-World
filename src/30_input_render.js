@@ -12,7 +12,7 @@ const Input = {
   },
   init() {
     window.addEventListener('keydown', e => {
-      if (e.code === 'Space' || e.code.startsWith('Arrow')) e.preventDefault();
+      if ((e.code === 'Space' || e.code.startsWith('Arrow')) && Game.state !== 'legal') e.preventDefault();   // nas páginas legais, as setas rolam o texto
       if (e.repeat) { if (Game.onKeyRepeat) Game.onKeyRepeat(e); return; }
       const k = this.KEYMAP[e.code];
       if (k) { if (!this.held[k]) this.edge(k); this.held[k] = true; }

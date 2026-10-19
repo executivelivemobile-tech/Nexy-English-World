@@ -4,6 +4,7 @@
 //   node build.js --check  → só confere se index.html está em dia com src/ (sai com erro se não estiver)
 // Os mapas ASCII ficam em src/levels/<id>.map e entram no lugar de /*MAP:<id>*/.
 // As vozes gravadas (src/voice/manifest.json + MP3) entram em base64 no lugar de /*VOICE_PACK*/null (ver tools/voice).
+// As fontes (src/fonts/*.woff2) entram em base64 no lugar de /*FONTS*/ (ver src/fonts/README.md).
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -25,6 +26,7 @@ const PARTS = [
   '55_entities2.js',    // peças da 1-2: lustres, tubos, Alado, Ladrão, gigantes, sinos, vidas, Echo gigante
   '60_player.js',       // jogador, Echo, câmera e desenho das portas
   '62_nexy_look.js',    // o visual da Nexy: boneco articulado que evolui fase a fase (a folha usa o mesmo código)
+  '66_legal.js',        // abertura (selo do estúdio), Sobre, Termos de Uso, Privacidade e o aviso do microfone
   '70_game.js',         // frases, painel, interface e laço principal
   '72_chest.js',        // Baú da Memória (leitura, perguntas, escalada) e a cena do Coração
   '73_echo.js',         // 1-1: a chegada, o nascimento do Echo, o pulso do Echo e as placas de dica
@@ -59,9 +61,14 @@ function voicePack() {
   return JSON.stringify({ cast: m.cast, clips });
 }
 
+function fonts() {
+  const f = [['Orbitron', 'orbitron', '400 900'], ['Inter', 'inter', '300 900'], ['JetBrains Mono', 'jetbrains-mono', '400 700']];
+  return f.map(([fam, file, w]) => `@font-face { font-family: '${fam}'; font-style: normal; font-weight: ${w}; font-display: swap; src: url(data:font/woff2;base64,${fs.readFileSync(path.join(SRC, 'fonts', file + '.woff2')).toString('base64')}) format('woff2'); }`).join('\n');
+}
+
 function build() {
   const html = PARTS.map(p => fs.readFileSync(path.join(SRC, p), 'utf8')).join('');
-  return html.replace(/\/\*MAP:([\w-]+)\*\//g, (_, id) => mapRows(id)).replace('/*VOICE_PACK*/null', () => voicePack());
+  return html.replace(/\/\*MAP:([\w-]+)\*\//g, (_, id) => mapRows(id)).replace('/*VOICE_PACK*/null', () => voicePack()).replace('/*FONTS*/', () => fonts());
 }
 
 const out = build();

@@ -11,10 +11,9 @@
 <meta property="og:title" content="Nexy English World">
 <meta property="og:description" content="Jogo de plataforma que ensina inglês: a Nexy muda o mundo com frases em inglês. Do A1 ao B1.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23050505'/%3E%3Ccircle cx='32' cy='32' r='18' fill='none' stroke='%2322d3ee' stroke-width='4'/%3E%3Ccircle cx='32' cy='32' r='9' fill='%23d946ef'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <style>
+/* fontes embutidas pelo build (src/fonts): nada de Google Fonts, funciona offline */
+/*FONTS*/
 /* Neon-noir: preto profundo, vidro, glow. Só magenta (jogador/recompensa) e ciano (sistema/ambiente). */
 :root {
   --mag: #d946ef; --mag-glow: #e879f9; --mag-hi: #f0abfc; --rose: #e1398d; --pink: #ec4899;
@@ -159,8 +158,95 @@ button { font: inherit; color: inherit; }
   text-shadow: 0 0 14px rgba(217,70,239,.9), 0 0 30px rgba(217,70,239,.5); animation: pulse 1.6s ease-in-out infinite; cursor: pointer;
   background: none; border: 0; }
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
-#title .controls { display: grid; grid-template-columns: repeat(3, auto); gap: 6px 26px; margin-top: 18px; font: 400 11px var(--f-body); color: var(--txt-3); }
-#title .controls b { font: 500 9px var(--f-mono); letter-spacing: .12em; color: var(--txt-2); border: 1px solid var(--line-2); border-radius: 6px; padding: 2px 6px; margin-right: 6px; }
+#controls .keys { display: grid; grid-template-columns: repeat(3, auto); gap: 8px 30px; font: 400 11px var(--f-body); color: var(--txt-3); }
+#controls .touchline { font: 500 8px var(--f-display); letter-spacing: .24em; color: var(--txt-3); }
+#controls .keys b { font: 500 9px var(--f-mono); letter-spacing: .12em; color: var(--txt-2); border: 1px solid var(--line-2); border-radius: 6px; padding: 2px 6px; margin-right: 6px; }
+/* título: continuar / novo jogo, o aceite (só até aceitar a versão atual dos termos) e o rodapé do estúdio */
+#title .tlink { background: none; border: 0; padding: 4px 8px; cursor: pointer; font: 500 10px var(--f-display); letter-spacing: .32em; color: var(--txt-3); transition: color .2s; }
+#title .tlink:hover, #title .tlink:focus-visible { color: #fff; outline: none; }
+#title .tlink.danger { color: #f0abfc; }
+#title .ngask { display: flex; align-items: center; gap: 10px; font: 400 12px var(--f-body); color: var(--txt-2); }
+#title .ngask[hidden], #title .tlink[hidden] { display: none; }
+#title .consent { position: absolute; left: 0; right: 0; bottom: 62px; margin: 0; text-align: center; font: 400 12px/1.5 var(--f-body); color: var(--txt-3); }
+#title .consent a, #title .tfoot a { color: var(--txt-2); text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.18); transition: color .2s, border-color .2s; }
+#title .consent a:hover, #title .tfoot a:hover { color: #fff; border-color: rgba(217,70,239,.8); }
+#title .tfoot { position: absolute; left: 28px; right: 28px; bottom: 20px; display: flex; justify-content: space-between; align-items: center;
+  padding-top: 14px; border-top: 1px solid rgba(255,255,255,.06); font: 400 12px var(--f-body); letter-spacing: .02em; color: var(--txt-3); }
+#title .tf-studio { display: inline-flex; align-items: center; gap: 8px; }
+#title .tf-mark { display: inline-block; width: 13px; height: 15px; } #title .tf-mark svg { width: 100%; height: 100%; display: block; }
+#title .tfoot nav { display: flex; gap: 18px; align-items: center; }
+#title .tfoot nav a { border-bottom-color: transparent; }
+#tfver { font: 400 9px var(--f-mono); letter-spacing: .08em; color: rgba(255,255,255,.28); }
+
+/* ---------- ABERTURA: o selo do estúdio (fora do palco) ---------- */
+#splash { position: fixed; inset: 0; z-index: 90; background: #000; display: none; place-items: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+#splash.on { display: grid; }
+#splash .sp-in { display: flex; flex-direction: column; align-items: center; }
+#splash .sp-logo { width: clamp(80px, 15vmin, 132px); aspect-ratio: 1800 / 2015; position: relative; overflow: hidden;
+  opacity: 0; transform: translateY(8px) scale(.97); filter: blur(6px); animation: spLogo 1s cubic-bezier(.2,.7,.2,1) .15s forwards; }
+#splash .sp-logo svg { width: 100%; height: 100%; display: block; }
+/* um brilho que atravessa o logo uma vez */
+#splash .sp-logo::after { content: ''; position: absolute; inset: -20% -60%; background: linear-gradient(105deg, transparent 42%, rgba(255,255,255,.38) 50%, transparent 58%);
+  transform: translateX(-70%); animation: spSweep 1.1s ease-in-out 1.05s forwards; mix-blend-mode: soft-light; }
+#splash .sp-name { margin-top: clamp(18px, 3.4vmin, 28px); font: 600 clamp(11px, 1.9vmin, 14px) var(--f-display); letter-spacing: .46em; padding-left: .46em; color: #f4f4f6;
+  opacity: 0; animation: spFade .9s ease .75s forwards; }
+#splash .sp-sub { margin-top: 10px; font: 300 clamp(10px, 1.6vmin, 12px) var(--f-body); letter-spacing: .3em; padding-left: .3em; color: #7c7c86; text-transform: lowercase;
+  opacity: 0; animation: spFade .9s ease 1.05s forwards; }
+#splash .sp-skip { position: absolute; bottom: calc(22px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; text-align: center;
+  font: 400 10px var(--f-body); letter-spacing: .2em; color: #4a4a52; opacity: 0; animation: spFade .6s ease 1.4s forwards; }
+#splash.out { animation: spOut .65s ease forwards; } #splash.out-fast { animation: spOut .25s ease forwards; }
+@keyframes spLogo { to { opacity: 1; transform: none; filter: none; } }
+@keyframes spSweep { to { transform: translateX(70%); } }
+@keyframes spFade { to { opacity: 1; } }
+@keyframes spOut { to { opacity: 0; visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) { #splash .sp-logo, #splash .sp-name, #splash .sp-sub, #splash .sp-skip { animation-duration: .01s; animation-delay: 0s; } #splash .sp-logo::after { display: none; } }
+
+/* ---------- SOBRE · TERMOS · PRIVACIDADE (fora do palco: texto em tamanho de leitura) ---------- */
+#legal { position: fixed; inset: 0; z-index: 80; display: none; flex-direction: column; background: #08080b; color: #c9c9d1; }
+#legal.on { display: flex; }
+#legal .lg-top { flex: none; display: flex; align-items: center; gap: 24px; padding: calc(14px + env(safe-area-inset-top, 0px)) max(24px, env(safe-area-inset-right, 0px)) 0 max(24px, env(safe-area-inset-left, 0px));
+  border-bottom: 1px solid rgba(255,255,255,.07); }
+#legal .lg-brand { display: flex; align-items: center; gap: 10px; padding-bottom: 14px; font: 600 13px var(--f-body); color: #fff; white-space: nowrap; }
+#legal .lg-mark { width: 18px; height: 20px; display: inline-block; } #legal .lg-mark svg { width: 100%; height: 100%; display: block; }
+#legal .lg-tabs { display: flex; gap: 4px; margin: 0 auto; align-self: stretch; }
+#legal .lg-tabs button { background: none; border: 0; padding: 0 14px; cursor: pointer; font: 500 13px var(--f-body); color: #8b8b95; border-bottom: 2px solid transparent;
+  margin-bottom: -1px; transition: color .2s, border-color .2s; }
+#legal .lg-tabs button:hover { color: #e6e6ea; }
+#legal .lg-tabs button.cur { color: #fff; border-bottom-color: #d946ef; }
+#legal .lg-close { margin-bottom: 14px; background: none; cursor: pointer; font: 500 12px var(--f-body); color: #e6e6ea; padding: 7px 16px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.14); transition: border-color .2s, background .2s; }
+#legal .lg-close:hover { border-color: rgba(255,255,255,.35); background: rgba(255,255,255,.04); }
+#legal button:focus-visible, #micnote button:focus-visible, #legal a:focus-visible { outline: 2px solid #22d3ee; outline-offset: 2px; }
+#legal .lg-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; outline: none; padding: 44px max(24px, calc((100vw - 680px) / 2)) calc(64px + env(safe-area-inset-bottom, 0px));
+  font: 400 15px/1.7 var(--f-body); }
+#legal h1 { margin: 0 0 6px; font: 600 28px/1.25 var(--f-body); letter-spacing: -.01em; color: #fff; }
+#legal h2 { margin: 34px 0 8px; font: 600 16px/1.4 var(--f-body); color: #f2f2f5; }
+#legal p { margin: 0 0 14px; } #legal p.meta { margin-bottom: 26px; font-size: 13px; color: #7d7d88; }
+#legal p.lead { margin: 14px 0 8px; font-size: 17px; line-height: 1.65; color: #dedee4; }
+#legal p.note { margin: 18px 0 8px; padding: 16px 18px; border-radius: 10px; background: rgba(217,70,239,.07); border-left: 2px solid #d946ef; color: #e8e8ec; }
+#legal ul { margin: 0 0 14px; padding-left: 20px; } #legal li { margin-bottom: 8px; } #legal li::marker { color: #d946ef; }
+#legal dl { display: grid; grid-template-columns: minmax(140px, max-content) 1fr; gap: 10px 24px; margin: 0 0 14px; }
+#legal dt { color: #7d7d88; font-size: 13px; padding-top: 2px; } #legal dd { margin: 0; color: #e8e8ec; }
+#legal a { color: #f0abfc; text-decoration: none; border-bottom: 1px solid rgba(240,171,252,.35); } #legal a:hover { border-bottom-color: #f0abfc; }
+@media (max-width: 640px), (max-height: 420px) {
+  #legal .lg-top { gap: 12px; flex-wrap: wrap; } #legal .lg-brand span { display: none; } #legal .lg-brand { padding-bottom: 10px; }
+  #legal .lg-tabs { order: 3; width: 100%; margin: 0 -10px; overflow-x: auto; } #legal .lg-tabs button { padding: 10px; white-space: nowrap; }
+  #legal .lg-close { margin: 0 0 10px auto; } #legal .lg-body { padding-top: 26px; font-size: 14px; } #legal h1 { font-size: 23px; }
+  #legal dl { grid-template-columns: 1fr; gap: 2px; } #legal dd { margin-bottom: 10px; }
+}
+
+/* ---------- aviso antes de pedir o microfone ---------- */
+#micnote { position: fixed; inset: 0; z-index: 85; display: none; place-items: center; padding: 20px; background: rgba(0,0,0,.62); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+#micnote.on { display: grid; }
+#micnote .mn-card { width: min(440px, 100%); max-height: 100%; overflow-y: auto; padding: 26px 26px 22px; border-radius: 16px; background: #0d0d11; border: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 24px 60px rgba(0,0,0,.6); font: 400 14px/1.6 var(--f-body); color: #c9c9d1; }
+#micnote h2 { margin: 0 0 12px; font: 600 18px var(--f-body); color: #fff; }
+#micnote p { margin: 0 0 10px; } #micnote .mn-small { font-size: 12.5px; color: #8b8b95; }
+#micnote a { color: #f0abfc; text-decoration: none; border-bottom: 1px solid rgba(240,171,252,.35); }
+#micnote .mn-btns { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+#micnote .mn-btns button { font: 500 13px var(--f-body); padding: 9px 18px; border-radius: 8px; cursor: pointer; color: #e6e6ea; background: none; border: 1px solid rgba(255,255,255,.14); }
+#micnote .mn-btns .pri { background: #d946ef; border-color: #d946ef; color: #fff; }
+#micnote .mn-btns .pri:hover { background: #e879f9; }
 #title .echo-line { font: 300 12px var(--f-body); color: var(--txt-3); letter-spacing: .04em; }
 #title .best { font: 400 9px var(--f-mono); letter-spacing: .25em; color: var(--txt-3); }
 
@@ -276,6 +362,7 @@ button { font: inherit; color: inherit; }
 /* ---------- TOUCH CONTROLS (viewport space) ---------- */
 #touch { position: fixed; inset: 0; pointer-events: none; z-index: 40; display: none; }
 body.touch #touch { display: block; }
+body.touch.titling #touch { display: none; }   /* no título, os botões de toque não cobrem o rodapé */
 .tc { position: absolute; display: flex; gap: 12px; align-items: flex-end; }
 #tcl { left: max(18px, env(safe-area-inset-left, 0px)); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); }
 #tcr { right: max(18px, env(safe-area-inset-right, 0px)); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); }
@@ -505,14 +592,14 @@ body.touch #touch { display: block; }
       <h1 class="logo">NEXY ENGLISH<span>WORLD</span></h1>
       <div class="world">WORLD 1 · HELLO WORLD</div>
       <button class="start" id="startbtn">PRESS START</button>
-      <div class="controls">
-        <div><b>← →</b>move · <b>→→</b>run</div><div><b>Z</b><b>SPACE</b>jump</div><div><b>X</b>spin jump</div>
-        <div><b>SHIFT</b>run · carry</div><div><b>↓</b>crouch</div><div><b>↑</b>open door</div>
-        <div><b>Q</b>drop item</div><div><b>H</b>hint</div><div><b>C</b>echo pulse</div>
-        <div><b>F</b>shot · hold: laser</div><div><b>V</b>say it out loud</div><div><b>M</b>sound · <b>P</b>pause</div>
-      </div>
-      <div id="padline">GAMEPAD · A JUMP · B SPIN · X RUN · Y RUN (SHOT, IF YOU HAVE IT · HOLD = LASER CHARGE) · LB ECHO · START PAUSE</div>
+      <button class="tlink" id="newgame" hidden>NEW GAME</button>
+      <div class="ngask" id="ngask" hidden><span>Apagar todo o progresso? Não dá para desfazer.</span><button class="tlink danger" id="ngyes">APAGAR</button><button class="tlink" id="ngno">CANCELAR</button></div>
       <div class="best" id="titlebest"></div>
+      <p class="consent" id="consent">Ao jogar, você concorda com os <a href="#termos" data-open-legal="terms">Termos de Uso</a> e a <a href="#privacidade" data-open-legal="privacy">Política de Privacidade</a>.</p>
+      <footer class="tfoot">
+        <span class="tf-studio"><i class="tf-mark" id="tfmark"></i>© 2026 Nexy Tecnologias</span>
+        <nav><a href="#sobre" data-open-legal="about">Sobre</a><a href="#termos" data-open-legal="terms">Termos</a><a href="#privacidade" data-open-legal="privacy">Privacidade</a><span id="tfver"></span></nav>
+      </footer>
     </div>
 
     <div id="pause" class="overlay screen">
@@ -524,6 +611,8 @@ body.touch #touch { display: block; }
         <button class="btn" data-act="map">WORLD MAP</button>
         <button class="btn" data-act="grimoire">GRIMOIRE</button>
         <button class="btn" data-act="assist">ASSIST</button>
+        <button class="btn" data-act="controls">CONTROLS</button>
+        <button class="btn" data-act="about">ABOUT</button>
       </div>
     </div>
 
@@ -531,6 +620,19 @@ body.touch #touch { display: block; }
       <h2 class="h-title">GRIMOIRE</h2>
       <div class="tabs"><button class="btn small cur" data-tab="words">WORDS</button><button class="btn small" data-tab="creatures">CREATURES</button><button class="btn small" data-tab="powers">POWERS</button></div>
       <div id="glist"></div>
+      <button class="btn small" data-act="back">BACK</button>
+    </div>
+
+    <div id="controls" class="overlay screen">
+      <h2 class="h-title">CONTROLS</h2>
+      <div class="keys">
+        <div><b>← →</b>move · <b>→→</b>run</div><div><b>Z</b><b>SPACE</b>jump</div><div><b>X</b>spin jump</div>
+        <div><b>SHIFT</b>run · carry</div><div><b>↓</b>crouch</div><div><b>↑</b>open door · aim</div>
+        <div><b>Q</b>drop item</div><div><b>H</b>hint</div><div><b>C</b>echo pulse</div>
+        <div><b>F</b>shot · hold: laser</div><div><b>V</b>say it out loud</div><div><b>M</b>sound · <b>P</b>pause</div>
+      </div>
+      <div id="padline">GAMEPAD · A JUMP · B SPIN · X RUN · Y RUN (SHOT, IF YOU HAVE IT · HOLD = LASER CHARGE) · LB ECHO · START PAUSE</div>
+      <div class="touchline">TOUCH · DRAG ON THE PAD TO MOVE AND AIM IN 8 DIRECTIONS · DOUBLE-TAP A SIDE TO RUN</div>
       <button class="btn small" data-act="back">BACK</button>
     </div>
 
@@ -581,5 +683,33 @@ body.touch #touch { display: block; }
   </div>
   <div class="tb wide" id="tbopen" data-k="up">OPEN</div>
 </div>
+<div id="splash" role="presentation">
+  <div class="sp-in">
+    <div class="sp-logo"></div>
+    <div class="sp-name">NEXY TECNOLOGIAS</div>
+    <div class="sp-sub">apresenta</div>
+  </div>
+  <div class="sp-skip">toque para pular</div>
+</div>
+
+<div id="legal" role="dialog" aria-modal="true" aria-label="Sobre, Termos e Privacidade">
+  <header class="lg-top">
+    <div class="lg-brand"><i class="lg-mark"></i><span>Nexy English World</span></div>
+    <nav class="lg-tabs" role="tablist"><button role="tab" data-lg="about">Sobre</button><button role="tab" data-lg="terms">Termos de Uso</button><button role="tab" data-lg="privacy">Privacidade</button></nav>
+    <button class="lg-close" id="lgclose" aria-label="Fechar">Voltar</button>
+  </header>
+  <article class="lg-body" id="lgbody" tabindex="-1"></article>
+</div>
+
+<div id="micnote" role="dialog" aria-modal="true" aria-labelledby="mntitle">
+  <div class="mn-card">
+    <h2 id="mntitle">Usar o microfone</h2>
+    <p>No modo voz, você fala a frase em inglês e o jogo confere se está certa.</p>
+    <p>Quem transforma a sua voz em texto é o navegador: no Chrome e no Android, o áudio vai para o Google; no Safari, para a Apple. O jogo recebe só o texto e não grava nada.</p>
+    <p class="mn-small">Em seguida, o navegador vai pedir a sua permissão. Saiba mais na <a href="#privacidade" data-open-legal="privacy">Política de Privacidade</a>.</p>
+    <div class="mn-btns"><button id="mnno">Agora não</button><button id="mnok" class="pri">Continuar</button></div>
+  </div>
+</div>
+
 <div id="rotate">↻ ROTATE FOR FULL VIEW</div>
 <div id="grain"></div>
